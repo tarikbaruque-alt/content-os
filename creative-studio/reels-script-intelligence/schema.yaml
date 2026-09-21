@@ -1,0 +1,80 @@
+# Schema da competência Reels Script Intelligence
+# Contrato de entrada/saída — base para integração futura em código
+# (geração via Claude/LLM; avaliação opcional via Jev/TypeSafe).
+
+competency: reels-script-intelligence
+module: creative-studio
+version: 0.1.0
+
+# ---------------------------------------------------------------------------
+# ENTRADA: briefing. Todos opcionais; ausentes viram hipótese explícita.
+# ---------------------------------------------------------------------------
+input:
+  content_dna: string
+  big_message: string
+  pilares: [string]
+  persona: string
+  voice_of_customer: [string]
+  nivel_consciencia: enum[inconsciente, problema, solucao, produto, mais_consciente]
+  objetivo: enum[alcance, identificacao, autoridade, educacao, relacionamento, consideracao, conversao]
+  pilar: string
+  tema: string
+  subtema: string
+  dor: string
+  desejo: string
+  objecao: string
+  emocao_desejada: string
+  palavras_chave: [string]
+  formato: string          # talking_head | narracao_broll | texto_na_tela | serie | demonstracao
+  duracao_alvo: string     # ex.: "20-40s"
+  cta_pretendido: string   # ou "definir_pelo_objetivo"
+  oferta: string
+  historico_performance:
+    funcionou: [string]
+    nao_funcionou: [string]
+  visualizacao: enum[completa, simplificada]   # default: completa
+
+# ---------------------------------------------------------------------------
+# SAÍDA: roteiro. Campos do bloco estratégico são ocultados na
+# visualização "simplificada" (cliente).
+# ---------------------------------------------------------------------------
+output:
+  # bloco estratégico (interno — ocultável)
+  estrategico:
+    objetivo_estrategico: string
+    persona: string
+    big_message: string
+    dor_desejo: string
+    emocao_desejada: string
+    principio_persuasivo: string
+    elemento_literario: string
+    justificativa_estrutura: string   # por que essa arquitetura narrativa
+    hipotese_conteudo: string         # por que deve funcionar
+    palavras_chave: [string]
+    duracao_estimada: string
+  # bloco criativo (cliente vê)
+  criativo:
+    headline: string
+    hooks: [string]                   # >= 3 quando solicitado
+    hook_recomendado:
+      texto: string
+      justificativa: string
+    roteiro_falado: string
+    texto_na_tela: string
+    cena_broll: string
+    elementos_retencao: [string]      # marcados ao longo do roteiro
+    cta:
+      familia: enum[relacionamento, distribuicao, continuidade, autoridade_educacao, conversao, nenhum]
+      texto: string
+
+# ---------------------------------------------------------------------------
+# AVALIAÇÃO (opcional, futura) — camada de decisão via Jev/TypeSafe.
+# Exemplos de perguntas tipadas sobre um roteiro já gerado.
+# ---------------------------------------------------------------------------
+avaliacao_jev:
+  perguntas:
+    - "O roteiro está alinhado ao pilar informado?"        # bool + probabilidade
+    - "O nível de consciência do roteiro bate com o da persona?"
+    - "Qual das N variações de hook tende a reter mais?"   # classificação
+    - "A densidade de conteúdo é suficiente (tem valor real)?"
+    - "A promessa da headline é cumprida pelo corpo?"
