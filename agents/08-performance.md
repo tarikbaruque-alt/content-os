@@ -21,6 +21,9 @@ Formats.
 
 ## Camadas de conhecimento usadas
 **Performance Data** (dono) + Content DNA + Knowledge Base.
+KB: [Distribuição no Instagram](../foundation/knowledge-base/pilares/distribuicao-instagram.md)
+(sinais sociais a otimizar) e [Planejamento & Cadência](../foundation/knowledge-base/pilares/planejamento-cadencia.md)
+(frequência de impacto).
 
 ## Handoffs
 Fecha o ciclo: devolve aprendizados ao **Intelligence** (Content DNA) e

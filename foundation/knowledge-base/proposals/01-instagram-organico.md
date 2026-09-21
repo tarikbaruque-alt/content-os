@@ -1,8 +1,9 @@
 # Proposta de Ingestão 01 — Tráfego Orgânico no Instagram
 
-> **STATUS: RASCUNHO — aguardando aprovação do estrategista.**
-> Nada aqui foi formalizado na Knowledge Base ainda. É a análise que o agente
-> **Knowledge** apresenta para aprovação, conforme
+> **STATUS: APROVADA — formalizada em [`../pilares/`](../pilares/).**
+> Decisões do estrategista: **Instagram-first** · **foco orgânico** (pago =
+> área futura) · estatísticas da fonte tratadas como **referência a validar**.
+> Registro histórico da análise do agente **Knowledge**, conforme
 > [`../../knowledge-ingestion.md`](../../knowledge-ingestion.md).
 >
 > **Fonte:** notas de estudo de um curso de tráfego orgânico (Instagram).

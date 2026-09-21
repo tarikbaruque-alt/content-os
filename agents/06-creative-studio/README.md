@@ -10,23 +10,37 @@ visual e de edição.
 ## Competências
 
 Cada competência é uma unidade especializada com manual próprio (`SKILL.md`),
-briefing e schema.
+briefing e schema. Todas bebem da **Knowledge Base** (ver seção abaixo).
 
-| Competência | Pasta | Estado |
-|---|---|---|
-| **Reels Script Intelligence** | [`reels-script-intelligence/`](./reels-script-intelligence/) | ✅ detalhada |
-| Vídeos / roteiro longo | *a criar* | ⏳ |
-| Headlines & Hooks | *a criar* | ⏳ |
-| Copy | *a criar* | ⏳ |
-| CTAs | *a criar* | ⏳ |
-| Carrosséis | *a criar* | ⏳ |
-| Stories | *a criar* | ⏳ |
-| Direção visual / de edição | *a criar* | ⏳ |
+**Prioridade do estrategista:** Copy, Roteiro, Stories e Carrossel.
 
-> As competências pendentes serão detalhadas após a análise dos materiais de
-> referência, reaproveitando os padrões já estabelecidos em Reels Script
-> Intelligence (guardrails, arquitetura narrativa, formato de entrega em 2
-> camadas: interno + cliente).
+| Competência | Pasta | Base na KB | Estado |
+|---|---|---|---|
+| **Reels Script Intelligence** (roteiro) | [`reels-script-intelligence/`](./reels-script-intelligence/) | Criação de Alto Valor (F4 ressonância + ganchos), Jornada & Editorias | ✅ detalhada |
+| **Copy / Legenda** ⭐ | *a detalhar* | Criação de Alto Valor (F9) | 🟡 KB pronta |
+| **Stories** ⭐ | *a detalhar* | Criação de Alto Valor (F5 estrutura + funil) | 🟡 KB pronta |
+| **Carrossel** ⭐ | *a detalhar* | parcial (ver nota) | 🟠 KB parcial |
+| Headlines & Hooks | *a detalhar* | Criação de Alto Valor (ganchos canônicos) | 🟡 KB pronta |
+| CTAs | *a detalhar* | Jornada & Editorias | 🟡 KB pronta |
+| Vídeos / roteiro longo | *a criar* | — | ⏳ |
+| Direção visual / de edição | *a criar* | — | ⏳ |
+
+> ⭐ = prioridade. **🟡 KB pronta** significa que o conhecimento já foi
+> formalizado e a competência pode ser detalhada a seguir, reusando os padrões
+> de Reels Script Intelligence (guardrails, arquitetura, entrega em 2 camadas).
+>
+> **🟠 Nota sobre Carrossel:** o 1º material de referência é forte em
+> Reels/Stories/copy, mas **cobre carrossel só de forma parcial** (carrossel como
+> formato de consideração/cases, listas, consistência de formato/assinatura).
+> Para uma competência de Carrossel à altura das demais, vale enviar material
+> específico de **estrutura de carrossel** (capa/gancho, progressão de slides,
+> slide de virada, último slide/CTA).
+
+## Base na Knowledge Base
+As competências **referenciam** a KB em vez de duplicar listas:
+- [Criação de Alto Valor](../../foundation/knowledge-base/pilares/criacao-alto-valor.md) — ressonância, **ganchos canônicos**, estrutura de Stories, **copy/legenda**.
+- [Jornada & Editorias](../../foundation/knowledge-base/pilares/jornada-e-editorias.md) — etapa da peça, editorias, CTA por objetivo.
+- [Distribuição no Instagram](../../foundation/knowledge-base/pilares/distribuicao-instagram.md) — sinais sociais que o conteúdo busca.
 
 ## Arquitetura narrativa (referência, não fórmula fixa)
 

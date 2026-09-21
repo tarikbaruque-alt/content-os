@@ -22,6 +22,9 @@ emoções-alvo, jornada — propostos como sugestões ao Content DNA.
 
 ## Camadas de conhecimento usadas
 Content DNA + Knowledge Base + Live Research.
+KB: [Estratégia de Marca](../foundation/knowledge-base/pilares/estrategia-marca.md)
+(nicho, persona, arquétipos, propósito, territórios) e
+[Jornada & Editorias](../foundation/knowledge-base/pilares/jornada-e-editorias.md).
 
 ## Handoffs
 Entrega direção estratégica para **Research**, **Editorial**, **Ideas & Formats**

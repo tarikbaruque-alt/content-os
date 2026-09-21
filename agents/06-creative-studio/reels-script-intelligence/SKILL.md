@@ -112,6 +112,11 @@ cumprida pelo conteúdo.
 
 ## 6. Hook Intelligence
 
+> **Fonte canônica:** ganchos e ressonância (atenção 3s + retenção 15s +
+> interação) vivem na Knowledge Base, pilar
+> [Criação de Alto Valor](../../../foundation/knowledge-base/pilares/criacao-alto-valor.md).
+> A lista abaixo é a aplicação a Reels; a taxonomia mestre está na KB.
+
 O hook precisa **conquistar atenção E preparar o conteúdo** que vem depois.
 Nunca criar hook genérico só porque "parece chamativo".
 

@@ -48,6 +48,15 @@ justificativa — insumo direto para o Creative Studio e o Planning.
 ## Camadas de conhecimento usadas
 As **quatro**: Content DNA + Knowledge Base + Live Research + Performance Data.
 
+### Base na Knowledge Base
+- [Jornada & Editorias](../foundation/knowledge-base/pilares/jornada-e-editorias.md)
+  — **biblioteca de editorias/ângulos por etapa** (descoberta, consideração,
+  conversão, experiência): a matéria-prima das ideias.
+- [Criação de Alto Valor](../foundation/knowledge-base/pilares/criacao-alto-valor.md)
+  — ganchos canônicos (o campo `HOOK` da cadeia da ideia).
+- [Distribuição no Instagram](../foundation/knowledge-base/pilares/distribuicao-instagram.md)
+  — mapa formato × objetivo (o campo `FORMATO`).
+
 ## Handoffs
 Entrega ideias+formato ao **Creative Studio** (para virar conteúdo) e ao
 **Planning** (para entrar no calendário).

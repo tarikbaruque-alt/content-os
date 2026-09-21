@@ -19,6 +19,8 @@ pautas, alinhada à estratégia.
 
 ## Camadas de conhecimento usadas
 Content DNA + Knowledge Base + Live Research.
+KB: [Jornada & Editorias](../foundation/knowledge-base/pilares/jornada-e-editorias.md)
+(editorias por etapa da jornada).
 
 ## Handoffs
 Entrega a arquitetura editorial e os clusters para **Ideas & Formats** e

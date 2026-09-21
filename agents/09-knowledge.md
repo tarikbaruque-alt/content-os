@@ -43,5 +43,6 @@ Serve conhecimento profissional a todos os agentes. Não toca no Content DNA
 - Não altera a arquitetura silenciosamente — **propõe e aguarda aprovação**.
 
 ## Status
-Arquitetura definida. **Ativado na próxima etapa**, quando os materiais de
-referência forem enviados.
+**Ativo.** 1º lote ingerido (tráfego orgânico Instagram) → 5 pilares
+formalizados na [Knowledge Base](../foundation/knowledge-base/). Pronto para
+novos materiais.

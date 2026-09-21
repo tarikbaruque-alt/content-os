@@ -20,6 +20,9 @@ oportunidades — com **origem e data** (Live Research).
 
 ## Camadas de conhecimento usadas
 **Live Research** (dono) + Content DNA + Knowledge Base.
+KB: [Distribuição no Instagram](../foundation/knowledge-base/pilares/distribuicao-instagram.md)
+(como o nicho circula) e [Estratégia de Marca](../foundation/knowledge-base/pilares/estrategia-marca.md)
+(nicho/subnicho).
 
 ## Handoffs
 Alimenta **Editorial** (temas/clusters), **Ideas & Formats** (pautas quentes,

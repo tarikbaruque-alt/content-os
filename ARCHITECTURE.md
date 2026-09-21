@@ -100,7 +100,7 @@ chat isolado.
 Detalhe em [`foundation/knowledge-layers.md`](./foundation/knowledge-layers.md).
 
 1. **Content DNA** — conhecimento **específico de cada cliente**. ([`foundation/content-dna.md`](./foundation/content-dna.md))
-2. **Knowledge Base** — conhecimento **profissional** (estratégia, copy, persuasão, formatos…). ([`foundation/knowledge-base.md`](./foundation/knowledge-base.md))
+2. **Knowledge Base** — conhecimento **profissional** (estratégia, copy, persuasão, formatos…). ([`foundation/knowledge-base/`](./foundation/knowledge-base/))
 3. **Live Research** — informação **externa e atual** (tendências, pautas, palavras-chave).
 4. **Performance Data** — **resultados reais** dos conteúdos dos clientes.
 
@@ -128,9 +128,13 @@ Detalhe em [`foundation/governance.md`](./foundation/governance.md). Princípios
 
 ## 7. Estado atual e próximos passos
 
+**Escopo definido:** Instagram-first · foco orgânico (pago = área futura).
+
 - [x] Definições de visão e arquitetura incorporadas (este documento + `agents/` + `foundation/`)
 - [x] Primeira competência detalhada: **Reels Script Intelligence** (dentro do Creative Studio)
-- [ ] **Análise dos materiais de referência** (livros, frameworks, PDFs) → Knowledge Base
-- [ ] Apresentação: conhecimento encontrado, agentes enriquecidos, regras/frameworks, redundâncias, conflitos, melhorias, estrutura da Knowledge Base
-- [ ] **Aprovação do estrategista**
-- [ ] Documentação definitiva e **implementação incremental**
+- [x] **1º lote de materiais analisado** (tráfego orgânico Instagram) → [proposta 01](./foundation/knowledge-base/proposals/01-instagram-organico.md)
+- [x] **Aprovação do estrategista** nas decisões de escopo
+- [x] **Knowledge Base formalizada** (5 pilares ativos + 1 futuro) → [`foundation/knowledge-base/`](./foundation/knowledge-base/)
+- [ ] Detalhar competências prioritárias do Creative Studio: **Copy, Stories, Carrossel** (KB já pronta; Carrossel precisa de material específico)
+- [ ] Ingerir novos materiais de referência (enriquecer a KB)
+- [ ] **Implementação incremental** da aplicação (só após base de conhecimento madura)

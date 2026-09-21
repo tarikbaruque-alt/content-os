@@ -28,7 +28,7 @@ Ver [`foundation/`](./foundation/).
 
 - [Content DNA](./foundation/content-dna.md) — memória estratégica por cliente.
 - [Camadas de conhecimento](./foundation/knowledge-layers.md) — Content DNA · Knowledge Base · Live Research · Performance Data.
-- [Knowledge Base](./foundation/knowledge-base.md) — conhecimento profissional próprio.
+- [Knowledge Base](./foundation/knowledge-base/) — conhecimento profissional próprio.
 - [Ingestão de materiais](./foundation/knowledge-ingestion.md) — analisar, não copiar.
 - [Governança](./foundation/governance.md) — humano no comando; inferência ≠ fato.
 

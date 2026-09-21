@@ -19,6 +19,8 @@ Calendário editorial organizado, com status e responsáveis; base para execuç�
 
 ## Camadas de conhecimento usadas
 Content DNA + Knowledge Base (cadência/planejamento).
+KB: [Planejamento & Cadência](../foundation/knowledge-base/pilares/planejamento-cadencia.md)
+(frequência, mix de formatos, sequência de Stories, calendário transmídia).
 
 ## Handoffs
 Recebe conteúdo pronto do **Creative Studio**; devolve para **Performance** o que
