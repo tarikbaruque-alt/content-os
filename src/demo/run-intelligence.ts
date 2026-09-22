@@ -2,6 +2,9 @@ import { createLlmProvider } from "../core/llm/index.js";
 import { KnowledgeRetriever } from "../core/knowledge/retriever.js";
 import { FileContentDnaStore } from "../core/content-dna/file-store.js";
 import { Orchestrator } from "../core/orchestrator/orchestrator.js";
+import { loadDotenv } from "../core/env.js";
+
+loadDotenv(); // lê o .env da raiz automaticamente
 import { ingestSuggestions } from "../core/content-dna/governance.js";
 import { runIntelligenceAgent } from "../agents/intelligence/index.js";
 import type { IntelligenceInput, IntelligenceOutput } from "../agents/intelligence/schema.js";

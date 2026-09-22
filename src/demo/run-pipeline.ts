@@ -1,6 +1,10 @@
 import { writeFileSync } from "node:fs";
 import { runPipeline } from "../pipeline/run.js";
+import { createLlmProvider } from "../core/llm/index.js";
+import { loadDotenv } from "../core/env.js";
 import { PIPELINE_BRIEFING, PIPELINE_CLIENT, PIPELINE_SOURCE } from "./pipeline-client.js";
+
+loadDotenv(); // lê o .env da raiz automaticamente
 
 /**
  * Roda o Content OS ponta a ponta para o cliente fictício e:
@@ -9,6 +13,7 @@ import { PIPELINE_BRIEFING, PIPELINE_CLIENT, PIPELINE_SOURCE } from "./pipeline-
  */
 async function main() {
   const r = await runPipeline(PIPELINE_CLIENT, PIPELINE_BRIEFING, PIPELINE_SOURCE, {
+    llm: createLlmProvider(), // usa Anthropic se configurado no .env, senão mock
     total: 12,
     funnelMix: { topo: 45, meio: 35, fundo: 20 },
     minIdeas: 15,

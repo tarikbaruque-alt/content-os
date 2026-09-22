@@ -1,5 +1,8 @@
 import { createNotionSyncFromEnv } from "../core/integrations/notion-sync.js";
 import { DEFAULT_ANTHROPIC_MODEL } from "../core/llm/anthropic.js";
+import { loadDotenv } from "../core/env.js";
+
+loadDotenv(); // lê o .env da raiz automaticamente
 
 /**
  * `npm run doctor` — diagnóstico das integrações do Content OS.

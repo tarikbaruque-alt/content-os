@@ -323,6 +323,8 @@
         <div class="grid cols-3" id="kbGrid"></div>
       </section>
 
+      <section class="view" data-view="config" hidden></section>
+
       <section class="view" data-view="agents" hidden>
         <div class="section-head" style="margin-top:6px"><div><h3>Agentes de IA</h3><p>Infraestrutura nos bastidores — 12 especialistas coordenados (o Estúdio Criativo tem 3: Rima, Mosaico e Enredo), não uma dúzia de chatbots.</p></div></div>
         <div class="agents" id="agentGrid"></div>
@@ -5470,9 +5472,9 @@
   var NAV=[
     {g:"Trabalho",items:[["overview","Dashboard"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"],["plan","Plano do Mês"]]},
     {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["distribution","Distribuição"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
-    {g:"Sistema",items:[["kb","Knowledge Base"],["agents","Agentes"]]}
+    {g:"Sistema",items:[["kb","Knowledge Base"],["agents","Agentes"],["config","🔑 Configuração"]]}
   ];
-  var TITLES={overview:["Trabalho","Dashboard"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"]};
+  var TITLES={overview:["Trabalho","Dashboard"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -5748,7 +5750,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
     Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.getAttribute('data-view')!==v});
     var t=TITLES[v]||["",v];I("#crumb").textContent=t[0];I("#ptitle").textContent=t[1];
-    if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan();
+    if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
     renderStatus(v);
     window.scrollTo({top:0});
   }
@@ -6007,6 +6009,54 @@
   }
   function renderKB(){I("#kbGrid").innerHTML=PILLARS.map(function(p){return '<div class="card kb-card"><div class="kb-t">'+esc(p.t)+'</div><div class="kb-d">'+esc(p.d)+'</div><div class="kb-m">'+p.m.map(function(m){return '<span class="badge">'+esc(m)+'</span>'}).join('')+'</div></div>'}).join('')}
   function renderAgents(){I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
+
+  // ---------- Configuração (chaves & integrações) ----------
+  var CFG_KEY="contentos.keys.v1";
+  var CFG_FIELDS=[
+    {k:"ANTHROPIC_API_KEY",l:"Anthropic API Key",ph:"sk-ant-...",secret:true,grp:"Anthropic (Rima · Mosaico · Enredo)"},
+    {k:"ANTHROPIC_MODEL",l:"Modelo (opcional)",ph:"claude-opus-5 (padrão) · claude-sonnet-5 (mais barato)",secret:false,grp:"Anthropic (Rima · Mosaico · Enredo)"},
+    {k:"NOTION_API_KEY",l:"Notion Integration Token",ph:"ntn_...",secret:true,grp:"Notion (sincronização)"},
+    {k:"NOTION_DATABASE_ID",l:"Notion Database ID",ph:"32 caracteres da URL do database",secret:false,grp:"Notion (sincronização)"},
+    {k:"PIXABAY_API_KEY",l:"Pixabay API Key (opcional)",ph:"para imagens reais no carrossel/Stories",secret:true,grp:"Imagens (opcional)"}
+  ];
+  function cfgLoad(){try{return JSON.parse(localStorage.getItem(CFG_KEY)||"{}")||{}}catch(e){return {}}}
+  function cfgSave(o){try{localStorage.setItem(CFG_KEY,JSON.stringify(o));return true}catch(e){return false}}
+  function cfgVals(){var o={};CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)o[f.k]=el.value.trim()});return o}
+  function buildEnvText(v){
+    var lines=["# Content OS — gerado pela aba Configuração do painel","# Salve este arquivo como .env na RAIZ do projeto. NUNCA comite (já está no .gitignore).",""];
+    lines.push("CONTENT_OS_LLM_PROVIDER="+(v.ANTHROPIC_API_KEY?"anthropic":"mock"));
+    ["ANTHROPIC_API_KEY","ANTHROPIC_MODEL","NOTION_API_KEY","NOTION_DATABASE_ID","PIXABAY_API_KEY"].forEach(function(k){lines.push(k+"="+(v[k]||""))});
+    return lines.join("\n")+"\n";
+  }
+  function cfgStatus(v){
+    var anthropic=!!v.ANTHROPIC_API_KEY, notion=!!(v.NOTION_API_KEY&&v.NOTION_DATABASE_ID), pix=!!v.PIXABAY_API_KEY;
+    function pill(ok,txt){return '<span class="statuspill '+(ok?"lvl-func":"lvl-nao")+'">'+(ok?"● ":"○ ")+txt+'</span>'}
+    return pill(anthropic,"Anthropic")+" "+pill(notion,"Notion")+" "+pill(pix,"Pixabay");
+  }
+  function renderConfig(){
+    var saved=cfgLoad();
+    var groups={};CFG_FIELDS.forEach(function(f){(groups[f.grp]=groups[f.grp]||[]).push(f)});
+    var forms=Object.keys(groups).map(function(g){
+      var rows=groups[g].map(function(f){
+        return '<div class="fld"><label>'+esc(f.l)+'</label><input id="cfg_'+f.k+'" type="'+(f.secret?"password":"text")+'" placeholder="'+esc(f.ph)+'" value="'+esc(saved[f.k]||"")+'" autocomplete="off" spellcheck="false"></div>';
+      }).join('');
+      return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:12px">'+esc(g)+'</div>'+rows+'</div>';
+    }).join('');
+    var h='';
+    h+='<div class="section-head" style="margin-top:6px"><div><h3>Configuração — chaves & integrações</h3><p>Preencha <b>uma vez</b>. As chaves ficam salvas <b>no seu navegador</b> e você gera o arquivo <code>.env</code> para conectar tudo de forma permanente.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></div>';
+    h+='<div class="callout" style="margin-bottom:16px"><span style="font-size:15px">🔒</span><div class="em"><b>Como funciona a permanência.</b> Os comandos (<code>pipeline</code>, <code>notion:sync</code>, <code>doctor</code>) leem as chaves de um arquivo <code>.env</code> na raiz do projeto — carregado automaticamente. Preencha aqui, clique em <b>Baixar .env</b>, salve na raiz e pronto: fica sempre conectado, sem redigitar. <br>No Claude Code na web, prefira cadastrar as mesmas chaves em <b>Credenciais de API do ambiente</b> (persistem entre sessões) e liberar os hosts <code>api.anthropic.com</code> e <code>api.notion.com</code> na rede.</div></div>';
+    h+=forms;
+    h+='<div class="card pad"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">⬇︎ Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" style="align-self:center;font-size:12px;color:var(--good)"></span></div><div class="fld"><label>Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></div>';
+    I('.view[data-view="config"]').innerHTML=h;
+    function refresh(){var v=cfgVals();I("#cfgEnv").value=buildEnvText(v);I("#cfgStatus").innerHTML=cfgStatus(v);}
+    CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.addEventListener('input',refresh)});
+    refresh();
+    function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
+    I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
+    I("#cfgDownload").addEventListener('click',function(){cfgSave(cfgVals());var b=new Blob([buildEnvText(cfgVals())],{type:"text/plain"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=".env";document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ .env baixado — salve na raiz do projeto")});
+    I("#cfgCopy").addEventListener('click',function(){var ta=I("#cfgEnv");ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}if(!ok&&navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){msg("✓ Copiado")},function(){msg("Selecione e copie manualmente")});}else{msg(ok?"✓ Copiado":"Selecione e copie manualmente")}});
+    I("#cfgClear").addEventListener('click',function(){CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.value=""});cfgSave({});refresh();msg("Limpo")});
+  }
 
   // ---------- content drawer ----------
   function byId(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i];return CLIENTS[0]}

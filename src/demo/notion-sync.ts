@@ -2,7 +2,10 @@ import { runPipeline } from "../pipeline/run.js";
 import { createLlmProvider } from "../core/llm/index.js";
 import { createNotionSyncFromEnv, mapPage, parseDatabaseSchema } from "../core/integrations/notion-sync.js";
 import type { NotionDbSchema } from "../core/integrations/notion-sync.js";
+import { loadDotenv } from "../core/env.js";
 import { PIPELINE_BRIEFING, PIPELINE_CLIENT, PIPELINE_SOURCE } from "./pipeline-client.js";
+
+loadDotenv(); // lê o .env da raiz automaticamente
 
 /**
  * CLI de sincronização com o Notion.
