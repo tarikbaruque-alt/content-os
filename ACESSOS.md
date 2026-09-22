@@ -20,6 +20,13 @@ O painel é um arquivo **na sua pasta de trabalho**:
 > No painel: **Plano do Mês → clique num conteúdo** → abas **🎠 Criar Carrossel** e **📱 Criar Sequência de Stories**.
 > Aba **Agentes** = os 12 especialistas (Estúdio Criativo: Rima, Mosaico, Enredo).
 
+### 🔑 Configurar as chaves (uma vez só)
+
+Abra a aba **🔑 Configuração** no painel → cole as chaves → **Baixar .env** →
+salve o arquivo como **`.env` na raiz do projeto**. Pronto: os comandos leem o
+`.env` automaticamente em toda execução — **fica sempre conectado, sem redigitar**.
+(As chaves também ficam salvas no seu navegador para você não perder o que digitou.)
+
 ---
 
 ## 🤖 Anthropic (para a Rima/Mosaico/Enredo escreverem com IA real)
