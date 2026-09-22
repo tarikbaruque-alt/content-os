@@ -149,6 +149,11 @@ async function main() {
   const notion = await checkNotion(process.env);
   const a = print("Anthropic (Rima — redação com IA):", anthropic);
   const n = print("Notion (sincronização):", notion);
+  print("Referências visuais (Mosaico/Enredo · opcional):", [
+    process.env.PIXABAY_API_KEY
+      ? { label: "Pixabay", ok: true, detail: "chave presente — imagens reais no carrossel/Stories." }
+      : { label: "Pixabay", ok: false, detail: "sem chave — usando links de busca (Pinterest/Pixabay), nada inventado.", fix: "Opcional: PIXABAY_API_KEY (grátis em pixabay.com/api/docs)." },
+  ]);
 
   console.log("\n---");
   console.log(`Rima com IA real:   ${a ? OK + " pronta" : NO + " ainda não — veja acima"}`);

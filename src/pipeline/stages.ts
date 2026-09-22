@@ -8,6 +8,7 @@ import type {
   FunnelStage,
   Idea,
   MonthlyCalendar,
+  MonthlyCalendarDraft,
   NotionPage,
   PerformanceRow,
   ProducedContent,
@@ -269,7 +270,7 @@ export function assembleCalendar(
   dna: Dna,
   total: number,
   funnelMix: Record<PlanFunnel, number>,
-): MonthlyCalendar {
+): MonthlyCalendarDraft {
   const plan = planDistribution({ total, funnel: funnelMix });
   // Seleciona ideias respeitando o mix por funil.
   const byFunnel: Record<FunnelStage, Idea[]> = { topo: [], meio: [], fundo: [] };
@@ -293,23 +294,44 @@ export function assembleCalendar(
 
 // ==================== 7. NOTION (payload, sem chamada real) ====================
 export function toNotionPages(calendar: MonthlyCalendar, clientName: string): NotionPage[] {
-  return calendar.items.map((it) => ({
-    title: it.content.headline,
-    properties: {
-      Cliente: clientName,
-      Data: it.data,
-      Plataforma: it.idea.surface,
-      Formato: it.idea.format,
-      Pilar: it.idea.pilar.split(":")[0]!,
-      Objetivo: it.idea.objetivo,
-      Funil: it.idea.funil,
-      "Função estratégica": it.idea.funcao,
-      Emoção: it.idea.emocao,
-      CTA: it.content.cta,
-      Status: it.status,
-    },
-    bodyPreview: `${it.content.headline}\n\n${it.content.copy}`,
-  }));
+  return calendar.items.map((it) => {
+    const roteiro = (it.content.roteiro ?? it.content.slides ?? it.content.stories ?? [])
+      .map((s) => `${s.label}: ${s.text}`)
+      .join("\n");
+    const carrossel = it.carousel.slides.map((s) => `${s.n}. [${s.papel}] ${s.titulo} — ${s.texto}`).join("\n");
+    const storiesSeq = it.stories.stories.map((s) => `${s.n}. [${s.papel}] ${s.fala} (interação: ${s.interacao})`).join("\n");
+    const body = [
+      it.content.headline,
+      "",
+      it.content.copy,
+      "",
+      `— Roteiro/Copy —`,
+      roteiro,
+      "",
+      `— Carrossel (Mosaico · ${it.carousel.estrutura}) —`,
+      carrossel,
+      "",
+      `— Sequência de Stories (Enredo · ${it.stories.tipo}) · ${it.stories.progressao.join(" → ")} —`,
+      storiesSeq,
+    ].join("\n");
+    return {
+      title: it.content.headline,
+      properties: {
+        Cliente: clientName,
+        Data: it.data,
+        Plataforma: it.idea.surface,
+        Formato: it.idea.format,
+        Pilar: it.idea.pilar.split(":")[0]!,
+        Objetivo: it.idea.objetivo,
+        Funil: it.idea.funil,
+        "Função estratégica": it.idea.funcao,
+        Emoção: it.idea.emocao,
+        CTA: it.content.cta,
+        Status: it.status,
+      },
+      bodyPreview: body,
+    };
+  });
 }
 
 // ==================== 8. PERFORMANCE (Pulso) ====================

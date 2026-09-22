@@ -5,6 +5,11 @@ import { InMemoryContentDnaStore } from "../core/content-dna/store.js";
 import { Trace } from "../core/observability.js";
 import { runIntelligenceAgent } from "../agents/intelligence/agent.js";
 import { writeContent } from "../agents/creative/writer.js";
+import { buildCreativeContext } from "../agents/creative/context.js";
+import { buildCarousel, writeCarousel } from "../agents/carousel/agent.js";
+import { buildStorySequence, writeStorySequence } from "../agents/stories/agent.js";
+import { createVisualRefProvider, type VisualRefProvider } from "../core/integrations/visual-refs.js";
+import type { CalendarItem, MonthlyCalendar } from "./types.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
 import {
   assembleCalendar,
@@ -23,6 +28,8 @@ export type PipelineOptions = {
   total?: number;
   funnelMix?: Record<FunnelStage, number>;
   minIdeas?: number;
+  /** Provedor de referências visuais (Pixabay/links). Default: pelo ambiente. */
+  visual?: VisualRefProvider;
 };
 
 /**
@@ -61,15 +68,28 @@ export async function runPipeline(
   const editorial = buildEditorial(strategy);
   const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15);
   const mix = opts.funnelMix ?? { topo: 45, meio: 35, fundo: 20 };
-  const calendar = assembleCalendar(ideas, dna, opts.total ?? 12, mix);
+  const draft = assembleCalendar(ideas, dna, opts.total ?? 12, mix);
 
-  // Produção criativa: com provider REAL (Rima/Anthropic), reescreve cada peça
-  // em prosa publicável ancorada no DNA. Com mock, mantém o determinístico.
-  if (llm.name !== "mock") {
-    for (const item of calendar.items) {
-      item.content = await writeContent(item.idea, dna, strategy, llm);
-    }
+  // Contexto criativo completo para os especialistas (Rima, Mosaico, Enredo).
+  const ctx = buildCreativeContext(client.name, dna, strategy, editorial, research);
+  const visual = opts.visual ?? createVisualRefProvider();
+  const real = llm.name !== "mock";
+
+  // Produção criativa: com provider REAL, cada peça vira prosa publicável +
+  // carrossel (Mosaico) + sequência de Stories (Enredo). Com mock, tudo é
+  // determinístico (offline, testável) — o contrato é o mesmo.
+  const items: CalendarItem[] = [];
+  for (const it of draft.items) {
+    const content = real ? await writeContent(it.idea, dna, strategy, llm) : it.content;
+    const carousel = real
+      ? await writeCarousel(it.idea, ctx, llm, visual)
+      : await buildCarousel(it.idea, ctx, visual);
+    const stories = real
+      ? await writeStorySequence(it.idea, ctx, llm, undefined, visual)
+      : await buildStorySequence(it.idea, ctx, undefined, visual);
+    items.push({ ...it, content, carousel, stories });
   }
+  const calendar: MonthlyCalendar = { total: draft.total, mix: draft.mix, items };
 
   const notion = toNotionPages(calendar, client.name);
   const performance = seedPerformance(strategy);

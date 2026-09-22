@@ -126,16 +126,91 @@ export type ProducedContent = {
   direcaoVisual: string;
 };
 
+/** Referência visual (nunca inventada): termo de busca + link real de busca. */
+export type VisualRef = {
+  fonte: "Pixabay" | "Pinterest" | "Sugestão";
+  termo: string;
+  url?: string;
+  nota: string;
+};
+
+/** Um slide do carrossel (Mosaico). */
+export type CarouselSlide = {
+  n: number;
+  papel: string; // Capa / Hook / Contexto / Desenvolvimento / Virada / Prova / Conclusão / CTA
+  titulo: string; // texto grande do slide
+  texto: string; // corpo do slide
+  visual: string; // direção visual do slide
+  imagem: string; // sugestão de imagem/referência (termo de busca)
+};
+
+/** Carrossel completo e pronto para produção (agente Mosaico). */
+export type Carousel = {
+  ideaId: string;
+  estrutura: string; // Lista / Framework / Comparação / Case / Mito×Verdade / Passo a passo / Storytelling
+  capaHeadline: string;
+  capaSub: string;
+  hook: string;
+  slides: CarouselSlide[];
+  copy: string; // legenda do post
+  cta: string;
+  gatilhos: string[];
+  elementosLiterarios: string[];
+  emocao: string;
+  emocaoPor: string;
+  direcaoVisual: string;
+  referencias: VisualRef[];
+};
+
+/** Um Story dentro de uma sequência (agente Enredo). */
+export type StoryStep = {
+  n: number;
+  papel: string; // Atração / Conexão / Curiosidade / Autoridade / Prova / Interação / Antecipação / CTA
+  fala: string; // texto/fala do Story
+  visual: string; // o que aparece na tela
+  interacao: string; // enquete / caixa de perguntas / quiz / slider / "arrasta pra cima" / deslize
+};
+
+/** Sequência de Stories com progressão narrativa e emocional (agente Enredo). */
+export type StorySequence = {
+  ideaId: string;
+  tipo: string; // bastidores / rotina / opinião / storytelling pessoal / prova / aquecimento / conversão…
+  objetivo: string;
+  publico: string;
+  contexto: string;
+  emocao: string;
+  emocaoPor: string;
+  percepcaoDesejada: string;
+  narrativa: string; // arco da sequência em uma frase
+  progressao: string[]; // Relacionamento → Familiaridade → Confiança → Autoridade → Desejo → Conversão
+  stories: StoryStep[];
+  cta: string;
+  gatilhos: string[];
+  referencias: VisualRef[];
+};
+
 export type CalendarItem = {
   data: string;
   idea: Idea;
   content: ProducedContent;
+  /** Carrossel pronto para produção (agente Mosaico). */
+  carousel: Carousel;
+  /** Sequência de Stories pronta para produção (agente Enredo). */
+  stories: StorySequence;
   status: string;
 };
 export type MonthlyCalendar = {
   total: number;
   mix: Record<FunnelStage, number>;
   items: CalendarItem[];
+};
+
+/** Item do calendário antes de anexar carrossel/Stories (saída de assembleCalendar). */
+export type CalendarDraftItem = Omit<CalendarItem, "carousel" | "stories">;
+export type MonthlyCalendarDraft = {
+  total: number;
+  mix: Record<FunnelStage, number>;
+  items: CalendarDraftItem[];
 };
 
 export type PerformanceRow = {
