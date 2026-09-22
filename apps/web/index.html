@@ -6053,7 +6053,19 @@
     refresh();
     function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
     I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
-    I("#cfgDownload").addEventListener('click',function(){cfgSave(cfgVals());var b=new Blob([buildEnvText(cfgVals())],{type:"text/plain"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=".env";document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ .env baixado — salve na raiz do projeto")});
+    I("#cfgDownload").addEventListener('click',function(){
+      cfgSave(cfgVals());
+      var env=buildEnvText(cfgVals());
+      function localDL(){try{var b=new Blob([env],{type:"text/plain"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=".env";document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ .env baixado — salve na raiz do projeto");}catch(e){msg("Use Copiar .env e cole num arquivo .env");}}
+      function viaCap(dl){
+        if(!dl){localDL();return;}
+        dl.save({filename:"env.txt",data:env}).then(
+          function(){msg("✓ Baixado como env.txt — renomeie para .env na raiz do projeto");},
+          function(){msg("Download recusado — use Copiar .env");}
+        );
+      }
+      if(window.claude&&claude.use){claude.use("downloads").then(viaCap,localDL);}else{localDL();}
+    });
     I("#cfgCopy").addEventListener('click',function(){var ta=I("#cfgEnv");ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}if(!ok&&navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){msg("✓ Copiado")},function(){msg("Selecione e copie manualmente")});}else{msg(ok?"✓ Copiado":"Selecione e copie manualmente")}});
     I("#cfgClear").addEventListener('click',function(){CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.value=""});cfgSave({});refresh();msg("Limpo")});
   }
