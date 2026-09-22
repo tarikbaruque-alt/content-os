@@ -11,16 +11,47 @@ pesquisar, criar, planejar, executar, analisar e aprender.
 ## Comece por aqui
 
 - 📐 **[ARCHITECTURE.md](./ARCHITECTURE.md)** — a arquitetura conceitual completa.
+- 🔗 **[ACESSOS.md](./ACESSOS.md)** — painel, links e chaves de API num lugar só.
 
-## Agentes (núcleo de 8 + curador; teto de 10)
+## Rodar em 5 minutos
 
-Ver [`agents/`](./agents/).
+Requer Node 20+.
 
-1. [Intelligence](./agents/01-intelligence.md) · 2. [Strategy](./agents/02-strategy.md) ·
-3. [Research](./agents/03-research.md) · 4. [Editorial](./agents/04-editorial.md) ·
-5. [Ideas & Formats](./agents/05-ideas-and-formats.md) · 6. [Creative Studio](./agents/06-creative-studio/) ·
-7. [Planning](./agents/07-planning.md) · 8. [Performance](./agents/08-performance.md) ·
-9. [Knowledge](./agents/09-knowledge.md) · *(10. Orquestração — reservado)*
+```bash
+npm install
+npm test        # 69 testes — deve passar tudo
+npm run smoke   # verificação ponta a ponta (DNA → … → Notion)
+npm run pipeline  # gera o plano do cliente-exemplo → apps/web/generated-plan.json
+```
+
+**Ver o painel:** abra `apps/web/index.html` no navegador (ou `npx --yes serve apps/web`).
+No painel → **Plano do Mês → clique num conteúdo** para ver o esqueleto estratégico,
+o carrossel (🎠) e a sequência de Stories (📱) prontos.
+
+**Ligar as integrações (opcional):** abra a aba **🔑 Configuração** no painel,
+cole as chaves e baixe o `.env` para a raiz — ou copie `.env.example` para `.env`.
+Depois:
+
+```bash
+npm run doctor   # confere Anthropic + Notion + Pixabay
+npm run notion:sync -- --authorize   # cria as páginas no seu Notion
+```
+
+Provedor de IA: `CONTENT_OS_LLM_PROVIDER=mock` (padrão, offline, determinístico)
+ou `anthropic` (prosa premium — exige `ANTHROPIC_API_KEY`). Guardrails valem
+sempre: nunca inventa prova, autoridade, urgência ou escassez; nada é enviado ao
+Notion sem `--authorize`.
+
+## Agentes
+
+Ver [`agents/`](./agents/). O **Estúdio Criativo** é um squad de 3 especialistas
+(Rima · copy/roteiro, Mosaico · carrossel, Enredo · sequência de Stories).
+
+1. [Intelligence](./agents/01-intelligence.md) (Íris) · 2. [Strategy](./agents/02-strategy.md) (Átlas) ·
+3. [Research](./agents/03-research.md) (Radar) · 4. [Editorial](./agents/04-editorial.md) (Bússola) ·
+5. [Ideas & Formats](./agents/05-ideas-and-formats.md) (Musa) · 6. [Creative Studio](./agents/06-creative-studio/) (Rima · Mosaico · Enredo) ·
+7. [Planning](./agents/07-planning.md) (Cronos) · 8. [Performance](./agents/08-performance.md) (Pulso) ·
+9. [Knowledge](./agents/09-knowledge.md) (Acervo) · 10. Orquestração (Maestro)
 
 ## Fundações
 
@@ -47,9 +78,23 @@ Ver [`foundation/`](./foundation/).
 - **Jev (TypeSafe, System One)** — decisão/classificação tipada (avaliação,
   roteamento, priorização). Credencial `TYPESAFE_API_KEY` no ambiente.
 
-## Etapa atual
+## Etapa atual — V1 funcional
 
-Incorporando definições à arquitetura. **A implementação da aplicação ainda não
-começou** — o próximo passo é a **análise dos materiais de referência** e a
-**aprovação do estrategista** antes de formalizar e implementar. Ver
-[ARCHITECTURE.md §7](./ARCHITECTURE.md).
+O pipeline ponta a ponta está **implementado e testado** (69 testes):
+Cliente → Content DNA (Íris) → Estratégia (Átlas, caminhos + mix) → Pesquisa
+(Radar) → Editorial (Bússola) → Ideias & Formatos (Musa) → Produção
+(Rima/copy · Mosaico/carrossel · Enredo/Stories) → Calendário (Cronos) →
+Notion. Cada peça carrega o esqueleto estratégico completo (Persona → Objetivo →
+Propósito → Dor/Desejo → Big Message → Emoção → Percepção → Função →
+Funil/Jornada → Gatilhos → Elementos literários → Headline → Conteúdo → CTA),
+editável e visível no painel.
+
+**Funcional agora:** pipeline, esqueleto estratégico, carrossel e Stories,
+distribuição por funil, painel, `.env` auto-carregado, sync Notion (schema-aware,
+com trava de autorização). **Prosa premium** liga com `ANTHROPIC_API_KEY`;
+**imagens reais** com `PIXABAY_API_KEY`.
+
+**Depende de API externa (não implementado):** pesquisa externa real (Radar) e
+métricas reais de performance (Pulso).
+
+Estado honesto de cada agente: [ARCHITECTURE.md §5.3](./ARCHITECTURE.md).
