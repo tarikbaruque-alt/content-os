@@ -129,6 +129,24 @@
   .lvl-func{color:var(--good);background:var(--fact-bg)} .lvl-dev{color:var(--warn);background:var(--hyp-bg)} .lvl-mock{color:var(--neutral);background:var(--surface-2);border:1px solid var(--line)}
   .legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
   .legend .li{display:flex;align-items:center;gap:6px} .legend .dot{width:9px;height:9px;border-radius:50%}
+  .ta{width:100%;min-height:210px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-family:var(--font-body);font-size:13px;line-height:1.6;color:var(--ink);background:var(--surface-2);resize:vertical}
+  .fld{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  .fld label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--faint)}
+  .fld input{border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-family:inherit;font-size:13px;background:var(--surface-2);color:var(--ink)}
+  .range-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .range-row .rl{flex:0 0 120px;font-size:13px;font-weight:600}
+  .range-row input[type=range]{flex:1;accent-color:var(--brand)}
+  .range-row .rv{flex:0 0 78px;text-align:right;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .stack{display:flex;height:36px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+  .stack .seg{display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700;min-width:0}
+  .funnel-num{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .funnel-num .fn{flex:1;min-width:90px;border:1px solid var(--line);border-radius:11px;padding:11px;text-align:center;background:var(--surface-2)}
+  .funnel-num .fn .n{font-family:var(--font-display);font-weight:700;font-size:26px} .funnel-num .fn .l{font-size:11px;color:var(--muted);font-weight:600}
+  .fnbar{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .fnbar .fnl{flex:0 0 150px;font-size:12.5px;color:var(--muted)} .fnbar .fnt{flex:1;height:10px;background:var(--line-2);border-radius:6px;overflow:hidden}
+  .fnbar .fnt i{display:block;height:100%;background:var(--brand)} .fnbar .fnv{flex:0 0 26px;text-align:right;font-family:var(--font-mono);font-size:12.5px}
+  .preset{font-size:12px;font-weight:600;padding:6px 11px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+  .preset:hover{border-color:var(--brand);color:var(--ink)}
 
   .agents{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   .agent{display:flex;gap:13px;padding:16px;align-items:flex-start}
@@ -272,6 +290,8 @@
         <div class="grid cols-3" id="clientCards"></div>
       </section>
 
+      <section class="view" data-view="analyze" hidden></section>
+
       <section class="view" data-view="dna" hidden>
         <div class="section-head" style="margin-top:6px"><div><h3 id="dnaTitle">Content DNA</h3><p>Estruturado por <b>Íris</b>. Nada vira fato sem sua aprovação.</p></div></div>
         <div class="callout" style="margin-bottom:16px"><span style="font-size:15px">✳︎</span><div class="em"><b>Governança de memória.</b> Cada registro tem estado (FACT, HYPOTHESIS, INSIGHT, STRATEGIC&nbsp;DECISION, LEARNING) e proveniência. Íris <b>sugere</b>; você aprova, edita ou rejeita.</div></div>
@@ -282,6 +302,7 @@
       <section class="view" data-view="research" hidden></section>
       <section class="view" data-view="editorial" hidden></section>
       <section class="view" data-view="ideas" hidden></section>
+      <section class="view" data-view="distribution" hidden></section>
 
       <section class="view" data-view="content" hidden>
         <div class="section-head" style="margin-top:6px"><div><h3>Conteúdos <span class="tag-mock">demonstração</span></h3><p>Cada peça carrega seu contexto estratégico. Clique para abrir.</p></div></div>
@@ -333,6 +354,8 @@
     research:svg('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>'),
     editorial:svg('<path d="M4 5h16M4 10h10M4 15h16M4 20h7"/>'),
     ideas:svg('<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.5.4.9 1 1 1.7l.1.5h5l.1-.5c.1-.7.5-1.3 1-1.7A6 6 0 0 0 12 3z"/>'),
+    analyze:svg('<path d="M12 3v3M12 18v3M3 12h3M18 12h3M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/>'),
+    distribution:svg('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
     content:svg('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
     calendar:svg('<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M9 3v4M15 3v4"/>'),
     approvals:svg('<path d="M20 6L9 17l-5-5"/>'),
@@ -341,11 +364,11 @@
     agents:svg('<rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M12 8V4M9 4h6M8.5 13v2M15.5 13v2"/>')
   };
   var NAV=[
-    {g:"Trabalho",items:[["overview","Dashboard"],["clients","Clientes"],["dna","Content DNA"]]},
-    {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
+    {g:"Trabalho",items:[["overview","Dashboard"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"]]},
+    {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["distribution","Distribuição"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
     {g:"Sistema",items:[["kb","Knowledge Base"],["agents","Agentes"]]}
   ];
-  var TITLES={overview:["Trabalho","Dashboard"],clients:["Trabalho","Clientes"],dna:["Trabalho","Content DNA"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"]};
+  var TITLES={overview:["Trabalho","Dashboard"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -366,8 +389,23 @@
   var CLIENTS=[
     {id:"marina",name:"Dra. Marina",full:"Dra. Marina — Advocacia Trabalhista",niche:"Advocacia trabalhista",av:0},
     {id:"verde",name:"Verde Vivo",full:"Verde Vivo — Cosméticos Naturais",niche:"Cosméticos naturais",av:1},
-    {id:"rafa",name:"Rafa Nutri",full:"Rafa Nutri — Nutrição Esportiva",niche:"Nutrição esportiva",av:2}
+    {id:"rafa",name:"Rafa Nutri",full:"Rafa Nutri — Nutrição Esportiva",niche:"Nutrição esportiva",av:2},
+    {id:"aurora",name:"Studio Aurora",full:"Studio Aurora — Fotografia de Casamento",niche:"Fotografia de casamento",av:5}
   ];
+  var AURORA_SRC="Briefing de onboarding — 21/09/2026";
+  var AURORA_BRIEFING=[
+    "Sou fotógrafa de casamento e vendo ensaios e cobertura de casamento; meu ticket médio é R$ 6.000 por evento.",
+    "Meu público são noivas de 28 a 38 anos que valorizam memórias afetivas.",
+    "A maior dor delas é o medo de que o dia passe rápido e não fique registrado de verdade.",
+    "Elas desejam reviver as emoções do casamento por fotos naturais, sem poses forçadas.",
+    "Uma objeção comum é achar que fotógrafo bom é caro demais para o orçamento.",
+    "Meu diferencial é um estilo documental que capta a emoção real, não o retrato posado.",
+    "Tenho 10 anos de experiência e mais de 200 casamentos fotografados.",
+    "Falo de forma sensível e próxima, evito termos técnicos de fotografia.",
+    "No último mês, os Reels dos bastidores da edição tiveram mais salvamentos.",
+    "Decidimos focar em conteúdo de identificação com as emoções da noiva.",
+    'Uma cliente me disse: "Chorei vendo as fotos, era exatamente como eu senti no dia."'
+  ].join("\n");
 
   // Content DNA (saída real da Íris, resumida)
   function e(sec,f,v,st,src,status){return {section:sec,field:f,value:v,state:st,src:src,status:status||"pending"}}
@@ -502,14 +540,85 @@
   // Estado de maturidade por área
   var STATUS={
     overview:["mock","Dados de exemplo"],clients:["mock","Dados de exemplo"],
-    dna:["dev","Motor Íris é FUNCIONAL · o painel ainda não persiste"],
+    analyze:["func","Roda a mesma lógica testada da Íris, ao vivo no navegador"],
+    dna:["dev","Motor Íris é FUNCIONAL (veja Análise IA) · painel ainda não persiste"],
     strategy:["mock","Aguarda o agente Átlas"],research:["mock","Aguarda o agente Radar"],
     editorial:["mock","Aguarda o agente Bússola"],ideas:["mock","Aguarda o agente Musa"],
+    distribution:["func","Cálculo real (método do maior resto) — coberto por 6 testes"],
     content:["mock","Aguarda o Estúdio Criativo (Rima)"],calendar:["mock","Aguarda o agente Cronos"],
     approvals:["mock","Fluxo de aprovação — demonstração"],performance:["mock","Aguarda o agente Pulso"],
     kb:["dev","Acervo recupera pilares de verdade"],agents:["dev","Íris FUNCIONAL · Acervo em progresso · demais planejados"]
   };
   var LVL={func:"FUNCIONAL",dev:"EM DESENV.",mock:"MOCK"};
+
+  // ===================================================================
+  // Íris — motor de extração (porte fiel de src/core/llm/mock.ts,
+  // coberto por 6 testes). Roda no navegador: briefing -> Content DNA.
+  // ===================================================================
+  var IRIS_RULES=[
+    [/(acha|acham)\s+car[oa]|car[oa]\s+demais|n[ãa]o\s+confia|ser[áa]\s+que\s+funciona|desconfia|obje[çc]/i,"audience","objecoes","FACT"],
+    [/p[úu]blico|persona|meu\s+cliente|clientes\s+s[ãa]o|atendo|avatar|faixa\s+et[áa]ria|mulheres|homens|donos?\s+de|empreendedor|m[ãa]es/i,"audience","persona","FACT"],
+    [/\bdor(es)?\b|problema|dificuldade|sofre|cansad|frustra|n[ãa]o\s+consegue|luta\s+para|trava\b/i,"audience","dores","FACT"],
+    [/deseja|desejo|quer(em)?\b|sonha|gostaria|almeja|busca(m)?\s+por|querendo/i,"audience","desejos","FACT"],
+    [/diferencial|diferente\s+dos|s[óo]\s+n[óo]s|exclusiv|[úu]nic[oa]|nosso\s+m[ée]todo|o\s+que\s+nos\s+difere/i,"positioning","diferenciais","FACT"],
+    [/posicion|concorrent|refer[êe]ncia|autoridade|prova\s+social|depoiment|resultado\s+comprov|\banos\s+de\b|pr[êe]mi/i,"positioning","posicionamento","FACT"],
+    [/tom\s+de\s+voz|linguagem|fal(o|a|amos)\s+de\s+forma|evit(o|amos)|g[íi]ria|formal|informal|motivacional|nossa\s+comunica[çc][ãa]o|jeito\s+de\s+falar/i,"communication","tom","FACT"],
+    [/decid(i|imos)|vamos\s+focar|nossa\s+estrat[ée]gia|resolvi|optamos\s+por/i,"strategic_memory","decisao","STRATEGIC_DECISION"],
+    [/no\s+[úu]ltim[oa]|teve\s+mais|aumentou|engajou|reten[çc][ãa]o\s+de|\d+%\s|converteu|resultou\s+em|melhor\s+desempenho/i,"strategic_memory","aprendizado","LEARNING"],
+    [/vend(o|emos)|produto|servi[çc]o|oferta|curso|mentoria|consultoria|loja|ticket|fatur(o|amos)|pre[çc]o|R\$|plano|assinatura|modelo\s+de\s+neg[óo]cio/i,"business","oferta","FACT"]
+  ];
+  var IRIS_CONF={FACT:.9,LEARNING:.8,STRATEGIC_DECISION:.9,INSIGHT:.55,HYPOTHESIS:.4};
+  function irisSplit(t){return t.split(/\n|(?<=[.!?])\s+/).map(function(s){return s.trim()}).filter(function(s){return s.length>=4})}
+  function irisQuotes(t){return (t.match(/["“”]([^"“”]{3,})["“”]/g)||[]).map(function(m){return m.replace(/["“”]/g,"").trim()})}
+  function irisExtract(content,source){
+    var out=[],seen={},dores=[],desejos=[],downgraded=0;
+    function push(s){var k=s.section+"|"+s.field+"|"+s.value.toLowerCase();if(seen[k])return;seen[k]=1;out.push(s)}
+    irisQuotes(content).forEach(function(q){push({section:"voice_of_customer",field:"frase",value:q,state:"FACT",src:source})});
+    var quoteless=content.replace(/["“”][^"“”]*["“”]/g," "); // aspas já viram VoC; evita falso-positivo (ex.: "vendo" de ver)
+    irisSplit(quoteless).forEach(function(seg){
+      var rule=null;for(var i=0;i<IRIS_RULES.length;i++){if(IRIS_RULES[i][0].test(seg)){rule=IRIS_RULES[i];break}}
+      if(!rule)return;
+      var field=rule[2];
+      if(rule[1]==="business"&&/ticket|R\$|pre[çc]o|fatur/i.test(seg))field="ticket";
+      push({section:rule[1],field:field,value:seg,state:rule[3],src:source});
+      if(rule[2]==="dores")dores.push(seg); if(rule[2]==="desejos")desejos.push(seg);
+    });
+    if(dores.length&&desejos.length){
+      push({section:"strategic_memory",field:"insight",value:"Há tensão entre a dor (\""+dores[0].slice(0,50)+"…\") e o desejo (\""+desejos[0].slice(0,50)+"…\") — espaço para conteúdo que faça a ponte.",state:"INSIGHT",src:"Íris — inferência"});
+    }
+    // Guardrail: FACT sem proveniência -> HYPOTHESIS (nunca inventa fato)
+    out.forEach(function(s){if(s.state==="FACT"&&(!s.src||!s.src.trim())){s.state="HYPOTHESIS";downgraded++}});
+    return {suggestions:out,downgraded:downgraded};
+  }
+  function irisToDnaEntries(res){return res.suggestions.map(function(s){return {section:s.section,field:s.field,value:s.value,state:s.state,src:s.src,status:"pending"}})}
+
+  // ===================================================================
+  // Distribuição editorial por funil (porte de src/core/planning/distribution.ts)
+  // ===================================================================
+  var FUNCS=["descoberta","conscientizacao","educativo","conversao","experiencia_propria","experiencia_compartilhada"];
+  var FUNC_LBL={descoberta:"Descoberta",conscientizacao:"Conscientização",educativo:"Educativo",conversao:"Conversão",experiencia_propria:"Experiência própria",experiencia_compartilhada:"Exp. compartilhada"};
+  var FUNC_FUNNEL={descoberta:"topo",conscientizacao:"topo",educativo:"meio",conversao:"fundo",experiencia_propria:"fundo",experiencia_compartilhada:"fundo"};
+  var DEF_FUNC={descoberta:30,conscientizacao:15,educativo:25,conversao:15,experiencia_propria:10,experiencia_compartilhada:5};
+  function largestRemainder(weights,total){
+    var sum=weights.reduce(function(a,b){return a+b},0);if(sum<=0)return weights.map(function(){return 0});
+    var raw=weights.map(function(w){return w/sum*total});
+    var counts=raw.map(function(x){return Math.floor(x)});
+    var rem=total-counts.reduce(function(a,b){return a+b},0);
+    var order=raw.map(function(x,i){return {i:i,f:x-Math.floor(x)}}).sort(function(a,b){return b.f-a.f});
+    for(var k=0;k<order.length&&rem>0;k++){counts[order[k].i]++;rem--}
+    return counts;
+  }
+  function planDistribution(total,funnel,fw){
+    fw=fw||DEF_FUNC;
+    var fs=funnel.topo+funnel.meio+funnel.fundo;
+    var fc=largestRemainder([funnel.topo,funnel.meio,funnel.fundo],total);
+    var fnc=largestRemainder(FUNCS.map(function(f){return fw[f]}),total);
+    var functions={};FUNCS.forEach(function(f,i){functions[f]=fnc[i]});
+    var warnings=[];
+    if(fc[0]>0&&(functions.descoberta+functions.conscientizacao)===0)warnings.push("Você pediu topo, mas não há descoberta/conscientização nas funções.");
+    if(fc[2]>0&&functions.conversao===0)warnings.push("Há espaço de fundo de funil, mas nenhuma peça de conversão prevista.");
+    return {total:total,funnel:{topo:fc[0],meio:fc[1],fundo:fc[2]},funnelPercent:{topo:Math.round(funnel.topo/fs*100),meio:Math.round(funnel.meio/fs*100),fundo:Math.round(funnel.fundo/fs*100)},functions:functions,warnings:warnings};
+  }
 
   var PILLARS=[
     {t:"Distribuição no Instagram",d:"Algoritmo, sinais sociais e mapa formato × objetivo.",m:["Instagram","Research","Performance"]},
@@ -532,7 +641,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
     Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.getAttribute('data-view')!==v});
     var t=TITLES[v]||["",v];I("#crumb").textContent=t[0];I("#ptitle").textContent=t[1];
-    if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas();
+    if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution();
     renderStatus(v);
     window.scrollTo({top:0});
   }
@@ -565,6 +674,7 @@
   }
   function renderStrategy(){
     var s=STRATEGY[state.client],el=I('.view[data-view="strategy"]');
+    if(!s){el.innerHTML=emptyView("Estratégia — "+clientName(state.client),"Ainda sem estratégia de exemplo para este cliente. O Studio Aurora demonstra o fluxo real da Íris — veja Análise IA e Content DNA.");return;}
     el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Estratégia — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p>Definida por <b>Átlas</b> a partir do Content DNA.</p></div></div>'+
       '<div class="grid cols-2"><div class="card pad"><div class="bt" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:6px">Posicionamento</div><div style="font-size:14px">'+esc(s.posicionamento)+'</div></div>'+
       '<div class="card pad" style="background:var(--brand-weak);border-color:transparent"><div class="bt" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-ink);margin-bottom:6px">Big Message</div><div style="font-size:15px;font-family:var(--font-display);font-weight:700;color:var(--brand-ink)">'+esc(s.bigmsg)+'</div></div></div>'+
@@ -572,16 +682,19 @@
   }
   function renderResearch(){
     var items=RESEARCH[state.client]||[],el=I('.view[data-view="research"]');
+    if(!items.length){el.innerHTML=emptyView("Pesquisa — "+clientName(state.client),"Sem pesquisa de exemplo para este cliente ainda.");return;}
     el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p><b>Radar</b> — inteligência externa com fonte e data. Nunca inventa tendências.</p></div></div>'+
       '<div class="card pad">'+items.map(function(r){return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r[0])+'</span><div><div class="ri-t">'+esc(r[1])+'</div><div class="ri-m">↳ '+esc(r[2])+'</div></div></div>'}).join('')+'</div>';
   }
   function renderEditorial(){
     var pil=EDITORIAL[state.client]||[],el=I('.view[data-view="editorial"]');
+    if(!pil.length){el.innerHTML=emptyView("Linha Editorial — "+clientName(state.client),"Sem linha editorial de exemplo para este cliente ainda.");return;}
     el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Linha Editorial — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p><b>Bússola</b> — Pilar → Território → Tema. Impede conteúdo aleatório.</p></div></div>'+
       '<div class="tree">'+pil.map(function(p){return '<div class="pil"><div class="h"><span style="width:8px;height:8px;border-radius:50%;background:var(--brand)"></span>'+esc(p[0])+'</div><div class="b">'+p[1].map(function(t){return '<span class="badge">'+esc(t)+'</span>'}).join('')+'</div></div>'}).join('')+'</div>';
   }
   function renderIdeas(){
     var items=IDEAS[state.client]||[],el=I('.view[data-view="ideas"]');
+    if(!items.length){el.innerHTML=emptyView("Ideias — "+clientName(state.client),"Sem ideias de exemplo para este cliente ainda.");return;}
     el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona + performance. Não é uma lista de “30 ideias”.</p></div></div>'+
       '<div class="clist">'+items.map(function(x){
         return '<div class="card pad"><div style="font-family:var(--font-display);font-weight:700;font-size:14.5px;line-height:1.25">'+esc(x.titulo)+'</div>'+
@@ -593,6 +706,69 @@
       }).join('')+'</div>';
   }
   function renderStatus(v){var s=STATUS[v]||["mock",""];var el=I("#statuspill");if(!el)return;el.className="statuspill lvl-"+s[0];el.textContent=LVL[s[0]];el.title=s[1];}
+  function emptyView(title,msg){return '<div class="section-head" style="margin-top:6px"><div><h3>'+title+' <span class="tag-mock">demonstração</span></h3></div></div><div class="card pad" style="text-align:center;color:var(--muted);padding:28px"><div style="font-size:13px">'+esc(msg)+'</div></div>'}
+
+  // ---- Análise ao vivo (Íris) ----
+  function anRenderResult(res){
+    var counts={};["FACT","HYPOTHESIS","INSIGHT","STRATEGIC_DECISION","LEARNING"].forEach(function(s){counts[s]=res.suggestions.filter(function(x){return x.state===s}).length});
+    var bySec={};res.suggestions.forEach(function(s){(bySec[s.section]=bySec[s.section]||[]).push(s)});
+    var h='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><b style="font-family:var(--font-display);font-size:15px">'+res.suggestions.length+' sugestões</b>';
+    ["FACT","INSIGHT","STRATEGIC_DECISION","LEARNING","HYPOTHESIS"].forEach(function(s){if(counts[s])h+='<span class="pill mono st-'+s+'">'+STLBL[s]+' '+counts[s]+'</span>'});
+    h+='</div><div style="font-size:11.5px;color:var(--faint);margin-bottom:14px">Guardrails: '+(res.downgraded?res.downgraded+' FACT sem fonte → HYPOTHESIS':'nenhuma invenção detectada')+' · exige aprovação humana</div>';
+    SECORDER.forEach(function(sec){var items=bySec[sec];if(!items)return;
+      h+='<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);margin-bottom:7px">'+SECLBL[sec]+'</div>';
+      items.forEach(function(x){h+='<div class="entry" style="margin-bottom:7px"><div class="e-top"><span class="pill mono st-'+x.state+'">'+STLBL[x.state]+'</span><span class="e-field">'+esc(x.field)+'</span></div><div class="e-val">'+esc(x.value)+'</div><div class="e-prov">↳ '+esc(x.src)+'</div></div>'});
+      h+='</div>';
+    });
+    h+='<button class="btn" id="anGoDna">Ver no Content DNA →</button>';
+    return h;
+  }
+  function runAnalyze(){
+    var txt=I("#anTxt").value,src=I("#anSrc").value;
+    var res=irisExtract(txt,src);
+    DNA["aurora"]=irisToDnaEntries(res);
+    I("#anOut").innerHTML=anRenderResult(res);
+    var g=I("#anGoDna");if(g)g.addEventListener('click',function(){setClient("aurora");go("dna")});
+  }
+  function renderAnalyze(){
+    var el=I('.view[data-view="analyze"]');
+    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Análise IA — Íris <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p>Cole um briefing e a Íris estrutura o Content DNA <b>ao vivo</b>, com a mesma lógica coberta por testes. Nada vira fato sem sua aprovação.</p></div></div>'+
+      '<div class="grid cols-2"><div class="card pad"><div class="fld"><label for="anNome">Cliente</label><input id="anNome" value="Studio Aurora — Fotografia de Casamento"></div><div class="fld"><label for="anSrc">Fonte (proveniência)</label><input id="anSrc" value="'+esc(AURORA_SRC)+'"></div><div class="fld"><label for="anTxt">Briefing do cliente</label><textarea class="ta" id="anTxt">'+esc(AURORA_BRIEFING)+'</textarea></div><button class="btn pri" id="anRun">▶ Analisar com a Íris</button></div>'+
+      '<div class="card pad" id="anOut"></div></div>';
+    I("#anRun").addEventListener('click',runAnalyze);
+    runAnalyze();
+  }
+
+  // ---- Distribuição por funil ----
+  function applyPreset(p){var m=p==="aut"?[65,25,10]:p==="ven"?[25,30,45]:[45,30,25];I("#rTopo").value=m[0];I("#rMeio").value=m[1];I("#rFundo").value=m[2];runDist()}
+  function runDist(){
+    var total=Math.max(1,parseInt(I("#dTotal").value||"20",10));
+    var t=+I("#rTopo").value,m=+I("#rMeio").value,f=+I("#rFundo").value;
+    I("#vTopo").textContent=t+"%";I("#vMeio").textContent=m+"%";I("#vFundo").textContent=f+"%";
+    var r=planDistribution(total,{topo:t,meio:m,fundo:f});
+    var cols={topo:"#5B45E6",meio:"#2E6FB7",fundo:"#0E8C9B"};
+    var stack=["topo","meio","fundo"].map(function(k){return r.funnel[k]>0?'<div class="seg" style="flex:'+r.funnel[k]+' 1 0;background:'+cols[k]+'">'+r.funnel[k]+'</div>':''}).join('');
+    var mx=Math.max.apply(null,FUNCS.map(function(x){return r.functions[x]}))||1;
+    var funcRows=FUNCS.map(function(fn){return '<div class="fnbar"><span class="fnl">'+FUNC_LBL[fn]+' <span style="color:var(--faint);font-size:10.5px">· '+FUNC_FUNNEL[fn]+'</span></span><span class="fnt"><i style="width:'+(r.functions[fn]/mx*100)+'%"></i></span><span class="fnv tnum">'+r.functions[fn]+'</span></div>'}).join('');
+    var warn=r.warnings.length?'<div class="callout" style="margin-top:14px;background:var(--hyp-bg)"><span>⚠️</span><div class="em" style="color:var(--warn)">'+r.warnings.map(esc).join('<br>')+'</div></div>':'';
+    I("#dOut").innerHTML='<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);margin-bottom:10px">Plano do mês · '+total+' conteúdos</div><div class="stack">'+stack+'</div>'+
+      '<div class="funnel-num"><div class="fn"><div class="n" style="color:'+cols.topo+'">'+r.funnel.topo+'</div><div class="l">Topo ('+r.funnelPercent.topo+'%)</div></div><div class="fn"><div class="n" style="color:'+cols.meio+'">'+r.funnel.meio+'</div><div class="l">Meio ('+r.funnelPercent.meio+'%)</div></div><div class="fn"><div class="n" style="color:'+cols.fundo+'">'+r.funnel.fundo+'</div><div class="l">Fundo ('+r.funnelPercent.fundo+'%)</div></div></div>'+
+      '<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);margin:18px 0 10px">Por função de conteúdo</div>'+funcRows+warn;
+  }
+  function renderDistribution(){
+    var el=I('.view[data-view="distribution"]');
+    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Distribuição Editorial <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p>Quantos conteúdos no mês e o mix por funil. O plano é calculado de verdade (método do maior resto) — competência de <b>Cronos + Bússola</b>.</p></div></div>'+
+      '<div class="grid cols-2"><div class="card pad"><div class="fld"><label for="dTotal">Conteúdos no mês</label><input id="dTotal" type="number" min="1" max="60" value="20"></div>'+
+      '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px"><button class="preset" data-preset="aut">Autoridade (mais topo)</button><button class="preset" data-preset="eq">Equilíbrio</button><button class="preset" data-preset="ven">Vendas (mais fundo)</button></div>'+
+      '<div class="range-row"><span class="rl">Topo de funil</span><input type="range" id="rTopo" min="0" max="100" value="50"><span class="rv" id="vTopo">50%</span></div>'+
+      '<div class="range-row"><span class="rl">Meio de funil</span><input type="range" id="rMeio" min="0" max="100" value="30"><span class="rv" id="vMeio">30%</span></div>'+
+      '<div class="range-row"><span class="rl">Fundo de funil</span><input type="range" id="rFundo" min="0" max="100" value="20"><span class="rv" id="vFundo">20%</span></div>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin-top:6px">Os percentuais são normalizados — não precisam somar 100.</div></div>'+
+      '<div class="card pad" id="dOut"></div></div>';
+    ["rTopo","rMeio","rFundo","dTotal"].forEach(function(id){I("#"+id).addEventListener("input",runDist)});
+    Array.prototype.forEach.call(document.querySelectorAll("[data-preset]"),function(b){b.addEventListener("click",function(){applyPreset(b.getAttribute("data-preset"))})});
+    runDist();
+  }
   function renderContentList(){I("#contentList").innerHTML=CONTENT.map(contentCard).join('');wireContent('#contentList [data-content]')}
   function renderApprovals(){var items=CONTENT.filter(function(x){return x.status==="WAITING APPROVAL"||x.status==="REVIEW"});I("#approvalList").innerHTML=items.map(contentCard).join('');wireContent('#approvalList [data-content]')}
   function renderCal(){
@@ -655,6 +831,7 @@
   function initTheme(){var root=document.documentElement,saved=null;try{saved=localStorage.getItem('cos-theme')}catch(e){}if(saved)root.setAttribute('data-theme',saved);
     I("#theme").addEventListener('click',function(){var cur=root.getAttribute('data-theme');var dark=cur?cur==="dark":window.matchMedia('(prefers-color-scheme: dark)').matches;var nx=dark?"light":"dark";root.setAttribute('data-theme',nx);try{localStorage.setItem('cos-theme',nx)}catch(e){}})}
 
+  DNA["aurora"]=irisToDnaEntries(irisExtract(AURORA_BRIEFING,AURORA_SRC)); // Íris estrutura o cliente novo no load
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderActivity();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
   buildClientSelect();initTheme();go("overview");
 })();

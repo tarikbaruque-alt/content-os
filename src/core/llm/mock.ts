@@ -114,7 +114,10 @@ export function buildSuggestionSet(input: MockExtractionInput) {
       });
     }
 
-    for (const seg of splitSegments(raw.content)) {
+    // Falas entre aspas já viram VoC; removê-las evita classificar o texto do
+    // depoimento como fato de negócio (ex.: "vendo" de ver × vender).
+    const quoteless = raw.content.replace(/["“”][^"“”]*["“”]/g, " ");
+    for (const seg of splitSegments(quoteless)) {
       const rule = RULES.find((r) => r.test.test(seg));
       if (!rule) continue;
       // Refina o campo de business (ticket vs oferta).
