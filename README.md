@@ -32,6 +32,15 @@ Ver [`foundation/`](./foundation/).
 - [Ingestão de materiais](./foundation/knowledge-ingestion.md) — analisar, não copiar.
 - [Governança](./foundation/governance.md) — humano no comando; inferência ≠ fato.
 
+## Diretrizes de produto
+
+- ⭐ [Doutrina Criativa](./foundation/creative-doctrine.md) — profundidade criativa e **anti-genérico**.
+- [Arquitetura Editorial](./foundation/editorial-architecture.md) — cadeia editorial e função estratégica.
+- [Formatos](./foundation/formats.md) — superfície × formato criativo.
+- [Modelo de Conteúdo & Calendário](./foundation/content-model.md) — registro, status e geração por IA.
+- [Experiência](./foundation/client-experience.md) — visão interna × portal do cliente.
+- [Integração Notion](./foundation/integrations/notion.md) — camada opcional.
+
 ## Camadas de IA
 
 - **Claude (LLM)** — raciocínio e geração criativa (a maior parte do trabalho).

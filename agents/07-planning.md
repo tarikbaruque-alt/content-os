@@ -22,6 +22,13 @@ Content DNA + Knowledge Base (cadência/planejamento).
 KB: [Planejamento & Cadência](../foundation/knowledge-base/pilares/planejamento-cadencia.md)
 (frequência, mix de formatos, sequência de Stories, calendário transmídia).
 
+### Diretrizes que governam este agente
+- ⭐ [Modelo de Conteúdo & Calendário](../foundation/content-model.md) — registro de
+  conteúdo, fluxo de status, visualizações e **geração de calendário por IA**
+  (30 decisões editoriais, não 30 ideias em datas).
+- [Integração Notion](../foundation/integrations/notion.md) — camada **opcional** de
+  sincronização; nenhuma ação externa sem autorização.
+
 ## Handoffs
 Recebe conteúdo pronto do **Creative Studio**; devolve para **Performance** o que
 foi publicado (para medição).

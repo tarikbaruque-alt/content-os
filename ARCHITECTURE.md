@@ -119,6 +119,47 @@ Detalhe em [`foundation/governance.md`](./foundation/governance.md). Princípios
 
 ---
 
+## 5.1 Diretrizes de produto (doutrina)
+
+Definem a **qualidade e a profundidade** do que o sistema entrega. São
+transversais e referenciadas pelos agentes (que não duplicam seu conteúdo):
+
+| Diretriz | Governa |
+|---|---|
+| [Doutrina Criativa](./foundation/creative-doctrine.md) | Musa, Rima — leitura estratégica, arquitetura de desejo, persuasão ética, repertório narrativo, **anti-genérico**, controles criativos |
+| [Arquitetura Editorial](./foundation/editorial-architecture.md) | Bússola — cadeia editorial e **jornada × funil × objetivo × função estratégica** |
+| [Formatos](./foundation/formats.md) | Musa, Rima — **superfície × formato criativo** |
+| [Modelo de Conteúdo & Calendário](./foundation/content-model.md) | Cronos — registro de conteúdo, status, geração de calendário por IA |
+| [Experiência](./foundation/client-experience.md) | produto — visão interna × portal do cliente |
+| [Integração Notion](./foundation/integrations/notion.md) | Cronos — camada opcional de sincronização |
+
+## 5.2 Verificação de arquitetura (impacto das diretrizes)
+
+As diretrizes foram checadas contra a arquitetura planejada. Resultado:
+
+**Não muda (confirmado):**
+- **Nenhum agente novo.** Copy, roteiro, carrossel, Stories e direção criativa
+  permanecem **competências/workflows dentro do Estúdio Criativo (Rima)**,
+  compartilhando a mesma inteligência estratégica. Teto de 10 mantido.
+- Divisão de responsabilidades intacta: Musa ideação · Bússola editorial ·
+  Cronos calendário · Acervo conhecimento · Maestro coordenação · Pulso ciclo.
+- Kernel já construído (schemas, providers, store, governança, guardrails)
+  **serve** as novas diretrizes sem reescrita.
+
+**Ajustes aditivos necessários (registrados, a implementar na fase de cada agente):**
+1. **`função estratégica` vira campo de 1ª classe**, distinto de objetivo,
+   jornada e funil (afeta o modelo de conteúdo e as ideias).
+2. **`formato` passa a ser composto**: `superfície + formato criativo`.
+3. **Controles criativos** (intensidade comercial, criatividade, profundidade,
+   emoção) entram no modelo de requisição de criação.
+4. **Portão anti-genérico** vira um guardrail executável no Estúdio Criativo
+   (hoje existe como regra documentada).
+5. **Rastreabilidade criativa**: gatilhos e recursos narrativos utilizados são
+   campos do conteúdo, não só prosa.
+6. **`SyncTarget`** (Notion) entra como interface, no mesmo padrão de `LlmProvider`.
+
+Nenhum desses ajustes exige reconstrução — todos são **extensões** do que existe.
+
 ## 6. Camadas de IA (motor)
 
 - **Claude (LLM)** — raciocínio e geração criativa: a maior parte do trabalho dos agentes.
@@ -135,6 +176,9 @@ Detalhe em [`foundation/governance.md`](./foundation/governance.md). Princípios
 - [x] **1º lote de materiais analisado** (tráfego orgânico Instagram) → [proposta 01](./foundation/knowledge-base/proposals/01-instagram-organico.md)
 - [x] **Aprovação do estrategista** nas decisões de escopo
 - [x] **Knowledge Base formalizada** (5 pilares ativos + 1 futuro) → [`foundation/knowledge-base/`](./foundation/knowledge-base/)
-- [ ] Detalhar competências prioritárias do Creative Studio: **Copy, Stories, Carrossel** (KB já pronta; Carrossel precisa de material específico)
-- [ ] Ingerir novos materiais de referência (enriquecer a KB)
-- [ ] **Implementação incremental** da aplicação (só após base de conhecimento madura)
+- [x] **Diretrizes de produto registradas** (§5.1) e **impacto arquitetural verificado** (§5.2)
+- [x] **1ª fatia implementada:** kernel (schemas, LLM gateway, Content DNA store, governança, guardrails, Acervo, Maestro-lite, observabilidade) + **agente Inteligência (Íris)** + **preview do painel** — 11 testes passando
+- [ ] **Validação do estrategista** (Íris + painel)
+- [ ] Ligar o provider real (Anthropic) — arquitetura já pronta
+- [ ] Próximo agente: **Estratégia (Átlas)** — só após validação
+- [ ] Ajustes aditivos da §5.2 na fase de cada agente

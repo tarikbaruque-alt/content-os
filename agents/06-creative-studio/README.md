@@ -36,6 +36,35 @@ briefing e schema. Todas bebem da **Knowledge Base** (ver seção abaixo).
 > específico de **estrutura de carrossel** (capa/gancho, progressão de slides,
 > slide de virada, último slide/CTA).
 
+## Requisitos por competência (registrados, a implementar)
+
+### Carrossel
+Deve produzir: `conceito` · `headline/capa` · `hook` · `estrutura narrativa` ·
+`conteúdo slide a slide` · `progressão` · `copy` · `CTA` ·
+`gatilhos/princípios persuasivos utilizados` · `elementos narrativos utilizados` ·
+`direção visual` · `sugestões de imagens` · `hierarquia da informação`.
+Nunca com escrita ou aparência genérica de IA.
+
+### Roteiro (vídeo/Reels)
+Deve poder trabalhar: `hook` · `contexto` · `conflito` · `desenvolvimento` ·
+`retenção` · `pattern interrupts` *(quando adequados)* · `storytelling` ·
+`argumento` · `prova` · `payoff` · `CTA` · `direção de gravação` · `cenas` ·
+`B-roll` · `texto na tela` · `ritmo` · `cortes` · `instruções de edição`.
+**A estrutura varia** conforme objetivo, persona e formato — nunca a mesma
+fórmula em todos os vídeos.
+
+### Copy
+Trabalha sobre a **arquitetura de desejo** (situação atual → tensão → desejo →
+possibilidade → transformação → solução → prova → ação), com persuasão
+contextual e ética.
+
+## Diretriz que governa este agente
+- ⭐ [Doutrina Criativa](../../foundation/creative-doctrine.md) — **fonte canônica** de
+  leitura estratégica, arquitetura de desejo, persuasão ética, repertório
+  narrativo, critérios anti-genérico e controles criativos.
+- [Formatos](../../foundation/formats.md) — superfície × formato criativo.
+- [Arquitetura Editorial](../../foundation/editorial-architecture.md) — função estratégica da peça.
+
 ## Base na Knowledge Base
 As competências **referenciam** a KB em vez de duplicar listas:
 - [Criação de Alto Valor](../../foundation/knowledge-base/pilares/criacao-alto-valor.md) — ressonância, **ganchos canônicos**, estrutura de Stories, **copy/legenda**.

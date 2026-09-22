@@ -17,19 +17,26 @@ PÚBLICO + PERSONA + DOR + DESEJO + BIG MESSAGE + OBJETIVO + EMOÇÃO + JORNADA
 + HISTÓRICO + PERFORMANCE
 ```
 
-## Saída de cada ideia (cadeia estruturada)
+## Saída de cada ideia (registro completo)
 
+Uma ideia é um **registro estratégico**, não uma frase. Pode conter:
+
+`título interno` · `conceito` · `insight` · `persona` · `dor/desejo` ·
+`Big Message` · `objetivo` · `emoção` · `percepção desejada` · `jornada` ·
+`função estratégica` · `pilar` · `tema` · `subtema` · `ângulo` ·
+`formato recomendado` *(superfície + formato criativo)* · `hipótese de hook` ·
+`CTA possível` · `justificativa estratégica`
+
+Cadeia mínima de raciocínio:
 ```
-IDEIA
- → INSIGHT
- → ÂNGULO
- → FORMATO
- → OBJETIVO
- → EMOÇÃO
- → HOOK
- → CTA
- → JUSTIFICATIVA ESTRATÉGICA
+IDEIA → INSIGHT → ÂNGULO → FORMATO → OBJETIVO → EMOÇÃO → HOOK → CTA → JUSTIFICATIVA
 ```
+
+## Regra de diversidade
+
+Ideias **semanticamente repetidas** (a mesma ideia reescrita) contam como
+**falha de ideação**, não como volume. Um conjunto deve variar em **objetivo,
+ângulo, formato, emoção, jornada, profundidade e narrativa**.
 
 ## Responsabilidades
 - Criar **ideias de conteúdo** ancoradas no contexto (não soltas).
@@ -47,6 +54,11 @@ justificativa — insumo direto para o Creative Studio e o Planning.
 
 ## Camadas de conhecimento usadas
 As **quatro**: Content DNA + Knowledge Base + Live Research + Performance Data.
+
+### Diretrizes que governam este agente
+- [Doutrina Criativa](../foundation/creative-doctrine.md) — leitura estratégica e portão anti-genérico.
+- [Arquitetura Editorial](../foundation/editorial-architecture.md) — cadeia editorial e funções estratégicas.
+- [Formatos](../foundation/formats.md) — superfície × formato criativo.
 
 ### Base na Knowledge Base
 - [Jornada & Editorias](../foundation/knowledge-base/pilares/jornada-e-editorias.md)

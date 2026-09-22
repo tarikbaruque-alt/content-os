@@ -22,6 +22,12 @@ Content DNA + Knowledge Base + Live Research.
 KB: [Jornada & Editorias](../foundation/knowledge-base/pilares/jornada-e-editorias.md)
 (editorias por etapa da jornada).
 
+### Diretriz que governa este agente
+⭐ [Arquitetura Editorial](../foundation/editorial-architecture.md) — cadeia
+`Pilar → Território → Tema → Subtema → Tópico → Ideia → Ângulo → Formato → Conteúdo`,
+distinção entre jornada / funil / objetivo / **função estratégica**, e a regra
+de diversidade editorial.
+
 ## Handoffs
 Entrega a arquitetura editorial e os clusters para **Ideas & Formats** e
 **Planning**.
