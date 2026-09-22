@@ -1,0 +1,26 @@
+{
+  "name": "content-os",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Content OS — sistema de inteligência estratégica de conteúdo com agentes de IA.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "demo": "tsx src/demo/run-intelligence.ts",
+    "preview": "echo \"Abra apps/web/index.html no navegador (ou rode: npx --yes serve apps/web)\""
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  }
+}

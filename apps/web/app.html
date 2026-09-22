@@ -1,0 +1,599 @@
+<title>Content OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F5F5FA; --surface:#FFFFFF; --surface-2:#FBFBFE;
+    --ink:#191826; --muted:#6A6A7E; --faint:#9A9AAD;
+    --line:#E8E8F1; --line-2:#F0F0F6;
+    --brand:#5B45E6; --brand-ink:#4634B6; --brand-weak:#EEEBFF;
+    --sidebar:#141320; --sidebar-2:#201E30; --sidebar-ink:#EDECF6; --sidebar-muted:#9C9AB6; --sidebar-line:#2C2A3D;
+    --fact:#1E8A5B; --fact-bg:#E4F5EC;
+    --hyp:#A9741A; --hyp-bg:#FBF0DB;
+    --insight:#6D4AE0; --insight-bg:#EDE8FD;
+    --decision:#2E6FB7; --decision-bg:#E4EFFA;
+    --learning:#0E8C9B; --learning-bg:#DCF3F5;
+    --good:#1E8A5B; --warn:#A9741A; --neutral:#8A8A9E;
+    --shadow:0 1px 2px rgba(20,19,32,.04), 0 8px 24px -12px rgba(20,19,32,.12);
+    --radius:14px;
+    --font-display:"Bricolage Grotesque",-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --bg:#0E0D16; --surface:#16141F; --surface-2:#1B1927;
+      --ink:#ECEBF5; --muted:#A3A1B7; --faint:#6E6C83;
+      --line:#2A2838; --line-2:#221F2F;
+      --brand:#8B7BFF; --brand-ink:#A99CFF; --brand-weak:#241F3B;
+      --sidebar:#0A0910; --sidebar-2:#15131F; --sidebar-ink:#ECEBF5; --sidebar-muted:#8886A2; --sidebar-line:#221F30;
+      --fact:#43C08A; --fact-bg:#123227;
+      --hyp:#E0A94A; --hyp-bg:#33280F;
+      --insight:#A995FF; --insight-bg:#241F3B;
+      --decision:#6BA6E8; --decision-bg:#12263B;
+      --learning:#3FC2D1; --learning-bg:#0E2E32;
+      --good:#43C08A; --warn:#E0A94A; --neutral:#7C7A92;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E0D16; --surface:#16141F; --surface-2:#1B1927;
+    --ink:#ECEBF5; --muted:#A3A1B7; --faint:#6E6C83;
+    --line:#2A2838; --line-2:#221F2F;
+    --brand:#8B7BFF; --brand-ink:#A99CFF; --brand-weak:#241F3B;
+    --sidebar:#0A0910; --sidebar-2:#15131F; --sidebar-ink:#ECEBF5; --sidebar-muted:#8886A2; --sidebar-line:#221F30;
+    --fact:#43C08A; --fact-bg:#123227;
+    --hyp:#E0A94A; --hyp-bg:#33280F;
+    --insight:#A995FF; --insight-bg:#241F3B;
+    --decision:#6BA6E8; --decision-bg:#12263B;
+    --learning:#3FC2D1; --learning-bg:#0E2E32;
+    --good:#43C08A; --warn:#E0A94A; --neutral:#7C7A92;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;margin:0;letter-spacing:-.01em;text-wrap:balance}
+  a{color:inherit}
+  button{font-family:inherit}
+  .tnum{font-variant-numeric:tabular-nums}
+  .mono{font-family:var(--font-mono)}
+
+  .app{display:grid;grid-template-columns:266px 1fr;min-height:100%}
+
+  /* Sidebar */
+  .side{background:var(--sidebar);color:var(--sidebar-ink);position:sticky;top:env(safe-area-inset-top,0px);align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--sidebar-line);display:flex;flex-direction:column;gap:6px;padding:20px 14px}
+  .brand{display:flex;align-items:center;gap:11px;padding:6px 8px 14px}
+  .brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,#7A67FF,#5B45E6 60%,#3F2FB0);display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:17px;box-shadow:0 4px 14px -4px rgba(91,69,230,.7)}
+  .brand .name{font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:-.01em}
+  .brand .sub{color:var(--sidebar-muted);font-size:11px;letter-spacing:.02em}
+  .nav-group{margin-top:8px}
+  .nav-group .lbl{color:var(--sidebar-muted);font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;padding:6px 10px}
+  .nav a{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:9px;color:var(--sidebar-ink);text-decoration:none;font-size:13.5px;font-weight:500;cursor:pointer;opacity:.82}
+  .nav a .ic{width:17px;height:17px;flex:0 0 auto;opacity:.9}
+  .nav a:hover{background:var(--sidebar-2);opacity:1}
+  .nav a.active{background:linear-gradient(90deg,rgba(91,69,230,.22),rgba(91,69,230,.06));opacity:1;box-shadow:inset 2px 0 0 var(--brand)}
+  .nav a .dot{margin-left:auto;width:7px;height:7px;border-radius:50%}
+  .side .foot{margin-top:auto;padding:12px 8px 4px;color:var(--sidebar-muted);font-size:11px;display:flex;align-items:center;gap:8px}
+  .chip-prov{margin-left:auto;font-family:var(--font-mono);font-size:10.5px;background:var(--sidebar-2);border:1px solid var(--sidebar-line);color:var(--sidebar-ink);padding:2px 7px;border-radius:20px}
+
+  /* Main */
+  .main{min-width:0;display:flex;flex-direction:column}
+  .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:12px 26px}
+  .topbar .crumb{font-size:12px;color:var(--faint)}
+  .topbar h2{font-size:17px}
+  .topbar .spacer{flex:1}
+  .client-switch{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px 6px 5px 11px;box-shadow:var(--shadow)}
+  .client-switch .av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:600;font-size:11px;font-family:var(--font-display)}
+  .client-switch select{border:0;background:transparent;color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;outline:none}
+  .icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;display:grid;place-items:center}
+  .icon-btn:hover{color:var(--ink);border-color:var(--brand)}
+
+  .wrap{padding:24px 26px 60px;max-width:1180px;width:100%}
+  .view[hidden]{display:none!important}
+
+  /* Bits */
+  .eyebrow{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-ink)}
+  .lead{color:var(--muted);max-width:64ch}
+  .grid{display:grid;gap:16px}
+  .cols-2{grid-template-columns:repeat(2,1fr)}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .cols-4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .pad{padding:18px}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:30px 0 14px}
+  .section-head h3{font-size:19px}
+  .section-head p{margin:3px 0 0;color:var(--muted);font-size:13px}
+
+  .kpi{padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+  .kpi .k-top{display:flex;align-items:center;justify-content:space-between}
+  .kpi .k-lbl{font-size:12px;color:var(--muted);font-weight:500}
+  .kpi .k-val{font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1;letter-spacing:-.02em}
+  .kpi .k-sub{font-size:11.5px;color:var(--faint)}
+  .kpi .k-ic{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--brand-weak);color:var(--brand-ink)}
+
+  .pipe{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .pipe .step{font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:6px 11px;border-radius:20px;white-space:nowrap}
+  .pipe .step.on{color:var(--brand-ink);background:var(--brand-weak);border-color:transparent}
+  .pipe .arr{color:var(--faint);font-size:12px}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.01em}
+  .pill .d{width:6px;height:6px;border-radius:50%}
+  .pill.mono{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0}
+  .st-FACT{color:var(--fact);background:var(--fact-bg)}
+  .st-HYPOTHESIS{color:var(--hyp);background:var(--hyp-bg)}
+  .st-INSIGHT{color:var(--insight);background:var(--insight-bg)}
+  .st-STRATEGIC_DECISION{color:var(--decision);background:var(--decision-bg)}
+  .st-LEARNING{color:var(--learning);background:var(--learning-bg)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--muted);background:var(--surface-2)}
+  .badge.plan{color:var(--neutral)}
+  .badge.act{color:var(--good);background:var(--fact-bg);border-color:transparent}
+  .badge.prog{color:var(--warn);background:var(--hyp-bg);border-color:transparent}
+  .tag-mock{font-size:10.5px;font-weight:600;color:var(--faint);border:1px dashed var(--line);padding:2px 8px;border-radius:20px}
+
+  /* Agents */
+  .agents{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .agent{display:flex;gap:13px;padding:16px;align-items:flex-start}
+  .agent .av{width:42px;height:42px;border-radius:11px;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:17px}
+  .agent .an{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .agent .an b{font-family:var(--font-display);font-size:15px}
+  .agent .role{font-size:11.5px;color:var(--muted);font-weight:600}
+  .agent .sum{font-size:12.5px;color:var(--muted);margin-top:5px}
+
+  /* Content DNA */
+  .dna-sec{padding:16px 18px}
+  .dna-sec h4{font-size:13px;letter-spacing:.02em;display:flex;align-items:center;gap:9px;margin-bottom:12px;color:var(--ink)}
+  .dna-sec h4 .ct{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--faint);font-weight:500}
+  .entry{border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin-bottom:9px;background:var(--surface-2)}
+  .entry:last-child{margin-bottom:0}
+  .entry .e-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .entry .e-field{font-family:var(--font-mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .entry .e-val{font-size:13.5px;color:var(--ink)}
+  .entry .e-prov{margin-top:8px;font-size:11px;color:var(--faint);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .entry .e-actions{margin-top:11px;display:flex;gap:7px;flex-wrap:wrap}
+  .btn{font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+  .btn:hover{border-color:var(--brand)}
+  .btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn.pri:hover{background:var(--brand-ink)}
+  .btn.ghost{color:var(--muted)}
+
+  .callout{display:flex;gap:12px;padding:14px 16px;border-radius:12px;background:var(--brand-weak);border:1px solid transparent}
+  .callout .em{font-size:12.5px;color:var(--brand-ink)}
+
+  /* Preview / planned sections */
+  .preview{padding:22px}
+  .preview .flow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .preview .node{font-size:12.5px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 13px}
+  .empty-note{margin-top:14px;font-size:12.5px;color:var(--faint)}
+
+  .kb-card{padding:16px}
+  .kb-card .kb-t{font-family:var(--font-display);font-weight:600;font-size:14.5px;margin-bottom:5px}
+  .kb-card .kb-d{font-size:12.5px;color:var(--muted)}
+  .kb-card .kb-m{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+
+  /* Calendar */
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .cal .day{border:1px solid var(--line);border-radius:10px;padding:9px;min-height:92px;background:var(--surface-2)}
+  .cal .day .dn{font-size:11px;color:var(--faint);font-weight:600;margin-bottom:7px}
+  .cal .ev{font-size:10.5px;font-weight:600;padding:4px 6px;border-radius:6px;margin-bottom:5px;color:#fff}
+
+  /* Bars */
+  .bars{display:flex;align-items:flex-end;gap:12px;height:150px;padding-top:10px}
+  .bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+  .bars .b .bar{width:100%;max-width:44px;border-radius:7px 7px 0 0;background:linear-gradient(180deg,var(--brand),#8A79FF)}
+  .bars .b .bl{font-size:11px;color:var(--muted);font-weight:600}
+  .bars .b .bv{font-size:11px;color:var(--faint)}
+
+  .foot-note{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--faint);font-size:12px}
+
+  @media (max-width:920px){
+    .app{grid-template-columns:1fr}
+    .side{flex-direction:row;height:auto;position:sticky;top:0;overflow-x:auto;overflow-y:hidden;align-items:center;gap:4px;padding:10px 12px;border-right:0;border-bottom:1px solid var(--sidebar-line)}
+    .brand{padding:0 10px 0 4px;flex:0 0 auto}
+    .brand .sub{display:none}
+    .nav-group{margin-top:0;display:flex;align-items:center;gap:4px}
+    .nav-group .lbl{display:none}
+    .nav{display:flex}
+    .side .foot{display:none}
+    .cols-4{grid-template-columns:repeat(2,1fr)}
+    .cols-3{grid-template-columns:1fr}
+    .cols-2{grid-template-columns:1fr}
+    .agents{grid-template-columns:1fr}
+    .wrap{padding:20px 16px 60px}
+    .topbar{padding:11px 16px}
+    .cal{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="mark">C</div>
+      <div>
+        <div class="name">Content&nbsp;OS</div>
+        <div class="sub">Inteligência de conteúdo</div>
+      </div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">
+      <span>Provider</span>
+      <span class="chip-prov" id="prov">mock</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="crumb" id="crumb">Trabalho</div>
+        <h2 id="ptitle">Visão geral</h2>
+      </div>
+      <div class="spacer"></div>
+      <div class="client-switch">
+        <div class="av" id="csav">M</div>
+        <select id="csel" aria-label="Cliente ativo"></select>
+      </div>
+      <button class="icon-btn" id="theme" title="Alternar tema" aria-label="Alternar tema">◐</button>
+    </header>
+
+    <div class="wrap">
+      <!-- VISÃO GERAL -->
+      <section class="view" data-view="overview">
+        <div class="eyebrow">Content OS</div>
+        <h1 style="font-size:26px;margin:8px 0 6px">Inteligência estratégica de conteúdo</h1>
+        <p class="lead">Uma equipe de agentes de IA que entende cada cliente, decide com fundamento, pesquisa, cria, planeja e aprende — para melhores decisões de conteúdo, não apenas mais conteúdo.</p>
+
+        <div class="card pad" style="margin-top:18px">
+          <div class="eyebrow" style="margin-bottom:12px">Como o sistema pensa</div>
+          <div class="pipe" id="pipe"></div>
+        </div>
+
+        <div class="grid cols-4" style="margin-top:16px" id="kpis"></div>
+
+        <div class="section-head"><div><h3>Equipe de agentes</h3><p>Inteligência nos bastidores — cada um com sua função.</p></div><a class="badge" data-goto="agents" style="cursor:pointer">Ver todos →</a></div>
+        <div class="grid cols-3" id="agentMini"></div>
+
+        <div class="section-head"><div><h3>Atividade recente</h3><p>O que os agentes fizeram por último.</p></div></div>
+        <div class="card" id="activity"></div>
+      </section>
+
+      <!-- CLIENTES -->
+      <section class="view" data-view="clients" hidden>
+        <div class="section-head" style="margin-top:6px"><div><h3>Clientes</h3><p>Cada cliente tem uma memória estratégica própria (Content DNA).</p></div></div>
+        <div class="grid cols-3" id="clientCards"></div>
+      </section>
+
+      <!-- CONTENT DNA -->
+      <section class="view" data-view="dna" hidden>
+        <div class="section-head" style="margin-top:6px">
+          <div><h3 id="dnaTitle">Content DNA</h3><p>Memória estratégica estruturada por <b>Íris</b>. Nada vira fato sem sua aprovação.</p></div>
+        </div>
+        <div class="callout" style="margin-bottom:16px">
+          <span style="font-size:15px">✳︎</span>
+          <div class="em"><b>Governança de memória.</b> Cada registro tem um estado (FACT, HYPOTHESIS, INSIGHT, STRATEGIC&nbsp;DECISION, LEARNING) e proveniência. Íris apenas <b>sugere</b>; você aprova, edita ou rejeita.</div>
+        </div>
+        <div class="grid" id="dnaSections"></div>
+      </section>
+
+      <!-- AGENTES -->
+      <section class="view" data-view="agents" hidden>
+        <div class="section-head" style="margin-top:6px"><div><h3>Agentes de IA</h3><p>10 especialistas coordenados — não dez chatbots isolados.</p></div></div>
+        <div class="agents" id="agentGrid"></div>
+      </section>
+
+      <!-- ESTRATÉGIA -->
+      <section class="view" data-view="strategy" hidden></section>
+      <!-- PESQUISA -->
+      <section class="view" data-view="research" hidden></section>
+      <!-- EDITORIAL -->
+      <section class="view" data-view="editorial" hidden></section>
+      <!-- CONTEÚDOS -->
+      <section class="view" data-view="content" hidden></section>
+
+      <!-- CALENDÁRIO -->
+      <section class="view" data-view="calendar" hidden>
+        <div class="section-head" style="margin-top:6px"><div><h3>Calendário editorial <span class="tag-mock">exemplo</span></h3><p>Operado por <b>Cronos</b> — do IDEA ao PUBLISHED.</p></div></div>
+        <div class="card pad"><div class="cal" id="cal"></div></div>
+      </section>
+
+      <!-- APROVAÇÕES -->
+      <section class="view" data-view="approvals" hidden>
+        <div class="section-head" style="margin-top:6px"><div><h3>Aguardando aprovação <span class="tag-mock">exemplo</span></h3><p>Cada peça mostra <b>por que existe</b> — objetivo, jornada e função estratégica.</p></div></div>
+        <div class="grid" id="approvalList"></div>
+      </section>
+
+      <!-- PERFORMANCE -->
+      <section class="view" data-view="performance" hidden>
+        <div class="section-head" style="margin-top:6px"><div><h3>Performance <span class="tag-mock">dados de exemplo</span></h3><p><b>Pulso</b> transforma dados em aprendizado — sempre pelo objetivo do conteúdo.</p></div></div>
+        <div class="grid cols-4" id="perfKpis" style="margin-bottom:16px"></div>
+        <div class="card pad">
+          <div class="eyebrow" style="margin-bottom:6px">Retenção média por formato</div>
+          <div class="bars" id="perfBars"></div>
+        </div>
+      </section>
+
+      <!-- KNOWLEDGE BASE -->
+      <section class="view" data-view="kb" hidden>
+        <div class="section-head" style="margin-top:6px"><div><h3>Knowledge Base</h3><p>Conhecimento metodológico do Content OS — recuperado por <b>Acervo</b>. Escopo: Instagram-first, orgânico.</p></div></div>
+        <div class="grid cols-3" id="kbGrid"></div>
+      </section>
+
+      <div class="foot-note">Content OS · protótipo de painel · dados fictícios para visualização de UX. O agente <b>Íris</b> (Inteligência) já é funcional; os demais estão em desenvolvimento.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var I = function(s,r){return (r||document).querySelector(s)};
+  var svg = function(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="ic">'+p+'</svg>'};
+  var IC = {
+    overview: svg('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
+    clients: svg('<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 4.5a3 3 0 0 1 0 6"/><path d="M18 20a5 5 0 0 0-3-4.6"/>'),
+    dna: svg('<path d="M7 4c0 5 10 7 10 12M17 4c0 5-10 7-10 12"/><path d="M7 8h10M7 16h10"/>'),
+    agents: svg('<rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M12 8V4M9 4h6M8.5 13v2M15.5 13v2"/>'),
+    strategy: svg('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'),
+    research: svg('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>'),
+    editorial: svg('<path d="M4 5h16M4 10h10M4 15h16M4 20h7"/>'),
+    content: svg('<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>'),
+    calendar: svg('<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 9h16M9 3v4M15 3v4"/>'),
+    approvals: svg('<path d="M20 6L9 17l-5-5"/>'),
+    performance: svg('<path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/>'),
+    kb: svg('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>')
+  };
+  var NAV = [
+    {g:"Trabalho", items:[["overview","Visão geral"],["clients","Clientes"],["dna","Content DNA"]]},
+    {g:"Fluxo", items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
+    {g:"Sistema", items:[["agents","Agentes"],["kb","Knowledge Base"]]}
+  ];
+  var TITLES = {overview:["Trabalho","Visão geral"],clients:["Trabalho","Clientes"],dna:["Trabalho","Content DNA"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],agents:["Sistema","Agentes"],kb:["Sistema","Knowledge Base"]};
+
+  var AV = ["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#B7791F","#D6455D","#3A7D44","#575663"];
+  var AGENTS = [
+    {k:"intelligence",n:"Íris",r:"Inteligência",s:"active",d:"Entende o cliente e estrutura o Content DNA: negócio, público, persona, dores, desejos, objeções, VoC, posicionamento e comunicação."},
+    {k:"strategy",n:"Átlas",r:"Estratégia",s:"planned",d:"Transforma inteligência em estratégia: posicionamento, Big Message, objetivos, jornada e percepção desejada."},
+    {k:"research",n:"Radar",r:"Pesquisa",s:"planned",d:"Inteligência externa: nicho, concorrentes, tendências, palavras-chave — sempre com fonte, URL e data."},
+    {k:"editorial",n:"Bússola",r:"Editorial",s:"planned",d:"Arquitetura editorial: pilares, territórios, temas, subtemas, clusters e tópicos."},
+    {k:"ideas",n:"Musa",r:"Ideias & Formatos",s:"planned",d:"Transforma oportunidades em ideias com ângulo, formato, hook e justificativa estratégica."},
+    {k:"creative",n:"Rima",r:"Estúdio Criativo",s:"planned",d:"Roteiros, headlines, hooks, copy, carrosséis, Stories e CTAs — sem aparência genérica de IA."},
+    {k:"planning",n:"Cronos",r:"Planejamento",s:"planned",d:"Calendário, frequência, canais, produção e aprovação — do IDEA ao PUBLISHED."},
+    {k:"performance",n:"Pulso",r:"Performance",s:"planned",d:"Métrica → interpretação → insight → recomendação → próximo teste."},
+    {k:"knowledge",n:"Acervo",r:"Conhecimento",s:"prog",d:"Recupera apenas o conhecimento metodológico relevante da Knowledge Base para cada tarefa."},
+    {k:"orchestrator",n:"Maestro",r:"Orquestrador",s:"planned",d:"Coordena o sistema: qual agente usar, o que recuperar, o que passar no handoff e quando pedir o humano."}
+  ];
+  function avc(i){return AV[i%AV.length]}
+  function statusBadge(s){ if(s==="active")return '<span class="badge act">● Ativo</span>'; if(s==="prog")return '<span class="badge prog">● Em progresso</span>'; return '<span class="badge plan">○ Planejado</span>'; }
+
+  var CLIENTS = [
+    {id:"dra-marina-trabalhista", name:"Dra. Marina", full:"Dra. Marina — Advocacia Trabalhista", niche:"Advocacia trabalhista", av:0},
+    {id:"verde-vivo-cosmeticos", name:"Verde Vivo", full:"Verde Vivo — Cosméticos Naturais", niche:"Cosméticos naturais", av:1},
+    {id:"rafa-nutri-esportivo", name:"Rafa Nutri", full:"Rafa Nutri — Nutrição Esportiva", niche:"Nutrição esportiva", av:2}
+  ];
+  var SRC1="Entrevista de onboarding — 10/03/2026", SRC2="DM de cliente — 11/03/2026";
+  function e(section,field,value,state,src,status){return {section:section,field:field,value:value,state:state,src:src,status:status||"pending"}}
+  var DNA = {
+    "dra-marina-trabalhista":[
+      e("business","ticket","Consultoria jurídica e defesa em processos; ticket médio R$ 3.500 por caso.","FACT",SRC1,"approved"),
+      e("audience","persona","Trabalhadores CLT demitidos e pequenos empreendedores.","FACT",SRC1,"approved"),
+      e("audience","dores","Medo de serem demitidos sem receber seus direitos.","FACT",SRC1),
+      e("audience","desejos","Segurança e sentir que alguém está do lado deles.","FACT",SRC1),
+      e("audience","objecoes","Acham caro contratar um advogado.","FACT",SRC1),
+      e("audience","comportamento","Provavelmente chegam por indicação (a validar).","HYPOTHESIS","Íris — inferência"),
+      e("voice_of_customer","frase","“Achei que ia ficar no prejuízo, mas você reverteu tudo e me devolveu a paz.”","FACT",SRC2),
+      e("positioning","diferenciais","Explica cada etapa em linguagem simples, sem juridiquês.","FACT",SRC1),
+      e("positioning","posicionamento","8 anos de experiência e mais de 300 casos ganhos (prova social).","FACT",SRC1),
+      e("communication","tom","Acolhedora e informal; evita termos técnicos.","FACT",SRC1),
+      e("strategic_memory","aprendizado","Reels sobre a reforma trabalhista tiveram mais retenção no último mês.","LEARNING",SRC1),
+      e("strategic_memory","decisao","Focar em conteúdo de identificação para trabalhadores CLT.","STRATEGIC_DECISION",SRC1),
+      e("strategic_memory","insight","Há tensão entre a dor (medo de demissão) e o desejo (segurança) — espaço para conteúdo que faça a ponte.","INSIGHT","Íris — inferência")
+    ],
+    "verde-vivo-cosmeticos":[
+      e("business","oferta","Loja de cosméticos naturais e veganos.","FACT","Formulário de briefing — 05/03/2026","approved"),
+      e("audience","persona","Mulheres de 25 a 40 anos preocupadas com sustentabilidade.","FACT","Formulário de briefing — 05/03/2026"),
+      e("audience","dores","Não encontrar produtos sem crueldade animal que funcionem de verdade.","FACT","Formulário de briefing — 05/03/2026"),
+      e("audience","objecoes","Desconfiar que produto natural não é eficaz.","FACT","Formulário de briefing — 05/03/2026"),
+      e("positioning","diferenciais","Só eles usam embalagens compostáveis na região.","FACT","Formulário de briefing — 05/03/2026"),
+      e("voice_of_customer","frase","“Finalmente um produto que respeita minha pele e o planeta.”","FACT","Formulário de briefing — 05/03/2026"),
+      e("strategic_memory","decisao","Focar em educar sobre ingredientes.","STRATEGIC_DECISION","Formulário de briefing — 05/03/2026")
+    ],
+    "rafa-nutri-esportivo":[
+      e("business","ticket","Planos de acompanhamento mensal; R$ 400 por mês.","FACT","Call de diagnóstico — 08/03/2026","approved"),
+      e("audience","persona","Homens de 20 a 35 anos que treinam e querem ganhar massa.","FACT","Call de diagnóstico — 08/03/2026"),
+      e("audience","dores","Treinar muito e não ver resultado na dieta.","FACT","Call de diagnóstico — 08/03/2026"),
+      e("audience","objecoes","Achar que dieta de nutricionista é cara e restritiva.","FACT","Call de diagnóstico — 08/03/2026"),
+      e("voice_of_customer","frase","“Em 3 meses ganhei 6kg de massa seca.”","FACT","Call de diagnóstico — 08/03/2026"),
+      e("strategic_memory","aprendizado","Reels de refeições práticas tiveram mais salvamentos no último mês.","LEARNING","Call de diagnóstico — 08/03/2026")
+    ]
+  };
+  var SECLBL={business:"Negócio",audience:"Público & Persona",voice_of_customer:"Voice of Customer",positioning:"Posicionamento",communication:"Comunicação",strategic_memory:"Memória Estratégica"};
+  var SECORDER=["business","audience","voice_of_customer","positioning","communication","strategic_memory"];
+  var STLBL={FACT:"FACT",HYPOTHESIS:"HYPOTHESIS",INSIGHT:"INSIGHT",STRATEGIC_DECISION:"STRATEGIC DECISION",LEARNING:"LEARNING"};
+
+  var PILLARS = [
+    {t:"Distribuição no Instagram",d:"Algoritmo, sinais sociais e mapa formato × objetivo.",m:["Instagram","Research","Performance"]},
+    {t:"Estratégia de Marca",d:"Nicho, persona, arquétipos, propósito e territórios.",m:["Strategy"]},
+    {t:"Jornada & Editorias",d:"Jornada em 5 etapas, status da persona e editorias por etapa.",m:["transversal"]},
+    {t:"Planejamento & Cadência",d:"Frequência, mix de formatos, sequência de Stories, transmídia.",m:["Planning"]},
+    {t:"Criação de Alto Valor",d:"Ressonância, ganchos canônicos, estrutura de Stories e copy.",m:["Creative","Ideas"]},
+    {t:"Tráfego Pago",d:"Mídia paga (Meta). Documentado — área futura.",m:["futuro"]}
+  ];
+
+  var PIPE = ["Entender","Pensar","Pesquisar","Planejar","Criar","Executar","Medir","Aprender","Melhorar"];
+
+  // ---- Render helpers ----
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  var state = {view:"overview", client:CLIENTS[0].id};
+
+  function buildNav(){
+    var h="";
+    NAV.forEach(function(grp){
+      h+='<div class="nav-group"><div class="lbl">'+grp.g+'</div>';
+      grp.items.forEach(function(it){
+        var k=it[0];
+        h+='<a data-view="'+k+'">'+(IC[k]||"")+'<span>'+it[1]+'</span></a>';
+      });
+      h+='</div>';
+    });
+    I("#nav").innerHTML=h;
+    Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){
+      a.addEventListener('click',function(){go(a.getAttribute('data-view'))});
+    });
+  }
+
+  function go(v){
+    state.view=v;
+    Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
+    Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden = s.getAttribute('data-view')!==v});
+    var t=TITLES[v]||["",v]; I("#crumb").textContent=t[0]; I("#ptitle").textContent=t[1];
+    if(v==="dna") renderDNA();
+    window.scrollTo({top:0,behavior:"auto"});
+  }
+
+  function renderPipe(){ I("#pipe").innerHTML = PIPE.map(function(s,i){return '<span class="step'+(i===0?' on':'')+'">'+s+'</span>'+(i<PIPE.length-1?'<span class="arr">→</span>':'')}).join(''); }
+
+  function countPending(){var n=0;Object.keys(DNA).forEach(function(k){DNA[k].forEach(function(x){if(x.status==="pending")n++})});return n;}
+  function kpiCard(lbl,val,sub){return '<div class="card kpi"><div class="k-top"><span class="k-lbl">'+lbl+'</span></div><div class="k-val tnum">'+val+'</div><div class="k-sub">'+sub+'</div></div>';}
+  function renderKpis(){
+    var totalDNA=0;Object.keys(DNA).forEach(function(k){totalDNA+=DNA[k].length});
+    I("#kpis").innerHTML =
+      kpiCard("Clientes ativos","3","3 nichos distintos")+
+      kpiCard("Agentes","1 <span style='font-size:15px;color:var(--faint)'>/ 10</span>","Íris ativa · Acervo em progresso")+
+      kpiCard("Registros no Content DNA",String(totalDNA),countPending()+" pendentes de aprovação")+
+      kpiCard("Conteúdos planejados","0","Aguardando Musa & Rima");
+  }
+  function renderAgentMini(){
+    I("#agentMini").innerHTML = AGENTS.slice(0,6).map(function(a,i){
+      return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div><div class="an"><b>'+a.n+'</b>'+statusBadge(a.s)+'</div><div class="role">'+a.r+'</div></div></div>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'),function(el){el.addEventListener('click',function(){go(el.getAttribute('data-goto'))})});
+  }
+  function renderActivity(){
+    var rows=[
+      ["Íris","estruturou o Content DNA de Dra. Marina","13 registros · 1 rebaixado","agora"],
+      ["Íris","estruturou o Content DNA de Rafa Nutri","6 registros","há 2 min"],
+      ["Acervo","indexou 6 pilares da Knowledge Base","Instagram-first","há 5 min"],
+      ["Íris","estruturou o Content DNA de Verde Vivo","7 registros","há 8 min"]
+    ];
+    I("#activity").innerHTML = rows.map(function(r,i){
+      return '<div style="display:flex;gap:12px;align-items:center;padding:13px 16px;'+(i<rows.length-1?'border-bottom:1px solid var(--line-2)':'')+'"><div class="av" style="width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:13px;background:'+avc(r[0]==="Acervo"?8:0)+'">'+r[0].charAt(0)+'</div><div style="min-width:0"><div style="font-size:13px"><b>'+r[0]+'</b> '+esc(r[1])+'</div><div style="font-size:11.5px;color:var(--faint)">'+esc(r[2])+'</div></div><div style="margin-left:auto;font-size:11.5px;color:var(--faint);white-space:nowrap">'+r[3]+'</div></div>';
+    }).join('');
+  }
+
+  function renderClients(){
+    I("#clientCards").innerHTML = CLIENTS.map(function(c){
+      var n=(DNA[c.id]||[]).length, p=(DNA[c.id]||[]).filter(function(x){return x.status==="pending"}).length;
+      return '<div class="card pad" style="cursor:pointer" data-client="'+c.id+'"><div style="display:flex;gap:12px;align-items:center"><div class="av" style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+avc(c.av)+'">'+c.name.charAt(0)+'</div><div><div style="font-family:var(--font-display);font-weight:700;font-size:15px">'+esc(c.full)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(c.niche)+'</div></div></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><span class="badge">'+n+' registros DNA</span><span class="badge prog">'+p+' pendentes</span></div></div>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('[data-client]'),function(el){el.addEventListener('click',function(){setClient(el.getAttribute('data-client'));go('dna');});});
+  }
+
+  function renderDNA(){
+    var list=DNA[state.client]||[]; var c=byId(state.client);
+    I("#dnaTitle").textContent="Content DNA — "+c.name;
+    var h="";
+    SECORDER.forEach(function(sec){
+      var items=list.filter(function(x){return x.section===sec}); if(!items.length)return;
+      h+='<div class="card dna-sec"><h4>'+SECLBL[sec]+'<span class="ct">'+items.length+'</span></h4>';
+      items.forEach(function(x){
+        h+='<div class="entry"><div class="e-top"><span class="pill mono st-'+x.state+'"><span class="d" style="background:currentColor"></span>'+STLBL[x.state]+'</span><span class="e-field">'+esc(x.field)+'</span>'+(x.status==="approved"?'<span class="badge act" style="margin-left:auto">✓ aprovado</span>':'<span class="badge prog" style="margin-left:auto">pendente</span>')+'</div><div class="e-val">'+esc(x.value)+'</div><div class="e-prov">↳ '+esc(x.src)+'</div>'+(x.status==="pending"?'<div class="e-actions"><button class="btn pri">Aprovar</button><button class="btn">Editar</button><button class="btn ghost">Rejeitar</button></div>':'')+'</div>';
+      });
+      h+='</div>';
+    });
+    I("#dnaSections").innerHTML=h;
+    Array.prototype.forEach.call(document.querySelectorAll('#dnaSections .btn'),function(b){b.addEventListener('click',function(){b.closest('.entry').style.opacity=.5;b.closest('.e-actions').innerHTML='<span style="font-size:12px;color:var(--muted)">Ação registrada (prévia)</span>';});});
+  }
+
+  function renderAgents(){
+    I("#agentGrid").innerHTML = AGENTS.map(function(a,i){
+      return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>';
+    }).join('');
+  }
+
+  function preview(view, name, role, title, desc, nodes){
+    var el=document.querySelector('.view[data-view="'+view+'"]'); if(!el)return;
+    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>'+title+' <span class="badge plan" style="vertical-align:middle">○ Planejado</span></h3><p>'+role+'</p></div></div>'+
+      '<div class="card preview"><div style="display:flex;gap:13px;align-items:center;margin-bottom:6px"><div class="av" style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+name.color+'">'+name.n.charAt(0)+'</div><div><div style="font-family:var(--font-display);font-weight:700;font-size:15px">'+name.n+'</div><div style="font-size:12px;color:var(--muted)">'+role+'</div></div></div>'+
+      '<p class="lead" style="margin-top:6px">'+desc+'</p><div class="flow">'+nodes.map(function(n){return '<div class="node">'+n+'</div>'}).join('')+'</div>'+
+      '<div class="empty-note">Prévia da direção do produto. Este agente entra em desenvolvimento após a validação da Íris.</div></div>';
+  }
+
+  function renderCal(){
+    var days=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+    var ev={0:[["Reel · dúvidas","#5B45E6"],["Stories · bastidores","#0E8C9B"]],1:[["Carrossel · dicas","#2E6FB7"]],3:[["Reel · dores","#5B45E6"]],4:[["Stories · UGC","#0E8C9B"]],5:[["Reel · case","#1E8A5B"]]};
+    I("#cal").innerHTML=days.map(function(d,i){
+      var evs=(ev[i]||[]).map(function(e){return '<div class="ev" style="background:'+e[1]+'">'+e[0]+'</div>'}).join('');
+      return '<div class="day"><div class="dn">'+d+'</div>'+evs+'</div>';
+    }).join('');
+  }
+  function renderPerf(){
+    I("#perfKpis").innerHTML=[["Alcance","48,2k","+12%"],["Salvamentos","1,9k","+34%"],["Retenção 3s","61%","+5pp"],["Novos seguidores","740","+8%"]].map(function(k){
+      return '<div class="card kpi"><span class="k-lbl">'+k[0]+'</span><div class="k-val tnum">'+k[1]+'</div><div class="k-sub" style="color:var(--good)">'+k[2]+' vs. ciclo anterior</div></div>';
+    }).join('');
+    var bars=[["Reels",78],["Carrossel",64],["Stories",71],["Imagem",42]], mx=90;
+    I("#perfBars").innerHTML=bars.map(function(b){return '<div class="b"><div class="bv tnum">'+b[1]+'%</div><div class="bar" style="height:'+(b[1]/mx*100)+'%"></div><div class="bl">'+b[0]+'</div></div>'}).join('');
+  }
+  function renderApprovals(){
+    var items=[
+      {t:"“O que ninguém te conta antes de assinar a rescisão”",cli:"Dra. Marina",sup:"Reel",fmt:"Erro comum",obj:"Alcance",jor:"Descoberta",fun:"Identificação",st:"WAITING APPROVAL"},
+      {t:"3 provas de que natural pode ser eficaz",cli:"Verde Vivo",sup:"Carrossel",fmt:"Quebra de objeção",obj:"Consideração",jor:"Consideração",fun:"Prova",st:"WAITING APPROVAL"},
+      {t:"O erro de dieta que trava o ganho de massa",cli:"Rafa Nutri",sup:"Reel",fmt:"Mito × Verdade",obj:"Autoridade",jor:"Descoberta",fun:"Educação",st:"REVIEW"}
+    ];
+    I("#approvalList").innerHTML=items.map(function(x){
+      return '<div class="card pad"><div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">'+
+        '<div style="min-width:0;flex:1"><div style="font-family:var(--font-display);font-weight:700;font-size:15px">'+esc(x.t)+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(x.cli)+' · '+esc(x.sup)+' + '+esc(x.fmt)+'</div></div>'+
+        '<span class="badge prog">'+x.st+'</span></div>'+
+        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">'+
+          '<span class="badge">Objetivo: '+esc(x.obj)+'</span>'+
+          '<span class="badge">Jornada: '+esc(x.jor)+'</span>'+
+          '<span class="pill st-INSIGHT">Função: '+esc(x.fun)+'</span>'+
+        '</div>'+
+        '<div class="e-actions" style="margin-top:14px;display:flex;gap:7px;flex-wrap:wrap"><button class="btn pri">Aprovar</button><button class="btn">Pedir ajuste</button><button class="btn ghost">Ver contexto completo</button></div></div>';
+    }).join('');
+    Array.prototype.forEach.call(document.querySelectorAll('#approvalList .btn'),function(b){b.addEventListener('click',function(){b.closest('.e-actions').innerHTML='<span style="font-size:12px;color:var(--muted)">Ação registrada (prévia)</span>';});});
+  }
+
+  function renderKB(){
+    I("#kbGrid").innerHTML=PILLARS.map(function(p){
+      return '<div class="card kb-card"><div class="kb-t">'+esc(p.t)+'</div><div class="kb-d">'+esc(p.d)+'</div><div class="kb-m">'+p.m.map(function(m){return '<span class="badge">'+esc(m)+'</span>'}).join('')+'</div></div>';
+    }).join('');
+  }
+
+  function byId(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i];return CLIENTS[0]}
+  function setClient(id){
+    state.client=id; var c=byId(id);
+    I("#csav").textContent=c.name.charAt(0); I("#csav").style.background=avc(c.av);
+    if(state.view==="dna") renderDNA();
+  }
+  function buildClientSelect(){
+    I("#csel").innerHTML=CLIENTS.map(function(c){return '<option value="'+c.id+'">'+esc(c.full)+'</option>'}).join('');
+    I("#csel").addEventListener('change',function(){setClient(this.value)});
+    setClient(state.client);
+  }
+
+  // theme toggle (per-viewer convenience)
+  function initTheme(){
+    var root=document.documentElement, saved=null;
+    try{saved=localStorage.getItem('cos-theme')}catch(e){}
+    if(saved) root.setAttribute('data-theme',saved);
+    I("#theme").addEventListener('click',function(){
+      var cur=root.getAttribute('data-theme');
+      var isDark = cur? cur==="dark" : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var next=isDark?"light":"dark"; root.setAttribute('data-theme',next);
+      try{localStorage.setItem('cos-theme',next)}catch(e){}
+    });
+  }
+
+  // init
+  buildNav(); renderPipe(); renderKpis(); renderAgentMini(); renderActivity();
+  renderClients(); renderAgents(); renderCal(); renderApprovals(); renderPerf(); renderKB();
+  preview("strategy",{n:"Átlas",color:AV[1]},"Estratégia","Estratégia","Transforma o Content DNA em direção: diagnóstico, posicionamento, Big Message, objetivos, jornada e percepção desejada.",["Diagnóstico","Posicionamento","Big Message","Objetivos","Jornada","Percepção desejada"]);
+  preview("research",{n:"Radar",color:AV[2]},"Pesquisa","Pesquisa","Inteligência externa com rastreabilidade: nunca inventa tendências ou fontes.",["Nicho","Concorrentes","Tendências","Palavras-chave","Pautas quentes","Fonte + URL + data"]);
+  preview("editorial",{n:"Bússola",color:AV[3]},"Editorial","Linha Editorial","Impede conteúdo aleatório ou repetitivo. Cada peça sabe seu lugar na cadeia — e sua razão de existir.",["Pilar","Território","Tema","Subtema","Tópico","Ideia","Ângulo","Formato","Conteúdo"]);
+  preview("content",{n:"Rima",color:AV[5]},"Estúdio Criativo","Conteúdos","Transforma estratégia e ideias em conteúdo rico. Todo conteúdo carrega seu contexto estratégico — e passa pelo teste: “um concorrente poderia publicar isso trocando o nome da marca?”",["Objetivo","Jornada","Funil","Função estratégica","Ângulo","Formato","Headline/Hook","Roteiro/Copy","CTA","Gatilhos usados","Recursos narrativos","Direção visual"]);
+  buildClientSelect(); initTheme();
+  go("overview");
+})();
+</script>
