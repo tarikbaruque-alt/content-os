@@ -63,6 +63,42 @@ E responder, sobre a persona:
 
 ---
 
+## 2.1 Emoção estratégica (obrigatória antes de escrever)
+
+Antes de produzir roteiro ou copy, o sistema **identifica ou recomenda uma
+emoção estratégica principal** — o que queremos despertar/transmitir naquela
+peça.
+
+Emoções possíveis (não exaustivo):
+`identificação` · `pertencimento` · `curiosidade` · `confiança` · `segurança` ·
+`desejo` · `esperança` · `inspiração` · `surpresa` · `reflexão` ·
+`tranquilidade` · `ambição`
+
+**A emoção não é um gatilho aplicado mecanicamente.** Ela **nasce da
+combinação**:
+
+```
+persona + contexto + Big Message + objetivo + jornada + conteúdo + posicionamento da marca
+```
+
+**Roteiro e copy precisam conseguir responder:**
+> *"Qual emoção queremos provocar — e por quê?"*
+
+E então usar **narrativa, linguagem, ritmo, gatilhos mentais e elementos
+literários coerentes com essa intenção emocional**. Uma peça cuja emoção
+declarada não se sustenta no texto está incoerente, mesmo que bem escrita.
+
+> **Consequência prática:** a emoção escolhida pode **vetar** um recurso que
+> funcionaria isoladamente. Ex.: indignação gera alcance, mas se o
+> posicionamento é acolhedor e a emoção estratégica é *segurança*, a indignação
+> sai.
+
+A cadeia que o estrategista precisa enxergar em qualquer peça:
+
+```
+Estratégia → Objetivo → Mensagem → Emoção → Ideia → Formato → Roteiro/Copy → CTA
+```
+
 ## 3. Persuasão — uso contextual e ético
 
 Princípios disponíveis (escolher **poucos**, com intenção):
