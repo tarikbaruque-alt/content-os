@@ -25,6 +25,21 @@ describe("Pipeline ponta a ponta (Íris → … → Notion)", () => {
     expect(r.strategy.emocoes.length).toBeGreaterThan(2);
   });
 
+  it("Estratégia apresenta múltiplos caminhos + mix recomendado (soma 100%)", () => {
+    expect(r.strategy.paths.length).toBe(15);
+    expect(r.strategy.mix.length).toBe(4);
+    expect(r.strategy.mix.reduce((a, m) => a + m.pct, 0)).toBe(100);
+  });
+
+  it("cada ideia carrega recomendação de formato por dimensões", () => {
+    for (const i of r.ideas) {
+      expect(i.formatRec.producao).toBeTruthy();
+      expect(i.formatRec.estrutura).toBeTruthy();
+      expect(i.formatRec.narrativa).toBeTruthy();
+      expect(i.formatRec.justificativa.length).toBeGreaterThan(10);
+    }
+  });
+
   it("gera no mínimo 15 ideias realmente diferentes", () => {
     expect(r.ideas.length).toBeGreaterThanOrEqual(15);
     const funcoes = new Set(r.ideas.map((i) => i.funcao));

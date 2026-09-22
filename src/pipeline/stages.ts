@@ -14,62 +14,13 @@ import type {
   ResearchOpportunity,
   StrategyArchitecture,
 } from "./types.js";
+import { clean, short } from "./text.js";
+import { deriveStrategyPaths } from "./strategy-paths.js";
+import { recommendFormat } from "./formats.js";
 
-/** Limpa frases em 1ª pessoa do briefing para virarem prosa de estratégia. */
-export function clean(s: string): string {
-  if (!s) return s;
-  let t = s.trim().replace(/\.$/, "");
-  const strips = [
-    /^a maior dor (deles?|delas?) é (o |a )?/i,
-    /^a dor (deles?|delas?) é (o |a )?/i,
-    /^(eles?|elas?) (desejam|querem|sonham|buscam|almejam)( por)?\s+/i,
-    /^(uma? )?obje[çc][ãa]o( comum| frequente)? é (achar que |de |desconfiar que )?/i,
-    /^(o )?(meu|nosso) diferencial é (que |um |uma |o |a )?/i,
-    /^s[óo] (eles?|elas?|n[óo]s)\s+/i,
-    /^meu p[úu]blico s[ãa]o\s+/i,
-    /^(decidimos|decidi|resolvi|optamos por|vamos) focar em\s+/i,
-    /^no [úu]ltim[oa] (m[êe]s|trimestre|ano)[,]?\s+(os |as )?/i,
-    /^(sou|tenho|falo de forma|vendo|vendemos)\s+/i,
-  ];
-  for (const re of strips) {
-    const nt = t.replace(re, "");
-    if (nt !== t) {
-      t = nt;
-      break;
-    }
-  }
-  t = t.trim();
-  return t.charAt(0).toUpperCase() + t.slice(1);
-}
-
-/** Encurta para títulos/hooks manterem-se punchy. */
-export function short(s: string, n = 46): string {
-  const t = clean(s);
-  if (t.length <= n) return t;
-  const cut = t.slice(0, n);
-  const sp = cut.lastIndexOf(" ");
-  return (sp > 20 ? cut.slice(0, sp) : cut).replace(/[,;:]$/, "");
-}
-
-/** Agrupa o Content DNA (saída da Íris) por campo, para as etapas seguintes. */
-export function dnaView(dna: Dna) {
-  const g = (field: string) => dna.filter((d) => d.field === field).map((d) => d.value);
-  const first = (field: string, fb = "") => g(field)[0] ?? fb;
-  return {
-    ticket: first("ticket") || first("oferta"),
-    oferta: first("oferta") || first("ticket"),
-    persona: first("persona"),
-    dores: g("dores"),
-    desejos: g("desejos"),
-    objecoes: g("objecoes"),
-    voc: g("frase"),
-    diferenciais: g("diferenciais"),
-    posicionamento: g("posicionamento"),
-    tom: first("tom"),
-    decisoes: g("decisao"),
-    aprendizados: g("aprendizado"),
-  };
-}
+export { clean, short } from "./text.js";
+export { dnaView } from "./dna-view.js";
+import { dnaView } from "./dna-view.js";
 
 // --- Biblioteca de funções estratégicas (não só topo/meio/fundo) ---
 type FnMeta = { funil: FunnelStage; jornada: string; emocao: string };
@@ -127,6 +78,7 @@ export function deriveStrategy(dna: Dna): StrategyArchitecture {
   ];
 
   const pilares = derivePilares(v);
+  const { paths, mix } = deriveStrategyPaths(dna);
   return {
     posicionamento,
     bigMessage,
@@ -143,6 +95,8 @@ export function deriveStrategy(dna: Dna): StrategyArchitecture {
     emocoes,
     pilares,
     funcoes,
+    paths,
+    mix,
   };
 }
 
@@ -239,6 +193,7 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
       subtema: pick[1],
       surface: pick[0],
       format: pick[1],
+      formatRec: recommendFormat(funcao, meta.funil, pick[0]),
       hook: seed.hook,
       cta: meta.funil === "fundo" ? "Chamar no direct" : "Salvar + seguir",
       justificativa: `Função ${funcao} (${meta.funil}); usa a dor/desejo reais e o diferencial do cliente — não é intercambiável entre marcas.`,

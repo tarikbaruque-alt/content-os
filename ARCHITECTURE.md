@@ -160,6 +160,29 @@ As diretrizes foram checadas contra a arquitetura planejada. Resultado:
 
 Nenhum desses ajustes exige reconstrução — todos são **extensões** do que existe.
 
+## 5.3 Maturidade dos agentes (critério honesto)
+
+Um agente só é **FUNCIONAL** quando recebe contexto → processa → gera resultado
+→ é salvo → alimenta o próximo estágio → aparece no painel. "Executa
+tecnicamente" não basta: precisa atingir a profundidade estratégica do projeto.
+
+| Estágio | Estado | Nota |
+|---|---|---|
+| Íris (Inteligência) | **Funcional** | Briefing → Content DNA com estados + proveniência + guardrails; alimenta todo o pipeline; visível no painel (Análise IA). |
+| Átlas (Estratégia) | **Funcional (profundo)** | Não gera "uma" estratégia: 15 caminhos ranqueados por aderência ao DNA + mix recomendado combinável no painel. |
+| Musa (Ideias & Formatos) | **Funcional (profundo)** | ≥15 ideias diversas; formato recomendado por **dimensões** (produção/estrutura/narrativa/superfície) com justificativa. |
+| Bússola (Editorial) | **Parcial** | Pilar→tópico no pipeline; visão dedicada por cliente ainda de exemplo. |
+| Rima (Estúdio Criativo) | **Parcial** | Roteiro/copy prontos por estrutura; prosa publicável depende do provider Anthropic. |
+| Cronos (Planejamento) | **Funcional** | Calendário do mês por mix de funil; payload de Notion por peça. |
+| Radar (Pesquisa) | **Parcial** | Oportunidades derivadas do DNA; dados externos reais dependem de web/API. |
+| Pulso (Performance) | **Parcial** | Estrutura DATA/HYPOTHESIS/INTERPRETATION/INSIGHT/RECOMMENDATION; métricas reais dependem de API de rede social. |
+| Acervo (Conhecimento) | **Funcional** | Recuperação seletiva de pilares da KB. |
+| Maestro (Orquestração) | **Funcional (lite)** | Encadeia o pipeline compartilhando contexto. |
+
+Dependem de integração externa (não fabricados): **prosa publicável** (Anthropic),
+**pesquisa externa** (web), **sincronização real com Notion** (API + auth),
+**métricas** (APIs de rede social).
+
 ## 6. Camadas de IA (motor)
 
 - **Claude (LLM)** — raciocínio e geração criativa: a maior parte do trabalho dos agentes.

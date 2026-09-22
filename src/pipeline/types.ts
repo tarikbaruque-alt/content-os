@@ -14,6 +14,30 @@ export type DnaEntry = {
 };
 export type Dna = DnaEntry[];
 
+/** Um caminho estratégico possível para o cliente (arquétipo especializado). */
+export type StrategyPath = {
+  key: string;
+  nome: string;
+  quando: string;
+  porque: string;
+  objetivo: string;
+  publico: string;
+  problemaOportunidade: string;
+  bigMessage: string;
+  percepcao: string;
+  emocoes: string[];
+  jornada: string;
+  funil: FunnelStage;
+  funcoes: string[];
+  pilares: string[];
+  tiposConteudo: string[];
+  metricas: string[];
+  relevancia: number; // 0–100, quão indicado para este cliente
+};
+
+/** Item do mix estratégico recomendado (soma 100%). */
+export type MixItem = { key: string; nome: string; pct: number };
+
 export type StrategyArchitecture = {
   posicionamento: string;
   bigMessage: string;
@@ -30,6 +54,10 @@ export type StrategyArchitecture = {
   emocoes: string[];
   pilares: string[];
   funcoes: string[];
+  /** Caminhos estratégicos possíveis, ranqueados por relevância ao cliente. */
+  paths: StrategyPath[];
+  /** Mix recomendado (ex.: 40% Autoridade + 25% Rapport + ...). */
+  mix: MixItem[];
 };
 
 export type ResearchOpportunity = {
@@ -46,6 +74,15 @@ export type EditorialNode = {
   temas: { tema: string; subtemas: string[]; topicos: string[] }[];
 };
 export type EditorialArchitecture = EditorialNode[];
+
+/** Recomendação de formato por dimensões (não um único rótulo). */
+export type FormatRecommendation = {
+  producao: string; // Lo-fi / Mid-fi / High-fi
+  estrutura: string; // talking head / react / tela dividida / duplo personagem / vlog / tutorial…
+  narrativa: string; // storytelling / análise / contraponto / curiosidade…
+  superficie: string; // Reel / Stories / Carrossel / Vídeo
+  justificativa: string;
+};
 
 export type Idea = {
   id: string;
@@ -65,6 +102,7 @@ export type Idea = {
   subtema: string;
   surface: string;
   format: string;
+  formatRec: FormatRecommendation;
   hook: string;
   cta: string;
   justificativa: string;
