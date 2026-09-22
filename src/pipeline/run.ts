@@ -4,6 +4,7 @@ import { KnowledgeRetriever } from "../core/knowledge/retriever.js";
 import { InMemoryContentDnaStore } from "../core/content-dna/store.js";
 import { Trace } from "../core/observability.js";
 import { runIntelligenceAgent } from "../agents/intelligence/agent.js";
+import { writeContent } from "../agents/creative/writer.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
 import {
   assembleCalendar,
@@ -61,6 +62,15 @@ export async function runPipeline(
   const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15);
   const mix = opts.funnelMix ?? { topo: 45, meio: 35, fundo: 20 };
   const calendar = assembleCalendar(ideas, dna, opts.total ?? 12, mix);
+
+  // Produção criativa: com provider REAL (Rima/Anthropic), reescreve cada peça
+  // em prosa publicável ancorada no DNA. Com mock, mantém o determinístico.
+  if (llm.name !== "mock") {
+    for (const item of calendar.items) {
+      item.content = await writeContent(item.idea, dna, strategy, llm);
+    }
+  }
+
   const notion = toNotionPages(calendar, client.name);
   const performance = seedPerformance(strategy);
 

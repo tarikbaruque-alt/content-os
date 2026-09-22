@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "demo": "tsx src/demo/run-intelligence.ts",
     "pipeline": "tsx src/demo/run-pipeline.ts",
+    "notion:sync": "tsx src/demo/notion-sync.ts",
     "preview": "echo \"Abra apps/web/index.html no navegador (ou rode: npx --yes serve apps/web)\""
   },
   "dependencies": {

@@ -20,7 +20,11 @@ export function createLlmProvider(env: NodeJS.ProcessEnv = process.env): LlmProv
         "CONTENT_OS_LLM_PROVIDER=anthropic requer ANTHROPIC_API_KEY no ambiente.",
       );
     }
-    return new AnthropicLlmProvider({ apiKey });
+    return new AnthropicLlmProvider({
+      apiKey,
+      ...(env.ANTHROPIC_MODEL ? { model: env.ANTHROPIC_MODEL } : {}),
+      ...(env.ANTHROPIC_BASE_URL ? { baseUrl: env.ANTHROPIC_BASE_URL } : {}),
+    });
   }
   return new MockLlmProvider();
 }
