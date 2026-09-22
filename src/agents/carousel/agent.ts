@@ -3,6 +3,8 @@ import type { Carousel, CarouselSlide, Idea, VisualRef } from "../../pipeline/ty
 import type { VisualRefProvider } from "../../core/integrations/visual-refs.js";
 import { SearchLinkVisualProvider } from "../../core/integrations/visual-refs.js";
 import { buildCreativeContext, lc, visualTerms, type CreativeContext } from "../creative/context.js";
+import { recommendTriggers } from "../creative/triggers.js";
+import { recommendDevices } from "../creative/devices.js";
 import type { Dna, StrategyArchitecture, EditorialArchitecture, ResearchOpportunity } from "../../pipeline/types.js";
 
 /**
@@ -148,6 +150,8 @@ export async function buildCarousel(
     cta: idea.cta,
     gatilhos: gatilhosPorFunil(idea.funil),
     elementosLiterarios: ELEMENTOS_POR_ESTRUTURA[estrutura] ?? ["Paralelismo", "Contraste"],
+    gatilhosRec: recommendTriggers(idea, ctx),
+    elementosRec: recommendDevices(idea, ctx),
     emocao: idea.emocao,
     emocaoPor,
     direcaoVisual: `Tom ${ctx.tom}. Identidade consistente: um conceito por slide, tipografia grande, capa com contraste, paleta da marca. Estrutura "${estrutura}".`,

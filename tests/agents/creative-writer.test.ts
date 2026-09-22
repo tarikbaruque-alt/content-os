@@ -3,6 +3,7 @@ import { runPipeline } from "../../src/pipeline/run.js";
 import type { PipelineResult } from "../../src/pipeline/types.js";
 import type { LlmProvider, LlmGenerateResult } from "../../src/core/llm/provider.js";
 import { writeContent, parseWriterJson, extractJson } from "../../src/agents/creative/writer.js";
+import { buildCreativeContext } from "../../src/agents/creative/context.js";
 import { PIPELINE_BRIEFING, PIPELINE_CLIENT, PIPELINE_SOURCE } from "../../src/demo/pipeline-client.js";
 
 /** Provider falso: devolve o texto configurado, com name != "mock". */
@@ -17,8 +18,10 @@ class FakeProvider implements LlmProvider {
 
 describe("Rima — redação com LLM (fallback seguro)", () => {
   let r: PipelineResult;
+  let ctx: ReturnType<typeof buildCreativeContext>;
   beforeAll(async () => {
     r = await runPipeline(PIPELINE_CLIENT, PIPELINE_BRIEFING, PIPELINE_SOURCE);
+    ctx = buildCreativeContext(r.clientName, r.dna, r.strategy, r.editorial, r.research);
   });
 
   it("extractJson pega o objeto mesmo com cercas/ruído", () => {
@@ -42,7 +45,7 @@ describe("Rima — redação com LLM (fallback seguro)", () => {
       emocaoPor: "A persona quer se ver na foto; a identificação sustenta o próximo passo.",
       direcaoVisual: "Luz natural, cortes no ritmo da fala.",
     });
-    const content = await writeContent(idea, r.dna, r.strategy, new FakeProvider(json));
+    const content = await writeContent(idea, ctx, new FakeProvider(json));
     expect(content.headline).toContain("registra momentos");
     expect(content.copy.length).toBeGreaterThan(20);
     expect(content.emocaoPor.length).toBeGreaterThan(10);
@@ -51,7 +54,7 @@ describe("Rima — redação com LLM (fallback seguro)", () => {
 
   it("faz fallback determinístico se o JSON for inválido", async () => {
     const idea = r.ideas[0]!;
-    const content = await writeContent(idea, r.dna, r.strategy, new FakeProvider("desculpa, não consigo"));
+    const content = await writeContent(idea, ctx, new FakeProvider("desculpa, não consigo"));
     // volta ao produtor determinístico (headline = hook da ideia)
     expect(content.headline).toBe(idea.hook);
     expect(content.copy.length).toBeGreaterThan(10);
@@ -59,7 +62,7 @@ describe("Rima — redação com LLM (fallback seguro)", () => {
 
   it("faz fallback se o provider lançar erro (rede/API)", async () => {
     const idea = r.ideas[0]!;
-    const content = await writeContent(idea, r.dna, r.strategy, new FakeProvider("", true));
+    const content = await writeContent(idea, ctx, new FakeProvider("", true));
     expect(content.headline).toBe(idea.hook);
   });
 

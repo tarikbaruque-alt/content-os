@@ -75,6 +75,13 @@ export type EditorialNode = {
 };
 export type EditorialArchitecture = EditorialNode[];
 
+/** Gatilho mental recomendado, com o PORQUÊ e guardrail quando exige evidência. */
+export type TriggerRec = { key: string; nome: string; porque: string; guardrail?: string };
+/** Elemento literário/narrativo recomendado, com o PORQUÊ. */
+export type DeviceRec = { key: string; nome: string; porque: string };
+/** Mesma copy em três extensões, todas com Hook + desenvolvimento + CTA. */
+export type CopyVariants = { curta: string; media: string; longa: string };
+
 /** Recomendação de formato por dimensões (não um único rótulo). */
 export type FormatRecommendation = {
   producao: string; // Lo-fi / Mid-fi / High-fi
@@ -92,6 +99,10 @@ export type Idea = {
   persona: string;
   dorDesejo: string;
   objetivo: string;
+  /** Propósito: o "para quê" mais profundo da peça (por que ela existe). */
+  proposito: string;
+  /** Big Message desta peça (a principal mensagem a deixar). */
+  bigMessage: string;
   funcao: string;
   funil: FunnelStage;
   jornada: string;
@@ -118,9 +129,15 @@ export type ProducedContent = {
   slides?: RoteiroStep[];
   stories?: RoteiroStep[];
   copy: string;
+  /** Mesma copy em três extensões (Hook + desenvolvimento + CTA em cada). */
+  copyVariants: CopyVariants;
   cta: string;
   gatilhos: string[];
   recursos: string[];
+  /** Gatilhos recomendados com o porquê (a partir de gatilhos). */
+  gatilhosRec: TriggerRec[];
+  /** Elementos literários recomendados com o porquê. */
+  elementosRec: DeviceRec[];
   emocao: string;
   emocaoPor: string;
   direcaoVisual: string;
@@ -156,6 +173,10 @@ export type Carousel = {
   cta: string;
   gatilhos: string[];
   elementosLiterarios: string[];
+  /** Gatilhos recomendados com o porquê. */
+  gatilhosRec: TriggerRec[];
+  /** Elementos literários recomendados com o porquê. */
+  elementosRec: DeviceRec[];
   emocao: string;
   emocaoPor: string;
   direcaoVisual: string;
@@ -186,6 +207,10 @@ export type StorySequence = {
   stories: StoryStep[];
   cta: string;
   gatilhos: string[];
+  /** Gatilhos recomendados com o porquê. */
+  gatilhosRec: TriggerRec[];
+  /** Elementos literários recomendados com o porquê. */
+  elementosRec: DeviceRec[];
   referencias: VisualRef[];
 };
 
@@ -224,6 +249,12 @@ export type NotionPage = {
   bodyPreview: string;
 };
 
+/** Bibliotecas selecionáveis expostas ao painel (gatilhos + elementos literários). */
+export type CreativeLibraries = {
+  gatilhos: { key: string; nome: string; descricao: string; requerEvidencia?: boolean }[];
+  elementos: { key: string; nome: string; descricao: string }[];
+};
+
 export type PipelineResult = {
   clientId: string;
   clientName: string;
@@ -237,5 +268,7 @@ export type PipelineResult = {
   calendar: MonthlyCalendar;
   notion: NotionPage[];
   performance: PerformanceRow[];
+  /** Bibliotecas de gatilhos e elementos literários (para seleção no painel). */
+  libraries: CreativeLibraries;
   warnings: string[];
 };

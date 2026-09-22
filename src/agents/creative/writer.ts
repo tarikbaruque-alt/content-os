@@ -1,13 +1,7 @@
 import type { LlmProvider } from "../../core/llm/provider.js";
-import { dnaView } from "../../pipeline/dna-view.js";
 import { produceContent } from "../../pipeline/stages.js";
-import type {
-  Dna,
-  Idea,
-  ProducedContent,
-  RoteiroStep,
-  StrategyArchitecture,
-} from "../../pipeline/types.js";
+import type { CreativeContext } from "./context.js";
+import type { Idea, ProducedContent, RoteiroStep } from "../../pipeline/types.js";
 
 /**
  * Rima — a escritora criativa do Content OS.
@@ -37,6 +31,9 @@ Responda SOMENTE com um objeto JSON válido (sem markdown, sem cercas), no forma
   "headline": string,
   "roteiro": [{"label": string, "text": string}],
   "copy": string,
+  "copyCurta": string,
+  "copyMedia": string,
+  "copyLonga": string,
   "cta": string,
   "gatilhos": [string],
   "recursos": [string],
@@ -44,14 +41,12 @@ Responda SOMENTE com um objeto JSON válido (sem markdown, sem cercas), no forma
   "emocaoPor": string,
   "direcaoVisual": string
 }
+As três versões de copy (curta/média/longa) devem manter coerência estratégica e ter Hook + desenvolvimento + CTA.
 Para Carrossel use "roteiro" como a sequência de slides; para Stories, a sequência de stories.`;
 
-export function buildWriterPrompt(
-  idea: Idea,
-  dna: Dna,
-  strategy: StrategyArchitecture,
-): string {
-  const v = dnaView(dna);
+export function buildWriterPrompt(idea: Idea, ctx: CreativeContext): string {
+  const v = ctx.view;
+  const strategy = ctx.strategy;
   const list = (xs: string[]) => (xs.length ? xs.map((x) => `- ${x}`).join("\n") : "- (não informado)");
   return [
     `CLIENTE — CONTENT DNA (única fonte de verdade):`,
@@ -86,6 +81,9 @@ type WriterJson = {
   headline?: unknown;
   roteiro?: unknown;
   copy?: unknown;
+  copyCurta?: unknown;
+  copyMedia?: unknown;
+  copyLonga?: unknown;
   cta?: unknown;
   gatilhos?: unknown;
   recursos?: unknown;
@@ -147,15 +145,25 @@ export function parseWriterJson(
   const copy = typeof parsed.copy === "string" && parsed.copy.trim() ? parsed.copy.trim() : "";
   if (!headline || copy.length < 10) return null;
 
+  const str = (x: unknown): string => (typeof x === "string" && x.trim() ? x.trim() : "");
   const steps = asSteps(parsed.roteiro);
   const content: ProducedContent = {
     ideaId: idea.id,
     headline,
     kind: fallback.kind,
     copy,
+    // Variantes: usa as do LLM quando vierem; senão mantém as determinísticas.
+    copyVariants: {
+      curta: str(parsed.copyCurta) || fallback.copyVariants.curta,
+      media: str(parsed.copyMedia) || copy || fallback.copyVariants.media,
+      longa: str(parsed.copyLonga) || fallback.copyVariants.longa,
+    },
     cta: typeof parsed.cta === "string" && parsed.cta.trim() ? parsed.cta.trim() : fallback.cta,
     gatilhos: asStrings(parsed.gatilhos) ?? fallback.gatilhos,
     recursos: asStrings(parsed.recursos) ?? fallback.recursos,
+    // Recomendações estruturadas (com porquê) vêm sempre do motor determinístico.
+    gatilhosRec: fallback.gatilhosRec,
+    elementosRec: fallback.elementosRec,
     emocao: typeof parsed.emocao === "string" && parsed.emocao.trim() ? parsed.emocao.trim() : fallback.emocao,
     emocaoPor:
       typeof parsed.emocaoPor === "string" && parsed.emocaoPor.trim() ? parsed.emocaoPor.trim() : fallback.emocaoPor,
@@ -183,17 +191,16 @@ export function parseWriterJson(
  */
 export async function writeContent(
   idea: Idea,
-  dna: Dna,
-  strategy: StrategyArchitecture,
+  ctx: CreativeContext,
   llm: LlmProvider,
 ): Promise<ProducedContent> {
-  const fallback = produceContent(idea, dna);
+  const fallback = produceContent(idea, ctx.dna, ctx);
   if (llm.name === "mock") return fallback;
   try {
     const res = await llm.generate({
       system: SYSTEM,
-      messages: [{ role: "user", content: buildWriterPrompt(idea, dna, strategy) }],
-      maxTokens: 2000,
+      messages: [{ role: "user", content: buildWriterPrompt(idea, ctx) }],
+      maxTokens: 2200,
     });
     const parsed = parseWriterJson(res.text, idea, fallback);
     return parsed ?? fallback;

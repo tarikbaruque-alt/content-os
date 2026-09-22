@@ -18,6 +18,9 @@ import type {
 import { clean, short } from "./text.js";
 import { deriveStrategyPaths } from "./strategy-paths.js";
 import { recommendFormat } from "./formats.js";
+import { recommendTriggers } from "../agents/creative/triggers.js";
+import { recommendDevices } from "../agents/creative/devices.js";
+import type { CreativeContext } from "../agents/creative/context.js";
 
 export { clean, short } from "./text.js";
 export { dnaView } from "./dna-view.js";
@@ -176,6 +179,7 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
       Relacionamento: { titulo: `Bastidores: como cuidamos de ${dor.toLowerCase()}`, angulo: "Proximidade e cultura", hook: `Deixa eu te mostrar como a gente faz.` },
     };
     const seed = seedByFn[funcao] ?? { titulo: `${funcao}: conteúdo estratégico`, angulo: "Ângulo estratégico", hook: "Presta atenção nisto." };
+    const personaCurta = strategy.persona.replace(/^meu público (são|é)\s*/i, "").trim().slice(0, 48);
     ideas.push({
       id: `idea-${n + 1}`,
       titulo: seed.titulo,
@@ -184,6 +188,8 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
       persona: strategy.persona,
       dorDesejo: meta.funil === "fundo" ? desejo : dor,
       objetivo: funcao,
+      proposito: `Fazer ${personaCurta} avançar de "${dor.toLowerCase()}" rumo a "${desejo.toLowerCase()}" via ${funcao.toLowerCase()}, ancorado em ${dif.toLowerCase()}.`,
+      bigMessage: strategy.bigMessage,
       funcao,
       funil: meta.funil,
       jornada: meta.jornada,
@@ -211,35 +217,53 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
 }
 
 // ==================== 5. PRODUÇÃO — Roteiro/Copy (Rima) ====================
-export function produceContent(idea: Idea, dna: Dna): ProducedContent {
+const lcf = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
+
+export function produceContent(idea: Idea, dna: Dna, ctx?: CreativeContext): ProducedContent {
   const v = dnaView(dna);
   const tom = v.tom ? clean(v.tom) : "próximo e claro";
+  const dif = ctx ? ctx.diferencial : v.diferenciais[0] ? clean(v.diferenciais[0]) : "o diferencial do cliente";
+  const desejo = ctx ? ctx.desejo : v.desejos[0] ? clean(v.desejos[0]) : "o desejo da persona";
+  const prova = v.posicionamento[0] ? clean(v.posicionamento[0]) : "Ponto de vista fundamentado, sem inventar resultado.";
   const emocaoPor = `A persona está na jornada de ${idea.jornada.toLowerCase()} e o objetivo é ${idea.funcao.toLowerCase()}; a emoção "${idea.emocao}" nasce do cruzamento persona + Big Message + posicionamento, e sustenta o próximo passo sem agressividade.`;
-  const gatilhos = idea.funil === "fundo" ? ["Prova", "Especificidade", "Redução de risco"] : idea.funil === "meio" ? ["Autoridade", "Reciprocidade", "Especificidade"] : ["Curiosidade", "Identificação", "Contraste"];
-  const recursos = idea.funil === "topo" ? ["Open loop", "Quebra de expectativa", "Cena do cotidiano"] : ["Paralelismo", "Contraste", "Storytelling"];
+
+  // Gatilhos + elementos recomendados (com o porquê). Guardrails preservados.
+  const gatilhosRec = ctx ? recommendTriggers(idea, ctx) : [];
+  const elementosRec = ctx ? recommendDevices(idea, ctx) : [];
+  const gatilhos = gatilhosRec.length ? gatilhosRec.map((g) => g.nome) : idea.funil === "fundo" ? ["Prova", "Especificidade", "Redução de risco"] : idea.funil === "meio" ? ["Autoridade", "Reciprocidade", "Especificidade"] : ["Curiosidade", "Identificação", "Contraste"];
+  const recursos = elementosRec.length ? elementosRec.map((d) => d.nome) : idea.funil === "topo" ? ["Open loop", "Quebra de expectativa", "Cena do cotidiano"] : ["Paralelismo", "Contraste", "Storytelling"];
   const direcao = `Tom ${tom}. Identidade visual consistente da marca; ${idea.surface === "Reel" ? "cortes no ritmo da fala, legendas grandes, rosto humano" : idea.surface === "Carrossel" ? "um conceito por slide, hierarquia clara, capa com contraste" : "sequência curta, stickers de interação"}.`;
+
+  // Mesma copy em três extensões — todas com Hook + desenvolvimento + CTA.
+  const copyVariants = {
+    curta: `${idea.hook}\n\n${idea.dorDesejo} tem caminho: ${lcf(dif)}.\n\n${idea.cta}.`,
+    media: `${idea.hook}\n\n${idea.conceito} ${idea.dorDesejo} não precisa ser permanente — ${lcf(desejo)} é possível com ${lcf(dif)}.\n\n${idea.cta}.`,
+    longa: `${idea.hook}\n\nSe você sente ${lcf(idea.dorDesejo)}, não está sozinho. ${idea.conceito}\n\nO que muda o jogo é ${lcf(dif)} — e é por isso que ${lcf(desejo)} deixa de ser distante. ${prova}\n\n${idea.dorDesejo} não precisa ser o fim da linha.\n\n${idea.cta}.`,
+  };
 
   const base: ProducedContent = {
     ideaId: idea.id,
     headline: idea.hook,
     kind: idea.surface === "Reel" ? "reel" : idea.surface === "Carrossel" ? "carrossel" : idea.surface === "Stories" ? "stories" : "outro",
-    copy: `${idea.hook}\n\n${idea.conceito} ${idea.dorDesejo}. ${idea.cta}.`,
+    copy: copyVariants.media,
+    copyVariants,
     cta: idea.cta,
     gatilhos,
     recursos,
+    gatilhosRec,
+    elementosRec,
     emocao: idea.emocao,
     emocaoPor,
     direcaoVisual: direcao,
   };
 
   if (base.kind === "reel") {
+    // Estrutura canônica: Hook → Desenvolvimento → Retenção/Tensão → Payoff → CTA.
     base.roteiro = [
       { label: "Hook", text: idea.hook },
-      { label: "Contexto", text: `A maioria vive ${idea.dorDesejo.toLowerCase()} sem perceber a saída.` },
-      { label: "Desenvolvimento", text: `${idea.conceito}` },
-      { label: "Retenção", text: "Abre um loop: 'mas tem um detalhe que muda tudo…'" },
-      { label: "Prova/Argumento", text: v.posicionamento[0] ? clean(v.posicionamento[0]) : "Ponto de vista fundamentado, sem inventar resultado." },
-      { label: "Payoff", text: `${idea.dorDesejo} deixa de ser um problema quando se olha por aqui.` },
+      { label: "Desenvolvimento", text: `${idea.conceito} A maioria vive ${lcf(idea.dorDesejo)} sem enxergar a saída.` },
+      { label: "Retenção/Tensão", text: "Abre um loop: 'mas tem um detalhe que muda tudo…' — segura até revelar." },
+      { label: "Payoff", text: `${idea.dorDesejo} deixa de travar quando se olha por ${lcf(dif)}. ${prova}` },
       { label: "CTA", text: idea.cta },
     ];
   } else if (base.kind === "carrossel") {
@@ -270,6 +294,7 @@ export function assembleCalendar(
   dna: Dna,
   total: number,
   funnelMix: Record<PlanFunnel, number>,
+  ctx?: CreativeContext,
 ): MonthlyCalendarDraft {
   const plan = planDistribution({ total, funnel: funnelMix });
   // Seleciona ideias respeitando o mix por funil.
@@ -286,7 +311,7 @@ export function assembleCalendar(
   const items = chosen.map((idea, i) => ({
     data: `${WEEKDAYS[i % 7]} ${String(1 + i).padStart(2, "0")}`,
     idea,
-    content: produceContent(idea, dna),
+    content: produceContent(idea, dna, ctx),
     status: i === 0 ? "WAITING APPROVAL" : i < 3 ? "REVIEW" : "PLANNED",
   }));
   return { total: items.length, mix: plan.funnel, items };

@@ -9,6 +9,8 @@ import { buildCreativeContext } from "../agents/creative/context.js";
 import { buildCarousel, writeCarousel } from "../agents/carousel/agent.js";
 import { buildStorySequence, writeStorySequence } from "../agents/stories/agent.js";
 import { createVisualRefProvider, type VisualRefProvider } from "../core/integrations/visual-refs.js";
+import { GATILHOS } from "../agents/creative/triggers.js";
+import { ELEMENTOS } from "../agents/creative/devices.js";
 import type { CalendarItem, MonthlyCalendar } from "./types.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
 import {
@@ -68,10 +70,10 @@ export async function runPipeline(
   const editorial = buildEditorial(strategy);
   const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15);
   const mix = opts.funnelMix ?? { topo: 45, meio: 35, fundo: 20 };
-  const draft = assembleCalendar(ideas, dna, opts.total ?? 12, mix);
 
   // Contexto criativo completo para os especialistas (Rima, Mosaico, Enredo).
   const ctx = buildCreativeContext(client.name, dna, strategy, editorial, research);
+  const draft = assembleCalendar(ideas, dna, opts.total ?? 12, mix, ctx);
   const visual = opts.visual ?? createVisualRefProvider();
   const real = llm.name !== "mock";
 
@@ -80,7 +82,7 @@ export async function runPipeline(
   // determinístico (offline, testável) — o contrato é o mesmo.
   const items: CalendarItem[] = [];
   for (const it of draft.items) {
-    const content = real ? await writeContent(it.idea, dna, strategy, llm) : it.content;
+    const content = real ? await writeContent(it.idea, ctx, llm) : it.content;
     const carousel = real
       ? await writeCarousel(it.idea, ctx, llm, visual)
       : await buildCarousel(it.idea, ctx, visual);
@@ -110,6 +112,7 @@ export async function runPipeline(
     calendar,
     notion,
     performance,
+    libraries: { gatilhos: GATILHOS, elementos: ELEMENTOS },
     warnings,
   };
 }

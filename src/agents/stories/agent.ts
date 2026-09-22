@@ -3,6 +3,8 @@ import type { Idea, StorySequence, StoryStep, VisualRef } from "../../pipeline/t
 import type { VisualRefProvider } from "../../core/integrations/visual-refs.js";
 import { SearchLinkVisualProvider } from "../../core/integrations/visual-refs.js";
 import { lc, visualTerms, type CreativeContext } from "../creative/context.js";
+import { recommendTriggers } from "../creative/triggers.js";
+import { recommendDevices } from "../creative/devices.js";
 
 /**
  * ENREDO — especialista em Sequência de Stories.
@@ -303,6 +305,8 @@ export async function buildStorySequence(
     stories,
     cta: def.key === "conversao" ? idea.cta : "Responder / seguir (relacionamento, sem venda)",
     gatilhos: def.key === "conversao" || idea.funil === "fundo" ? ["Prova", "Redução de risco", "Reciprocidade"] : ["Identificação", "Proximidade", "Curiosidade", "Reciprocidade"],
+    gatilhosRec: recommendTriggers(idea, ctx),
+    elementosRec: recommendDevices(idea, ctx),
     referencias: refs,
   };
 }
