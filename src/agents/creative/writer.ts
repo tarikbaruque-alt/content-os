@@ -1,4 +1,5 @@
 import type { LlmProvider } from "../../core/llm/provider.js";
+import { extractJsonBlock } from "../../core/json.js";
 import { produceContent } from "../../pipeline/stages.js";
 import { ANTI_AI_VOICE } from "./context.js";
 import type { CreativeContext } from "./context.js";
@@ -119,12 +120,7 @@ function asStrings(x: unknown): string[] | undefined {
 }
 
 /** Extrai o primeiro objeto JSON do texto (tolerante a cercas/ruído). */
-export function extractJson(text: string): string | null {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) return null;
-  return text.slice(start, end + 1);
-}
+export const extractJson = extractJsonBlock;
 
 /**
  * Valida a resposta do LLM e monta um ProducedContent, preenchendo com o
@@ -203,7 +199,11 @@ export async function writeContent(
     const res = await llm.generate({
       system: SYSTEM,
       messages: [{ role: "user", content: buildWriterPrompt(idea, ctx) }],
-      maxTokens: 2200,
+      // Generoso de propósito: com pensamento adaptativo (provider real), o
+      // orçamento de tokens é compartilhado entre "pensar" e a saída em JSON —
+      // pouco espaço aqui cortava a resposta no meio e caía, silenciosamente,
+      // no fallback determinístico (mesma causa-raiz do bug já corrigido na Íris).
+      maxTokens: 6000,
     });
     const parsed = parseWriterJson(res.text, idea, fallback);
     return parsed ?? fallback;

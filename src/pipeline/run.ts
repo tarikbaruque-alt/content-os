@@ -12,6 +12,7 @@ import { createVisualRefProvider, type VisualRefProvider } from "../core/integra
 import { GATILHOS } from "../agents/creative/triggers.js";
 import { ELEMENTOS } from "../agents/creative/devices.js";
 import { FORMATOS } from "./formats.js";
+import { mapWithConcurrency } from "../core/concurrency.js";
 import type { CalendarItem, MonthlyCalendar } from "./types.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
 import {
@@ -81,17 +82,19 @@ export async function runPipeline(
   // Produção criativa: com provider REAL, cada peça vira prosa publicável +
   // carrossel (Mosaico) + sequência de Stories (Enredo). Com mock, tudo é
   // determinístico (offline, testável) — o contrato é o mesmo.
-  const items: CalendarItem[] = [];
-  for (const it of draft.items) {
-    const content = real ? await writeContent(it.idea, ctx, llm) : it.content;
-    const carousel = real
-      ? await writeCarousel(it.idea, ctx, llm, visual)
-      : await buildCarousel(it.idea, ctx, visual);
-    const stories = real
-      ? await writeStorySequence(it.idea, ctx, llm, undefined, visual)
-      : await buildStorySequence(it.idea, ctx, undefined, visual);
-    items.push({ ...it, content, carousel, stories });
-  }
+  // Paraleliza: os 3 especialistas de cada peça não dependem um do outro, e
+  // várias peças podem ser produzidas ao mesmo tempo (limite de concorrência
+  // para não estourar rate limit da API) — com IA real isso é ~10x mais rápido
+  // que gerar peça a peça, especialista a especialista, em série.
+  const items = await mapWithConcurrency(draft.items, 4, async (it) => {
+    const [content, carousel, stories] = await Promise.all([
+      real ? writeContent(it.idea, ctx, llm) : Promise.resolve(it.content),
+      real ? writeCarousel(it.idea, ctx, llm, visual) : buildCarousel(it.idea, ctx, visual),
+      real ? writeStorySequence(it.idea, ctx, llm, undefined, visual) : buildStorySequence(it.idea, ctx, undefined, visual),
+    ]);
+    const full: CalendarItem = { ...it, content, carousel, stories };
+    return full;
+  });
   const calendar: MonthlyCalendar = { total: draft.total, mix: draft.mix, items };
 
   const notion = toNotionPages(calendar, client.name);

@@ -1,4 +1,5 @@
 import type { LlmProvider } from "../../core/llm/provider.js";
+import { extractJsonBlock } from "../../core/json.js";
 import type { Carousel, CarouselSlide, Idea, VisualRef } from "../../pipeline/types.js";
 import type { VisualRefProvider } from "../../core/integrations/visual-refs.js";
 import { SearchLinkVisualProvider } from "../../core/integrations/visual-refs.js";
@@ -201,11 +202,11 @@ export function buildCarouselPrompt(idea: Idea, ctx: CreativeContext, base: Caro
 }
 
 export function parseCarouselJson(text: string, base: Carousel): Carousel | null {
-  const start = text.indexOf("{"), end = text.lastIndexOf("}");
-  if (start === -1 || end <= start) return null;
+  const block = extractJsonBlock(text);
+  if (!block) return null;
   let p: Record<string, unknown>;
   try {
-    p = JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>;
+    p = JSON.parse(block) as Record<string, unknown>;
   } catch {
     return null;
   }
@@ -260,7 +261,7 @@ export async function writeCarousel(
   const base = await buildCarousel(idea, ctx, visual);
   if (llm.name === "mock") return base;
   try {
-    const res = await llm.generate({ system: SYSTEM, messages: [{ role: "user", content: buildCarouselPrompt(idea, ctx, base) }], maxTokens: 2400 });
+    const res = await llm.generate({ system: SYSTEM, messages: [{ role: "user", content: buildCarouselPrompt(idea, ctx, base) }], maxTokens: 6000 });
     return parseCarouselJson(res.text, base) ?? base;
   } catch {
     return base;

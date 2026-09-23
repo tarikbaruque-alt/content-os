@@ -1,4 +1,5 @@
 import type { LlmProvider } from "../../core/llm/provider.js";
+import { extractJsonBlock } from "../../core/json.js";
 import type { Idea, StorySequence, StoryStep, VisualRef } from "../../pipeline/types.js";
 import type { VisualRefProvider } from "../../core/integrations/visual-refs.js";
 import { SearchLinkVisualProvider } from "../../core/integrations/visual-refs.js";
@@ -356,11 +357,11 @@ export function buildStoryPrompt(idea: Idea, ctx: CreativeContext, base: StorySe
 }
 
 export function parseStoryJson(text: string, base: StorySequence): StorySequence | null {
-  const start = text.indexOf("{"), end = text.lastIndexOf("}");
-  if (start === -1 || end <= start) return null;
+  const block = extractJsonBlock(text);
+  if (!block) return null;
   let p: Record<string, unknown>;
   try {
-    p = JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>;
+    p = JSON.parse(block) as Record<string, unknown>;
   } catch {
     return null;
   }
@@ -407,7 +408,7 @@ export async function writeStorySequence(
   const base = await buildStorySequence(idea, ctx, typeKey, visual);
   if (llm.name === "mock") return base;
   try {
-    const res = await llm.generate({ system: SYSTEM, messages: [{ role: "user", content: buildStoryPrompt(idea, ctx, base) }], maxTokens: 2200 });
+    const res = await llm.generate({ system: SYSTEM, messages: [{ role: "user", content: buildStoryPrompt(idea, ctx, base) }], maxTokens: 6000 });
     return parseStoryJson(res.text, base) ?? base;
   } catch {
     return base;
