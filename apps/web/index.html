@@ -7552,7 +7552,7 @@
 
   // Estado de maturidade por área
   var STATUS={
-    overview:["mock","Dados de exemplo"],clients:["mock","Dados de exemplo"],
+    overview:["parcial","KPIs e próximas publicações reais para o Studio Aurora; a lista de clientes e a atividade são exemplo"],clients:["mock","Dados de exemplo"],
     analyze:["func","Roda a mesma lógica testada da Íris, ao vivo no navegador"],
     plan:["func","Gerado pelo pipeline real ponta a ponta · prosa final via Rima/Anthropic (basta configurar ANTHROPIC_API_KEY)"],
     dna:["dev","Motor Íris é FUNCIONAL (veja Análise IA) · painel ainda não persiste"],
@@ -7666,20 +7666,30 @@
     Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.getAttribute('data-view')!==v});
     var t=TITLES[v]||["",v];I("#crumb").textContent=t[0];I("#ptitle").textContent=t[1];
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
+    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="overview"){renderKpis();renderOverviewContent();}
     renderStatus(v);
     window.scrollTo({top:0});
   }
   function renderPipe(){I("#pipe").innerHTML=PIPE.map(function(s,i){return '<span class="step'+(i===0?' on':'')+'">'+s+'</span>'+(i<PIPE.length-1?'<span class="arr">→</span>':'')}).join('')}
   function kpiCard(l,v,s){return '<div class="card kpi"><span class="k-lbl">'+l+'</span><div class="k-val tnum">'+v+'</div><div class="k-sub">'+s+'</div></div>'}
   function renderKpis(){
-    var total=0;Object.keys(DNA).forEach(function(k){total+=DNA[k].length});
-    I("#kpis").innerHTML=kpiCard("Clientes","3","3 nichos distintos")+kpiCard("Agentes","1 <span style='font-size:15px;color:var(--faint)'>/ 10</span>","Íris ativa")+kpiCard("Registros no Content DNA",String(total),"pendentes de aprovação")+kpiCard("Conteúdos no calendário",String(CONTENT.length),"demonstração");
+    var active=AGENTS.filter(function(a){return a.s==="active"}).length;
+    var calCount=genOn()?GENERATED.calendar.items.length:CONTENT.length;
+    var dnaCount=(genOn()&&GENERATED.dna)?GENERATED.dna.length:(DNA[state.client]||[]).length;
+    I("#kpis").innerHTML=
+      kpiCard("Clientes",String(CLIENTS.length),CLIENTS.length+" nichos distintos")+
+      kpiCard("Agentes",active+" <span style='font-size:15px;color:var(--faint)'>/ "+AGENTS.length+"</span>",active+" ativos (veja Agentes)")+
+      kpiCard("Registros no Content DNA",String(dnaCount),genOn()?"Studio Aurora — gerado pela Íris":"exemplo")+
+      kpiCard("Conteúdos no calendário",String(calCount),genOn()?"plano real do mês":"demonstração");
   }
   function contentCard(x){
     return '<div class="card content-card" data-content="'+x.id+'"><div class="cc-h">'+esc(x.headline)+'</div><div class="cc-m">'+esc(clientName(x.client))+' · '+esc(x.surface)+' + '+esc(x.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[x.status]||'badge')+'">'+x.status+'</span><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="pill emo-pill">♥ '+esc(x.emocao)+'</span></div></div>';
   }
   function wireContent(sel){Array.prototype.forEach.call(document.querySelectorAll(sel),function(el){el.addEventListener('click',function(){openContent(el.getAttribute('data-content'))})})}
-  function renderOverviewContent(){I("#ovContent").innerHTML=CONTENT.slice(0,4).map(contentCard).join('');wireContent('#ovContent [data-content]')}
+  function renderOverviewContent(){
+    if(genOn()){I("#ovContent").innerHTML=GENERATED.calendar.items.slice(0,4).map(genCard).join('');wireGen('#ovContent [data-gen]');return;}
+    I("#ovContent").innerHTML=CONTENT.slice(0,4).map(contentCard).join('');wireContent('#ovContent [data-content]');
+  }
   function renderActivity(){
     var rows=[["Íris","estruturou o Content DNA de Dra. Marina","13 registros","agora"],["Íris","estruturou o Content DNA de Rafa Nutri","6 registros","há 2 min"],["Acervo","indexou 6 pilares da Knowledge Base","Instagram-first","há 5 min"]];
     I("#activity").innerHTML=rows.map(function(r,i){return '<div style="display:flex;gap:12px;align-items:center;padding:13px 16px;'+(i<rows.length-1?'border-bottom:1px solid var(--line-2)':'')+'"><div style="width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:13px;background:'+avc(r[0]==="Acervo"?8:0)+'">'+r[0].charAt(0)+'</div><div><div style="font-size:13px"><b>'+r[0]+'</b> '+esc(r[1])+'</div><div style="font-size:11.5px;color:var(--faint)">'+esc(r[2])+'</div></div><div style="margin-left:auto;font-size:11.5px;color:var(--faint)">'+r[3]+'</div></div>'}).join('')
@@ -8104,7 +8114,12 @@
   function closeDrawer(){I("#overlay").innerHTML='';document.removeEventListener('keydown',escClose)}
 
   function setClient(id){var c=byId(id);state.client=id;I("#csav").textContent=c.name.charAt(0);I("#csav").style.background=avc(c.av);
-    if(state.view==="dna")renderDNA();if(state.view==="strategy")renderStrategy();if(state.view==="research")renderResearch();if(state.view==="editorial")renderEditorial();if(state.view==="ideas")renderIdeas();}
+    var sel=I("#csel");if(sel&&sel.value!==id)sel.value=id;
+    renderKpis();
+    var v=state.view;
+    if(v==="dna")renderDNA();if(v==="strategy")renderStrategy();if(v==="research")renderResearch();if(v==="editorial")renderEditorial();if(v==="ideas")renderIdeas();
+    if(v==="distribution")renderDistribution();if(v==="plan")renderPlan();if(v==="content")renderContentList();if(v==="calendar")renderCal();if(v==="approvals")renderApprovals();
+    renderStatus(v);}
   function buildClientSelect(){I("#csel").innerHTML=CLIENTS.map(function(c){return '<option value="'+c.id+'">'+esc(c.full)+'</option>'}).join('');I("#csel").addEventListener('change',function(){setClient(this.value)});setClient(state.client)}
   function initTheme(){var root=document.documentElement,saved=null;try{saved=localStorage.getItem('cos-theme')}catch(e){}if(saved)root.setAttribute('data-theme',saved);
     I("#theme").addEventListener('click',function(){var cur=root.getAttribute('data-theme');var dark=cur?cur==="dark":window.matchMedia('(prefers-color-scheme: dark)').matches;var nx=dark?"light":"dark";root.setAttribute('data-theme',nx);try{localStorage.setItem('cos-theme',nx)}catch(e){}})}
