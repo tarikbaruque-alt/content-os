@@ -293,6 +293,16 @@
   [contenteditable="true"]:focus{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px;background:var(--surface)}
   .dashed-add{transition:border-color .12s ease,color .12s ease,transform .12s ease}
   .dashed-add:hover{border-color:var(--brand);color:var(--brand-ink);transform:translateY(-2px)}
+
+  /* Polimento visual (hierarquia, botões, cards, consistência) — mesma identidade */
+  .btn{transition:border-color .12s ease,background .12s ease,color .12s ease,transform .08s ease}
+  .btn:active{transform:scale(.96)}
+  .btn.pri:hover{box-shadow:0 4px 12px -4px rgba(91,69,230,.5)}
+  .card{transition:box-shadow .15s ease,border-color .15s ease}
+  .kpi:hover{box-shadow:0 2px 4px rgba(20,19,32,.05),0 12px 26px -14px rgba(20,19,32,.15)}
+  select,input,textarea{font-family:inherit}
+  .section-head p{line-height:1.5}
+  ::selection{background:var(--brand-weak);color:var(--brand-ink)}
 </style>
 
 <div class="app">
@@ -7458,12 +7468,7 @@
   ];
   function statusBadge(s){return s==="active"?'<span class="badge act">● Ativo</span>':s==="prog"?'<span class="badge prog">● Em progresso</span>':'<span class="badge plan">○ Planejado</span>'}
 
-  var CLIENTS=[
-    {id:"marina",name:"Dra. Marina",full:"Dra. Marina — Advocacia Trabalhista",niche:"Advocacia trabalhista",av:0},
-    {id:"verde",name:"Verde Vivo",full:"Verde Vivo — Cosméticos Naturais",niche:"Cosméticos naturais",av:1},
-    {id:"rafa",name:"Rafa Nutri",full:"Rafa Nutri — Nutrição Esportiva",niche:"Nutrição esportiva",av:2},
-    {id:"aurora",name:"Studio Aurora",full:"Studio Aurora — Fotografia de Casamento",niche:"Fotografia de casamento",av:5}
-  ];
+  var CLIENTS=[];
   var AURORA_SRC="Briefing de onboarding — 21/09/2026";
   var AURORA_BRIEFING=[
     "Sou fotógrafa de casamento e vendo ensaios e cobertura de casamento; meu ticket médio é R$ 6.000 por evento.",
@@ -7540,55 +7545,8 @@
 
   // CONTEÚDOS — registro estratégico completo
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-  var CONTENT=[
-    {id:"c1",client:"marina",date:"Seg 04",surface:"Reel",format:"Erro comum",headline:"O que ninguém te conta antes de você assinar a rescisão",status:"WAITING APPROVAL",
-     objetivo:"Alcance qualificado",persona:"Trabalhador CLT recém-demitido",jornada:"Descoberta",funil:"Topo",funcao:"Identificação",pilar:"Direitos do trabalhador",tema:"Rescisão",subtema:"Erros na homologação",
-     ideia:"Mostrar 3 erros comuns que fazem o trabalhador perder dinheiro na rescisão.",angulo:"“Você pode estar perdendo dinheiro agora” — a partir do cotidiano da persona.",
-     emocao:"Segurança",emocaoPor:"A persona chega com medo; o objetivo não é assustar mais, e sim mostrar que há alguém que entende e resolve. Segurança sustenta a confiança que leva ao contato.",
-     percepcao:"“Essa advogada explica de um jeito que eu entendo e está do meu lado.”",
-     roteiro:[["Hook","“Se você foi demitido essa semana, NÃO assine a rescisão antes de ver isso.”"],["Contexto","A maioria assina no susto, sem conferir 3 coisas."],["Erro 1","Verbas rescisórias sem o cálculo das horas extras."],["Erro 2","Aviso prévio mal contado."],["Prova","“Já revi mais de 300 casos — em boa parte faltava algo.”"],["Payoff","Conferir leva 5 minutos e pode valer milhares."],["CTA","“Me chama no direct com a palavra RESCISÃO que eu te mando o checklist.”"]],
-     copy:"Demitido? Respira. Antes de assinar qualquer papel, confere esses 3 pontos — é onde mais gente perde dinheiro sem saber. Salva pra não esquecer e manda pra quem precisa. 💙",
-     cta:"DM “RESCISÃO” → checklist gratuito",gatilhos:["Especificidade","Prova social","Redução de risco"],recursos:["Open loop","Lista","Cena do cotidiano"],visual:"Talking head, luz quente, legendas grandes; tom acolhedor, sem trilha agressiva."},
-    {id:"c2",client:"marina",date:"Qua 06",surface:"Carrossel",format:"Framework",headline:"5 direitos que todo CLT demitido tem (e quase ninguém cobra)",status:"REVIEW",
-     objetivo:"Autoridade + salvamentos",persona:"CLT que teme perder direitos",jornada:"Consideração",funil:"Meio",funcao:"Educação",pilar:"Educação jurídica",tema:"Direitos",subtema:"Verbas rescisórias",
-     ideia:"Um direito por slide, com linguagem simples e exemplo.",angulo:"Framework salvável — referência que a pessoa guarda.",
-     emocao:"Confiança",emocaoPor:"Aqui a jornada é de consideração: a persona já sentiu identificação e agora precisa confiar na competência. Clareza e organização geram confiança.",
-     percepcao:"“Ela realmente domina o assunto e me ensina de graça.”",
-     carrossel:[["Capa","5 direitos que todo CLT demitido tem"],["Slide 2","1. Saldo de salário — proporcional aos dias trabalhados."],["Slide 3","2. Aviso prévio — pode ser indenizado."],["Slide 4","3. 13º proporcional."],["Slide 5","4. Férias + 1/3."],["Slide 6","5. Multa de 40% do FGTS."],["Slide final","Salva este post e me chama se tiver dúvida."]],
-     copy:"Você trabalhou, tem direito. Esses 5 costumam passar batido — guarda aqui pra não esquecer na hora H.",
-     cta:"Salvar + DM em caso de dúvida",gatilhos:["Especificidade","Autoridade","Reciprocidade"],recursos:["Paralelismo","Lista numerada"],visual:"Paleta sóbria da marca, tipografia grande, um direito por slide, ícone consistente."},
-    {id:"c3",client:"verde",date:"Ter 05",surface:"Carrossel",format:"Quebra de objeção",headline:"“Natural não funciona”? A ciência por trás dos nossos ativos",status:"WAITING APPROVAL",
-     objetivo:"Consideração",persona:"Mulher cética sobre cosmético natural",jornada:"Consideração",funil:"Meio",funcao:"Prova",pilar:"Ingredientes",tema:"Ativos naturais",subtema:"Eficácia comprovada",
-     ideia:"Rebater a objeção mostrando ativo + evidência, sem inventar dado.",angulo:"“Entendo por que você desconfia — e é justo. Olha isto.”",
-     emocao:"Confiança",emocaoPor:"A objeção nasce de desconfiança. Confiança só se constrói com prova real e honestidade — nada de promessa exagerada, que reforçaria o ceticismo.",
-     percepcao:"“Eles têm base — não é só marketing verde.”",
-     carrossel:[["Capa","“Natural não funciona”? Vamos aos fatos."],["Slide 2","Entendemos o ceticismo — o mercado prometeu demais."],["Slide 3","Ativo 1 e o que ele faz na pele."],["Slide 4","Ativo 2 e a função."],["Slide 5","Nossa escolha de formulação e por quê."],["Slide final","Transparência é nosso padrão. Pergunte o que quiser."]],
-     copy:"Desconfiar é sadio. Por isso a gente mostra o que tem dentro — ingrediente por ingrediente. Sem promessa mágica, com respeito à sua pele e ao planeta. 🌿",
-     cta:"Comentar dúvida sobre ingredientes",gatilhos:["Prova","Especificidade","Reciprocidade"],recursos:["Antítese (ceticismo × prova)","Repetição"],visual:"Fundo claro, macro dos ativos, verde da marca, tipografia limpa."},
-    {id:"c4",client:"verde",date:"Sex 08",surface:"Stories",format:"Bastidores",headline:"Como fazemos nossas embalagens compostáveis",status:"IN PRODUCTION",
-     objetivo:"Relacionamento",persona:"Cliente e seguidora engajada",jornada:"Experiência própria",funil:"Fundo",funcao:"Diferenciação",pilar:"Sustentabilidade",tema:"Embalagens",subtema:"Compostável",
-     ideia:"Sequência de bastidores mostrando o processo real da embalagem.",angulo:"Orgulho de processo — “é assim que fazemos”.",
-     emocao:"Pertencimento",emocaoPor:"Cliente atual: o papel do conteúdo é reforçar a escolha e criar comunidade. Pertencimento aumenta preferência e recompra.",
-     percepcao:"“Faço parte de algo que faz sentido.”",
-     roteiro:[["Story 1 (Atração)","“Você já se perguntou o que acontece com a embalagem depois?”"],["Story 2 (Curiosidade)","Mostrar o material antes de virar embalagem."],["Story 3 (Conexão)","O processo compostável em 10s, pessoas reais."],["Story 4 (CTA)","Enquete: “Isso importa pra você?” + caixa de perguntas."]],
-     copy:"—",cta:"Enquete + caixa de perguntas",gatilhos:["Demonstração","Pertencimento","Consistência"],recursos:["Cena","Suspense curto"],visual:"Vertical, mão na massa, luz natural, sem edição excessiva (lo-fi honesto)."},
-    {id:"c5",client:"rafa",date:"Qui 07",surface:"Reel",format:"Mito × Verdade",headline:"O erro de dieta que trava o seu ganho de massa",status:"WAITING APPROVAL",
-     objetivo:"Autoridade",persona:"Homem que treina e não evolui",jornada:"Descoberta",funil:"Topo",funcao:"Educação",pilar:"Mitos da nutrição",tema:"Ganho de massa",subtema:"Erros de dieta",
-     ideia:"Derrubar um mito comum e entregar a correção prática.",angulo:"“Não é o treino, é isso aqui” — quebra de expectativa.",
-     emocao:"Ambição",emocaoPor:"A persona quer resultado e já se frustrou. Ambição (visão do corpo/energia que deseja) move mais do que medo — e combina com o tom motivacional da marca.",
-     percepcao:"“Esse nutri fala a minha língua e sabe o que faz.”",
-     roteiro:[["Hook","“Você treina pesado e não ganha massa? O erro provavelmente é este.”"],["Conflito","Todo mundo culpa o treino. Raramente é o treino."],["Desenvolvimento","O erro: comer pouco nas horas erradas."],["Prova","“Cliente ajustou isso e ganhou 6kg de massa seca em 3 meses.”"],["Payoff","Comida de verdade, no timing certo — sem shake caro."],["CTA","“Comenta MASSA que eu te mando um exemplo de dia alimentar.”"]],
-     copy:"Treino tá on, dieta tá off? Esse é o erro que mais trava resultado. Ajusta isso antes de gastar com suplemento. Comenta MASSA 💪",
-     cta:"Comentar “MASSA” → exemplo de dia alimentar",gatilhos:["Especificidade","Prova social","Contraste"],recursos:["Quebra de expectativa","Open loop"],visual:"Dinâmico, cortes rápidos no ponto certo, texto na tela, energia alta mas sem gritaria."},
-    {id:"c6",client:"rafa",date:"Sáb 09",surface:"Stories",format:"Quebra de objeção",headline:"“Dieta de nutri é cara”? Vamos fazer a conta",status:"PLANNED",
-     objetivo:"Conversão",persona:"Lead que acha caro",jornada:"Conversão",funil:"Fundo",funcao:"Quebra de Objeção",pilar:"Dieta na prática",tema:"Custo",subtema:"Comida de verdade",
-     ideia:"Comparar o custo real da dieta prática vs. suplementos/fast food.",angulo:"Fazer a conta junto, sem pressão.",
-     emocao:"Tranquilidade",emocaoPor:"No fundo de funil, pressão gera recuo. Tranquilidade (“cabe no seu bolso, sem sofrimento”) reduz risco e destrava a decisão sem agressividade.",
-     percepcao:"“Isso é acessível e possível pra mim.”",
-     roteiro:[["Story 1","“Acha que dieta de nutri é cara? Bora fazer a conta.”"],["Story 2","Custo de comida de verdade por dia."],["Story 3","Vs. o que você já gasta sem perceber."],["Story 4 (CTA)","“Quer seu plano? Responde AQUI que eu te explico.”"]],
-     copy:"—",cta:"Responder Stories → conversa",gatilhos:["Redução de risco","Especificidade"],recursos:["Contraste","Pergunta retórica"],visual:"Texto grande, números claros, tom calmo e direto."}
-  ];
-  function clientName(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i].name;return id}
+  var CONTENT=[];
+  function clientName(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i].name;return id||"Nenhum cliente"}
   function clientAv(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i].av;return 0}
   var STCOL={"WAITING APPROVAL":"prog","REVIEW":"prog","IN PRODUCTION":"badge","PLANNED":"plan","SCHEDULED":"badge","PUBLISHED":"act"};
 
@@ -7702,7 +7660,7 @@
     {t:"Tráfego Pago",d:"Mídia paga (Meta). Documentado — área futura.",m:["futuro"]}
   ];
   var PIPE=["Entender","Pensar","Pesquisar","Planejar","Criar","Executar","Medir","Aprender","Melhorar"];
-  var state={view:"overview",client:"aurora",clientView:false};
+  var state={view:"overview",client:"",clientView:false};
   // Plano REAL gerado pelo pipeline, por cliente — GENERATED aponta sempre
   // para o cliente ativo (reatribuído em setClient); GENERATED_ALL guarda todos.
   var GENERATED=(GENERATED_ALL||{})[state.client]||null;
@@ -8762,7 +8720,8 @@
   }
 
   // ---------- content drawer ----------
-  function byId(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i];return CLIENTS[0]}
+  var NO_CLIENT={id:"",name:"Nenhum cliente",full:"Nenhum cliente ainda",niche:"",av:0};
+  function byId(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i];return CLIENTS[0]||NO_CLIENT}
   function getContent(id){for(var i=0;i<CONTENT.length;i++)if(CONTENT[i].id===id)return CONTENT[i];return null}
   function chainHtml(x){
     var nodes=[["Estratégia",clientName(x.client)],["Objetivo",x.objetivo],["Mensagem","Big Message"],["Emoção",x.emocao,true],["Ideia",x.format],["Formato",x.surface+" + "+x.format],["Roteiro/Copy",x.roteiro?"Roteiro":"Carrossel"],["CTA","→"]];
@@ -8927,7 +8886,8 @@
     renderKpis();renderView(state.view);
   }
   function refreshClientOptions(){
-    I("#csel").innerHTML=CLIENTS.map(function(c){return '<option value="'+c.id+'">'+esc(c.full)+'</option>'}).join('');
+    var opts=CLIENTS.length?CLIENTS.map(function(c){return '<option value="'+c.id+'">'+esc(c.full)+'</option>'}).join(''):'<option value="">Nenhum cliente ainda</option>';
+    I("#csel").innerHTML=opts;
     var sel=I("#csel");if(sel.value!==state.client)sel.value=state.client;
   }
   function buildClientSelect(){
