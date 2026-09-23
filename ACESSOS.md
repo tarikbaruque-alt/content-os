@@ -68,7 +68,8 @@ NOTION_DATABASE_ID=<32 caracteres>
 **Rede:** libere o host `api.notion.com`.
 
 **Colunas ideais do database** (o sync só preenche as que existirem):
-`Nome` (title) · `Cliente`/`Objetivo`/`CTA` (text) · `Plataforma`/`Formato`/`Pilar`/`Funil`/`Função estratégica`/`Emoção` (select) · `Status` (status).
+`Nome` (title) · `Cliente`/`Data`/`Tema`/`Persona`/`Objetivo`/`Big Message`/`Headline`/`CTA` (text) · `Plataforma`/`Formato`/`Pilar`/`Funil`/`Função estratégica`/`Emoção` (select) · `Status` (status).
+O corpo de cada página leva **o quê será publicado + como será produzido + por que faz parte da estratégia** (headline, roteiro, copy, CTA, carrossel, Stories e a cadeia estratégica).
 
 ---
 

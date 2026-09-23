@@ -48,6 +48,8 @@ export const FUNCTION_LIB: Record<string, FnMeta> = {
   Conversão: { funil: "fundo", jornada: "Conversão", emocao: "ambição" },
   Venda: { funil: "fundo", jornada: "Conversão", emocao: "desejo" },
   Retenção: { funil: "fundo", jornada: "Experiência própria", emocao: "pertencimento" },
+  "Experiência Própria": { funil: "fundo", jornada: "Experiência própria", emocao: "confiança" },
+  "Experiência Compartilhada": { funil: "fundo", jornada: "Experiência compartilhada", emocao: "pertencimento" },
   Comunidade: { funil: "fundo", jornada: "Experiência compartilhada", emocao: "pertencimento" },
 };
 
@@ -65,17 +67,19 @@ export function deriveStrategy(dna: Dna): StrategyArchitecture {
     ? `${dif}. ${pos}.`
     : `${dif} — a marca que resolve ${dor.toLowerCase()} com ${desejo.toLowerCase()}.`;
 
+  // Cobre pelo menos as funções estratégicas pedidas (topo → fundo).
   const funcoes = [
-    "Identificação",
+    "Descoberta",
     "Conscientização",
-    "Autoridade",
     "Educação",
+    "Autoridade",
+    "Identificação",
+    "Experiência Própria",
+    "Experiência Compartilhada",
     "Prova",
     "Quebra de Objeção",
-    "Diferenciação",
-    "Desejo",
+    "Consideração",
     "Conversão",
-    "Relacionamento",
   ];
   const emocoes = [
     ...new Set(funcoes.map((f) => FUNCTION_LIB[f]?.emocao ?? "confiança")),
@@ -177,6 +181,10 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
       Desejo: { titulo: `Como seria ${desejo.toLowerCase()}`, angulo: "Projeção do futuro desejado", hook: `Imagina ${desejo.toLowerCase()}.` },
       Conversão: { titulo: `Pronto para ${desejo.toLowerCase()}? Comece aqui`, angulo: "Chamada clara e sem pressão", hook: `Se ${desejo.toLowerCase()} faz sentido, o próximo passo é simples.` },
       Relacionamento: { titulo: `Bastidores: como cuidamos de ${dor.toLowerCase()}`, angulo: "Proximidade e cultura", hook: `Deixa eu te mostrar como a gente faz.` },
+      Descoberta: { titulo: `O que quase ninguém percebe sobre ${dor.toLowerCase()}`, angulo: "Abre os olhos para o problema", hook: `Você provavelmente nunca reparou nisto sobre ${dor.toLowerCase()}.` },
+      Consideração: { titulo: `Como decidir sobre ${desejo.toLowerCase()} sem erro`, angulo: "Critérios de decisão", hook: `Antes de decidir, olha estes pontos.` },
+      "Experiência Própria": { titulo: `O que eu aprendi na prática sobre ${desejo.toLowerCase()}`, angulo: "Autoridade pela vivência real", hook: `Aprendi isto fazendo, não na teoria.` },
+      "Experiência Compartilhada": { titulo: `O que vivemos junto com quem confiou`, angulo: "Prova social e comunidade", hook: `Olha o que a gente construiu junto.` },
     };
     const seed = seedByFn[funcao] ?? { titulo: `${funcao}: conteúdo estratégico`, angulo: "Ângulo estratégico", hook: "Presta atenção nisto." };
     const personaCurta = strategy.persona.replace(/^meu público (são|é)\s*/i, "").trim().slice(0, 48);
@@ -325,32 +333,53 @@ export function toNotionPages(calendar: MonthlyCalendar, clientName: string): No
       .join("\n");
     const carrossel = it.carousel.slides.map((s) => `${s.n}. [${s.papel}] ${s.titulo} — ${s.texto}`).join("\n");
     const storiesSeq = it.stories.stories.map((s) => `${s.n}. [${s.papel}] ${s.fala} (interação: ${s.interacao})`).join("\n");
+    const gat = it.content.gatilhosRec.map((g) => g.nome).join(", ");
+    const ele = it.content.elementosRec.map((d) => d.nome).join(", ");
+    // Estrutura clara para o cliente: O QUE + COMO + POR QUÊ.
     const body = [
-      it.content.headline,
+      `📌 O QUE SERÁ PUBLICADO`,
+      `Headline: ${it.content.headline}`,
       "",
+      `Copy/Legenda:`,
       it.content.copy,
+      `CTA: ${it.content.cta}`,
       "",
-      `— Roteiro/Copy —`,
+      `🎬 COMO SERÁ PRODUZIDO`,
+      `Roteiro (${it.idea.surface}):`,
       roteiro,
       "",
-      `— Carrossel (Mosaico · ${it.carousel.estrutura}) —`,
+      `Carrossel (Mosaico · ${it.carousel.estrutura}):`,
       carrossel,
       "",
-      `— Sequência de Stories (Enredo · ${it.stories.tipo}) · ${it.stories.progressao.join(" → ")} —`,
+      `Sequência de Stories (Enredo · ${it.stories.tipo}) · ${it.stories.progressao.join(" → ")}:`,
       storiesSeq,
+      "",
+      `🎯 POR QUE FAZ PARTE DA ESTRATÉGIA`,
+      `Objetivo: ${it.idea.objetivo} · Função: ${it.idea.funcao} · Funil: ${it.idea.funil} (${it.idea.jornada})`,
+      `Persona: ${it.idea.persona}`,
+      `Propósito: ${it.idea.proposito}`,
+      `Big Message: ${it.idea.bigMessage}`,
+      `Emoção desejada: ${it.content.emocao} — ${it.content.emocaoPor}`,
+      `Percepção-alvo: ${it.idea.percepcao}`,
+      `Gatilhos: ${gat}`,
+      `Elementos literários: ${ele}`,
     ].join("\n");
     return {
       title: it.content.headline,
       properties: {
         Cliente: clientName,
         Data: it.data,
+        Tema: it.idea.tema,
         Plataforma: it.idea.surface,
         Formato: it.idea.format,
         Pilar: it.idea.pilar.split(":")[0]!,
+        Persona: it.idea.persona,
         Objetivo: it.idea.objetivo,
         Funil: it.idea.funil,
         "Função estratégica": it.idea.funcao,
+        "Big Message": it.idea.bigMessage,
         Emoção: it.idea.emocao,
+        Headline: it.content.headline,
         CTA: it.content.cta,
         Status: it.status,
       },
