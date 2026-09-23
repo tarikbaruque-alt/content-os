@@ -84,11 +84,13 @@ export type CopyVariants = { curta: string; media: string; longa: string };
 
 /** Recomendação de formato por dimensões (não um único rótulo). */
 export type FormatRecommendation = {
+  formato: string; // formato nomeado da biblioteca (Talking Head, POV, Case…)
+  objetivo: string; // objetivo estratégico que o formato serve
   producao: string; // Lo-fi / Mid-fi / High-fi
   estrutura: string; // talking head / react / tela dividida / duplo personagem / vlog / tutorial…
   narrativa: string; // storytelling / análise / contraponto / curiosidade…
   superficie: string; // Reel / Stories / Carrossel / Vídeo
-  justificativa: string;
+  justificativa: string; // o motivo da escolha
 };
 
 export type Idea = {
@@ -249,10 +251,11 @@ export type NotionPage = {
   bodyPreview: string;
 };
 
-/** Bibliotecas selecionáveis expostas ao painel (gatilhos + elementos literários). */
+/** Bibliotecas selecionáveis expostas ao painel (gatilhos + elementos + formatos). */
 export type CreativeLibraries = {
   gatilhos: { key: string; nome: string; descricao: string; requerEvidencia?: boolean }[];
   elementos: { key: string; nome: string; descricao: string }[];
+  formatos: { key: string; nome: string; descricao: string; producao: string; superficie: string }[];
 };
 
 export type PipelineResult = {

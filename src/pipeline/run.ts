@@ -11,6 +11,7 @@ import { buildStorySequence, writeStorySequence } from "../agents/stories/agent.
 import { createVisualRefProvider, type VisualRefProvider } from "../core/integrations/visual-refs.js";
 import { GATILHOS } from "../agents/creative/triggers.js";
 import { ELEMENTOS } from "../agents/creative/devices.js";
+import { FORMATOS } from "./formats.js";
 import type { CalendarItem, MonthlyCalendar } from "./types.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
 import {
@@ -112,7 +113,11 @@ export async function runPipeline(
     calendar,
     notion,
     performance,
-    libraries: { gatilhos: GATILHOS, elementos: ELEMENTOS },
+    libraries: {
+      gatilhos: GATILHOS,
+      elementos: ELEMENTOS,
+      formatos: FORMATOS.map((f) => ({ key: f.key, nome: f.nome, descricao: f.descricao, producao: f.producao, superficie: f.superficie })),
+    },
     warnings,
   };
 }

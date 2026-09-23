@@ -25,7 +25,57 @@ export const FORMAT_LIBRARY = {
   superficie: ["Reel", "Stories", "Carrossel", "Vídeo", "Imagem"],
 } as const;
 
-type Rec = Omit<FormatRecommendation, "justificativa">;
+/**
+ * Catálogo de FORMATOS nomeados e realmente utilizáveis (não só Reel/Carrossel/
+ * Stories). A IA recomenda um formato por peça, com objetivo e motivo; o usuário
+ * pode trocar manualmente.
+ */
+export type FormatoDef = { key: string; nome: string; descricao: string; producao: string; superficie: string };
+export const FORMATOS: FormatoDef[] = [
+  { key: "talking_head", nome: "Talking Head", descricao: "Você falando direto para a câmera. Autoridade e clareza.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "lofi", nome: "Lo-fi", descricao: "Produção crua e espontânea. Aproxima e permite volume.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "midfi", nome: "Mid-fi", descricao: "Produção intermediária. Equilibra clareza e escala.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "highfi", nome: "High-fi", descricao: "Produção caprichada. Reforça valor e autoridade.", producao: "High-fi", superficie: "Vídeo" },
+  { key: "tela_dividida", nome: "Tela Dividida", descricao: "Dois planos ao mesmo tempo (ex.: você + tela). Ensina e compara.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "react", nome: "React", descricao: "Reação/comentário a um conteúdo, print ou tendência.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "entrevista", nome: "Entrevista", descricao: "Perguntas e respostas com convidado ou cliente.", producao: "Mid-fi", superficie: "Vídeo" },
+  { key: "duplo_personagem", nome: "Duplo Personagem", descricao: "Você interpreta dois lados de um diálogo. Ótimo p/ objeção.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "pov", nome: "POV", descricao: "Ponto de vista encenado do cotidiano da persona.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "vlog", nome: "Vlog", descricao: "Um dia/rotina em vídeo. Familiaridade e bastidor.", producao: "Lo-fi", superficie: "Stories" },
+  { key: "bastidores", nome: "Bastidores", descricao: "O processo por trás da entrega. Humaniza e prova.", producao: "Lo-fi", superficie: "Stories" },
+  { key: "tutorial", nome: "Passo a Passo / Tutorial", descricao: "Ensina a fazer algo em etapas. Salvável.", producao: "Mid-fi", superficie: "Carrossel" },
+  { key: "storytelling", nome: "Storytelling", descricao: "Uma história com começo, tensão e desfecho.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "case", nome: "Case / Estudo de Caso", descricao: "Antes → processo → depois de um caso real (sem inventar).", producao: "Mid-fi", superficie: "Carrossel" },
+  { key: "analise", nome: "Análise / Opinião", descricao: "Leitura fundamentada sobre um tema. Autoridade.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "curiosidade", nome: "Curiosidade / Quebra de Expectativa", descricao: "Abre um loop e surpreende. Retenção de topo.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "demonstracao", nome: "Demonstração", descricao: "Mostra o produto/serviço em ação. Desejo e prova.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "comparacao", nome: "Comparação", descricao: "X vs Y para dar clareza pela diferença.", producao: "Mid-fi", superficie: "Carrossel" },
+  { key: "resposta_comentario", nome: "Resposta a Comentário", descricao: "Responde uma dúvida/comentário real da audiência.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "serie", nome: "Série / Quadro Recorrente", descricao: "Formato que se repete (ex.: “toda terça”). Cria hábito.", producao: "Mid-fi", superficie: "Reel" },
+];
+const FORMATO_BY_KEY = new Map(FORMATOS.map((f) => [f.key, f]));
+
+// Formato nomeado + objetivo estratégico recomendado por função.
+const FN_FORMATO: Record<string, { key: string; objetivo: string }> = {
+  Descoberta: { key: "curiosidade", objetivo: "Ganhar atenção qualificada no topo" },
+  Atenção: { key: "curiosidade", objetivo: "Parar o scroll e gerar identificação" },
+  Identificação: { key: "pov", objetivo: "Fazer a persona se reconhecer" },
+  Conscientização: { key: "analise", objetivo: "Quebrar uma crença equivocada" },
+  Educação: { key: "tutorial", objetivo: "Ensinar e gerar reciprocidade" },
+  Autoridade: { key: "analise", objetivo: "Ser visto como referência no tema" },
+  Prova: { key: "case", objetivo: "Comprovar a promessa com evidência real" },
+  "Experiência Própria": { key: "bastidores", objetivo: "Autoridade pela vivência real" },
+  "Experiência Compartilhada": { key: "entrevista", objetivo: "Prova social e comunidade" },
+  "Quebra de Objeção": { key: "duplo_personagem", objetivo: "Enfrentar a objeção de frente" },
+  Diferenciação: { key: "comparacao", objetivo: "Tornar o diferencial evidente" },
+  Consideração: { key: "comparacao", objetivo: "Ajudar a decidir com critério" },
+  Desejo: { key: "demonstracao", objetivo: "Aumentar o desejo pela transformação" },
+  Conversão: { key: "demonstracao", objetivo: "Converter atenção em ação" },
+  Relacionamento: { key: "vlog", objetivo: "Aproximar e criar vínculo" },
+  Rapport: { key: "bastidores", objetivo: "Gerar proximidade antes da venda" },
+};
+
+type Rec = Omit<FormatRecommendation, "justificativa" | "formato" | "objetivo">;
 
 const BY_FUNCTION: Record<string, Rec> = {
   Identificação: { producao: "Lo-fi", estrutura: "POV", narrativa: "Erro comum", superficie: "Reel" },
@@ -69,8 +119,11 @@ export function recommendFormat(
 ): FormatRecommendation {
   const base = BY_FUNCTION[funcao] ?? BY_FUNNEL[funil];
   const superficie = surfaceHint || base.superficie;
+  const fn = FN_FORMATO[funcao];
+  const def = fn ? FORMATO_BY_KEY.get(fn.key)! : FORMATO_BY_KEY.get("talking_head")!;
+  const objetivo = fn ? fn.objetivo : `Servir à função ${funcao} no ${funil} de funil`;
   const justificativa =
-    `${funcao} em ${funil} de funil pede ${base.estrutura} + ${base.narrativa}: ` +
-    `${PROD_WHY[base.producao]}, e ${superficie} entrega o formato no ritmo certo dessa etapa.`;
-  return { ...base, superficie, justificativa };
+    `Formato "${def.nome}" para ${funcao} (${funil}): ${def.descricao} ` +
+    `Combina com ${base.estrutura} + ${base.narrativa} — ${PROD_WHY[base.producao]}, e ${superficie} entrega no ritmo certo desta etapa.`;
+  return { formato: def.nome, objetivo, ...base, superficie, justificativa };
 }

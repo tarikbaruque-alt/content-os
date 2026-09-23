@@ -193,6 +193,8 @@
   .cal .day .dn{font-size:11px;color:var(--faint);font-weight:600;margin-bottom:7px}
   .cal .ev{font-size:10.5px;font-weight:600;padding:5px 6px;border-radius:6px;margin-bottom:5px;color:#fff;cursor:pointer;line-height:1.2}
   .cal .ev:hover{filter:brightness(1.08)}
+  #cvBanner{display:none;background:linear-gradient(90deg,var(--brand),#8A79FF);color:#fff;font-size:12.5px;font-weight:500;padding:8px 26px;position:sticky;top:0;z-index:19}
+  body[data-clientview="1"] #cvBanner{display:block}
   .calgridw{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
   .calcell{border:1px solid var(--line);border-radius:11px;padding:8px;min-height:112px;background:var(--surface-2);display:flex;flex-direction:column;gap:6px}
   .calnum{font-size:11px;color:var(--faint);font-weight:700;font-variant-numeric:tabular-nums}
@@ -285,9 +287,11 @@
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:12px"><div><div class="crumb" id="crumb">Trabalho</div><h2 id="ptitle">Dashboard</h2></div><span class="statuspill lvl-mock" id="statuspill" title="">MOCK</span></div>
       <div class="spacer"></div>
-      <div class="client-switch"><div class="av" id="csav">M</div><select id="csel" aria-label="Cliente ativo"></select></div>
+      <div class="client-switch" id="clientSwitch"><div class="av" id="csav">M</div><select id="csel" aria-label="Cliente ativo"></select></div>
+      <button class="btn" id="clientview" title="Ver como o cliente veria (somente leitura)" style="white-space:nowrap">👁 Ver como cliente</button>
       <button class="icon-btn" id="theme" title="Alternar tema" aria-label="Alternar tema">◐</button>
     </header>
+    <div id="cvBanner">👁 Visualização do cliente — somente leitura · <b id="cvName">Studio Aurora</b><span style="opacity:.8"> · você está vendo exatamente o que o cliente veria</span></div>
 
     <div class="wrap">
       <section class="view" data-view="overview">
@@ -368,7 +372,7 @@
   /*__GENERATED_START__*/ var GENERATED={
   "clientId": "aurora",
   "clientName": "Studio Aurora — Fotografia de Casamento",
-  "generatedAt": "2026-09-23T01:41:55.643Z",
+  "generatedAt": "2026-09-23T02:38:36.830Z",
   "provider": "mock",
   "dna": [
     {
@@ -1258,11 +1262,13 @@
       "surface": "Reel",
       "format": "Erro comum",
       "formatRec": {
+        "formato": "Curiosidade / Quebra de Expectativa",
+        "objetivo": "Ganhar atenção qualificada no topo",
         "producao": "Lo-fi",
         "estrutura": "POV",
         "narrativa": "Curiosidade",
         "superficie": "Reel",
-        "justificativa": "Descoberta em topo de funil pede POV + Curiosidade: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Curiosidade / Quebra de Expectativa\" para Descoberta (topo): Abre um loop e surpreende. Retenção de topo. Combina com POV + Curiosidade — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Você provavelmente nunca reparou nisto sobre medo de que o dia passe rápido e não fique registrado de verdade.",
       "cta": "Salvar + seguir",
@@ -1289,11 +1295,13 @@
       "surface": "Reel",
       "format": "Mito × Verdade",
       "formatRec": {
+        "formato": "Análise / Opinião",
+        "objetivo": "Quebrar uma crença equivocada",
         "producao": "Mid-fi",
         "estrutura": "Talking head",
         "narrativa": "Mito × Verdade",
         "superficie": "Reel",
-        "justificativa": "Conscientização em topo de funil pede Talking head + Mito × Verdade: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Análise / Opinião\" para Conscientização (topo): Leitura fundamentada sobre um tema. Autoridade. Combina com Talking head + Mito × Verdade — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "A verdade sobre reviver as emoções do casamento por fotos naturais, sem poses forçadas que ninguém te conta.",
       "cta": "Salvar + seguir",
@@ -1320,11 +1328,13 @@
       "surface": "Reel",
       "format": "Análise",
       "formatRec": {
+        "formato": "Passo a Passo / Tutorial",
+        "objetivo": "Ensinar e gerar reciprocidade",
         "producao": "Mid-fi",
         "estrutura": "Tela dividida",
         "narrativa": "Problema-Solução",
         "superficie": "Reel",
-        "justificativa": "Educação em meio de funil pede Tela dividida + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Passo a Passo / Tutorial\" para Educação (meio): Ensina a fazer algo em etapas. Salvável. Combina com Tela dividida + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Salve isto se você quer reviver as emoções do casamento por fotos naturais, sem poses forçadas.",
       "cta": "Salvar + seguir",
@@ -1351,11 +1361,13 @@
       "surface": "Stories",
       "format": "Bastidores",
       "formatRec": {
+        "formato": "Análise / Opinião",
+        "objetivo": "Ser visto como referência no tema",
         "producao": "Mid-fi",
         "estrutura": "React",
         "narrativa": "Análise",
         "superficie": "Stories",
-        "justificativa": "Autoridade em meio de funil pede React + Análise: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Análise / Opinião\" para Autoridade (meio): Leitura fundamentada sobre um tema. Autoridade. Combina com React + Análise — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
       },
       "hook": "Ninguém fala disto: estilo documental que capta a emoção real, não o retrato posado.",
       "cta": "Salvar + seguir",
@@ -1382,11 +1394,13 @@
       "surface": "Reel",
       "format": "Erro comum",
       "formatRec": {
+        "formato": "POV",
+        "objetivo": "Fazer a persona se reconhecer",
         "producao": "Lo-fi",
         "estrutura": "POV",
         "narrativa": "Erro comum",
         "superficie": "Reel",
-        "justificativa": "Identificação em topo de funil pede POV + Erro comum: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"POV\" para Identificação (topo): Ponto de vista encenado do cotidiano da persona. Combina com POV + Erro comum — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Se você sente medo de que o dia passe rápido e não fique registrado de verdade, isso é pra você.",
       "cta": "Salvar + seguir",
@@ -1413,11 +1427,13 @@
       "surface": "Stories",
       "format": "Quebra de objeção",
       "formatRec": {
+        "formato": "Bastidores",
+        "objetivo": "Autoridade pela vivência real",
         "producao": "Mid-fi",
         "estrutura": "Demonstração",
         "narrativa": "Problema-Solução",
         "superficie": "Stories",
-        "justificativa": "Experiência Própria em fundo de funil pede Demonstração + Problema-Solução: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Bastidores\" para Experiência Própria (fundo): O processo por trás da entrega. Humaniza e prova. Combina com Demonstração + Problema-Solução — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
       },
       "hook": "Aprendi isto fazendo, não na teoria.",
       "cta": "Chamar no direct",
@@ -1444,11 +1460,13 @@
       "surface": "Reel",
       "format": "Demonstração",
       "formatRec": {
+        "formato": "Entrevista",
+        "objetivo": "Prova social e comunidade",
         "producao": "Mid-fi",
         "estrutura": "Demonstração",
         "narrativa": "Problema-Solução",
         "superficie": "Reel",
-        "justificativa": "Experiência Compartilhada em fundo de funil pede Demonstração + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Entrevista\" para Experiência Compartilhada (fundo): Perguntas e respostas com convidado ou cliente. Combina com Demonstração + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Olha o que a gente construiu junto.",
       "cta": "Chamar no direct",
@@ -1475,11 +1493,13 @@
       "surface": "Stories",
       "format": "Prova",
       "formatRec": {
+        "formato": "Case / Estudo de Caso",
+        "objetivo": "Comprovar a promessa com evidência real",
         "producao": "Mid-fi",
         "estrutura": "Case",
         "narrativa": "Antes e depois",
         "superficie": "Stories",
-        "justificativa": "Prova em fundo de funil pede Case + Antes e depois: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Case / Estudo de Caso\" para Prova (fundo): Antes → processo → depois de um caso real (sem inventar). Combina com Case + Antes e depois — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
       },
       "hook": "Olha o que mudou depois de resolver medo de que o dia passe rápido e não fique registrado de verdade.",
       "cta": "Chamar no direct",
@@ -1506,11 +1526,13 @@
       "surface": "Carrossel",
       "format": "Case",
       "formatRec": {
+        "formato": "Duplo Personagem",
+        "objetivo": "Enfrentar a objeção de frente",
         "producao": "Mid-fi",
         "estrutura": "Duplo personagem",
         "narrativa": "Polêmica/Contraponto",
         "superficie": "Carrossel",
-        "justificativa": "Quebra de Objeção em fundo de funil pede Duplo personagem + Polêmica/Contraponto: produção média equilibra clareza e escala, e Carrossel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Duplo Personagem\" para Quebra de Objeção (fundo): Você interpreta dois lados de um diálogo. Ótimo p/ objeção. Combina com Duplo personagem + Polêmica/Contraponto — produção média equilibra clareza e escala, e Carrossel entrega no ritmo certo desta etapa."
       },
       "hook": "Você acha que fotógrafo bom é caro demais para o orçamento? Então vem cá.",
       "cta": "Chamar no direct",
@@ -1537,11 +1559,13 @@
       "surface": "Stories",
       "format": "Quebra de objeção",
       "formatRec": {
+        "formato": "Comparação",
+        "objetivo": "Ajudar a decidir com critério",
         "producao": "Mid-fi",
         "estrutura": "Demonstração",
         "narrativa": "Problema-Solução",
         "superficie": "Stories",
-        "justificativa": "Consideração em fundo de funil pede Demonstração + Problema-Solução: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Comparação\" para Consideração (fundo): X vs Y para dar clareza pela diferença. Combina com Demonstração + Problema-Solução — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
       },
       "hook": "Antes de decidir, olha estes pontos.",
       "cta": "Chamar no direct",
@@ -1568,11 +1592,13 @@
       "surface": "Reel",
       "format": "Demonstração",
       "formatRec": {
+        "formato": "Demonstração",
+        "objetivo": "Converter atenção em ação",
         "producao": "Mid-fi",
         "estrutura": "Demonstração",
         "narrativa": "Problema-Solução",
         "superficie": "Reel",
-        "justificativa": "Conversão em fundo de funil pede Demonstração + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Demonstração\" para Conversão (fundo): Mostra o produto/serviço em ação. Desejo e prova. Combina com Demonstração + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Se reviver as emoções do casamento por fotos naturais, sem poses forçadas faz sentido, o próximo passo é simples.",
       "cta": "Chamar no direct",
@@ -1599,11 +1625,13 @@
       "surface": "Reel",
       "format": "Série",
       "formatRec": {
+        "formato": "Curiosidade / Quebra de Expectativa",
+        "objetivo": "Ganhar atenção qualificada no topo",
         "producao": "Lo-fi",
         "estrutura": "POV",
         "narrativa": "Curiosidade",
         "superficie": "Reel",
-        "justificativa": "Descoberta em topo de funil pede POV + Curiosidade: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Curiosidade / Quebra de Expectativa\" para Descoberta (topo): Abre um loop e surpreende. Retenção de topo. Combina com POV + Curiosidade — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Você provavelmente nunca reparou nisto sobre medo de que o dia passe rápido e não fique registrado de verdade.",
       "cta": "Salvar + seguir",
@@ -1630,11 +1658,13 @@
       "surface": "Reel",
       "format": "Série",
       "formatRec": {
+        "formato": "Análise / Opinião",
+        "objetivo": "Quebrar uma crença equivocada",
         "producao": "Mid-fi",
         "estrutura": "Talking head",
         "narrativa": "Mito × Verdade",
         "superficie": "Reel",
-        "justificativa": "Conscientização em topo de funil pede Talking head + Mito × Verdade: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Análise / Opinião\" para Conscientização (topo): Leitura fundamentada sobre um tema. Autoridade. Combina com Talking head + Mito × Verdade — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "A verdade sobre reviver as emoções do casamento por fotos naturais, sem poses forçadas que ninguém te conta.",
       "cta": "Salvar + seguir",
@@ -1661,11 +1691,13 @@
       "surface": "Reel",
       "format": "Série",
       "formatRec": {
+        "formato": "Passo a Passo / Tutorial",
+        "objetivo": "Ensinar e gerar reciprocidade",
         "producao": "Mid-fi",
         "estrutura": "Tela dividida",
         "narrativa": "Problema-Solução",
         "superficie": "Reel",
-        "justificativa": "Educação em meio de funil pede Tela dividida + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Passo a Passo / Tutorial\" para Educação (meio): Ensina a fazer algo em etapas. Salvável. Combina com Tela dividida + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
       },
       "hook": "Salve isto se você quer reviver as emoções do casamento por fotos naturais, sem poses forçadas.",
       "cta": "Salvar + seguir",
@@ -1692,11 +1724,13 @@
       "surface": "Stories",
       "format": "Série",
       "formatRec": {
+        "formato": "Análise / Opinião",
+        "objetivo": "Ser visto como referência no tema",
         "producao": "Mid-fi",
         "estrutura": "React",
         "narrativa": "Análise",
         "superficie": "Stories",
-        "justificativa": "Autoridade em meio de funil pede React + Análise: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+        "justificativa": "Formato \"Análise / Opinião\" para Autoridade (meio): Leitura fundamentada sobre um tema. Autoridade. Combina com React + Análise — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
       },
       "hook": "Ninguém fala disto: estilo documental que capta a emoção real, não o retrato posado.",
       "cta": "Salvar + seguir",
@@ -1734,11 +1768,13 @@
           "surface": "Reel",
           "format": "Erro comum",
           "formatRec": {
+            "formato": "Curiosidade / Quebra de Expectativa",
+            "objetivo": "Ganhar atenção qualificada no topo",
             "producao": "Lo-fi",
             "estrutura": "POV",
             "narrativa": "Curiosidade",
             "superficie": "Reel",
-            "justificativa": "Descoberta em topo de funil pede POV + Curiosidade: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Curiosidade / Quebra de Expectativa\" para Descoberta (topo): Abre um loop e surpreende. Retenção de topo. Combina com POV + Curiosidade — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Você provavelmente nunca reparou nisto sobre medo de que o dia passe rápido e não fique registrado de verdade.",
           "cta": "Salvar + seguir",
@@ -2165,11 +2201,13 @@
           "surface": "Reel",
           "format": "Mito × Verdade",
           "formatRec": {
+            "formato": "Análise / Opinião",
+            "objetivo": "Quebrar uma crença equivocada",
             "producao": "Mid-fi",
             "estrutura": "Talking head",
             "narrativa": "Mito × Verdade",
             "superficie": "Reel",
-            "justificativa": "Conscientização em topo de funil pede Talking head + Mito × Verdade: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Análise / Opinião\" para Conscientização (topo): Leitura fundamentada sobre um tema. Autoridade. Combina com Talking head + Mito × Verdade — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "A verdade sobre reviver as emoções do casamento por fotos naturais, sem poses forçadas que ninguém te conta.",
           "cta": "Salvar + seguir",
@@ -2596,11 +2634,13 @@
           "surface": "Reel",
           "format": "Erro comum",
           "formatRec": {
+            "formato": "POV",
+            "objetivo": "Fazer a persona se reconhecer",
             "producao": "Lo-fi",
             "estrutura": "POV",
             "narrativa": "Erro comum",
             "superficie": "Reel",
-            "justificativa": "Identificação em topo de funil pede POV + Erro comum: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"POV\" para Identificação (topo): Ponto de vista encenado do cotidiano da persona. Combina com POV + Erro comum — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Se você sente medo de que o dia passe rápido e não fique registrado de verdade, isso é pra você.",
           "cta": "Salvar + seguir",
@@ -3028,11 +3068,13 @@
           "surface": "Reel",
           "format": "Série",
           "formatRec": {
+            "formato": "Curiosidade / Quebra de Expectativa",
+            "objetivo": "Ganhar atenção qualificada no topo",
             "producao": "Lo-fi",
             "estrutura": "POV",
             "narrativa": "Curiosidade",
             "superficie": "Reel",
-            "justificativa": "Descoberta em topo de funil pede POV + Curiosidade: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Curiosidade / Quebra de Expectativa\" para Descoberta (topo): Abre um loop e surpreende. Retenção de topo. Combina com POV + Curiosidade — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Você provavelmente nunca reparou nisto sobre medo de que o dia passe rápido e não fique registrado de verdade.",
           "cta": "Salvar + seguir",
@@ -3459,11 +3501,13 @@
           "surface": "Reel",
           "format": "Série",
           "formatRec": {
+            "formato": "Análise / Opinião",
+            "objetivo": "Quebrar uma crença equivocada",
             "producao": "Mid-fi",
             "estrutura": "Talking head",
             "narrativa": "Mito × Verdade",
             "superficie": "Reel",
-            "justificativa": "Conscientização em topo de funil pede Talking head + Mito × Verdade: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Análise / Opinião\" para Conscientização (topo): Leitura fundamentada sobre um tema. Autoridade. Combina com Talking head + Mito × Verdade — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "A verdade sobre reviver as emoções do casamento por fotos naturais, sem poses forçadas que ninguém te conta.",
           "cta": "Salvar + seguir",
@@ -3890,11 +3934,13 @@
           "surface": "Reel",
           "format": "Erro comum",
           "formatRec": {
+            "formato": "Curiosidade / Quebra de Expectativa",
+            "objetivo": "Ganhar atenção qualificada no topo",
             "producao": "Lo-fi",
             "estrutura": "POV",
             "narrativa": "Curiosidade",
             "superficie": "Reel",
-            "justificativa": "Descoberta em topo de funil pede POV + Curiosidade: baixa produção aumenta identificação e permite volume, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Curiosidade / Quebra de Expectativa\" para Descoberta (topo): Abre um loop e surpreende. Retenção de topo. Combina com POV + Curiosidade — baixa produção aumenta identificação e permite volume, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Você provavelmente nunca reparou nisto sobre medo de que o dia passe rápido e não fique registrado de verdade.",
           "cta": "Salvar + seguir",
@@ -4321,11 +4367,13 @@
           "surface": "Reel",
           "format": "Análise",
           "formatRec": {
+            "formato": "Passo a Passo / Tutorial",
+            "objetivo": "Ensinar e gerar reciprocidade",
             "producao": "Mid-fi",
             "estrutura": "Tela dividida",
             "narrativa": "Problema-Solução",
             "superficie": "Reel",
-            "justificativa": "Educação em meio de funil pede Tela dividida + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Passo a Passo / Tutorial\" para Educação (meio): Ensina a fazer algo em etapas. Salvável. Combina com Tela dividida + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Salve isto se você quer reviver as emoções do casamento por fotos naturais, sem poses forçadas.",
           "cta": "Salvar + seguir",
@@ -4756,11 +4804,13 @@
           "surface": "Stories",
           "format": "Bastidores",
           "formatRec": {
+            "formato": "Análise / Opinião",
+            "objetivo": "Ser visto como referência no tema",
             "producao": "Mid-fi",
             "estrutura": "React",
             "narrativa": "Análise",
             "superficie": "Stories",
-            "justificativa": "Autoridade em meio de funil pede React + Análise: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Análise / Opinião\" para Autoridade (meio): Leitura fundamentada sobre um tema. Autoridade. Combina com React + Análise — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
           },
           "hook": "Ninguém fala disto: estilo documental que capta a emoção real, não o retrato posado.",
           "cta": "Salvar + seguir",
@@ -5190,11 +5240,13 @@
           "surface": "Reel",
           "format": "Série",
           "formatRec": {
+            "formato": "Passo a Passo / Tutorial",
+            "objetivo": "Ensinar e gerar reciprocidade",
             "producao": "Mid-fi",
             "estrutura": "Tela dividida",
             "narrativa": "Problema-Solução",
             "superficie": "Reel",
-            "justificativa": "Educação em meio de funil pede Tela dividida + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Passo a Passo / Tutorial\" para Educação (meio): Ensina a fazer algo em etapas. Salvável. Combina com Tela dividida + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Salve isto se você quer reviver as emoções do casamento por fotos naturais, sem poses forçadas.",
           "cta": "Salvar + seguir",
@@ -5625,11 +5677,13 @@
           "surface": "Stories",
           "format": "Série",
           "formatRec": {
+            "formato": "Análise / Opinião",
+            "objetivo": "Ser visto como referência no tema",
             "producao": "Mid-fi",
             "estrutura": "React",
             "narrativa": "Análise",
             "superficie": "Stories",
-            "justificativa": "Autoridade em meio de funil pede React + Análise: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Análise / Opinião\" para Autoridade (meio): Leitura fundamentada sobre um tema. Autoridade. Combina com React + Análise — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
           },
           "hook": "Ninguém fala disto: estilo documental que capta a emoção real, não o retrato posado.",
           "cta": "Salvar + seguir",
@@ -6059,11 +6113,13 @@
           "surface": "Stories",
           "format": "Quebra de objeção",
           "formatRec": {
+            "formato": "Bastidores",
+            "objetivo": "Autoridade pela vivência real",
             "producao": "Mid-fi",
             "estrutura": "Demonstração",
             "narrativa": "Problema-Solução",
             "superficie": "Stories",
-            "justificativa": "Experiência Própria em fundo de funil pede Demonstração + Problema-Solução: produção média equilibra clareza e escala, e Stories entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Bastidores\" para Experiência Própria (fundo): O processo por trás da entrega. Humaniza e prova. Combina com Demonstração + Problema-Solução — produção média equilibra clareza e escala, e Stories entrega no ritmo certo desta etapa."
           },
           "hook": "Aprendi isto fazendo, não na teoria.",
           "cta": "Chamar no direct",
@@ -6488,11 +6544,13 @@
           "surface": "Reel",
           "format": "Demonstração",
           "formatRec": {
+            "formato": "Entrevista",
+            "objetivo": "Prova social e comunidade",
             "producao": "Mid-fi",
             "estrutura": "Demonstração",
             "narrativa": "Problema-Solução",
             "superficie": "Reel",
-            "justificativa": "Experiência Compartilhada em fundo de funil pede Demonstração + Problema-Solução: produção média equilibra clareza e escala, e Reel entrega o formato no ritmo certo dessa etapa."
+            "justificativa": "Formato \"Entrevista\" para Experiência Compartilhada (fundo): Perguntas e respostas com convidado ou cliente. Combina com Demonstração + Problema-Solução — produção média equilibra clareza e escala, e Reel entrega no ritmo certo desta etapa."
           },
           "hook": "Olha o que a gente construiu junto.",
           "cta": "Chamar no direct",
@@ -7349,6 +7407,148 @@
         "nome": "Revelação",
         "descricao": "Entrega a virada/insight guardado até aqui."
       }
+    ],
+    "formatos": [
+      {
+        "key": "talking_head",
+        "nome": "Talking Head",
+        "descricao": "Você falando direto para a câmera. Autoridade e clareza.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "lofi",
+        "nome": "Lo-fi",
+        "descricao": "Produção crua e espontânea. Aproxima e permite volume.",
+        "producao": "Lo-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "midfi",
+        "nome": "Mid-fi",
+        "descricao": "Produção intermediária. Equilibra clareza e escala.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "highfi",
+        "nome": "High-fi",
+        "descricao": "Produção caprichada. Reforça valor e autoridade.",
+        "producao": "High-fi",
+        "superficie": "Vídeo"
+      },
+      {
+        "key": "tela_dividida",
+        "nome": "Tela Dividida",
+        "descricao": "Dois planos ao mesmo tempo (ex.: você + tela). Ensina e compara.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "react",
+        "nome": "React",
+        "descricao": "Reação/comentário a um conteúdo, print ou tendência.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "entrevista",
+        "nome": "Entrevista",
+        "descricao": "Perguntas e respostas com convidado ou cliente.",
+        "producao": "Mid-fi",
+        "superficie": "Vídeo"
+      },
+      {
+        "key": "duplo_personagem",
+        "nome": "Duplo Personagem",
+        "descricao": "Você interpreta dois lados de um diálogo. Ótimo p/ objeção.",
+        "producao": "Lo-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "pov",
+        "nome": "POV",
+        "descricao": "Ponto de vista encenado do cotidiano da persona.",
+        "producao": "Lo-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "vlog",
+        "nome": "Vlog",
+        "descricao": "Um dia/rotina em vídeo. Familiaridade e bastidor.",
+        "producao": "Lo-fi",
+        "superficie": "Stories"
+      },
+      {
+        "key": "bastidores",
+        "nome": "Bastidores",
+        "descricao": "O processo por trás da entrega. Humaniza e prova.",
+        "producao": "Lo-fi",
+        "superficie": "Stories"
+      },
+      {
+        "key": "tutorial",
+        "nome": "Passo a Passo / Tutorial",
+        "descricao": "Ensina a fazer algo em etapas. Salvável.",
+        "producao": "Mid-fi",
+        "superficie": "Carrossel"
+      },
+      {
+        "key": "storytelling",
+        "nome": "Storytelling",
+        "descricao": "Uma história com começo, tensão e desfecho.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "case",
+        "nome": "Case / Estudo de Caso",
+        "descricao": "Antes → processo → depois de um caso real (sem inventar).",
+        "producao": "Mid-fi",
+        "superficie": "Carrossel"
+      },
+      {
+        "key": "analise",
+        "nome": "Análise / Opinião",
+        "descricao": "Leitura fundamentada sobre um tema. Autoridade.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "curiosidade",
+        "nome": "Curiosidade / Quebra de Expectativa",
+        "descricao": "Abre um loop e surpreende. Retenção de topo.",
+        "producao": "Lo-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "demonstracao",
+        "nome": "Demonstração",
+        "descricao": "Mostra o produto/serviço em ação. Desejo e prova.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "comparacao",
+        "nome": "Comparação",
+        "descricao": "X vs Y para dar clareza pela diferença.",
+        "producao": "Mid-fi",
+        "superficie": "Carrossel"
+      },
+      {
+        "key": "resposta_comentario",
+        "nome": "Resposta a Comentário",
+        "descricao": "Responde uma dúvida/comentário real da audiência.",
+        "producao": "Lo-fi",
+        "superficie": "Reel"
+      },
+      {
+        "key": "serie",
+        "nome": "Série / Quadro Recorrente",
+        "descricao": "Formato que se repete (ex.: “toda terça”). Cria hábito.",
+        "producao": "Mid-fi",
+        "superficie": "Reel"
+      }
     ]
   },
   "warnings": []
@@ -7643,7 +7843,19 @@
     {t:"Tráfego Pago",d:"Mídia paga (Meta). Documentado — área futura.",m:["futuro"]}
   ];
   var PIPE=["Entender","Pensar","Pesquisar","Planejar","Criar","Executar","Medir","Aprender","Melhorar"];
-  var state={view:"overview",client:"aurora"};
+  var state={view:"overview",client:"aurora",clientView:false};
+  // Modo Cliente: portal somente-leitura com os dados do próprio cliente.
+  var CLIENT_NAV=[{g:"Portal do cliente",items:[["overview","Visão geral"],["strategy","Estratégia"],["editorial","Linha Editorial"],["content","Conteúdos"],["calendar","Calendário"]]}];
+  function toggleClientView(on){
+    state.clientView=on;
+    document.body.setAttribute("data-clientview",on?"1":"0");
+    var cs=I("#clientSwitch");if(cs)cs.style.display=on?"none":"";
+    var btn=I("#clientview");if(btn)btn.textContent=on?"← Voltar ao painel":"👁 Ver como cliente";
+    var nm=I("#cvName");if(nm)nm.textContent=clientName(state.client);
+    buildNav();
+    if(on&&["overview","strategy","editorial","content","calendar"].indexOf(state.view)<0)state.view="overview";
+    go(state.view);
+  }
   // Cliente com plano REAL gerado pelo pipeline (fonte principal do calendário).
   function genOn(){return state.client==="aurora"&&GENERATED&&GENERATED.calendar&&GENERATED.calendar.items&&GENERATED.calendar.items.length;}
   function genCard(it,idx){
@@ -7657,10 +7869,13 @@
 
   // ---------- render ----------
   function buildNav(){
-    I("#nav").innerHTML=NAV.map(function(grp){return '<div class="nav-group"><div class="lbl">'+grp.g+'</div>'+grp.items.map(function(it){return '<a data-view="'+it[0]+'">'+(IC[it[0]]||"")+'<span>'+it[1]+'</span></a>'}).join('')+'</div>'}).join('');
+    var src=state.clientView?CLIENT_NAV:NAV;
+    I("#nav").innerHTML=src.map(function(grp){return '<div class="nav-group"><div class="lbl">'+grp.g+'</div>'+grp.items.map(function(it){return '<a data-view="'+it[0]+'">'+(IC[it[0]]||"")+'<span>'+it[1]+'</span></a>'}).join('')+'</div>'}).join('');
     Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.addEventListener('click',function(){go(a.getAttribute('data-view'))})});
+    var a2=I("#nav a[data-view=\""+state.view+"\"]");if(a2)a2.classList.add("active");
   }
   function go(v){
+    if(state.clientView&&["overview","strategy","editorial","content","calendar"].indexOf(v)<0)v="overview";
     state.view=v;
     Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
     Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.getAttribute('data-view')!==v});
@@ -7895,6 +8110,10 @@
     return nodes.map(function(n,i){return '<div class="sc'+(n[2]?' hot':'')+'"><b title="'+esc(String(n[1]))+'">'+esc(String(n[1]))+'</b>'+esc(n[0])+'</div>'+(i<nodes.length-1?'<span class="sca">›</span>':'')}).join('');
   }
   function skeletonHtml(x,del,kind){
+    if(state.clientView){
+      // Read-only para o cliente: só o "por quê" essencial, sem edição/prompts internos.
+      return '<div class="block"><div class="bt">Por que este conteúdo</div><div class="metagrid">'+meta("Objetivo",x.objetivo)+meta("Formato",del.formato||x.surface)+'<div style="grid-column:1/-1">'+meta("Mensagem principal",x.bigMessage)+'</div>'+meta("Emoção",x.emocao)+meta("Etapa",x.funil+" · "+x.jornada)+'</div></div>';
+    }
     var h='';
     h+='<div class="block"><div class="bt">Esqueleto estratégico — as 3 perguntas que guiam a criação <span class="tag-mock">editável</span></div><div class="qgrid">'
       +'<div class="q"><div class="ql">🎯 Qual é a principal mensagem? (Big Message)</div><div class="editable" contenteditable="true">'+esc(x.bigMessage)+'</div></div>'
@@ -7941,22 +8160,31 @@
     body+='<div class="emo-hero"><div class="eh-l">♥ Emoção estratégica</div><div class="eh-v">'+esc(c.emocao)+'</div><div class="eh-w"><b>Por quê:</b> '+esc(c.emocaoPor)+'</div></div>';
     var stOpts=["PLANNED","REVIEW","WAITING APPROVAL","IN PRODUCTION","APPROVED","PUBLISHED"];
     function efld(l,v){return '<div><div class="ql">'+esc(l)+'</div><div class="editable" contenteditable="true">'+esc(v)+'</div></div>';}
-    body+='<div class="block"><div class="bt">Ficha do conteúdo <span class="tag-mock">editável</span></div><div class="metagrid">'
-      +efld("Data",it.data)+efld("Tema",x.tema)+efld("Pilar",x.pilar.split(":")[0])+efld("Formato",x.surface+" + "+x.format)
-      +'<div style="grid-column:1/-1">'+efld("Público/Persona",x.persona)+'</div>'
-      +'<div><div class="ql">Status / Aprovação</div><select class="editable" style="width:100%">'+stOpts.map(function(s){return '<option'+(s===it.status?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'
-      +'</div></div>';
+    var cli=state.clientView;
+    if(!cli){
+      body+='<div class="block"><div class="bt">Ficha do conteúdo <span class="tag-mock">editável</span></div><div class="metagrid">'
+        +efld("Data",it.data)+efld("Tema",x.tema)+efld("Pilar",x.pilar.split(":")[0])+efld("Formato",x.surface+" + "+x.format)
+        +'<div style="grid-column:1/-1">'+efld("Público/Persona",x.persona)+'</div>'
+        +'<div><div class="ql">Status / Aprovação</div><select class="editable" style="width:100%">'+stOpts.map(function(s){return '<option'+(s===it.status?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'
+        +'</div></div>';
+    }else{
+      body+='<div class="block"><div class="bt">Ficha</div><div class="metagrid">'+meta("Data",it.data)+meta("Tema",x.tema)+meta("Formato",x.surface+" + "+x.format)+meta("Status",it.status)+'</div></div>';
+    }
     body+=skeletonHtml(x,c,"content");
-    body+='<div class="block"><div class="bt">Contexto estratégico</div><div class="metagrid">'+meta("Objetivo",x.objetivo)+meta("Persona",x.persona)+'<div style="grid-column:1/-1">'+meta("Propósito",x.proposito)+'</div>'+meta("Jornada",x.jornada)+meta("Funil",x.funil)+meta("Função",x.funcao)+meta("Pilar",x.pilar.split(":")[0])+meta("Tema / Subtema",x.tema+" / "+x.subtema)+'<div style="grid-column:1/-1">'+meta("Ângulo",x.angulo)+'</div><div style="grid-column:1/-1">'+meta("Justificativa",x.justificativa)+'</div></div></div>';
-    if(x.formatRec){var fr=x.formatRec;body+='<div class="block"><div class="bt">Recomendação de formato — por dimensões</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">'+[["Produção",fr.producao],["Estrutura",fr.estrutura],["Narrativa",fr.narrativa],["Superfície",fr.superficie]].map(function(d){return '<span class="badge"><b style="color:var(--faint);font-weight:600">'+d[0]+':</b>&nbsp;'+esc(d[1])+'</span>'}).join('')+'</div><div style="font-size:12.5px;color:var(--muted)">'+esc(fr.justificativa)+'</div></div>';}
+    if(!cli){
+      body+='<div class="block"><div class="bt">Contexto estratégico</div><div class="metagrid">'+meta("Objetivo",x.objetivo)+meta("Persona",x.persona)+'<div style="grid-column:1/-1">'+meta("Propósito",x.proposito)+'</div>'+meta("Jornada",x.jornada)+meta("Funil",x.funil)+meta("Função",x.funcao)+meta("Pilar",x.pilar.split(":")[0])+meta("Tema / Subtema",x.tema+" / "+x.subtema)+'<div style="grid-column:1/-1">'+meta("Ângulo",x.angulo)+'</div><div style="grid-column:1/-1">'+meta("Justificativa",x.justificativa)+'</div></div></div>';
+      if(x.formatRec){var fr=x.formatRec;body+='<div class="block"><div class="bt">Recomendação de formato — '+esc(fr.formato||"")+'</div><div style="font-size:12.5px;color:var(--muted);margin-bottom:9px"><b style="color:var(--ink)">Objetivo:</b> '+esc(fr.objetivo||"")+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">'+[["Produção",fr.producao],["Estrutura",fr.estrutura],["Narrativa",fr.narrativa],["Superfície",fr.superficie]].map(function(d){return '<span class="badge"><b style="color:var(--faint);font-weight:600">'+d[0]+':</b>&nbsp;'+esc(d[1])+'</span>'}).join('')+'</div><div style="font-size:12.5px;color:var(--muted)">'+esc(fr.justificativa)+'</div></div>';}
+    }
     var steps=c.roteiro||c.slides||c.stories||[];
     body+='<div class="block"><div class="bt">'+(c.roteiro?"Roteiro — Hook → Desenvolvimento → Retenção/Tensão → Payoff → CTA":c.slides?"Estrutura do carrossel":"Sequência de Stories")+'</div>'+stepsHtml(steps.map(function(s){return [s.label,s.text]}))+'</div>';
     body+='<div class="block"><div class="bt">Copy / Legenda — mesma copy em 3 extensões</div><div class="cvtabs">'+[["curta","Curta"],["media","Média"],["longa","Longa"]].map(function(t){return '<button class="cvtab'+(t[0]==="media"?" on":"")+'" data-cv="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div><div class="copybox" id="copybox">'+esc(cvData.media)+'</div></div>';
     body+='<div class="block"><div class="bt">CTA</div><div style="font-size:14px;font-weight:600">'+esc(c.cta)+'</div></div>';
     body+='<div class="block"><div class="bt">Direção visual</div><div style="font-size:13px;color:var(--muted)">'+esc(c.direcaoVisual)+'</div></div>';
     // Notion payload
-    var props=Object.keys(np.properties).map(function(k){return '<div class="fnbar" style="margin-bottom:6px"><span class="fnl mono" style="flex:0 0 130px;font-size:11px">'+esc(k)+'</span><span style="font-size:12.5px">'+esc(np.properties[k])+'</span></div>'}).join('');
-    body+='<div class="block" style="border-style:dashed"><div class="bt">Prévia de sincronização com o Notion <span class="tag-mock">payload · sem chamada real</span></div>'+props+'</div>';
+    if(!cli){
+      var props=Object.keys(np.properties).map(function(k){return '<div class="fnbar" style="margin-bottom:6px"><span class="fnl mono" style="flex:0 0 130px;font-size:11px">'+esc(k)+'</span><span style="font-size:12.5px">'+esc(np.properties[k])+'</span></div>'}).join('');
+      body+='<div class="block" style="border-style:dashed"><div class="bt">Prévia de sincronização com o Notion <span class="tag-mock">payload · sem chamada real</span></div>'+props+'</div>';
+    }
     var VIEWS={estrategia:body,carrossel:carouselHtml(it.carousel,x),stories:storyHtml(it.stories,x)};
     var tabsDef=[["estrategia","Estratégia"],["carrossel","🎠 Criar Carrossel"],["stories","📱 Criar Sequência de Stories"]];
     var tabs='<div class="crtabs" style="display:flex;gap:6px;padding:12px 20px 0;flex-wrap:wrap">'+tabsDef.map(function(t){return '<button class="preset crtab" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
@@ -8126,6 +8354,8 @@
 
   DNA["aurora"]=irisToDnaEntries(irisExtract(AURORA_BRIEFING,AURORA_SRC)); // Íris estrutura o cliente novo no load
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderActivity();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
-  buildClientSelect();initTheme();go("overview");
+  buildClientSelect();initTheme();
+  I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});
+  go("overview");
 })();
 </script>
