@@ -2,7 +2,7 @@ import type { LlmProvider } from "../../core/llm/provider.js";
 import type { Idea, StorySequence, StoryStep, VisualRef } from "../../pipeline/types.js";
 import type { VisualRefProvider } from "../../core/integrations/visual-refs.js";
 import { SearchLinkVisualProvider } from "../../core/integrations/visual-refs.js";
-import { lc, visualTerms, type CreativeContext } from "../creative/context.js";
+import { ANTI_AI_VOICE, lc, visualTerms, type CreativeContext } from "../creative/context.js";
 import { recommendTriggers } from "../creative/triggers.js";
 import { recommendDevices } from "../creative/devices.js";
 
@@ -324,7 +324,13 @@ narrativa (Story 1 → 2 → 3…), não Stories isolados. Lógica: Relacionamen
 Familiaridade → Confiança → Autoridade → Desejo → Conversão, SEM transformar tudo em venda.
 REGRAS: nunca invente dados, provas, números, depoimentos, autoridade, urgência ou
 escassez; use só o Content DNA. Cada Story tem fala + visual + interação nativa (enquete,
-caixinha, quiz, slider). Responda SOMENTE com JSON:
+caixinha, quiz, slider).
+
+${ANTI_AI_VOICE}
+A "fala" de cada Story deve soar como alguém falando de verdade pra câmera — frase
+curta, natural, do jeito que a persona/marca realmente fala (use o tom e o VoC do DNA).
+
+Responda SOMENTE com JSON:
 {"tipo":str,"objetivo":str,"contexto":str,"emocao":str,"emocaoPor":str,
  "percepcaoDesejada":str,"narrativa":str,"progressao":[str],
  "stories":[{"papel":str,"fala":str,"visual":str,"interacao":str}],

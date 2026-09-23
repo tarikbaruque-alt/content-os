@@ -1,5 +1,6 @@
 import type { LlmProvider } from "../../core/llm/provider.js";
 import { produceContent } from "../../pipeline/stages.js";
+import { ANTI_AI_VOICE } from "./context.js";
 import type { CreativeContext } from "./context.js";
 import type { Idea, ProducedContent, RoteiroStep } from "../../pipeline/types.js";
 
@@ -25,6 +26,8 @@ REGRAS INEGOCIÁVEIS (guardrails):
 - Escreva prosa publicável de verdade — não rótulos, não placeholders, não "[inserir aqui]".
 - A emoção é uma DECISÃO estratégica: escolha uma emoção coerente com persona + Big Message + objetivo + jornada + posicionamento e explique por quê.
 - Teste do concorrente: se um concorrente pudesse publicar o mesmo texto só trocando o nome, aprofunde no que é específico deste cliente.
+
+${ANTI_AI_VOICE}
 
 Responda SOMENTE com um objeto JSON válido (sem markdown, sem cercas), no formato:
 {

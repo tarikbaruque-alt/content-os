@@ -2,7 +2,7 @@ import type { LlmProvider } from "../../core/llm/provider.js";
 import type { Carousel, CarouselSlide, Idea, VisualRef } from "../../pipeline/types.js";
 import type { VisualRefProvider } from "../../core/integrations/visual-refs.js";
 import { SearchLinkVisualProvider } from "../../core/integrations/visual-refs.js";
-import { buildCreativeContext, lc, visualTerms, type CreativeContext } from "../creative/context.js";
+import { ANTI_AI_VOICE, buildCreativeContext, lc, visualTerms, type CreativeContext } from "../creative/context.js";
 import { recommendTriggers } from "../creative/triggers.js";
 import { recommendDevices } from "../creative/devices.js";
 import type { Dna, StrategyArchitecture, EditorialArchitecture, ResearchOpportunity } from "../../pipeline/types.js";
@@ -165,6 +165,9 @@ const SYSTEM = `Você é Mosaico, especialista em carrosséis para Instagram (pt
 Transforma a estratégia do cliente em um carrossel PREMIUM e pronto para produção.
 REGRAS: nunca invente dados, provas, números, depoimentos, autoridade, urgência ou
 escassez; use só o Content DNA. Um conceito por slide. Escreva prosa de verdade.
+
+${ANTI_AI_VOICE}
+
 Responda SOMENTE com JSON:
 {"capaHeadline":str,"hook":str,"estrutura":str,
  "slides":[{"papel":str,"titulo":str,"texto":str,"visual":str,"imagem":str}],
