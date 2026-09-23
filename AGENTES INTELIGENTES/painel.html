@@ -7869,6 +7869,36 @@
     await saveDna(id,entries);
     I("#dnaField").value="";I("#dnaVal").value="";
   }
+  // ---- Referências & Concorrentes — sempre digitadas por você, nunca inventadas pela IA
+  // (a IA não navega a internet; ela só usa o que você descrever aqui como inspiração). ----
+  async function saveRefs(id,items){
+    await dbDoc("cos_refs/"+id).set({items:items});
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].refs=items;
+    if(state.client===id){GENERATED.refs=items;renderDNA();}
+  }
+  async function addRef(){
+    var id=state.client,nome=(I("#refNome").value||"").trim(),tipo=I("#refTipo").value,desc=(I("#refDesc").value||"").trim();
+    if(!nome)return;
+    var items=(GENERATED.refs||[]).slice();
+    if(items.length>=5){I("#refMsg").textContent="Máximo de 5 — remova uma antes de adicionar outra.";I("#refMsg").style.color="var(--warn)";return;}
+    items.push({nome:nome,tipo:tipo,descricao:desc});
+    await saveRefs(id,items);
+    I("#refNome").value="";I("#refDesc").value="";
+  }
+  async function removeRef(i){
+    var id=state.client,items=(GENERATED.refs||[]).slice();
+    items.splice(i,1);
+    await saveRefs(id,items);
+  }
+  function refsBlockHtml(){
+    var items=GENERATED.refs||[];
+    var list=items.map(function(r,i){return '<div class="entry"><div class="e-top"><span class="pill st-INSIGHT">'+esc(r.tipo)+'</span><span class="e-field">'+esc(r.nome)+'</span><button class="btn ghost" data-refrm="'+i+'" style="margin-left:auto;padding:3px 9px;font-size:11px">Remover</button></div>'+(r.descricao?'<div class="e-val">'+esc(r.descricao)+'</div>':'')+'</div>';}).join('');
+    return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:6px">Referências & Concorrentes <span class="tag-mock">até 5 · digitados por você</span></div>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin-bottom:12px">A IA não navega a internet — ela nunca inventa perfis. Digite aqui contas reais que você já conhece (referência de estilo ou concorrente direto) e o porquê; a Musa usa isso como inspiração de ângulo/tom ao gerar ideias — nunca copia nem cita o nome deles no conteúdo final.</div>'+
+      (list||'<div style="font-size:12.5px;color:var(--faint);margin-bottom:10px">Nenhuma referência ainda.</div>')+
+      (items.length<5?'<div class="grid cols-2" style="margin-top:12px"><div class="fld"><label for="refNome">Nome / @</label><input id="refNome" placeholder="@perfilreal"></div><div class="fld"><label for="refTipo">Tipo</label><select id="refTipo"><option>Referência de estilo</option><option>Concorrente direto</option></select></div></div><div class="fld"><label for="refDesc">O que você percebe nele (opcional)</label><input id="refDesc" placeholder="Ex.: usa muito humor, foca em antes/depois…"></div><button class="btn" id="refAdd">+ Adicionar referência</button><span id="refMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>':'')+
+      '</div>';
+  }
   function dnaEntryHtml(x,i){
     return '<div class="entry" data-i="'+i+'"><div class="e-top"><span class="pill mono st-'+x.state+'">'+STLBL[x.state]+'</span><span class="e-field">'+esc(x.field)+'</span>'+(x.status==="approved"?'<span class="badge act" style="margin-left:auto">✓ aprovado</span>':'<span class="badge prog" style="margin-left:auto">pendente</span>')+'</div><div class="e-val" data-role="val">'+esc(x.value)+'</div><div class="e-prov">↳ '+esc(x.src)+'</div>'+
       (isDbClient(state.client)?'<div class="e-actions">'+(x.status!=="approved"?'<button class="btn pri" data-act="approve">Aprovar</button>':'')+'<button class="btn" data-act="edit">Editar</button><button class="btn ghost" data-act="reject">Remover</button></div>':(x.status==="pending"?'<div class="e-actions"><button class="btn pri">Aprovar</button><button class="btn">Editar</button><button class="btn ghost">Rejeitar</button></div>':''))+'</div>';
@@ -7900,12 +7930,14 @@
   function renderDNA(){
     var c=byId(state.client);I("#dnaTitle").textContent="Content DNA — "+c.name;
     if(isDbClient(state.client)){
-      var list=GENERATED.dna||[],h=dnaOnboardingHtml();
+      var list=GENERATED.dna||[],h=dnaOnboardingHtml()+refsBlockHtml();
       SECORDER.forEach(function(sec){var items=list.map(function(x,i){return [x,i]}).filter(function(p){return p[0].section===sec});if(!items.length)return;
         h+='<div class="card dna-sec"><h4>'+SECLBL[sec]+'<span class="ct">'+items.length+'</span></h4>'+items.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</div>';});
       I("#dnaSections").innerHTML=h;
       I("#dnaRun").addEventListener('click',runIrisLive);
       I("#dnaAddManual").addEventListener('click',addManualDna);
+      var refAddBtn=I("#refAdd");if(refAddBtn)refAddBtn.addEventListener('click',addRef);
+      Array.prototype.forEach.call(document.querySelectorAll('[data-refrm]'),function(b){b.addEventListener('click',function(){removeRef(+b.getAttribute('data-refrm'));})});
       wireDnaActions();
       return;
     }
@@ -8118,14 +8150,19 @@
     var snap=await colRef.get();
     await Promise.all(snap.docs.map(function(d){return colRef.doc(d.id).delete();}));
   }
+  function refsCompact(){
+    return (GENERATED.refs||[]).map(function(r){return '- ['+r.tipo+'] '+r.nome+(r.descricao?': '+r.descricao:'')}).join('\n');
+  }
   function buildIdeasPrompt(name,strategy,editorial,dnaText){
     var pilares=((strategy&&strategy.pilares)||[]).join(' | ');
     var temas=[];(editorial||[]).forEach(function(p){(p.temas||[]).forEach(function(t){temas.push(t.tema)})});
     var formatos=(LIB.formatos||[]).map(function(f){return f.nome}).join(', ');
+    var refs=refsCompact();
     return ['Você é Musa, o agente de Ideias do Content OS. Gere 15 ideias de conteúdo REAIS para este cliente, cada uma ancorada no Content DNA e na estratégia — nunca genéricas, nunca intercambiáveis entre marcas.',
       '', 'Cliente: '+name, 'CONTENT DNA:', dnaText,
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
+      refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
       'Formatos possíveis (escolha um por ideia): '+formatos, '',
       'Distribua pelo funil: ~45% topo, ~35% meio, ~20% fundo. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
       'Cada ideia precisa de: título, conceito (1 frase), ângulo, dor/desejo específico usado, função/objetivo, propósito (1 frase: de onde a persona sai e pra onde vai), emoção-alvo, hook (frase de abertura real), CTA, formato escolhido + objetivo do formato + por que esse formato, e justificativa (por que não serve pra outra marca).',
@@ -8856,7 +8893,7 @@
   }
   function blankClientState(id,name){
     return {clientId:id,clientName:name,generatedAt:null,provider:"sample",
-      dna:[],strategy:null,research:[],editorial:[],ideas:[],
+      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],
       calendar:{total:0,mix:{topo:0,meio:0,fundo:0},items:[]},notion:[],performance:[],
       libraries:LIB,warnings:[]};
   }
@@ -8869,6 +8906,7 @@
       var stratDoc=await dbDoc("cos_strategy/"+id).get();if(stratDoc.exists)g.strategy=stratDoc.data();
       var edDoc=await dbDoc("cos_editorial/"+id).get();if(edDoc.exists)g.editorial=(edDoc.data()||{}).pilares||[];
       var resDoc=await dbDoc("cos_research/"+id).get();if(resDoc.exists)g.research=(resDoc.data()||{}).items||[];
+      var refsDoc=await dbDoc("cos_refs/"+id).get();if(refsDoc.exists)g.refs=(refsDoc.data()||{}).items||[];
       var ideasSnap=await dbItemsCol("cos_ideas",id).get();g.ideas=ideasSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       var calSnap=await dbItemsCol("cos_calendar",id).get();g.calendar.items=calSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       g.calendar.total=g.calendar.items.length;
