@@ -1,0 +1,9 @@
+{
+  "name": "content-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plataforma de inteligência e automação para estratégia, planejamento e criação de conteúdo com agentes de IA.",
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs"
+  }
+}
