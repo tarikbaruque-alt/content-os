@@ -2,6 +2,7 @@ import { enforceProvenance, findSourceInventions } from "../../core/guardrails/i
 import type { AgentContext, AgentRunner } from "../../core/orchestrator/types.js";
 import { Trace } from "../../core/observability.js";
 import type { ContentDnaSuggestion } from "../../core/content-dna/types.js";
+import { extractJsonBlock } from "../../core/json.js";
 import {
   intelligenceInputSchema,
   intelligenceOutputSchema,
@@ -10,36 +11,16 @@ import {
 } from "./schema.js";
 import { buildIntelligencePrompt } from "./prompt.js";
 
-/**
- * Extrai o primeiro objeto JSON completo de um texto (LLMs podem envolver em
- * prosa). Conta profundidade de chaves — respeitando strings — em vez de só
- * pegar da primeira "{" até a última "}", que quebra se houver texto/chaves
- * depois do JSON (ou dá erro de parse confuso se a resposta veio truncada).
- */
 function extractJson(text: string): unknown {
-  const start = text.indexOf("{");
-  if (start < 0) throw new Error("Resposta do provider não contém JSON.");
-  let depth = 0;
-  let inString = false;
-  let escape = false;
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i];
-    if (inString) {
-      if (escape) escape = false;
-      else if (ch === "\\") escape = true;
-      else if (ch === '"') inString = false;
-      continue;
-    }
-    if (ch === '"') {
-      inString = true;
-    } else if (ch === "{") {
-      depth++;
-    } else if (ch === "}") {
-      depth--;
-      if (depth === 0) return JSON.parse(text.slice(start, i + 1));
-    }
+  const block = extractJsonBlock(text);
+  if (!block) {
+    throw new Error(
+      text.includes("{")
+        ? "Resposta do provider não contém JSON completo — pode ter sido truncada (aumente maxTokens)."
+        : "Resposta do provider não contém JSON.",
+    );
   }
-  throw new Error("Resposta do provider não contém JSON completo — pode ter sido truncada (aumente maxTokens).");
+  return JSON.parse(block);
 }
 
 /**
