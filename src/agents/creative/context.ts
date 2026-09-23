@@ -53,6 +53,20 @@ export function buildCreativeContext(
 const LC = (s: string) => (s ? s.charAt(0).toLowerCase() + s.slice(1) : s);
 export const lc = LC;
 
+/**
+ * Guardrail de VOZ — compartilhado por Rima, Mosaico e Enredo. Combate
+ * "cara de IA" de forma concreta (não um "seja autêntico" vago). Some
+ * modelos, mesmo bem instruídos, caem em tiques genéricos por padrão —
+ * isto lista os tiques e dá a alternativa.
+ */
+export const ANTI_AI_VOICE = `VOZ HUMANA — nunca "cara de IA". Evite ativamente:
+- Clichês: "no mundo de hoje", "é fundamental", "destravar", "elevar", "mergulhar", "jornada" fora de contexto, "não é só X, é Y", "imagine só".
+- Frases perfeitamente simétricas em sequência (parece lista gerada por máquina).
+- Entusiasmo genérico sem substância ("incrível!", "imperdível!", "revolucionário") — mostre o específico, não anuncie o genérico.
+- Todo parágrafo com a mesma cadência/abertura (varie o ritmo das frases: curtas e longas).
+- Travessões e negritos em excesso como muleta de ênfase.
+Em vez disso: use o VOCABULÁRIO REAL do cliente (VoC — as palavras que ele/a persona realmente usam), seja específico ao ponto de um concorrente não conseguir copiar trocando só o nome, e prefira uma frase imperfeita e concreta a uma frase "redonda" demais. Se soa como texto que qualquer marca do nicho poderia ter publicado, reescreva.`;
+
 /** Termos de busca visual derivados do território do cliente (não genéricos). */
 export function visualTerms(ctx: CreativeContext, extra: string[] = []): string[] {
   const seed = [
