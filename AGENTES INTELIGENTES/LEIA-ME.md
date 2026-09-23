@@ -11,6 +11,21 @@ Bem-vindo. Aqui está o acesso rápido ao seu painel e às integrações.
 No painel: **Plano do Mês** / **Calendário** → clique num conteúdo para ver o
 esqueleto estratégico completo + 🎠 Carrossel + 📱 Sequência de Stories.
 
+### ⚠️ Cadastrar clientes novos e os botões "Gerar" só funcionam ONLINE
+
+A partir desta versão, o painel permite **cadastrar clientes reais do zero**
+(botão **+ Novo cliente**) e tem botões de **Gerar Estratégia / Pesquisa /
+Linha Editorial / Ideias / Planejamento / Roteiro / Copy / Carrossel /
+Stories** que chamam a IA de verdade e salvam o resultado — tudo isso roda
+**dentro do próprio painel publicado no claude.ai** (link acima), sem precisar
+de terminal nem de chave Anthropic no `.env`. Cada geração usa o seu uso do
+Claude (aparece um aviso de permissão na primeira vez).
+
+Isso **só funciona pelo link do claude.ai** — a cópia offline (`painel.html`
+aberto direto do seu PC) não tem essa capacidade e mostra um aviso pedindo
+para você abrir pelo link. Os 4 clientes-exemplo (Studio Aurora, Dra. Marina,
+Verde Vivo, Rafa Nutri) continuam funcionando normalmente nas duas versões.
+
 ## ⚙️ Integrações finais (Anthropic + Notion)
 
 Jeito mais fácil: no painel → aba **🔑 Configuração** → cole as chaves →
