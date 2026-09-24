@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { Script } from "node:vm";
 import { FORMATOS, FN_ALTERNATIVAS } from "../../src/pipeline/formats.js";
 import { GENERIC_PROFILE, NICHE_PROFILES } from "../../src/pipeline/niche-formats.js";
+import { GATILHOS } from "../../src/agents/creative/triggers.js";
+import { ELEMENTOS } from "../../src/agents/creative/devices.js";
 
 /**
  * Rede de segurança do painel (arquivo único grande, em 3 cópias): pega as
@@ -16,11 +18,11 @@ describe("Painel (apps/web)", () => {
     for (const f of COPIES.slice(1)) expect(readFileSync(f, "utf8") === html, f).toBe(true);
   });
 
-  it("o catálogo de formatos/nichos embutido está em dia com o código", () => {
+  it("as bibliotecas (formatos, nichos, gatilhos, elementos) embutidas está em dia com o código", () => {
     const m = html.match(/\/\*__NICHE_FORMATS_START__\*\/ var NICHE_FORMATS=(.*); \/\*__NICHE_FORMATS_END__\*\//);
     expect(m).not.toBeNull();
     const embedded = JSON.parse(m![1]!);
-    expect(embedded).toEqual(JSON.parse(JSON.stringify({ formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS })));
+    expect(embedded).toEqual(JSON.parse(JSON.stringify({ formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS, gatilhos: GATILHOS, elementos: ELEMENTOS })));
   });
 
   it("todo JavaScript inline compila (sem erro de sintaxe)", () => {
