@@ -289,6 +289,10 @@
   .fit-cc{color:var(--brand-ink);background:var(--brand-weak)} .fit-ap{color:var(--good);background:var(--fact-bg)} .fit-po{color:var(--neutral);background:var(--surface-2)} .fit-li{color:var(--faint);border:1px dashed var(--line)} .fit-cu{color:var(--warn);background:var(--hyp-bg)}
   .fmt-rank{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
   .fmt-n{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;background:var(--brand-weak);color:var(--brand-ink)}
+  .cos-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:500;padding:10px 16px;border-radius:10px;box-shadow:var(--shadow-lg);max-width:min(520px,calc(100% - 32px));transition:opacity .2s,transform .2s;z-index:60}
+  .cos-toast.on{opacity:1;transform:translate(-50%,0)}
+  .ficha summary{display:flex;align-items:center;cursor:pointer;list-style:none} .ficha summary::-webkit-details-marker{display:none}
+  .ficha[open] summary{margin-bottom:2px}
   .fmt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
   .selchip{transition:border-color .12s ease,background .12s ease,transform .08s ease}
   .selchip:active{transform:scale(.97)}
@@ -7580,7 +7584,7 @@
     overview:["func","KPIs e próximas publicações reais para os 4 clientes (pipeline real, um briefing por nicho); a atividade recente é exemplo"],clients:["parcial","Cadastro é exemplo; o Content DNA de cada um é real (troque de cliente e veja)"],
     analyze:["func","Roda a mesma lógica testada da Íris, ao vivo no navegador"],
     plan:["func","Gerado pelo pipeline real ponta a ponta · prosa final via Rima/Anthropic (basta configurar ANTHROPIC_API_KEY)"],
-    dna:["dev","Motor Íris é FUNCIONAL e real para os 4 clientes (veja Análise IA) · painel ainda não persiste edições"],
+    dna:["func","Ficha do cliente + Content DNA gravados (link publicado: no painel; cópia offline: neste navegador) · Íris ao vivo pelo link publicado"],
     strategy:["func","Átlas: caminhos + mix reais, gerados pela IA para cada um dos 4 clientes"],research:["mock","Radar: externo real depende de web/API — veja Plano do Mês"],
     editorial:["func","Bússola: linha editorial real (Pilar → Tema → Subtemas/Tópicos) para os 4 clientes"],ideas:["func","Musa: 15+ ideias reais (com formato/objetivo/propósito) para cada um dos 4 clientes"],formats:["func","Musa: guia de formatos por nicho (16 perfis, detecção pelo cadastro/Content DNA) + personalização com IA"],
     distribution:["func","Cálculo real (método do maior resto) — coberto por 6 testes"],
@@ -7803,7 +7807,7 @@
   async function runIrisLive(){
     var id=state.client,briefing=(I("#dnaBriefing").value||"").trim();
     if(!briefing){I("#dnaMsg").textContent="Cole um briefing primeiro.";I("#dnaMsg").style.color="var(--warn)";return;}
-    if(!CAP.sample)return;
+    if(!CAP.sample){noAi();return;}
     I("#dnaRun").disabled=true;setBusy(I("#dnaMsg"),"Analisando…");
     try{
       var out=await CAP.sample.json(buildIrisPrompt(byId(id).name,briefing),{modelTier:"default",cache:false});
@@ -7818,7 +7822,7 @@
   }
   function dnaOnboardingHtml(){
     return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Preencher com a Íris (opcional)</div>'+
-      '<div class="fld"><label for="dnaBriefing">Cole um briefing, entrevista ou anotações do cliente</label><textarea class="ta" id="dnaBriefing" placeholder="Ex.: Vendo X, meu público é Y, a maior dor deles é Z…"></textarea></div>'+
+      '<div class="fld"><label for="dnaBriefing">Cole um briefing, entrevista ou anotações do cliente</label><textarea class="ta" id="dnaBriefing" placeholder="Ex.: Vendo X, meu público é Y, a maior dor deles é Z…">'+esc((DB_CLIENTS[state.client]||{}).briefing||"")+'</textarea><div id="briefSaved" style="font-size:11px;color:var(--faint)">'+((DB_CLIENTS[state.client]||{}).briefing?"✓ Briefing salvo — fica aqui para as próximas vezes":"O texto fica salvo automaticamente")+'</div></div>'+
       '<button class="btn pri genbtn" id="dnaRun">✦ Analisar com a Íris</button><span id="dnaMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>'+
       '<div style="font-size:11px;color:var(--faint);margin-top:10px">Cada sugestão vem marcada como pendente — nada vira fato sem você aprovar.</div></div>'+
       '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Ou adicionar um registro manual</div>'+
@@ -7896,11 +7900,12 @@
   function renderDNA(){
     var c=byId(state.client);I("#dnaTitle").textContent="Content DNA — "+c.name;
     if(isDbClient(state.client)){
-      var list=GENERATED.dna||[],h=dnaOnboardingHtml()+refsBlockHtml();
+      var list=GENERATED.dna||[],h=fichaHtml()+dnaOnboardingHtml()+refsBlockHtml();
       SECORDER.forEach(function(sec){var items=list.map(function(x,i){return [x,i]}).filter(function(p){return p[0].section===sec});if(!items.length)return;
         h+='<div class="card dna-sec"><h4>'+SECLBL[sec]+'<span class="ct">'+items.length+'</span></h4>'+items.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</div>';});
       I("#dnaSections").innerHTML=h;
       I("#dnaRun").addEventListener('click',runIrisLive);
+      wireFicha();wireBriefingAutosave();
       I("#dnaAddManual").addEventListener('click',addManualDna);
       var refAddBtn=I("#refAdd");if(refAddBtn)refAddBtn.addEventListener('click',addRef);
       Array.prototype.forEach.call(document.querySelectorAll('[data-refrm]'),function(b){b.addEventListener('click',function(){removeRef(+b.getAttribute('data-refrm'));})});
@@ -7954,7 +7959,8 @@
     var rb=I("#regenStratBtn");if(rb)rb.addEventListener('click',function(){GENERATED.strategy=null;renderStrategy();});
   }
   function dnaCompact(){
-    return (GENERATED.dna||[]).filter(function(x){return x.status!=="rejected"}).map(function(x){return '- ['+x.section+'/'+x.field+'] ('+x.state+') '+x.value}).join('\n')||'(nenhum registro ainda)';
+    var d=(GENERATED.dna||[]).filter(function(x){return x.status!=="rejected"}).map(function(x){return '- ['+x.section+'/'+x.field+'] ('+x.state+') '+x.value}).join('\n');
+    return [fichaCompact(),d].filter(Boolean).join('\n')||'(nenhum registro ainda)';
   }
   function buildStrategyPrompt(name,dnaText){
     var archNames=["Autoridade","Posicionamento","Rapport / Relacionamento","Educação","Diferenciação","Construção de Categoria","Comunidade","Geração de Demanda","Quebra de Objeções","Prova","Desejo","Conversão / Vendas","Lançamento","Crescimento de Audiência","Marca Pessoal"];
@@ -7971,7 +7977,7 @@
     ].join('\n');
   }
   async function runGerarEstrategia(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genStratBtn");if(btn)btn.disabled=true;
     var msg=I("#stratMsg");setBusy(msg,"Pensando…");
     try{
@@ -8017,7 +8023,7 @@
     ].join('\n');
   }
   async function runGerarPesquisa(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genResBtn");if(btn)btn.disabled=true;
     var msg=I("#resMsg");setBusy(msg,"Pensando…");
     try{
@@ -8073,7 +8079,7 @@
     ].join('\n');
   }
   async function runGerarEditorial(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genEdBtn");if(btn)btn.disabled=true;
     var msg=I("#edMsg");setBusy(msg,"Pensando…");
     try{
@@ -8136,7 +8142,7 @@
     ].filter(Boolean).join('\n');
   }
   async function runGerarIdeias(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genIdeasBtn");if(btn)btn.disabled=true;
     var msg=I("#ideasMsg");setBusy(msg,"Pensando…");
     try{
@@ -8227,7 +8233,8 @@
   function currentNiche(){
     var c=byId(state.client)||{},fm=GENERATED&&GENERATED.formats;
     if(fm&&fm.perfil){var p=nfProfile(fm.perfil);if(p)return {perfil:p,from:"",manual:true};}
-    return nfDetect([c.niche,dnaVal("nicho"),dnaVal("oferta"),dnaVal("posicionamento"),c.name]);
+    var fi=(DB_CLIENTS[state.client]||{}).ficha||{};
+    return nfDetect([c.niche,dnaVal("nicho"),fi.oferta,dnaVal("oferta"),dnaVal("posicionamento"),c.name]);
   }
   // Guia efetivo: perfil do nicho + (opcional) personalização da IA feita sobre ele.
   function formatGuide(){
@@ -8323,7 +8330,7 @@
     ].join('\n');
   }
   async function runPersonalizarFormatos(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#fmtAiBtn");if(btn)btn.disabled=true;
     var msg=I("#fmtMsg");setBusy(msg,"Personalizando para este cliente…");
     try{
@@ -8575,7 +8582,7 @@
   }
   async function runGerarPeca(idx,kind){
     var it=GENERATED.calendar.items[idx];if(!it)return;
-    var idea=it.idea,id=state.client;if(!CAP.sample)return;
+    var idea=it.idea,id=state.client;if(!CAP.sample){noAi();return;}
     var btn=document.querySelector('[data-genpeca="'+kind+'"]');if(btn)btn.disabled=true;
     var msg=I("#pecaMsg");setBusy(msg,"Pensando…");
     var cfg=readContentConfig(idea),dnaText=dnaCompact();
@@ -8840,12 +8847,13 @@
     var h='';
     h+='<div class="section-head" style="margin-top:6px"><div><h3>Configuração — chaves & integrações</h3><p>Preencha <b>uma vez</b>. As chaves ficam salvas <b>no seu navegador</b> e você gera o arquivo <code>.env</code> para conectar tudo de forma permanente.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></div>';
     h+='<div class="callout" style="margin-bottom:16px"><span style="font-size:15px">🔒</span><div class="em"><b>Como funciona a permanência.</b> Os comandos (<code>pipeline</code>, <code>notion:sync</code>, <code>doctor</code>) leem as chaves de um arquivo <code>.env</code> na raiz do projeto — carregado automaticamente. Preencha aqui, clique em <b>Baixar .env</b>, salve na raiz e pronto: fica sempre conectado, sem redigitar. <br>No Claude Code na web, prefira cadastrar as mesmas chaves em <b>Credenciais de API do ambiente</b> (persistem entre sessões) e liberar os hosts <code>api.anthropic.com</code> e <code>api.notion.com</code> na rede.</div></div>';
-    h+=forms;
+    h+=backupHtml()+forms;
     h+='<div class="card pad"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">⬇︎ Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" style="align-self:center;font-size:12px;color:var(--good)"></span></div><div class="fld"><label>Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></div>';
     I('.view[data-view="config"]').innerHTML=h;
     function refresh(){var v=cfgVals();I("#cfgEnv").value=buildEnvText(v);I("#cfgStatus").innerHTML=cfgStatus(v);}
     CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.addEventListener('input',refresh)});
     refresh();
+    wireBackup();
     function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
     I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
     I("#cfgDownload").addEventListener('click',function(){
@@ -8907,13 +8915,13 @@
 
   // ---- Novo cliente: cadastro em branco (sem exemplos, sem dados fictícios) ----
   function openNewClientModal(){
-    if(!aiAvailable()){
+    if(!CAP.db){
       I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(440px,100%)"><div class="dh"><div class="d-title">IA ao vivo indisponível aqui</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block"><div style="font-size:13px;color:var(--muted)">Cadastrar um cliente novo e gerar com IA real só funciona quando este painel é aberto pelo <b>link publicado no claude.ai</b> — a cópia offline (arquivo local) não tem essa capacidade. Peça o link do painel para usar esta função.</div></div></div></aside>';
       I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
       return;
     }
     var html='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(440px,100%)"><div class="dh"><div class="d-title">Novo cliente</div><button class="icon-btn" id="dclose">✕</button></div><div class="db">'+
-      '<div class="block"><div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Começa 100% em branco — sem Linha Editorial, ideias, copies ou roteiros de exemplo. Você preenche o Content DNA (manualmente ou com a Íris) e gera cada etapa quando quiser.</div>'+
+      '<div class="block"><div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Começa 100% em branco — sem Linha Editorial, ideias, copies ou roteiros de exemplo. Você preenche o Content DNA (manualmente ou com a Íris) e gera cada etapa quando quiser. Tudo que você preencher fica gravado — não precisa digitar de novo.</div>'+
       '<div class="fld"><label for="ncName">Nome do cliente</label><input id="ncName" placeholder="Ex.: Consultório Dr. Paulo"></div>'+
       '<div class="fld"><label for="ncNiche">Nicho / segmento</label><input id="ncNiche" placeholder="Ex.: Odontologia"></div>'+
       '<button class="btn pri genbtn" id="ncCreate">Criar cliente</button><span id="ncMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div></div></aside>';
@@ -8950,6 +8958,152 @@
   function aiAvailable(){return !!(CAP.sample&&CAP.db);}
   function dbDoc(path){return CAP.db.doc(path);}
   function dbItemsCol(root,id){return dbDoc(root+"/"+id).collection("items");}
+  // ---- Armazenamento local (fallback) — quando o painel é aberto como arquivo
+  // (sem window.claude), os clientes e tudo que você preenche ficam gravados
+  // NESTE navegador, com a mesma API do db publicado. A IA ao vivo continua
+  // exclusiva do link do claude.ai. ----
+  function localDb(){
+    var KEY="cos-db-v1";
+    function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){return {}}}
+    function save(s){localStorage.setItem(KEY,JSON.stringify(s));}
+    function snap(path,s){return {id:path.split('/').pop(),exists:Object.prototype.hasOwnProperty.call(s,path),data:function(){return s[path]}};}
+    function doc(path){return {id:path.split('/').pop(),
+      get:async function(){return snap(path,load())},
+      set:async function(v){var s=load();s[path]=JSON.parse(JSON.stringify(v));save(s);},
+      update:async function(v){var s=load();s[path]=Object.assign({},s[path]||{},JSON.parse(JSON.stringify(v)));save(s);},
+      delete:async function(){var s=load();delete s[path];save(s);},
+      collection:function(n){return col(path+"/"+n)}};}
+    function col(prefix){var depth=prefix.split('/').length+1;return {doc:function(id){return doc(prefix+"/"+id)},
+      get:async function(){var s=load();return {docs:Object.keys(s).filter(function(k){return k.indexOf(prefix+"/")===0&&k.split('/').length===depth}).map(function(k){return snap(k,s)})}}};}
+    return {doc:doc,collection:col};
+  }
+  function toast(text){
+    var t=I("#cosToast");if(!t){t=document.createElement("div");t.id="cosToast";t.setAttribute("role","status");t.className="cos-toast";document.body.appendChild(t);}
+    t.textContent=text;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("on")},4200);
+  }
+  function noAi(){toast("A IA ao vivo só funciona pelo link publicado no claude.ai. Tudo que você digitou continua salvo neste navegador.");}
+
+  // ---- Ficha do cliente — informações fixas, digitadas uma vez e salvas
+  // automaticamente. Entram em TODOS os prompts (como fato) e na detecção do nicho. ----
+  var FICHA_FIELDS=[
+    ["name","Nome do cliente","Ex.: Consultório Dr. Paulo",0],
+    ["niche","Nicho / segmento","Ex.: Odontologia estética",0],
+    ["instagram","Instagram (@)","@perfil",0],
+    ["site","Site / link","https://…",0],
+    ["regiao","Cidade / região de atuação","Ex.: São Paulo — Zona Sul, ou 100% online",0],
+    ["ticket","Ticket médio / faixa de preço","Ex.: R$ 1.500 a R$ 12.000",0],
+    ["oferta","Produtos / serviços principais","Ex.: lentes de contato dental, clareamento",1],
+    ["publico","Público-alvo","Ex.: mulheres de 30 a 50 anos que querem sorrir sem vergonha",1],
+    ["tom","Tom de voz (palavras que usa e que evita)","Ex.: acolhedor, sem jargão; evita “barato” e “promoção”",1],
+    ["restricoes","O que NÃO pode aparecer no conteúdo","Ex.: preço no feed, fotos de pacientes, nome de concorrentes",1],
+    ["obs","Observações fixas","Datas importantes, pedidos recorrentes, aprovações…",1]
+  ];
+  function fichaVal(c,k){return k==="name"?(c.name||""):k==="niche"?(c.niche||""):((c.ficha||{})[k]||"");}
+  function fichaFilled(c){return FICHA_FIELDS.filter(function(f){return fichaVal(c,f[0])}).length;}
+  function fichaHtml(){
+    var c=DB_CLIENTS[state.client]||{},n=fichaFilled(c);
+    var fld=function(f){var v=esc(fichaVal(c,f[0]));
+      return '<div class="fld"'+(f[3]?' style="grid-column:1/-1"':'')+'><label for="fc_'+f[0]+'">'+esc(f[1])+'</label>'+
+        (f[3]?'<textarea class="ta" id="fc_'+f[0]+'" data-ficha="'+f[0]+'" style="min-height:58px" placeholder="'+esc(f[2])+'">'+v+'</textarea>':'<input id="fc_'+f[0]+'" data-ficha="'+f[0]+'" placeholder="'+esc(f[2])+'" value="'+v+'">')+'</div>';};
+    return '<details class="card pad ficha" style="margin-bottom:16px"'+(n<4?' open':'')+'><summary><span class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)">Ficha do cliente</span>'+
+      '<span class="badge" style="margin-left:10px">'+n+'/'+FICHA_FIELDS.length+' preenchidos</span><span id="fichaMsg" style="margin-left:auto;font-size:12px;color:var(--muted)">'+(CAP.local?'Salvo neste navegador':'Salvo automaticamente')+'</span></summary>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin:10px 0 12px">Digite uma vez — fica gravado e todos os agentes usam como fato (Íris, Estratégia, Ideias, Formatos, Estúdio Criativo).</div>'+
+      '<div class="grid cols-2" style="gap:0 16px">'+FICHA_FIELDS.map(fld).join('')+'</div></details>';
+  }
+  var fichaTimer=null;
+  function wireFicha(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ficha]'),function(el){
+      el.addEventListener('input',function(){
+        var id=state.client,m=I("#fichaMsg");if(m){m.textContent="Salvando…";m.style.color="var(--muted)";}
+        clearTimeout(fichaTimer);
+        fichaTimer=setTimeout(function(){saveFicha(id);},600);
+      });
+    });
+  }
+  async function saveFicha(id){
+    if(state.client!==id||!DB_CLIENTS[id])return;
+    var rec=Object.assign({},DB_CLIENTS[id]),ficha=Object.assign({},rec.ficha||{});
+    FICHA_FIELDS.forEach(function(f){var el=I("#fc_"+f[0]);if(!el)return;var v=el.value.trim();
+      if(f[0]==="name"){if(v)rec.name=v;}else if(f[0]==="niche"){rec.niche=v;}else{ficha[f[0]]=v;}});
+    rec.ficha=ficha;
+    var m=I("#fichaMsg");
+    try{
+      await saveClientRecord(id,rec);
+      if(m){m.textContent="✓ Salvo";m.style.color="var(--good)";}
+    }catch(e){if(m){m.textContent="Não consegui salvar — tente de novo.";m.style.color="var(--warn)";}}
+  }
+  async function saveClientRecord(id,rec){
+    rec.updatedAt=new Date().toISOString();
+    await dbDoc("cos_clients/"+id).set(rec);
+    DB_CLIENTS[id]=rec;
+    var c=byId(id);
+    if(c&&c.id===id){c.name=rec.name;c.niche=rec.niche||"";c.full=rec.name+(rec.niche?" — "+rec.niche:"");}
+    refreshClientOptions();
+    if(state.client===id){I("#csav").textContent=rec.name.charAt(0);var t=I("#dnaTitle");if(t)t.textContent="Content DNA — "+rec.name;}
+  }
+  function fichaCompact(){
+    var c=DB_CLIENTS[state.client];if(!c)return "";
+    var lines=FICHA_FIELDS.filter(function(f){return f[0]!=="name"}).map(function(f){var v=fichaVal(c,f[0]);return v?('- '+f[1]+': '+v):''}).filter(Boolean);
+    return lines.length?('FICHA DO CLIENTE (informada pelo estrategista — trate como FACT e respeite as restrições):\n'+lines.join('\n')):'';
+  }
+  var briefTimer=null;
+  function wireBriefingAutosave(){
+    var ta=I("#dnaBriefing");if(!ta)return;
+    ta.addEventListener('input',function(){
+      var id=state.client;clearTimeout(briefTimer);
+      briefTimer=setTimeout(function(){
+        if(state.client!==id||!DB_CLIENTS[id])return;
+        var rec=Object.assign({},DB_CLIENTS[id],{briefing:ta.value});
+        saveClientRecord(id,rec).then(function(){var m=I("#briefSaved");if(m)m.textContent="✓ Briefing salvo";},function(){});
+      },800);
+    });
+  }
+
+  // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
+  // (ou guarda uma cópia de segurança). ----
+  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats"],BK_COLS=["cos_ideas","cos_calendar"];
+  async function exportBackup(){
+    var out={app:"content-os",v:1,at:new Date().toISOString(),clients:[]};
+    for(var id in DB_CLIENTS){
+      var e={client:DB_CLIENTS[id],docs:{},cols:{}};
+      for(var i=0;i<BK_DOCS.length;i++){var s=await dbDoc(BK_DOCS[i]+"/"+id).get();if(s.exists)e.docs[BK_DOCS[i]]=s.data();}
+      for(var j=0;j<BK_COLS.length;j++){var sn=await dbItemsCol(BK_COLS[j],id).get();e.cols[BK_COLS[j]]=sn.docs.map(function(d){return d.data()});}
+      out.clients.push(e);
+    }
+    return out;
+  }
+  async function importBackup(data){
+    if(!data||data.app!=="content-os"||!Array.isArray(data.clients))throw new Error("arquivo inválido");
+    for(var i=0;i<data.clients.length;i++){
+      var e=data.clients[i],c=e.client;if(!c||!c.id)continue;
+      await dbDoc("cos_clients/"+c.id).set(c);
+      for(var k in (e.docs||{}))if(BK_DOCS.indexOf(k)>=0)await dbDoc(k+"/"+c.id).set(e.docs[k]);
+      for(var k2 in (e.cols||{}))if(BK_COLS.indexOf(k2)>=0){var items=e.cols[k2]||[];for(var n=0;n<items.length;n++){var it=items[n];await dbItemsCol(k2,c.id).doc(String(it.id||("item-"+n))).set(it);}}
+      delete DB_STATE_CACHE[c.id];
+    }
+    await loadDbClients();
+    return data.clients.length;
+  }
+  function backupHtml(){
+    return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:8px">Backup dos clientes</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">'+(CAP.local?'Você está na <b>cópia offline</b>: os clientes ficam salvos neste navegador. ':'Os clientes ficam salvos no painel publicado. ')+'Exporte um arquivo para ter uma cópia de segurança ou para levar tudo entre o link publicado e a cópia offline.</div>'+
+      '<button class="btn" id="bkExport">⬇ Exportar backup (.json)</button> <label class="btn" style="display:inline-block">⬆ Importar backup<input type="file" id="bkImport" accept="application/json,.json" hidden></label><span id="bkMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
+  }
+  function wireBackup(){
+    var msg=function(t,c){var m=I("#bkMsg");if(m){m.textContent=t;m.style.color=c||"var(--muted)";}};
+    var ex=I("#bkExport");if(ex)ex.addEventListener('click',async function(){
+      if(!CAP.db)return;msg("Preparando…");
+      try{
+        var json=JSON.stringify(await exportBackup(),null,1),name="content-os-backup-"+new Date().toISOString().slice(0,10)+".json";
+        var localDL=function(){var b=new Blob([json],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ Backup baixado","var(--good)");};
+        if(window.claude&&claude.use){claude.use("downloads").then(function(dl){if(!dl){localDL();return;}dl.save({filename:name,data:json}).then(function(){msg("✓ Backup baixado","var(--good)")},function(){msg("Download recusado.","var(--warn)")});},localDL);}else{localDL();}
+      }catch(e){msg("Não consegui exportar — tente de novo.","var(--warn)");}
+    });
+    var im=I("#bkImport");if(im)im.addEventListener('change',function(){
+      var f=im.files&&im.files[0];if(!f)return;msg("Importando…");
+      f.text().then(function(t){return importBackup(JSON.parse(t));}).then(function(n){msg("✓ "+n+" cliente(s) importado(s)","var(--good)");renderClients();},function(){msg("Arquivo inválido — use um backup exportado por este painel.","var(--warn)");});
+    });
+  }
 
   async function initCapabilities(){
     try{
@@ -8958,6 +9112,7 @@
         CAP.db=await window.claude.use("db");
       }
     }catch(e){}
+    if(!CAP.db){CAP.db=localDb();CAP.local=true;}
     CAP.ready=true;
     if(CAP.db){try{await loadDbClients();}catch(e){}}
     renderAiBadge();
@@ -8966,7 +9121,7 @@
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
     var on=aiAvailable();
-    el.textContent=on?"● ativa":"○ indisponível";
+    el.textContent=on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
     el.title=on?"Gerar com IA real e cadastrar clientes está disponível neste painel.":"Abra pelo link do painel publicado no claude.ai para gerar com IA real e cadastrar clientes — a cópia offline não tem essa capacidade.";
   }

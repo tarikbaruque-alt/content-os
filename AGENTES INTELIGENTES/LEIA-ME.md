@@ -11,20 +11,27 @@ Bem-vindo. Aqui está o acesso rápido ao seu painel e às integrações.
 No painel: **Plano do Mês** / **Calendário** → clique num conteúdo para ver o
 esqueleto estratégico completo + 🎠 Carrossel + 📱 Sequência de Stories.
 
-### ⚠️ Cadastrar clientes novos e os botões "Gerar" só funcionam ONLINE
+### 💾 Tudo o que você digita fica gravado
 
-A partir desta versão, o painel permite **cadastrar clientes reais do zero**
-(botão **+ Novo cliente**) e tem botões de **Gerar Estratégia / Pesquisa /
-Linha Editorial / Ideias / Planejamento / Roteiro / Copy / Carrossel /
-Stories** que chamam a IA de verdade e salvam o resultado — tudo isso roda
-**dentro do próprio painel publicado no claude.ai** (link acima), sem precisar
-de terminal nem de chave Anthropic no `.env`. Cada geração usa o seu uso do
-Claude (aparece um aviso de permissão na primeira vez).
+Cada cliente tem uma **Ficha do cliente** (aba **Content DNA**): nome, nicho,
+@, site, região, ticket, produtos/serviços, público, tom de voz, o que **não**
+pode aparecer e observações fixas. Você digita **uma vez** e ela salva
+sozinha — assim como o briefing, os registros do DNA e as referências. Todos
+os agentes usam a ficha como fato.
 
-Isso **só funciona pelo link do claude.ai** — a cópia offline (`painel.html`
-aberto direto do seu PC) não tem essa capacidade e mostra um aviso pedindo
-para você abrir pelo link. Os 4 clientes-exemplo (Studio Aurora, Dra. Marina,
-Verde Vivo, Rafa Nutri) continuam funcionando normalmente nas duas versões.
+- **Pelo link do claude.ai:** fica gravado no painel publicado.
+- **Offline (`painel.html`):** fica gravado **neste navegador** (dá para
+  cadastrar clientes e preencher tudo; só os botões de IA exigem o link).
+- Para levar os clientes de um para o outro (ou ter cópia de segurança):
+  aba **🔑 Configuração → Backup dos clientes → Exportar / Importar**.
+
+### ⚠️ Os botões "Gerar" (IA ao vivo) só funcionam ONLINE
+
+Os botões de **Gerar Estratégia / Pesquisa / Linha Editorial / Ideias /
+Formatos / Planejamento / Roteiro / Copy / Carrossel / Stories** chamam a IA de
+verdade e salvam o resultado — isso roda **dentro do painel publicado no
+claude.ai** (link acima), sem terminal nem chave Anthropic. Na cópia offline,
+eles mostram um aviso pedindo para abrir pelo link.
 
 ## ⚙️ Integrações finais (Anthropic + Notion)
 
