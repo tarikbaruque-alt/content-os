@@ -15,7 +15,7 @@ O painel é um arquivo **na sua pasta de trabalho**:
   npx --yes serve apps/web # sobe em http://localhost:3000
   ```
 - **Link online (Artifact privado — só você abre):**
-  👉 https://claude.ai/artifact/KtsKVcyzXyNUoxDTbcG6xk
+  👉 https://claude.ai/artifact/B4rLbACkVLcpVn1mxLeVJy
 
 > No painel: **Plano do Mês → clique num conteúdo** → abas **🎠 Criar Carrossel** e **📱 Criar Sequência de Stories**.
 > Aba **Agentes** = os 12 especialistas (Estúdio Criativo: Rima, Mosaico, Enredo).

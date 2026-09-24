@@ -19,7 +19,7 @@ Requer Node 20+.
 
 ```bash
 npm install
-npm test        # 69 testes — deve passar tudo
+npm test        # 81 testes — deve passar tudo
 npm run smoke   # verificação ponta a ponta (DNA → … → Notion)
 npm run pipeline  # gera o plano do cliente-exemplo → apps/web/generated-plan.json
 ```
@@ -80,7 +80,7 @@ Ver [`foundation/`](./foundation/).
 
 ## Etapa atual — V1 funcional
 
-O pipeline ponta a ponta está **implementado e testado** (69 testes):
+O pipeline ponta a ponta está **implementado e testado** (81 testes):
 Cliente → Content DNA (Íris) → Estratégia (Átlas, caminhos + mix) → Pesquisa
 (Radar) → Editorial (Bússola) → Ideias & Formatos (Musa) → Produção
 (Rima/copy · Mosaico/carrossel · Enredo/Stories) → Calendário (Cronos) →

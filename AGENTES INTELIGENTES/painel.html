@@ -285,6 +285,22 @@
   .empty-hero .eh-t{font-size:13.5px;color:var(--muted);max-width:42ch;margin:0 auto}
   .genbtn{transition:transform .12s ease,box-shadow .12s ease}
   .genbtn:hover:not([disabled]){transform:translateY(-1px);box-shadow:0 6px 16px -6px rgba(91,69,230,.45)}
+  .fit{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .fit-cc{color:var(--brand-ink);background:var(--brand-weak)} .fit-ap{color:var(--good);background:var(--fact-bg)} .fit-po{color:var(--neutral);background:var(--surface-2)} .fit-li{color:var(--faint);border:1px dashed var(--line)} .fit-cu{color:var(--warn);background:var(--hyp-bg)}
+  .fmt-rank{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+  .fmt-n{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;background:var(--brand-weak);color:var(--brand-ink)}
+  .cos-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:500;padding:10px 16px;border-radius:10px;box-shadow:var(--shadow-lg);max-width:min(520px,calc(100% - 32px));transition:opacity .2s,transform .2s;z-index:60}
+  .cos-toast.on{opacity:1;transform:translate(-50%,0)}
+  .ficha summary{display:flex;align-items:center;cursor:pointer;list-style:none} .ficha summary::-webkit-details-marker{display:none}
+  .ficha[open] summary{margin-bottom:2px}
+  .badge.rasc{color:var(--warn);background:var(--hyp-bg);border-color:transparent}
+  .steplist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+  .stepi{display:flex;gap:9px;align-items:center;font-size:12.5px;padding:7px 9px;border-radius:9px;cursor:pointer;color:var(--ink)}
+  .stepi:hover{background:var(--surface-2)}
+  .stepi .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;flex:0 0 auto}
+  .stepi.ok{color:var(--muted)} .stepi.ok .dot{background:var(--fact-bg);border-color:transparent;color:var(--good)}
+  #noClientHero[hidden]{display:none}
+  .fmt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
   .selchip{transition:border-color .12s ease,background .12s ease,transform .08s ease}
   .selchip:active{transform:scale(.97)}
   .content-card,.calev{transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
@@ -324,11 +340,13 @@
     <div id="cvBanner">👁 Visualização do cliente — somente leitura · <b id="cvName">Studio Aurora</b><span style="opacity:.8"> · você está vendo exatamente o que o cliente veria</span></div>
 
     <div class="wrap">
+      <div id="noClientHero" class="card empty-hero" style="margin-top:6px" hidden><div class="eh-ic">＋</div><div class="eh-t" style="margin-bottom:14px">Esta área trabalha <b>por cliente</b> e ainda não há nenhum selecionado. Cadastre um cliente — cada agente se alimenta do anterior (Ficha → DNA → Estratégia → Editorial → Ideias → Formatos → Calendário).</div><button class="btn pri genbtn" id="ncHeroBtn">+ Novo cliente</button></div>
       <section class="view" data-view="overview">
         <div class="eyebrow">Content OS</div>
         <h1 style="font-size:26px;margin:8px 0 6px">Inteligência estratégica de conteúdo</h1>
         <p class="lead">Uma equipe de agentes de IA que entende cada cliente, decide com fundamento, pesquisa, cria, planeja e aprende — para melhores decisões de conteúdo, não apenas mais conteúdo.</p>
         <div class="card pad" style="margin-top:16px"><div class="legend"><b style="color:var(--ink);font-size:12px">Estado de cada área:</b><span class="li"><span class="statuspill lvl-func">Funcional</span> roda de verdade</span><span class="li"><span class="statuspill lvl-parcial">Parcial</span> motor real, painel em progresso</span><span class="li"><span class="statuspill lvl-mock">Mock</span> só visual</span><span class="li"><span class="statuspill lvl-nao">Não impl.</span> depende de API</span></div><div style="font-size:11.5px;color:var(--faint);margin-top:9px">O painel é um <b>preview de UX</b> com dados de exemplo. O selo no topo de cada tela indica o estado da <b>inteligência por trás</b> dela.</div></div>
+        <div id="ovSteps"></div>
         <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-bottom:12px">Como o sistema pensa</div><div class="pipe" id="pipe"></div></div>
         <div class="grid cols-4" style="margin-top:16px" id="kpis"></div>
         <div class="section-head"><div><h3>Próximas publicações</h3><p>Clique para abrir o contexto estratégico completo.</p></div><a class="badge" data-goto="calendar" style="cursor:pointer">Calendário →</a></div>
@@ -355,6 +373,7 @@
       <section class="view" data-view="research" hidden></section>
       <section class="view" data-view="editorial" hidden></section>
       <section class="view" data-view="ideas" hidden></section>
+      <section class="view" data-view="formats" hidden></section>
       <section class="view" data-view="distribution" hidden></section>
 
       <section class="view" data-view="content" hidden>
@@ -7423,6 +7442,7 @@
   }
 };
   /*__GENERATED_END__*/
+  /*__NICHE_FORMATS_START__*/ var NICHE_FORMATS={"formatos":[{"key":"talking_head","nome":"Talking Head","descricao":"Você falando direto para a câmera. Autoridade e clareza.","producao":"Mid-fi","superficie":"Reel"},{"key":"lofi","nome":"Lo-fi","descricao":"Produção crua e espontânea. Aproxima e permite volume.","producao":"Lo-fi","superficie":"Reel"},{"key":"midfi","nome":"Mid-fi","descricao":"Produção intermediária. Equilibra clareza e escala.","producao":"Mid-fi","superficie":"Reel"},{"key":"highfi","nome":"High-fi","descricao":"Produção caprichada. Reforça valor e autoridade.","producao":"High-fi","superficie":"Vídeo"},{"key":"tela_dividida","nome":"Tela Dividida","descricao":"Dois planos ao mesmo tempo (ex.: você + tela). Ensina e compara.","producao":"Mid-fi","superficie":"Reel"},{"key":"react","nome":"React","descricao":"Reação/comentário a um conteúdo, print ou tendência.","producao":"Mid-fi","superficie":"Reel"},{"key":"entrevista","nome":"Entrevista","descricao":"Perguntas e respostas com convidado ou cliente.","producao":"Mid-fi","superficie":"Vídeo"},{"key":"duplo_personagem","nome":"Duplo Personagem","descricao":"Você interpreta dois lados de um diálogo. Ótimo p/ objeção.","producao":"Lo-fi","superficie":"Reel"},{"key":"pov","nome":"POV","descricao":"Ponto de vista encenado do cotidiano da persona.","producao":"Lo-fi","superficie":"Reel"},{"key":"vlog","nome":"Vlog","descricao":"Um dia/rotina em vídeo. Familiaridade e bastidor.","producao":"Lo-fi","superficie":"Stories"},{"key":"bastidores","nome":"Bastidores","descricao":"O processo por trás da entrega. Humaniza e prova.","producao":"Lo-fi","superficie":"Stories"},{"key":"tutorial","nome":"Passo a Passo / Tutorial","descricao":"Ensina a fazer algo em etapas. Salvável.","producao":"Mid-fi","superficie":"Carrossel"},{"key":"storytelling","nome":"Storytelling","descricao":"Uma história com começo, tensão e desfecho.","producao":"Mid-fi","superficie":"Reel"},{"key":"case","nome":"Case / Estudo de Caso","descricao":"Antes → processo → depois de um caso real (sem inventar).","producao":"Mid-fi","superficie":"Carrossel"},{"key":"analise","nome":"Análise / Opinião","descricao":"Leitura fundamentada sobre um tema. Autoridade.","producao":"Mid-fi","superficie":"Reel"},{"key":"curiosidade","nome":"Curiosidade / Quebra de Expectativa","descricao":"Abre um loop e surpreende. Retenção de topo.","producao":"Lo-fi","superficie":"Reel"},{"key":"demonstracao","nome":"Demonstração","descricao":"Mostra o produto/serviço em ação. Desejo e prova.","producao":"Mid-fi","superficie":"Reel"},{"key":"comparacao","nome":"Comparação","descricao":"X vs Y para dar clareza pela diferença.","producao":"Mid-fi","superficie":"Carrossel"},{"key":"resposta_comentario","nome":"Resposta a Comentário","descricao":"Responde uma dúvida/comentário real da audiência.","producao":"Lo-fi","superficie":"Reel"},{"key":"serie","nome":"Série / Quadro Recorrente","descricao":"Formato que se repete (ex.: “toda terça”). Cria hábito.","producao":"Mid-fi","superficie":"Reel"},{"key":"mito_verdade","nome":"Mito × Verdade","descricao":"Derruba uma crença comum do nicho com a versão correta.","producao":"Lo-fi","superficie":"Reel"},{"key":"antes_depois","nome":"Antes e Depois","descricao":"Mostra uma transformação real, com autorização e sem prometer resultado.","producao":"Mid-fi","superficie":"Carrossel"},{"key":"tour","nome":"Tour / Ambiente","descricao":"Apresenta o espaço, o produto ou o lugar como se a pessoa estivesse lá.","producao":"Mid-fi","superficie":"Reel"},{"key":"checklist","nome":"Checklist / Guia Salvável","descricao":"Lista prática para salvar e consultar depois.","producao":"Mid-fi","superficie":"Carrossel"},{"key":"provador","nome":"Provador / Look do Dia","descricao":"Veste, combina e mostra o caimento real do produto.","producao":"Lo-fi","superficie":"Reel"},{"key":"trend","nome":"Trend Adaptada","descricao":"Usa um áudio ou formato em alta, traduzido para o assunto da marca.","producao":"Lo-fi","superficie":"Reel"},{"key":"live","nome":"Live / Aula Aberta","descricao":"Encontro ao vivo para ensinar, tirar dúvidas e aquecer para a oferta.","producao":"Mid-fi","superficie":"Live"}],"perfis":[{"key":"psicologia","nome":"Psicologia & terapia","match":["psicolog","psicoterap","terapeut","terapia","psicanal","saude mental","ansiedade","autoconhecimento","neuropsic"],"leitura":"A pessoa precisa se sentir compreendida antes de buscar ajuda. Identificação e acolhimento abrem a porta; a decisão de marcar a sessão vem depois de muita confiança acumulada.","formatos":[{"key":"pov","papel":"Carro-chefe","porque":"cenas do cotidiano emocional geram o “isso sou eu” que abre a conversa.","comoFazer":"“Quando você…” encenado em 15–30s, sem caricaturar o sofrimento; feche com uma frase de acolhimento."},{"key":"talking_head","papel":"Carro-chefe","porque":"a voz e o rosto do terapeuta constroem o vínculo que antecede a primeira sessão.","comoFazer":"Uma reflexão por vídeo, tom calmo, 30–60s, enquadramento próximo e sem trilha agitada."},{"key":"checklist","papel":"Apoio","porque":"carrosséis de “sinais de…” são salvos e compartilhados com quem precisa.","comoFazer":"5–7 sinais com linguagem cuidadosa e o último slide orientando buscar avaliação profissional."},{"key":"storytelling","papel":"Apoio","porque":"uma história ilustra um padrão emocional melhor que a teoria.","comoFazer":"Use caso composto/fictício e diga que é ilustrativo — nunca um paciente identificável."},{"key":"live","papel":"Pontual","porque":"roda de conversa aprofunda a confiança com quem já acompanha.","comoFazer":"Tema único, 30–40 min, perguntas enviadas antes pela caixinha."}],"superficies":[{"superficie":"Reel","pct":40},{"superficie":"Carrossel","pct":35},{"superficie":"Stories","pct":25}],"producao":{"nivel":"Lo-fi","porque":"tom íntimo e humano; produção muito polida soa distante."},"cadencia":"2–3 Reels + 2 carrosséis por semana; Stories com perguntas reflexivas.","series":["Você não é o único que…","Frase que escuto no consultório (anonimizada)","Uma pergunta para levar para a semana"],"evitar":[{"pratica":"Casos reais identificáveis","porque":"fere o sigilo profissional previsto no Código de Ética do CFP.","key":"case"},{"pratica":"Conteúdo de diagnóstico (“se você faz X, você tem Y”)","porque":"estimula autodiagnóstico e contraria a ética da profissão."}],"cuidados":["Siga as regras do CFP para publicidade: sem promessa de cura e sem depoimento de paciente.","Em temas sensíveis, inclua orientação para buscar ajuda profissional ou o CVV (188)."]},{"key":"saude","nome":"Saúde & clínicas","match":["medic","clinica","consultorio","dentist","odonto","ortodont","fisioterap","dermatolog","ginecolog","pediatr","cardiolog","cirurgi","saude","fonoaudiolog","oftalmolog","enfermag"],"leitura":"O paciente decide por confiança e clareza: quer entender o que tem, se é grave e se aquele profissional é seguro. Traduzir o técnico em linguagem simples, com o rosto do profissional, converte mais que peça “bonita”.","formatos":[{"key":"mito_verdade","papel":"Carro-chefe","porque":"derruba crenças que atrasam o tratamento e posiciona o profissional como fonte confiável.","comoFazer":"Um mito por vídeo, 30–45s, o profissional na câmera; cite a fonte quando usar dado."},{"key":"resposta_comentario","papel":"Carro-chefe","porque":"dúvidas reais de pacientes são pauta infinita e mostram cuidado.","comoFazer":"Mostre a pergunta anonimizada na tela e responda em linguagem simples, terminando em “procure avaliação”."},{"key":"checklist","papel":"Apoio","porque":"“sinais de alerta” e “como se preparar para o exame” são salvos e compartilhados.","comoFazer":"Carrossel de 6–8 slides, um item por slide, sem jargão."},{"key":"bastidores","papel":"Apoio","porque":"consultório, equipamentos e protocolos visíveis reduzem o medo e transmitem segurança.","comoFazer":"Stories/Reel curto do preparo da sala, higienização e equipe — sem expor pacientes."},{"key":"entrevista","papel":"Pontual","porque":"conversa com colega de outra especialidade gera autoridade cruzada.","comoFazer":"3–4 perguntas que o paciente faria, cortadas em Reels de 45s."}],"superficies":[{"superficie":"Reel","pct":45},{"superficie":"Carrossel","pct":30},{"superficie":"Stories","pct":25}],"producao":{"nivel":"Mid-fi","porque":"clareza e credibilidade pesam mais que estética; áudio limpo e boa luz bastam."},"cadencia":"3 Reels + 2 carrosséis por semana; Stories nos dias de atendimento, com caixinha de dúvidas 1×/semana.","series":["Mito ou verdade?","Pergunta do paciente","Sinal de alerta da semana"],"evitar":[{"pratica":"Antes e depois como promessa de resultado","porque":"os conselhos (CFM, CFO etc.) restringem imagem de paciente e promessa de resultado.","key":"antes_depois"},{"pratica":"Trend de humor sobre sintomas","porque":"banaliza a dor do paciente e mina a autoridade.","key":"trend"}],"cuidados":["Confira o código de ética do seu conselho (CFM, CFO, COFFITO…) antes de publicar imagem de paciente, preço ou depoimento.","Nunca prometa resultado nem faça diagnóstico pelo conteúdo — oriente a consulta.","Anonimize qualquer dúvida ou caso real."]},{"key":"nutricao_fitness","nome":"Nutrição, fitness & bem-estar","match":["nutri","dieta","emagrec","personal","academia","treino","fitness","musculac","pilates","yoga","crossfit","corrida","esportiv","suplement","hipertrof"],"leitura":"O público consome muito conteúdo prático e compara resultados. Ganha quem ensina algo aplicável hoje e mostra rotina real; como o nicho é saturado de promessa, credibilidade vira diferencial.","formatos":[{"key":"tutorial","papel":"Carro-chefe","porque":"receita, treino ou montagem de prato aplicável hoje é o conteúdo mais salvo do nicho.","comoFazer":"Resultado na primeira cena, passos rápidos na tela, lista final para salvar."},{"key":"mito_verdade","papel":"Carro-chefe","porque":"derrubar modismos é onde a autoridade técnica aparece.","comoFazer":"Pegue a crença da moda, explique o porquê com base científica e dê a alternativa prática."},{"key":"vlog","papel":"Apoio","porque":"rotina real (refeições, treinos) gera identificação e prova de coerência.","comoFazer":"“Um dia comigo/com um aluno” em cortes de 2–3s, com legenda do que importa."},{"key":"react","papel":"Apoio","porque":"reagir à dieta ou ao treino viral com análise aproveita o alcance da tendência.","comoFazer":"Tela dividida com o viral + sua análise em 3 pontos, sem atacar a pessoa."},{"key":"antes_depois","papel":"Pontual","porque":"prova de resultado, quando há autorização e contexto.","comoFazer":"Mostre o processo e o tempo real, com autorização por escrito e sem prometer o mesmo resultado."}],"superficies":[{"superficie":"Reel","pct":50},{"superficie":"Carrossel","pct":25},{"superficie":"Stories","pct":25}],"producao":{"nivel":"Lo-fi","porque":"cozinha e academia de verdade geram identificação e permitem volume."},"cadencia":"4 Reels + 1–2 carrosséis por semana; Stories diários de rotina.","series":["Troca inteligente","Mito da semana","Prato (ou treino) em 60s"],"evitar":[{"pratica":"Antes e depois sem contexto","porque":"CFN/CRN e CONFEF restringem imagem de paciente/aluno e promessa de resultado; parece anúncio milagroso.","key":"antes_depois"},{"pratica":"Dieta ou treino genérico “para todos”","porque":"desvaloriza o atendimento individual que você vende."}],"cuidados":["Nutricionistas: confira o Código de Ética do CFN sobre imagem de paciente e divulgação de marcas e suplementos.","Não prometa quilos nem prazos."]},{"key":"estetica_beleza","nome":"Estética & beleza (serviços)","match":["estetic","beleza","salao","cabelei","cabelo","maquiag","manicure","unha","sobrancelh","lash","cilios","harmoniz","depilac","barbear","barbearia","spa","micropigment"],"leitura":"Beleza é decisão visual e de confiança nas mãos da profissional. O público quer ver resultado, processo e ambiente — e ter certeza de que é seguro.","formatos":[{"key":"antes_depois","papel":"Carro-chefe","porque":"a transformação é o próprio produto.","comoFazer":"Mesma luz e ângulo no antes e no depois, sem filtro que altere o resultado, com autorização da cliente."},{"key":"bastidores","papel":"Carro-chefe","porque":"ver o procedimento acontecendo gera desejo e confiança na técnica.","comoFazer":"Timelapse do procedimento com 2–3 legendas explicando o cuidado de cada etapa."},{"key":"trend","papel":"Apoio","porque":"áudios em alta com transformações ampliam o alcance local.","comoFazer":"Use o áudio do momento para revelar o resultado no “drop”."},{"key":"resposta_comentario","papel":"Apoio","porque":"“dói?”, “quanto dura?”, “pode na gravidez?” são as objeções reais antes de agendar.","comoFazer":"Uma dúvida por vídeo, resposta direta em até 30s."},{"key":"case","papel":"Pontual","porque":"a jornada completa de uma cliente mostra o método, não só o resultado.","comoFazer":"Carrossel: queixa → avaliação → procedimento → manutenção."}],"superficies":[{"superficie":"Reel","pct":50},{"superficie":"Stories","pct":30},{"superficie":"Carrossel","pct":20}],"producao":{"nivel":"Mid-fi","porque":"luz boa é inegociável: o resultado precisa aparecer com fidelidade."},"cadencia":"4–5 Reels por semana; Stories diários com agenda e bastidor.","series":["Transformação da semana","Dói? Dura? Pode? (dúvidas)","Cuidado em casa"],"evitar":[{"pratica":"Filtro ou edição que altera o resultado","porque":"quebra a confiança e pode configurar propaganda enganosa (CDC)."},{"pratica":"Só antes e depois, sem ensinar nada","porque":"o perfil vira vitrine e não constrói autoridade."}],"cuidados":["Procedimentos injetáveis e harmonização: o conselho do profissional (CFM, CFO, CFBM…) regula o uso de imagem de paciente.","Tenha autorização por escrito para uso de imagem."]},{"key":"juridico","nome":"Advocacia & jurídico","match":["advoga","advocac","juridic","direito","trabalhist","previdenc","tributar","oab","inventario","divorci"],"leitura":"O cliente chega com medo e sem saber se tem direito. Explicar em português claro “isso é direito seu?” gera alcance e autoridade; a contratação vem da confiança, não de chamada de venda.","formatos":[{"key":"talking_head","papel":"Carro-chefe","porque":"o advogado explicando um direito em linguagem simples é a base da autoridade no nicho.","comoFazer":"Um direito por vídeo, 45–60s, começando pela situação da pessoa (não pela lei)."},{"key":"mito_verdade","papel":"Carro-chefe","porque":"crenças erradas fazem a pessoa perder direitos — corrigi-las é útil e compartilhável.","comoFazer":"“Você é obrigado a…? Mito.” e a explicação em 3 frases."},{"key":"checklist","papel":"Apoio","porque":"“documentos para guardar” e “o que conferir na rescisão” são salvos e reenviados.","comoFazer":"Carrossel de 6–8 itens, sem juridiquês, com o último slide convidando a salvar."},{"key":"duplo_personagem","papel":"Apoio","porque":"encenar a situação típica (patrão × empregado) cria identificação imediata.","comoFazer":"Diálogo curto de 20–30s e, em seguida, o comentário técnico."},{"key":"analise","papel":"Pontual","porque":"comentar lei nova ou decisão relevante mostra atualização.","comoFazer":"“O que muda para você” em 3 pontos, no dia ou no dia seguinte à notícia."}],"superficies":[{"superficie":"Reel","pct":45},{"superficie":"Carrossel","pct":35},{"superficie":"Stories","pct":20}],"producao":{"nivel":"Mid-fi","porque":"sobriedade transmite seriedade; muito amador parece despreparo, muito produzido parece propaganda."},"cadencia":"3 Reels + 2 carrosséis por semana; Stories com caixinha de dúvidas.","series":["Você sabia que é direito seu?","Mito jurídico da semana","Lei nova em 1 minuto"],"evitar":[{"pratica":"Case com resultado ou valor ganho","porque":"o Código de Ética e o Provimento 205/2021 da OAB restringem publicidade que ostente resultados ou identifique clientes.","key":"case"},{"pratica":"CTA de venda direta (“contrate já”)","porque":"a captação de clientela é vedada; use CTA informativo (salvar, enviar dúvida)."}],"cuidados":["A publicidade na advocacia deve ser informativa (Provimento 205/2021 da OAB) — confira a regra vigente.","Nunca dê consultoria de caso específico nos comentários."]},{"key":"financas","nome":"Finanças, contabilidade & investimentos","match":["financ","contab","contador","invest","credito","seguro","previdencia privada","imposto","mei","economi","renda fixa"],"leitura":"Tema técnico e com medo embutido (dívida, imposto, perder dinheiro). O público salva conteúdo útil e segue quem simplifica com números concretos e exemplos do dia a dia.","formatos":[{"key":"checklist","papel":"Carro-chefe","porque":"passo a passo, prazos e documentos viram material de consulta — o formato mais salvo do nicho.","comoFazer":"Carrossel com um passo por slide e exemplo numérico real."},{"key":"tela_dividida","papel":"Carro-chefe","porque":"o profissional + a planilha ou simulação na tela torna o abstrato concreto.","comoFazer":"Grave a tela com a conta e o seu rosto no canto; arredonde números para facilitar."},{"key":"comparacao","papel":"Apoio","porque":"“X ou Y?” (CDB × poupança, MEI × ME) é a dúvida real de decisão.","comoFazer":"Tabela simples, critério por critério, com conclusão “depende de…” honesta."},{"key":"analise","papel":"Apoio","porque":"traduzir a notícia econômica para o bolso gera autoridade e alcance.","comoFazer":"“O que isso muda no seu bolso” em até 3 pontos, no mesmo dia da notícia."},{"key":"resposta_comentario","papel":"Pontual","porque":"dúvidas reais mostram proximidade com o público.","comoFazer":"Responda sem recomendação individual; explique o critério."}],"superficies":[{"superficie":"Carrossel","pct":40},{"superficie":"Reel","pct":40},{"superficie":"Stories","pct":20}],"producao":{"nivel":"Mid-fi","porque":"números legíveis e visual limpo passam confiança."},"cadencia":"2 Reels + 3 carrosséis por semana; Stories com enquetes.","series":["Traduzindo a notícia para o seu bolso","Prazo da semana","Erro que custa caro"],"evitar":[{"pratica":"Promessa de rentabilidade ou ganho rápido","porque":"soa golpe, afasta o público qualificado e pode ferir regras da CVM."},{"pratica":"Recomendação individual de investimento","porque":"exige habilitação específica (ex.: CVM/ANBIMA)."}],"cuidados":["Use números reais com fonte e data.","Deixe claro que é conteúdo educativo, não recomendação individual."]},{"key":"educacao","nome":"Educação, cursos & mentorias","match":["curso","mentor","infoprodut","professor","ensino","escola","idioma","ingles","concurso","vestibular","treinament","educac","aula"],"leitura":"O aluno compra transformação e método. Conteúdo que entrega uma amostra do método (uma vitória rápida) e mostra alunos reais cria desejo pelo produto completo.","formatos":[{"key":"tutorial","papel":"Carro-chefe","porque":"uma mini-aula com vitória rápida prova o método na prática.","comoFazer":"Um conceito por vídeo, com exemplo aplicado e exercício no final."},{"key":"serie","papel":"Carro-chefe","porque":"quadro recorrente cria hábito de audiência — como uma turma.","comoFazer":"Mesmo nome, mesma abertura e mesmo dia da semana."},{"key":"case","papel":"Apoio","porque":"a jornada de um aluno real é a prova mais forte do nicho.","comoFazer":"Onde estava → o que fez no método → onde chegou, com autorização."},{"key":"curiosidade","papel":"Apoio","porque":"ganchos de curiosidade trazem público novo para o topo.","comoFazer":"Abra com um fato surpreendente do tema e entregue a explicação até o fim."},{"key":"live","papel":"Pontual","porque":"aula aberta aquece a audiência antes de abrir turma.","comoFazer":"Uma aula completa de 40 min, com a oferta só no final."}],"superficies":[{"superficie":"Reel","pct":40},{"superficie":"Carrossel","pct":30},{"superficie":"Stories","pct":20},{"superficie":"Live","pct":10}],"producao":{"nivel":"Mid-fi","porque":"clareza didática (áudio, legenda, tela) vale mais que cenário."},"cadencia":"3 Reels + 2 carrosséis por semana; 1 live por mês ou antes de cada abertura de turma.","series":["Aula de 1 minuto","Erro comum de aluno (anonimizado)","Pergunta da turma"],"evitar":[{"pratica":"Print de faturamento e lifestyle como prova","porque":"atrai o público errado e gera desconfiança."},{"pratica":"Só teoria solta","porque":"não mostra o método e não gera desejo pelo curso."}],"cuidados":["Depoimentos só reais e autorizados; não prometa renda nem aprovação garantida."]},{"key":"moda","nome":"Moda & acessórios","match":["moda","roupa","vestuar","boutique","look","calcad","sapato","bolsa","acessori","joia","semijoia","bijuter","lingerie"],"leitura":"Compra por desejo e identificação com quem veste. O público quer ver caimento real, combinações e o produto em movimento — e decide rápido quando vê “em alguém como eu”.","formatos":[{"key":"provador","papel":"Carro-chefe","porque":"caimento real em corpo real responde à dúvida que impede a compra.","comoFazer":"Vista na câmera, gire, mostre detalhe do tecido e informe tamanho e altura."},{"key":"trend","papel":"Carro-chefe","porque":"transições e áudios em alta são a linguagem nativa de moda no Reels.","comoFazer":"Use a transição do momento para trocar de look no ritmo do áudio."},{"key":"tutorial","papel":"Apoio","porque":"“3 jeitos de usar a mesma peça” aumenta o valor percebido.","comoFazer":"Mesma peça-base, três produções, preço e link ao final."},{"key":"bastidores","papel":"Apoio","porque":"chegada de coleção e embalagem geram expectativa e humanizam a loja.","comoFazer":"Unboxing da coleção nos Stories com enquete “qual você quer ver no corpo?”."},{"key":"resposta_comentario","papel":"Pontual","porque":"dúvida de tamanho e tecido é a objeção nº 1 da compra online.","comoFazer":"Responda mostrando a peça em duas numerações."}],"superficies":[{"superficie":"Reel","pct":50},{"superficie":"Stories","pct":35},{"superficie":"Carrossel","pct":15}],"producao":{"nivel":"Lo-fi","porque":"espontaneidade com boa luz vende mais que catálogo; o que importa é a peça em movimento."},"cadencia":"5 ou mais Reels por semana; Stories diários com novidades, enquetes e link de compra.","series":["3 jeitos de usar","Provador com a equipe","Chegou!"],"evitar":[{"pratica":"Só foto de catálogo estática","porque":"baixo alcance e não mostra caimento."},{"pratica":"Modelos que não representam a cliente","porque":"quebram a identificação."}],"cuidados":["Informe tamanho e altura de quem veste — reduz troca e dúvida."]},{"key":"cosmeticos","nome":"Cosméticos & produtos de autocuidado","match":["cosmetic","skincare","skin care","dermocosm","sabonete","perfum","hidratant","produto natural","produtos naturais","vegano","organic","autocuidado"],"leitura":"A cliente quer ver textura, rotina e resultado, e entender ingrediente sem jargão. Transparência (o que tem e o que não tem) vira argumento de compra.","formatos":[{"key":"demonstracao","papel":"Carro-chefe","porque":"textura, aplicação e absorção na pele são o que o site não mostra.","comoFazer":"Close bem iluminado da textura, aplicação real e o acabamento em 15–20s."},{"key":"tutorial","papel":"Carro-chefe","porque":"a rotina de uso (ordem, quantidade, horário) aumenta a recompra.","comoFazer":"“Minha rotina da noite em 4 passos”, com o produto de cada passo na tela."},{"key":"mito_verdade","papel":"Apoio","porque":"decodificar ingredientes gera autoridade e confiança.","comoFazer":"Um ingrediente por vídeo: o que faz, o que não faz, para quem é."},{"key":"comparacao","papel":"Apoio","porque":"comparar rótulos mostra o diferencial sem precisar gritar.","comoFazer":"Compare tipos de fórmula, nunca uma marca concorrente nomeada."},{"key":"bastidores","papel":"Pontual","porque":"produção artesanal ou de pequeno lote é diferencial visível.","comoFazer":"Um lote do início ao envase em timelapse."}],"superficies":[{"superficie":"Reel","pct":45},{"superficie":"Stories","pct":30},{"superficie":"Carrossel","pct":25}],"producao":{"nivel":"Mid-fi","porque":"close de textura exige luz e foco; o resto pode ser espontâneo."},"cadencia":"4 Reels + 2 carrosséis por semana; Stories com rotina e bastidor de produção.","series":["Rótulo decodificado","Rotina em 60s","Por dentro da produção"],"evitar":[{"pratica":"Promessa de efeito terapêutico (“cura”, “trata”)","porque":"a ANVISA restringe as alegações de cosméticos."},{"pratica":"Comparação citando concorrente","porque":"risco ético-publicitário (CONAR) e soa agressivo."}],"cuidados":["Use só as alegações de benefício comprovadas/aprovadas para o produto."]},{"key":"gastronomia","nome":"Gastronomia & alimentação","match":["restaurant","gastronom","confeit","doceria","docinho","bolo","cafeteria","cafe","hamburg","pizz","chef","comida","delivery","padaria","boteco","cervej","marmit","lanchonete","brigadeiro"],"leitura":"Comida se vende pelos olhos e pelo som. O público decide em segundos com close, processo e ambiente — e volta pela relação com quem faz.","formatos":[{"key":"bastidores","papel":"Carro-chefe","porque":"o preparo (som, fumaça, recheio) é o conteúdo mais desejado do nicho.","comoFazer":"Closes de 1–2s no ritmo do som ambiente, prato pronto no final."},{"key":"pov","papel":"Carro-chefe","porque":"“POV: você pediu X” coloca o cliente na experiência.","comoFazer":"Câmera na altura dos olhos do cliente, do pedido à primeira mordida."},{"key":"tour","papel":"Apoio","porque":"ambiente e atendimento são parte do que se compra.","comoFazer":"Entrada → mesa → prato, em um plano contínuo de 15s."},{"key":"tutorial","papel":"Apoio","porque":"uma receita simplificada gera salvamento e reciprocidade sem entregar o segredo.","comoFazer":"Versão caseira de um item do cardápio, 5 passos."},{"key":"trend","papel":"Pontual","porque":"trends de comida têm alcance alto quando cabem no cardápio.","comoFazer":"Só entre na trend que combina com um prato real da casa."}],"superficies":[{"superficie":"Reel","pct":55},{"superficie":"Stories","pct":35},{"superficie":"Carrossel","pct":10}],"producao":{"nivel":"Mid-fi","porque":"close bem iluminado e som ambiente limpo fazem o prato vender."},"cadencia":"5 Reels por semana; Stories diários (cardápio do dia, pedidos saindo).","series":["Saindo do forno","Cardápio do dia","Quem faz (equipe)"],"evitar":[{"pratica":"Cardápio estático como conteúdo principal","porque":"não gera desejo nem alcance."},{"pratica":"Imagem de banco","porque":"quebra a confiança: o cliente quer ver o SEU prato."}],"cuidados":["Informe alérgenos quando for relevante."]},{"key":"imobiliario","nome":"Imobiliário & construção","match":["imobili","imove","imovel","corretor","construtor","incorpora","loteament","aluguel","condominio","apartament"],"leitura":"Decisão cara e longa. O público consome tour de imóvel como entretenimento e só contrata quem demonstra conhecimento do mercado local e passa segurança no processo.","formatos":[{"key":"tour","papel":"Carro-chefe","porque":"tour é o formato que o público do nicho procura e compartilha.","comoFazer":"Plano contínuo e estabilizado, preço e metragem na primeira cena, 30–60s."},{"key":"analise","papel":"Carro-chefe","porque":"“vale a pena morar em X?” posiciona como especialista local.","comoFazer":"Bairro, preço médio do m², prós e contras honestos."},{"key":"checklist","papel":"Apoio","porque":"documentos e erros na compra são dúvidas de alto valor.","comoFazer":"Carrossel com 7 itens e um exemplo real de problema evitado."},{"key":"comparacao","papel":"Apoio","porque":"financiar × alugar e bairro × bairro são decisões reais do comprador.","comoFazer":"Conta simples na tela com premissas explícitas."},{"key":"case","papel":"Pontual","porque":"uma compra concluída mostra o processo e gera confiança.","comoFazer":"Com autorização: desafio do cliente → busca → chave na mão."}],"superficies":[{"superficie":"Reel","pct":55},{"superficie":"Carrossel","pct":25},{"superficie":"Stories","pct":20}],"producao":{"nivel":"High-fi","porque":"tour exige estabilizador e luz natural; conteúdo educativo pode ser Mid-fi."},"cadencia":"3 Reels (1 tour) + 2 carrosséis por semana.","series":["Tour em 60s","Bairro a bairro","Custo real de comprar"],"evitar":[{"pratica":"Promessa de valorização garantida","porque":"não é verificável e fere a confiança."},{"pratica":"Material da incorporadora sem contexto","porque":"todo corretor posta igual; não diferencia."}],"cuidados":["Corretores: identifique o CRECI conforme as regras do COFECI e informe valores e condições com precisão."]},{"key":"arquitetura","nome":"Arquitetura, interiores & decoração","match":["arquitet","interiores","decorac","marcenaria","paisagis","reforma","moveis planejados","iluminac"],"leitura":"O público compra gosto e a segurança de que a obra não vai virar dor de cabeça. Transformação do espaço e processo transparente geram desejo e confiança.","formatos":[{"key":"antes_depois","papel":"Carro-chefe","porque":"a transformação do ambiente é o argumento mais forte do nicho.","comoFazer":"Mesmo ângulo no antes e no depois, com transição no ritmo do áudio."},{"key":"tour","papel":"Carro-chefe","porque":"o projeto pronto em movimento mostra detalhes que a foto perde.","comoFazer":"Plano contínuo, luz natural, closes de marcenaria e acabamentos."},{"key":"bastidores","papel":"Apoio","porque":"obra e escolha de materiais mostram método e reduzem o medo da reforma.","comoFazer":"Diário de obra nos Stories, um marco por semana no feed."},{"key":"checklist","papel":"Apoio","porque":"“erros comuns na reforma” é conteúdo salvo e compartilhado.","comoFazer":"Carrossel com o erro, a consequência e a solução."},{"key":"react","papel":"Pontual","porque":"comentar ambientes virais com olhar técnico gera alcance e autoridade.","comoFazer":"O que funciona, o que não funciona e como adaptar."}],"superficies":[{"superficie":"Reel","pct":50},{"superficie":"Carrossel","pct":35},{"superficie":"Stories","pct":15}],"producao":{"nivel":"High-fi","porque":"projeto pronto é portfólio; a obra pode ser Lo-fi."},"cadencia":"3 Reels + 2 carrosséis por semana.","series":["Antes × depois","Erro de reforma","Detalhe que faz diferença"],"evitar":[{"pratica":"Render 3D apresentado como obra pronta","porque":"sempre sinalize que é projeto/render."},{"pratica":"Só portfólio sem explicar decisões","porque":"não mostra o método que diferencia você."}],"cuidados":["Autorização do cliente para mostrar a casa; nunca exponha endereço."]},{"key":"eventos","nome":"Casamento, eventos & fotografia","match":["casament","noiv","evento","fotograf","filmag","buffet","cerimoni","festa","debutante"],"leitura":"Compra emocional, com medo de errar num dia único. O público quer se imaginar vivendo aquilo e confiar que o fornecedor não vai falhar.","formatos":[{"key":"storytelling","papel":"Carro-chefe","porque":"a história de um casal ou evento gera a emoção que motiva a contratação.","comoFazer":"Do detalhe pessoal ao grande momento, com trilha e poucas legendas."},{"key":"bastidores","papel":"Carro-chefe","porque":"o dia por trás das câmeras prova cuidado e responde ao medo de falha.","comoFazer":"Checklist, equipe e imprevistos resolvidos, em Stories no dia e Reel depois."},{"key":"checklist","papel":"Apoio","porque":"guias de planejamento são salvos por quem está organizando.","comoFazer":"“O que perguntar antes de contratar…”, um item por slide."},{"key":"pov","papel":"Apoio","porque":"“POV: você no dia…” faz a pessoa se imaginar ali.","comoFazer":"Câmera subjetiva nos momentos-chave, 15–20s."},{"key":"entrevista","papel":"Pontual","porque":"o depoimento real de um casal/cliente é prova social forte.","comoFazer":"3 perguntas, respostas curtas, com autorização."}],"superficies":[{"superficie":"Reel","pct":50},{"superficie":"Carrossel","pct":25},{"superficie":"Stories","pct":25}],"producao":{"nivel":"High-fi","porque":"a entrega é o seu portfólio; o bastidor pode ser Lo-fi."},"cadencia":"3 Reels + 2 carrosséis por semana; Stories nos dias de evento.","series":["Guia do planejamento","Bastidor do dia","Histórias que contamos"],"evitar":[{"pratica":"Só portfólio sem narrativa","porque":"fotos bonitas sem história não diferenciam."},{"pratica":"Escassez inventada (“últimas datas”)","porque":"só use quando for real — o público confere."}],"cuidados":["Autorização dos clientes para uso de imagem."]},{"key":"pet","nome":"Pet & veterinária","match":["pet","veterin","cachorr","cao","caes","gato","felin","banho e tosa","petshop"],"leitura":"O tutor é apaixonado e ansioso pelo bem-estar do animal. Pets geram alcance natural; a confiança vem de cuidado visível e informação responsável.","formatos":[{"key":"pov","papel":"Carro-chefe","porque":"“POV: seu cachorro quando…” é a linguagem nativa do nicho e gera compartilhamento.","comoFazer":"Situação real do dia a dia, legenda com a “fala” do pet."},{"key":"bastidores","papel":"Carro-chefe","porque":"atendimento, banho e tosa mostram o cuidado com o animal.","comoFazer":"Mostre o manejo calmo e o resultado; nunca um animal estressado."},{"key":"mito_verdade","papel":"Apoio","porque":"derrubar crenças sobre alimentação e cuidado posiciona como referência.","comoFazer":"Um mito por vídeo, com orientação para consultar o veterinário."},{"key":"tutorial","papel":"Apoio","porque":"cuidados práticos em casa geram reciprocidade.","comoFazer":"Passo a passo de 30s (escovar, cortar unha etc.)."},{"key":"antes_depois","papel":"Pontual","porque":"a transformação da tosa é visual e compartilhável.","comoFazer":"Com autorização do tutor, mesma luz e ângulo."}],"superficies":[{"superficie":"Reel","pct":55},{"superficie":"Stories","pct":30},{"superficie":"Carrossel","pct":15}],"producao":{"nivel":"Lo-fi","porque":"espontaneidade combina com pets e permite volume."},"cadencia":"4–5 Reels por semana; Stories diários.","series":["Cliente do dia","Mito ou verdade pet","Cuidado da semana"],"evitar":[{"pratica":"Expor animal estressado para viralizar","porque":"gera rejeição imediata dos tutores."},{"pratica":"Orientar medicação pelo conteúdo","porque":"só o veterinário, em consulta (CFMV)."}],"cuidados":["Autorização do tutor para uso de imagem."]},{"key":"turismo","nome":"Turismo & hospitalidade","match":["turism","viage","pousada","hotel","hostel","resort","agencia de viage","roteiro","destino"],"leitura":"Compra de experiência: o público quer se imaginar lá. Imersão visual e informação prática (quanto custa, quando ir) convertem.","formatos":[{"key":"tour","papel":"Carro-chefe","porque":"imersão no lugar é o que faz a pessoa reservar.","comoFazer":"Chegada → quarto → experiência, em 20–30s com som ambiente."},{"key":"pov","papel":"Carro-chefe","porque":"“POV: seu café da manhã aqui” coloca o hóspede na cena.","comoFazer":"Câmera subjetiva, momento único, legenda curta."},{"key":"checklist","papel":"Apoio","porque":"roteiros e “quanto custa” são salvos para planejar a viagem.","comoFazer":"Carrossel com dia a dia do roteiro e valores com data."},{"key":"vlog","papel":"Apoio","porque":"um dia inteiro no lugar mostra a experiência completa.","comoFazer":"Cortes curtos da manhã à noite."},{"key":"trend","papel":"Pontual","porque":"trends de viagem ampliam o alcance.","comoFazer":"Use só com imagens reais do lugar."}],"superficies":[{"superficie":"Reel","pct":55},{"superficie":"Stories","pct":25},{"superficie":"Carrossel","pct":20}],"producao":{"nivel":"High-fi","porque":"imersão pede boa imagem; a rotina pode ser Lo-fi."},"cadencia":"4 Reels + 1 carrossel por semana; Stories diários.","series":["Roteiro de 3 dias","Quanto custa","Um dia aqui"],"evitar":[{"pratica":"Foto editada que não corresponde ao lugar","porque":"gera frustração e avaliação negativa."},{"pratica":"Só paisagem, sem informação prática","porque":"encanta, mas não converte."}],"cuidados":["Preços e condições sempre com data de validade."]},{"key":"tecnologia_b2b","nome":"Tecnologia, SaaS & serviços B2B","match":["saas","software","tecnolog","b2b","startup","agencia","consultoria","automac","marketing digital"],"leitura":"O decisor quer reduzir risco e justificar o investimento internamente. Mostrar o problema de negócio com clareza, o “como” e casos reais gera oportunidades; opinião forte gera autoridade.","formatos":[{"key":"tela_dividida","papel":"Carro-chefe","porque":"mostrar o processo ou a ferramenta na tela torna a solução concreta.","comoFazer":"Um problema, a solução na tela, o ganho em número."},{"key":"analise","papel":"Carro-chefe","porque":"opinião fundamentada sobre o mercado diferencia no meio de conteúdo genérico.","comoFazer":"Uma tese por peça, com argumento e exemplo."},{"key":"case","papel":"Apoio","porque":"case com número é a prova que o decisor leva para a reunião.","comoFazer":"Contexto → problema → o que foi feito → resultado mensurável (com autorização)."},{"key":"comparacao","papel":"Apoio","porque":"“fazer internamente × contratar” é a decisão real do comprador.","comoFazer":"Critérios objetivos: custo, prazo, risco."},{"key":"entrevista","papel":"Pontual","porque":"conversa com cliente ou especialista gera autoridade emprestada.","comoFazer":"Cortes de 45s com uma ideia cada."}],"superficies":[{"superficie":"Carrossel","pct":40},{"superficie":"Reel","pct":35},{"superficie":"Vídeo","pct":15},{"superficie":"Stories","pct":10}],"producao":{"nivel":"Mid-fi","porque":"clareza e tela legível valem mais que produção."},"cadencia":"2 carrosséis + 2 Reels por semana; 1 vídeo mais longo por mês.","series":["Opinião impopular","Desmontando um processo","Número da semana"],"evitar":[{"pratica":"Jargão e lista de funcionalidades","porque":"o decisor compra resultado, não feature."},{"pratica":"Trend de humor desconectada","porque":"atrai público que não compra.","key":"trend"}],"cuidados":["Case com números só com autorização do cliente."]}],"generico":{"key":"generico","nome":"Perfil geral","match":[],"leitura":"Nicho não identificado com segurança: o guia usa a base que funciona para a maioria dos negócios — rosto, utilidade e prova. Informe o nicho no cadastro ou no Content DNA para um guia específico.","formatos":[{"key":"talking_head","papel":"Carro-chefe","porque":"rosto e voz constroem confiança em qualquer nicho.","comoFazer":"Uma ideia por vídeo, 30–60s, começando pela situação da persona."},{"key":"tutorial","papel":"Carro-chefe","porque":"conteúdo útil e aplicável gera salvamento e reciprocidade.","comoFazer":"Resultado primeiro, passos depois, resumo para salvar."},{"key":"bastidores","papel":"Apoio","porque":"mostrar como você trabalha humaniza e prova método.","comoFazer":"Stories do processo; um marco por semana no feed."},{"key":"case","papel":"Apoio","porque":"um caso real prova a promessa.","comoFazer":"Antes → processo → depois, com autorização."},{"key":"resposta_comentario","papel":"Pontual","porque":"dúvidas reais viram pauta certeira.","comoFazer":"Mostre a pergunta e responda direto."}],"superficies":[{"superficie":"Reel","pct":45},{"superficie":"Carrossel","pct":30},{"superficie":"Stories","pct":25}],"producao":{"nivel":"Mid-fi","porque":"equilibra clareza e volume."},"cadencia":"3 Reels + 2 carrosséis por semana; Stories diários.","series":["Pergunta da semana","Bastidor","Erro comum"],"evitar":[{"pratica":"Trend desconectada do tema","porque":"traz alcance que não vira cliente.","key":"trend"}],"cuidados":["Se o nicho for regulado (saúde, direito, finanças), confira o código do conselho antes de usar imagem de cliente, depoimento ou promessa."]},"alternativas":{"Descoberta":["curiosidade","trend","pov","mito_verdade"],"Atenção":["curiosidade","trend","pov"],"Identificação":["pov","storytelling","talking_head"],"Conscientização":["analise","mito_verdade","talking_head"],"Educação":["tutorial","checklist","tela_dividida"],"Autoridade":["analise","talking_head","react","tela_dividida"],"Prova":["case","antes_depois","entrevista","demonstracao"],"Experiência Própria":["bastidores","vlog","storytelling"],"Experiência Compartilhada":["entrevista","case","storytelling"],"Quebra de Objeção":["duplo_personagem","resposta_comentario","talking_head"],"Diferenciação":["comparacao","demonstracao","bastidores"],"Consideração":["comparacao","checklist","tour"],"Desejo":["demonstracao","tour","provador","antes_depois","storytelling"],"Conversão":["demonstracao","tour","live"],"Relacionamento":["vlog","bastidores","resposta_comentario"],"Rapport":["bastidores","vlog","pov"]}}; /*__NICHE_FORMATS_END__*/
   var I=function(s,r){return (r||document).querySelector(s)};
   var svg=function(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="ic">'+p+'</svg>'};
   var IC={
@@ -7441,14 +7461,15 @@
     approvals:svg('<path d="M20 6L9 17l-5-5"/>'),
     performance:svg('<path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/>'),
     kb:svg('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'),
+    formats:svg('<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><path d="M13 16.5h8M17 13v7"/>'),
     agents:svg('<rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M12 8V4M9 4h6M8.5 13v2M15.5 13v2"/>')
   };
   var NAV=[
     {g:"Trabalho",items:[["overview","Dashboard"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"],["plan","Plano do Mês"]]},
-    {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["distribution","Distribuição"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
+    {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["formats","Formatos"],["distribution","Distribuição"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
     {g:"Sistema",items:[["kb","Knowledge Base"],["agents","Agentes"],["config","🔑 Configuração"]]}
   ];
-  var TITLES={overview:["Trabalho","Dashboard"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
+  var TITLES={overview:["Trabalho","Dashboard"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -7572,9 +7593,9 @@
     overview:["func","KPIs e próximas publicações reais para os 4 clientes (pipeline real, um briefing por nicho); a atividade recente é exemplo"],clients:["parcial","Cadastro é exemplo; o Content DNA de cada um é real (troque de cliente e veja)"],
     analyze:["func","Roda a mesma lógica testada da Íris, ao vivo no navegador"],
     plan:["func","Gerado pelo pipeline real ponta a ponta · prosa final via Rima/Anthropic (basta configurar ANTHROPIC_API_KEY)"],
-    dna:["dev","Motor Íris é FUNCIONAL e real para os 4 clientes (veja Análise IA) · painel ainda não persiste edições"],
+    dna:["func","Ficha do cliente + Content DNA gravados (link publicado: no painel; cópia offline: neste navegador) · Íris ao vivo pelo link publicado"],
     strategy:["func","Átlas: caminhos + mix reais, gerados pela IA para cada um dos 4 clientes"],research:["mock","Radar: externo real depende de web/API — veja Plano do Mês"],
-    editorial:["func","Bússola: linha editorial real (Pilar → Tema → Subtemas/Tópicos) para os 4 clientes"],ideas:["func","Musa: 15+ ideias reais (com formato/objetivo/propósito) para cada um dos 4 clientes"],
+    editorial:["func","Bússola: linha editorial real (Pilar → Tema → Subtemas/Tópicos) para os 4 clientes"],ideas:["func","Musa: 15+ ideias reais (com formato/objetivo/propósito) para cada um dos 4 clientes"],formats:["func","Musa: guia de formatos por nicho (16 perfis, detecção pelo cadastro/Content DNA) + personalização com IA"],
     distribution:["func","Cálculo real (método do maior resto) — coberto por 6 testes"],
     content:["func","Estúdio Criativo: Rima (copy), Mosaico (carrossel) e Enredo (Stories) — real para os 4 clientes, clique num conteúdo p/ o esqueleto estratégico + 🎠/📱"],calendar:["func","Cronos: calendário editorial real dos 4 clientes (mix por funil, maior resto). Clique num dia p/ abrir o conteúdo completo"],
     approvals:["parcial","Notion Sync REAL, schema-aware e com trava de autorização (dry-run por padrão) · npm run notion:sync"],performance:["mock","Aguarda o agente Pulso"],
@@ -7665,7 +7686,7 @@
   // para o cliente ativo (reatribuído em setClient); GENERATED_ALL guarda todos.
   var GENERATED=(GENERATED_ALL||{})[state.client]||null;
   // Modo Cliente: portal somente-leitura com os dados do próprio cliente.
-  var CLIENT_NAV=[{g:"Portal do cliente",items:[["overview","Visão geral"],["strategy","Estratégia"],["editorial","Linha Editorial"],["content","Conteúdos"],["calendar","Calendário"]]}];
+  var CLIENT_NAV=[{g:"Portal do cliente",items:[["overview","Visão geral"],["strategy","Estratégia"],["editorial","Linha Editorial"],["formats","Formatos"],["content","Conteúdos"],["calendar","Calendário"]]}];
   function toggleClientView(on){
     state.clientView=on;
     document.body.setAttribute("data-clientview",on?"1":"0");
@@ -7673,7 +7694,7 @@
     var btn=I("#clientview");if(btn)btn.textContent=on?"← Voltar ao painel":"👁 Ver como cliente";
     var nm=I("#cvName");if(nm)nm.textContent=clientName(state.client);
     buildNav();
-    if(on&&["overview","strategy","editorial","content","calendar"].indexOf(state.view)<0)state.view="overview";
+    if(on&&["overview","strategy","editorial","formats","content","calendar"].indexOf(state.view)<0)state.view="overview";
     go(state.view);
   }
   // Cliente com plano REAL gerado pelo pipeline (fonte principal do calendário).
@@ -7681,7 +7702,7 @@
   function genCard(it,idx){
     var x=it.idea,c=it.content,stc=STCOL[it.status]||"badge";
     return '<div class="card content-card" data-gen="'+idx+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(it.data)+'</span><span class="badge '+stc+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
-      '<div class="cc-h">'+esc(c?c.headline:x.titulo)+'</div>'+
+      '<div class="cc-h">'+esc(c?c.headline:x.titulo)+'</div>'+(isRascunho(c)?'<div style="margin-top:6px">'+rascunhoBadge(c)+'</div>':'')+
       '<div class="cc-m">'+esc(x.surface)+' + '+esc(x.format)+' · '+esc((x.pilar||"").split(":")[0])+'</div>'+
       '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="badge">'+esc(x.funil)+'</span>'+(c?'<span class="pill emo-pill">♥ '+esc(c.emocao)+'</span>':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
   }
@@ -7698,17 +7719,19 @@
   // setClient() quando o estado de um cliente real termina de carregar do db
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
-    if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
+    if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
     if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="overview"){renderKpis();renderOverviewContent();}
     renderStatus(v);
   }
   function go(v){
-    if(state.clientView&&["overview","strategy","editorial","content","calendar"].indexOf(v)<0)v="overview";
+    if(state.clientView&&["overview","strategy","editorial","formats","content","calendar"].indexOf(v)<0)v="overview";
     state.view=v;
     Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
-    Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.getAttribute('data-view')!==v});
+    var needs=["dna","plan","strategy","research","editorial","ideas","formats","content","calendar","approvals","performance"].indexOf(v)>=0,noCli=needs&&!state.client;
+    Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=noCli||s.getAttribute('data-view')!==v});
+    var nh=I("#noClientHero");if(nh)nh.hidden=!noCli;
     var t=TITLES[v]||["",v];I("#crumb").textContent=t[0];I("#ptitle").textContent=t[1];
-    renderView(v);
+    if(!noCli)renderView(v);else renderStatus(v);
     window.scrollTo({top:0});
   }
   function renderPipe(){I("#pipe").innerHTML=PIPE.map(function(s,i){return '<span class="step'+(i===0?' on':'')+'">'+s+'</span>'+(i<PIPE.length-1?'<span class="arr">→</span>':'')}).join('')}
@@ -7728,6 +7751,12 @@
   }
   function wireContent(sel){Array.prototype.forEach.call(document.querySelectorAll(sel),function(el){el.addEventListener('click',function(){openContent(el.getAttribute('data-content'))})})}
   function renderOverviewContent(){
+    var ov=I("#ovSteps");
+    if(ov){
+      ov.innerHTML=!CLIENTS.length?'<div class="card empty-hero" style="margin-top:16px"><div class="eh-ic">＋</div><div class="eh-t" style="margin-bottom:14px">Comece cadastrando o <b>primeiro cliente</b>. Cada agente se alimenta do anterior: Ficha → Content DNA → Estratégia → Linha Editorial → Ideias → Formatos → Calendário.</div><button class="btn pri genbtn" id="ovNewClient">+ Novo cliente</button></div>':nextStepsHtml();
+      var nb=I("#ovNewClient");if(nb)nb.addEventListener('click',openNewClientModal);
+      wireSteps(ov);
+    }
     if(genOn()){I("#ovContent").innerHTML=GENERATED.calendar.items.slice(0,4).map(genCard).join('');wireGen('#ovContent [data-gen]');return;}
     I("#ovContent").innerHTML=CONTENT.slice(0,4).map(contentCard).join('');wireContent('#ovContent [data-content]');
   }
@@ -7795,7 +7824,7 @@
   async function runIrisLive(){
     var id=state.client,briefing=(I("#dnaBriefing").value||"").trim();
     if(!briefing){I("#dnaMsg").textContent="Cole um briefing primeiro.";I("#dnaMsg").style.color="var(--warn)";return;}
-    if(!CAP.sample)return;
+    if(!CAP.sample){noAi();return;}
     I("#dnaRun").disabled=true;setBusy(I("#dnaMsg"),"Analisando…");
     try{
       var out=await CAP.sample.json(buildIrisPrompt(byId(id).name,briefing),{modelTier:"default",cache:false});
@@ -7810,7 +7839,7 @@
   }
   function dnaOnboardingHtml(){
     return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Preencher com a Íris (opcional)</div>'+
-      '<div class="fld"><label for="dnaBriefing">Cole um briefing, entrevista ou anotações do cliente</label><textarea class="ta" id="dnaBriefing" placeholder="Ex.: Vendo X, meu público é Y, a maior dor deles é Z…"></textarea></div>'+
+      '<div class="fld"><label for="dnaBriefing">Cole um briefing, entrevista ou anotações do cliente</label><textarea class="ta" id="dnaBriefing" placeholder="Ex.: Vendo X, meu público é Y, a maior dor deles é Z…">'+esc((DB_CLIENTS[state.client]||{}).briefing||"")+'</textarea><div id="briefSaved" style="font-size:11px;color:var(--faint)">'+((DB_CLIENTS[state.client]||{}).briefing?"✓ Briefing salvo — fica aqui para as próximas vezes":"O texto fica salvo automaticamente")+'</div></div>'+
       '<button class="btn pri genbtn" id="dnaRun">✦ Analisar com a Íris</button><span id="dnaMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>'+
       '<div style="font-size:11px;color:var(--faint);margin-top:10px">Cada sugestão vem marcada como pendente — nada vira fato sem você aprovar.</div></div>'+
       '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Ou adicionar um registro manual</div>'+
@@ -7888,11 +7917,12 @@
   function renderDNA(){
     var c=byId(state.client);I("#dnaTitle").textContent="Content DNA — "+c.name;
     if(isDbClient(state.client)){
-      var list=GENERATED.dna||[],h=dnaOnboardingHtml()+refsBlockHtml();
+      var list=GENERATED.dna||[],h=fichaHtml()+dnaOnboardingHtml()+refsBlockHtml();
       SECORDER.forEach(function(sec){var items=list.map(function(x,i){return [x,i]}).filter(function(p){return p[0].section===sec});if(!items.length)return;
         h+='<div class="card dna-sec"><h4>'+SECLBL[sec]+'<span class="ct">'+items.length+'</span></h4>'+items.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</div>';});
       I("#dnaSections").innerHTML=h;
       I("#dnaRun").addEventListener('click',runIrisLive);
+      wireFicha();wireBriefingAutosave();
       I("#dnaAddManual").addEventListener('click',addManualDna);
       var refAddBtn=I("#refAdd");if(refAddBtn)refAddBtn.addEventListener('click',addRef);
       Array.prototype.forEach.call(document.querySelectorAll('[data-refrm]'),function(b){b.addEventListener('click',function(){removeRef(+b.getAttribute('data-refrm'));})});
@@ -7946,7 +7976,8 @@
     var rb=I("#regenStratBtn");if(rb)rb.addEventListener('click',function(){GENERATED.strategy=null;renderStrategy();});
   }
   function dnaCompact(){
-    return (GENERATED.dna||[]).filter(function(x){return x.status!=="rejected"}).map(function(x){return '- ['+x.section+'/'+x.field+'] ('+x.state+') '+x.value}).join('\n')||'(nenhum registro ainda)';
+    var d=(GENERATED.dna||[]).filter(function(x){return x.status!=="rejected"}).map(function(x){return '- ['+x.section+'/'+x.field+'] ('+x.state+') '+x.value}).join('\n');
+    return [fichaCompact(),d].filter(Boolean).join('\n')||'(nenhum registro ainda)';
   }
   function buildStrategyPrompt(name,dnaText){
     var archNames=["Autoridade","Posicionamento","Rapport / Relacionamento","Educação","Diferenciação","Construção de Categoria","Comunidade","Geração de Demanda","Quebra de Objeções","Prova","Desejo","Conversão / Vendas","Lançamento","Crescimento de Audiência","Marca Pessoal"];
@@ -7963,7 +7994,7 @@
     ].join('\n');
   }
   async function runGerarEstrategia(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genStratBtn");if(btn)btn.disabled=true;
     var msg=I("#stratMsg");setBusy(msg,"Pensando…");
     try{
@@ -8009,7 +8040,7 @@
     ].join('\n');
   }
   async function runGerarPesquisa(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genResBtn");if(btn)btn.disabled=true;
     var msg=I("#resMsg");setBusy(msg,"Pensando…");
     try{
@@ -8065,7 +8096,7 @@
     ].join('\n');
   }
   async function runGerarEditorial(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genEdBtn");if(btn)btn.disabled=true;
     var msg=I("#edMsg");setBusy(msg,"Pensando…");
     try{
@@ -8121,14 +8152,14 @@
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
       refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
-      'Formatos possíveis (escolha um por ideia): '+formatos, '',
+      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), '',
       'Distribua pelo funil: ~45% topo, ~35% meio, ~20% fundo. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
       'Cada ideia precisa de: título, conceito (1 frase), ângulo, dor/desejo específico usado, função/objetivo, propósito (1 frase: de onde a persona sai e pra onde vai), emoção-alvo, hook (frase de abertura real), CTA, formato escolhido + objetivo do formato + por que esse formato, e justificativa (por que não serve pra outra marca).',
       '', 'Responda SOMENTE com JSON: {"ideas":[{"titulo":string,"conceito":string,"angulo":string,"dorDesejo":string,"funcao":string,"funil":"topo"|"meio"|"fundo","jornada":string,"emocao":string,"pilar":string,"tema":string,"proposito":string,"formato":string,"formatoObjetivo":string,"formatoJustificativa":string,"hook":string,"cta":string,"justificativa":string}]}',
     ].filter(Boolean).join('\n');
   }
   async function runGerarIdeias(){
-    var id=state.client;if(!CAP.sample)return;
+    var id=state.client;if(!CAP.sample){noAi();return;}
     var btn=I("#genIdeasBtn");if(btn)btn.disabled=true;
     var msg=I("#ideasMsg");setBusy(msg,"Pensando…");
     try{
@@ -8195,6 +8226,146 @@
           '<div style="margin-top:6px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--faint);font-weight:600">CTA</span> · '+esc(x.cta)+'</div>'+
           '<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--line-2);padding-top:9px"><b style="color:var(--ink)">Por quê:</b> '+esc(x.just)+'</div></div>';
       }).join('')+'</div>';
+  }
+  // ---------- Formatos por nicho (Musa) ----------
+  // Fonte única: src/pipeline/formats.ts + niche-formats.ts, embutidos em
+  // NICHE_FORMATS por `npm run panel:sync`. A detecção abaixo espelha
+  // detectNiche() do pipeline.
+  var NF=NICHE_FORMATS;
+  function nfNorm(s){return String(s||"").toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
+  function nfRx(m){return new RegExp('(^|[^a-z0-9])'+m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));}
+  function nfDetect(texts){
+    for(var i=0;i<texts.length;i++){
+      var t=nfNorm(texts[i]);if(!t)continue;
+      var best=null,bs=0;
+      NF.perfis.forEach(function(p){var sc=p.match.filter(function(m){return nfRx(m).test(t)}).length;if(sc>bs){best=p;bs=sc;}});
+      if(best)return {perfil:best,from:texts[i]};
+    }
+    return {perfil:NF.generico,from:""};
+  }
+  function nfProfile(key){if(key===NF.generico.key)return NF.generico;return NF.perfis.filter(function(p){return p.key===key})[0]||null;}
+  function nfFormato(key){return NF.formatos.filter(function(f){return f.key===key})[0]||null;}
+  function nfFormatoByNome(nome){var n=nfNorm(nome);return NF.formatos.filter(function(f){return nfNorm(f.nome)===n})[0]||null;}
+  function dnaVal(field){return ((GENERATED&&GENERATED.dna)||[]).filter(function(x){return x.field===field&&x.status!=="rejected"}).map(function(x){return x.value}).join(" · ");}
+  function currentNiche(){
+    var c=byId(state.client)||{},fm=GENERATED&&GENERATED.formats;
+    if(fm&&fm.perfil){var p=nfProfile(fm.perfil);if(p)return {perfil:p,from:"",manual:true};}
+    var fi=(DB_CLIENTS[state.client]||{}).ficha||{};
+    return nfDetect([c.niche,dnaVal("nicho"),fi.oferta,dnaVal("oferta"),dnaVal("posicionamento"),c.name]);
+  }
+  // Guia efetivo: perfil do nicho + (opcional) personalização da IA feita sobre ele.
+  function formatGuide(){
+    var nz=currentNiche(),p=nz.perfil,fm=GENERATED&&GENERATED.formats,ia=fm&&fm.ia&&fm.ia.perfil===p.key?fm.ia:null;
+    var formatos=p.formatos.map(function(f){var d=nfFormato(f.key)||{};return {key:f.key,nome:d.nome||f.key,descricao:d.descricao||"",superficie:d.superficie||"",producao:d.producao||"",papel:f.papel,porque:f.porque,comoFazer:f.comoFazer}});
+    if(ia&&Array.isArray(ia.formatos)){
+      var iaF=ia.formatos.map(function(x){var d=nfFormatoByNome(x.nome);if(!d)return null;
+        return {key:d.key,nome:d.nome,descricao:d.descricao,superficie:d.superficie,producao:d.producao,papel:["Carro-chefe","Apoio","Pontual"].indexOf(x.papel)>=0?x.papel:"Apoio",porque:String(x.porque||""),comoFazer:String(x.comoFazer||"")};
+      }).filter(Boolean);
+      if(iaF.length)formatos=iaF;
+    }
+    var evitar=(ia&&Array.isArray(ia.evitar)&&ia.evitar.length)?ia.evitar.map(function(e){var d=nfFormatoByNome(e.formato||"");return {pratica:String(e.pratica||""),porque:String(e.porque||""),key:d?d.key:undefined}}):p.evitar;
+    var picks={};formatos.forEach(function(f){picks[f.key]=f});
+    var avoid={};evitar.forEach(function(e){if(e.key)avoid[e.key]=e});
+    var rank={"Carro-chefe":0,"Apoio":1,"Pontual":2,"Livre":3,"Com cuidado":4};
+    var opcoes=NF.formatos.map(function(f){var pk=picks[f.key],av=avoid[f.key];
+      return {key:f.key,nome:f.nome,descricao:f.descricao,superficie:f.superficie,producao:f.producao,fit:pk?pk.papel:(av?"Com cuidado":"Livre"),nota:av?(av.pratica+": "+av.porque):(pk?pk.porque:"")};
+    }).sort(function(a,b){return rank[a.fit]-rank[b.fit]});
+    var sup=(ia&&Array.isArray(ia.superficies)&&ia.superficies.length)?ia.superficies:p.superficies;
+    return {perfil:p,from:nz.from,manual:!!nz.manual,ia:!!ia,generico:p.key===NF.generico.key,
+      leitura:(ia&&ia.leitura)||p.leitura,formatos:formatos,superficies:sup,producao:p.producao,
+      cadencia:(ia&&ia.cadencia)||p.cadencia,series:(ia&&Array.isArray(ia.series)&&ia.series.length)?ia.series:p.series,
+      evitar:evitar,cuidados:p.cuidados,opcoes:opcoes};
+  }
+  // Resumo para o prompt da Musa (Ideias): a IA prioriza os formatos do nicho.
+  function formatGuidePrompt(){
+    var g=formatGuide(),by=function(papel){return g.formatos.filter(function(f){return f.papel===papel}).map(function(f){return f.nome}).join(', ')};
+    return ['GUIA DE FORMATOS DO NICHO ('+g.perfil.nome+') — distribua a maior parte das ideias nestes formatos:',
+      '- Carro-chefe: '+by("Carro-chefe"), '- Apoio: '+by("Apoio"), '- Pontual: '+by("Pontual"),
+      '- Evite / use com cuidado: '+g.evitar.map(function(e){return e.pratica+' ('+e.porque+')'}).join('; '),
+      '- Cuidados: '+g.cuidados.join(' ')].join('\n');
+  }
+  var FIT_CLS={"Carro-chefe":"fit-cc","Apoio":"fit-ap","Pontual":"fit-po","Livre":"fit-li","Com cuidado":"fit-cu"};
+  function fitBadge(fit){return '<span class="fit '+(FIT_CLS[fit]||"fit-li")+'">'+esc(fit)+'</span>';}
+  function renderFormats(){
+    var el=I('.view[data-view="formats"]');
+    if(!state.client){el.innerHTML=emptyView("Formatos","Cadastre ou escolha um cliente para ver o guia de formatos do nicho dele.");return;}
+    var g=formatGuide(),cv=state.clientView,canAi=!cv&&isDbClient(state.client)&&aiAvailable();
+    var origem=g.manual?'Nicho escolhido manualmente.':(g.generico?'Não identifiquei o nicho com segurança — informe o nicho no cadastro ou no Content DNA, ou escolha abaixo.':'Identificado a partir de: “'+esc(String(g.from).slice(0,90))+(String(g.from).length>90?'…':'')+'”');
+    var opts=NF.perfis.concat([NF.generico]).map(function(p){return '<option value="'+p.key+'"'+(p.key===g.perfil.key?' selected':'')+'>'+esc(p.nome)+'</option>'}).join('');
+    var h='<div class="section-head" style="margin-top:6px"><div><h3>Formatos — '+esc(clientName(state.client))+'</h3><p><b>Musa</b> — '+(cv?'os formatos que mais funcionam no seu nicho, por que funcionam e como fazer.':'o guia de formatos para o nicho deste cliente: o que priorizar, em que proporção, com que produção e o que evitar.')+'</p></div></div>';
+    h+='<div class="card pad"><div class="eyebrow">Nicho</div><div style="font-family:var(--font-display);font-weight:700;font-size:19px;margin-top:4px">'+esc(g.perfil.nome)+(g.ia?' <span class="fit fit-cc" style="vertical-align:middle">personalizado pela IA</span>':'')+'</div>'+
+      (cv?'':'<div style="font-size:12px;color:var(--muted);margin-top:4px">'+origem+'</div>')+
+      '<div style="font-size:13.5px;margin-top:12px;line-height:1.55">'+esc(g.leitura)+'</div>'+
+      (cv?'':'<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px"><label style="font-size:12px;color:var(--muted)">Trocar nicho <select id="fmtNiche" class="btn" style="margin-left:6px">'+opts+'</select></label>'+
+        (canAi?'<button class="btn pri genbtn" id="fmtAiBtn">✦ Personalizar com IA</button>':'')+
+        '<span id="fmtMsg" style="font-size:12px;color:var(--muted)"></span></div>')+'</div>';
+    h+='<div class="section-head"><div><h3>Formatos recomendados</h3><p>Em ordem de prioridade. Carro-chefe = a base do perfil; apoio = complementa; pontual = de vez em quando.</p></div></div>';
+    h+='<div class="clist">'+g.formatos.map(function(f,i){
+      return '<div class="card pad fmt-rank"><div class="fmt-n">'+(i+1)+'</div><div style="min-width:0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-family:var(--font-display);font-size:14.5px">'+esc(f.nome)+'</b>'+fitBadge(f.papel)+'</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><span class="badge">'+esc(f.superficie)+'</span><span class="badge">'+esc(f.producao)+'</span></div>'+
+        '<div style="font-size:12.5px;margin-top:10px;color:var(--muted)"><b style="color:var(--ink)">Por quê:</b> '+esc(f.porque)+'</div>'+
+        '<div style="font-size:12.5px;margin-top:6px;color:var(--muted)"><b style="color:var(--ink)">Como fazer:</b> '+esc(f.comoFazer)+'</div></div></div>';
+    }).join('')+'</div>';
+    var sup=g.superficies,seg=sup.map(function(s,i){return '<div class="seg" style="flex:'+s.pct+' 1 0;background:'+avc(i)+'">'+esc(s.superficie)+' '+s.pct+'%</div>'}).join('');
+    h+='<div class="clist" style="margin-top:14px"><div class="card pad"><div class="eyebrow" style="margin-bottom:10px">Mix de superfícies</div><div class="stack">'+seg+'</div>'+
+      '<div style="font-size:12.5px;margin-top:12px"><b>Produção:</b> '+esc(g.producao.nivel)+' — <span style="color:var(--muted)">'+esc(g.producao.porque)+'</span></div>'+
+      '<div style="font-size:12.5px;margin-top:6px"><b>Cadência:</b> <span style="color:var(--muted)">'+esc(g.cadencia)+'</span></div></div>'+
+      '<div class="card pad"><div class="eyebrow" style="margin-bottom:10px">Séries / quadros recorrentes</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+g.series.map(function(s){return '<span class="badge">'+esc(s)+'</span>'}).join('')+'</div>'+
+      '<div style="font-size:12px;color:var(--muted);margin-top:10px">Quadros fixos criam hábito: mesmo nome, mesma abertura, mesmo dia da semana.</div></div></div>';
+    h+='<div class="clist" style="margin-top:14px"><div class="card pad"><div class="eyebrow" style="margin-bottom:8px;color:var(--warn)">Evitar</div>'+g.evitar.map(function(e){return '<div style="font-size:12.5px;margin-top:8px"><b>'+esc(e.pratica)+'</b> — <span style="color:var(--muted)">'+esc(e.porque)+'</span></div>'}).join('')+'</div>'+
+      '<div class="card pad"><div class="eyebrow" style="margin-bottom:8px;color:var(--warn)">Cuidados éticos e regulatórios</div>'+g.cuidados.map(function(c){return '<div style="font-size:12.5px;margin-top:8px;color:var(--muted)">• '+esc(c)+'</div>'}).join('')+'</div></div>';
+    if(!cv)h+=perfCardHtml();
+    h+='<div class="section-head"><div><h3>Todas as opções</h3><p>A biblioteca completa, com o encaixe de cada formato neste nicho. “Livre” = pode usar quando a ideia pedir.</p></div></div>';
+    h+='<div class="fmt-grid">'+g.opcoes.map(function(o){
+      return '<div class="card pad" style="padding:13px 14px"><div style="display:flex;gap:6px;align-items:center;justify-content:space-between"><b style="font-size:13px">'+esc(o.nome)+'</b>'+fitBadge(o.fit)+'</div>'+
+        '<div style="font-size:11.5px;color:var(--faint);margin-top:4px">'+esc(o.superficie)+' · '+esc(o.producao)+'</div>'+
+        '<div style="font-size:12px;color:var(--muted);margin-top:6px">'+esc(o.descricao)+'</div>'+
+        (o.fit==="Com cuidado"&&o.nota?'<div style="font-size:11.5px;color:var(--warn);margin-top:6px">'+esc(o.nota)+'</div>':'')+'</div>';
+    }).join('')+'</div>';
+    h+='<div style="font-size:11.5px;color:var(--faint);margin-top:16px">Heurísticas de mercado para começar — ajuste com os dados reais de Performance. Regras de conselhos mudam: confira a versão vigente.</div>';
+    el.innerHTML=h;
+    var sel=I("#fmtNiche");if(sel)sel.addEventListener('change',function(){saveFormatsNiche(this.value)});
+    var ab=I("#fmtAiBtn");if(ab)ab.addEventListener('click',runPersonalizarFormatos);
+  }
+  async function saveFormatsNiche(key){
+    var id=state.client,rec={perfil:key,ia:null};if(!GENERATED)return;
+    GENERATED.formats=rec;if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].formats=rec;
+    renderFormats();
+    if(isDbClient(id)&&CAP.db){try{await dbDoc("cos_formats/"+id).set(rec);}catch(e){var m=I("#fmtMsg");if(m){m.textContent="Não consegui salvar a escolha — tente de novo.";m.style.color="var(--warn)";}}}
+  }
+  function buildFormatsPrompt(name,dnaText,g){
+    var lib=NF.formatos.map(function(f){return f.nome+' ('+f.superficie+', '+f.producao+'): '+f.descricao}).join('\n');
+    return ['Você é Musa, o agente de Formatos do Content OS. Personalize o guia de formatos deste cliente a partir do Content DNA real e do guia-base do nicho abaixo.',
+      '', 'REGRAS: use SOMENTE formatos da biblioteca (nome exato). Não invente dados, resultados ou provas. Respeite os cuidados éticos/regulatórios do nicho. Seja específico para ESTE cliente (oferta, persona, dores, tom), não para o nicho em geral.',
+      '', 'Cliente: '+name, 'CONTENT DNA:', dnaText, '',
+      'GUIA-BASE DO NICHO ('+g.perfil.nome+'):', 'Leitura: '+g.perfil.leitura,
+      'Formatos: '+g.perfil.formatos.map(function(f){var d=nfFormato(f.key);return (d?d.nome:f.key)+' ['+f.papel+']'}).join('; '),
+      'Mix: '+g.perfil.superficies.map(function(s){return s.superficie+' '+s.pct+'%'}).join(', '), 'Cadência: '+g.perfil.cadencia,
+      'Evitar: '+g.perfil.evitar.map(function(e){return e.pratica}).join('; '), 'Cuidados: '+g.perfil.cuidados.join(' '),
+      perfCompact()?('\n'+perfCompact()+'\nPriorize o que os dados reais mostram, sem descartar formatos com poucos posts.'):'', '', 'BIBLIOTECA DE FORMATOS:', lib, '',
+      'Entregue 5 a 6 formatos em ordem de prioridade (2 Carro-chefe, 2-3 Apoio, 1 Pontual), cada um com "porque" (ligado à persona/dor/oferta deste cliente) e "comoFazer" (instrução prática de gravação/estrutura, 1-2 frases). Ajuste o mix de superfícies (soma 100), a cadência e 3 séries/quadros com nome próprio para este cliente. Liste 2-3 práticas a evitar (use "formato" com o nome da biblioteca quando o alerta for sobre um formato; senão "").',
+      '', 'Responda SOMENTE com JSON: {"leitura":string,"formatos":[{"nome":string,"papel":"Carro-chefe"|"Apoio"|"Pontual","porque":string,"comoFazer":string}],"superficies":[{"superficie":string,"pct":number}],"cadencia":string,"series":[string],"evitar":[{"pratica":string,"porque":string,"formato":string}]}',
+    ].join('\n');
+  }
+  async function runPersonalizarFormatos(){
+    var id=state.client;if(!CAP.sample){noAi();return;}
+    var btn=I("#fmtAiBtn");if(btn)btn.disabled=true;
+    var msg=I("#fmtMsg");setBusy(msg,"Personalizando para este cliente…");
+    try{
+      var g=formatGuide();
+      var out=await CAP.sample.json(buildFormatsPrompt(byId(id).name,dnaCompact(),g),{modelTier:"complex",cache:false});
+      var sup=Array.isArray(out.superficies)?out.superficies.filter(function(s){return s&&s.superficie&&+s.pct>0}).map(function(s){return {superficie:String(s.superficie),pct:Math.round(+s.pct)}}):[];
+      if(sup.length){var pc=largestRemainder(sup.map(function(s){return s.pct}),100);sup.forEach(function(s,i){s.pct=pc[i]});}
+      var ia={perfil:g.perfil.key,leitura:String(out.leitura||""),formatos:Array.isArray(out.formatos)?out.formatos:[],superficies:sup,
+        cadencia:String(out.cadencia||""),series:Array.isArray(out.series)?out.series.map(String):[],evitar:Array.isArray(out.evitar)?out.evitar:[],at:new Date().toISOString()};
+      var rec={perfil:g.manual?g.perfil.key:null,ia:ia};
+      await dbDoc("cos_formats/"+id).set(rec);
+      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].formats=rec;
+      if(state.client===id){GENERATED.formats=rec;renderFormats();}
+    }catch(e){
+      if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
+      if(btn)btn.disabled=false;
+    }
   }
   function renderStatus(v){var s=STATUS[v]||["mock",""];var el=I("#statuspill");if(!el)return;el.className="statuspill lvl-"+s[0];el.textContent=LVL[s[0]];el.title=s[1];}
   function emptyView(title,msg){return '<div class="section-head" style="margin-top:6px"><div><h3>'+title+' <span class="tag-mock">demonstração</span></h3></div></div><div class="card pad" style="text-align:center;color:var(--muted);padding:28px"><div style="font-size:13px">'+esc(msg)+'</div></div>'}
@@ -8281,7 +8452,7 @@
     h+='<div class="grid cols-2">'+g.ideas.map(function(i){return '<div class="card pad" style="padding:13px 15px"><div style="font-size:13px;font-weight:600">'+esc(i.titulo)+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+chip(i.funil,"badge")+chip(i.funcao,"pill st-INSIGHT")+chip("♥ "+i.emocao,"pill emo-pill")+chip(i.surface+" + "+i.format,"badge")+'</div></div>'}).join('')+'</div>';
     // Calendário
     h+='<div class="section-head"><div><h3>Calendário do mês — '+g.calendar.items.length+' conteúdos</h3><p>Mix: topo '+g.calendar.mix.topo+' · meio '+g.calendar.mix.meio+' · fundo '+g.calendar.mix.fundo+'. Clique para abrir roteiro/copy + payload do Notion.</p></div></div>';
-    h+='<div class="clist">'+g.calendar.items.map(function(it,idx){return '<div class="card content-card" data-gen="'+idx+'"><div class="cc-h">'+esc(it.content.headline)+'</div><div class="cc-m">'+esc(it.data)+' · '+esc(it.idea.surface)+' + '+esc(it.idea.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[it.status]||"badge")+'">'+it.status+'</span><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="pill emo-pill">♥ '+esc(it.content.emocao)+'</span></div></div>'}).join('')+'</div>';
+    h+='<div class="clist">'+g.calendar.items.map(function(it,idx){return '<div class="card content-card" data-gen="'+idx+'"><div class="cc-h">'+esc(it.content.headline)+'</div>'+rascunhoBadge(it.content)+'<div class="cc-m">'+esc(it.data)+' · '+esc(it.idea.surface)+' + '+esc(it.idea.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[it.status]||"badge")+'">'+it.status+'</span><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="pill emo-pill">♥ '+esc(it.content.emocao)+'</span></div></div>'}).join('')+'</div>';
     el.innerHTML=h;
     Array.prototype.forEach.call(el.querySelectorAll('[data-gen]'),function(c){c.addEventListener('click',function(){openGenerated(+c.getAttribute('data-gen'))})});
   }
@@ -8429,15 +8600,15 @@
   }
   async function runGerarPeca(idx,kind){
     var it=GENERATED.calendar.items[idx];if(!it)return;
-    var idea=it.idea,id=state.client;if(!CAP.sample)return;
+    var idea=it.idea,id=state.client;if(!CAP.sample){noAi();return;}
     var btn=document.querySelector('[data-genpeca="'+kind+'"]');if(btn)btn.disabled=true;
     var msg=I("#pecaMsg");setBusy(msg,"Pensando…");
-    var cfg=readContentConfig(idea),dnaText=dnaCompact();
+    var cfg=readContentConfig(idea),dnaText=dnaCompact()+exemplosCompact();
     try{
       var patch={};
       if(kind==="reel"){
         var out=await CAP.sample.json(buildReelPrompt(dnaText,cfg),{modelTier:"complex",cache:false});
-        patch.content={ideaId:idea.id,headline:String(out.headline||idea.hook||idea.titulo),kind:"reel",
+        patch.content={origem:"ia",ideaId:idea.id,headline:String(out.headline||idea.hook||idea.titulo),kind:"reel",
           copy:String(out.copyMedia||""),copyVariants:{curta:String(out.copyCurta||""),media:String(out.copyMedia||""),longa:String(out.copyLonga||"")},
           cta:String(out.cta||cfg.cta),gatilhos:cfg.gatilhos,recursos:cfg.elementos,gatilhosRec:[],elementosRec:[],
           emocao:String(out.emocao||cfg.emocao),emocaoPor:String(out.emocaoPor||""),direcaoVisual:String(out.direcaoVisual||""),
@@ -8445,13 +8616,13 @@
       }else if(kind==="carrossel"){
         var out2=await CAP.sample.json(buildCarrosselPrompt(dnaText,cfg),{modelTier:"complex",cache:false});
         var slides=(Array.isArray(out2.slides)?out2.slides:[]).map(function(s,i){return {n:i+1,papel:String(s.papel||(i===0?"Capa":"Slide")),titulo:String(s.titulo||""),texto:String(s.texto||""),visual:String(out2.direcaoVisual||""),imagem:""};});
-        patch.carousel={capaHeadline:String(out2.capaHeadline||idea.titulo),hook:String(out2.hook||idea.hook),estrutura:String(out2.estrutura||""),
+        patch.carousel={origem:"ia",capaHeadline:String(out2.capaHeadline||idea.titulo),hook:String(out2.hook||idea.hook),estrutura:String(out2.estrutura||""),
           slides:slides,copy:String(out2.copy||""),cta:String(out2.cta||cfg.cta),gatilhos:cfg.gatilhos,elementosLiterarios:cfg.elementos,
           emocao:String(out2.emocao||cfg.emocao),emocaoPor:String(out2.emocaoPor||""),direcaoVisual:String(out2.direcaoVisual||""),referencias:[]};
       }else{
         var out3=await CAP.sample.json(buildStoriesPrompt(dnaText,cfg),{modelTier:"default",cache:false});
         var storiesSteps=(Array.isArray(out3.stories)?out3.stories:[]).map(function(s,i){return {n:i+1,papel:String(s.papel||("Story "+(i+1))),fala:String(s.fala||""),visual:"",interacao:String(s.interacao||"")};});
-        patch.stories={tipo:String(out3.tipo||"Sequência"),objetivo:cfg.objetivo,contexto:"",emocao:String(out3.emocao||cfg.emocao),emocaoPor:String(out3.emocaoPor||""),
+        patch.stories={origem:"ia",tipo:String(out3.tipo||"Sequência"),objetivo:cfg.objetivo,contexto:"",emocao:String(out3.emocao||cfg.emocao),emocaoPor:String(out3.emocaoPor||""),
           percepcaoDesejada:"",narrativa:"",publico:cfg.persona,progressao:storiesSteps.map(function(s){return s.papel}),stories:storiesSteps,cta:String(out3.cta||cfg.cta),gatilhos:cfg.gatilhos};
       }
       await dbItemsCol("cos_calendar",id).doc(it.id).update(patch);
@@ -8490,6 +8661,7 @@
       body+=configPanelHtml(x);
       body+='<div style="text-align:right;margin-top:14px"><button class="btn pri genbtn" id="genPecaBtn" data-genpeca="reel" data-idx="'+idx+'">✦ Gerar Roteiro + Copy</button><span id="pecaMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
     }else if(c){
+      if(isRascunho(c))body+='<div class="callout" style="background:var(--hyp-bg)"><span>✎</span><div class="em" style="color:var(--warn)"><b>Rascunho escrito sem IA.</b> Serve de base para revisar — não publique assim.'+(db?' Gere a versão final com IA nas abas acima ou reescreva e salve.':' Rode o pipeline com a chave da Anthropic para a prosa final.')+'</div></div>';
       body+='<div class="emo-hero"><div class="eh-l">♥ Emoção estratégica</div><div class="eh-v">'+esc(c.emocao)+'</div><div class="eh-w"><b>Por quê:</b> '+esc(c.emocaoPor)+'</div></div>';
       body+=skeletonHtml(x,c,"content");
       if(!cli){
@@ -8506,6 +8678,7 @@
         body+='<div class="block" style="border-style:dashed"><div class="bt">Prévia de sincronização com o Notion <span class="tag-mock">payload · sem chamada real</span></div>'+props+'</div>';
       }
       if(db)body+='<div style="text-align:right"><button class="btn pri" id="saveReelBtn" data-idx="'+idx+'">💾 Salvar edições</button></div>';
+      if(db&&!cli)body+=metricsBlockHtml(it,idx);
     }
     var VIEWS={estrategia:body,carrossel:carouselHtml(it.carousel,x,idx),stories:storyHtml(it.stories,x,idx)};
     var tabsDef=[["estrategia","Estratégia"],["carrossel","🎠 Criar Carrossel"],["stories","📱 Criar Sequência de Stories"]];
@@ -8528,6 +8701,8 @@
       }
       var gp=e.target.closest&&e.target.closest('[data-genpeca]');
       if(gp){runGerarPeca(+gp.getAttribute('data-idx'),gp.getAttribute('data-genpeca'));return;}
+      var smt=e.target.closest&&e.target.closest('#saveMetBtn');
+      if(smt){saveMetrics(+smt.getAttribute('data-idx'));return;}
       var sr=e.target.closest&&e.target.closest('#saveReelBtn');
       if(sr){
         var box2=I('#copybox');if(box2)cvData[activeCv]=box2.textContent;
@@ -8536,7 +8711,7 @@
         var ctaEl=I('#reelCta');
         var patch={content:Object.assign({},it.content,{copyVariants:cvData,copy:cvData.media,roteiro:it.content.roteiro?roteiro:it.content.roteiro,cta:ctaEl?ctaEl.textContent:it.content.cta})};
         sr.disabled=true;sr.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it.content,patch.content);sr.textContent="✓ Salvo";setTimeout(function(){sr.textContent="💾 Salvar edições";sr.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it.content,patch.content,{origem:"ia"});recordExample(state.client,"Reel/copy",it.content.headline,it.content.copy,"editado por você");sr.textContent="✓ Salvo";setTimeout(function(){sr.textContent="💾 Salvar edições";sr.disabled=false;},1200);});
         return;
       }
       var sc=e.target.closest&&e.target.closest('#saveCarrBtn');
@@ -8545,7 +8720,7 @@
         var slides=(cr.slides||[]).map(function(s,i){var t=document.querySelector('[data-slide-t="'+i+'"]'),tx=document.querySelector('[data-slide-x="'+i+'"]');return Object.assign({},s,{titulo:t?t.textContent:s.titulo,texto:tx?tx.textContent:s.texto});});
         var patch2={carousel:Object.assign({},cr,{capaHeadline:capaEl?capaEl.textContent:cr.capaHeadline,copy:copyEl?copyEl.textContent:cr.copy,cta:ctaEl2?ctaEl2.textContent:cr.cta,slides:slides})};
         sc.disabled=true;sc.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch2).then(function(){Object.assign(it.carousel,patch2.carousel);sc.textContent="✓ Salvo";setTimeout(function(){sc.textContent="💾 Salvar edições";sc.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch2).then(function(){Object.assign(it.carousel,patch2.carousel);recordExample(state.client,"Carrossel",it.carousel.capaHeadline,it.carousel.copy,"editado por você");sc.textContent="✓ Salvo";setTimeout(function(){sc.textContent="💾 Salvar edições";sc.disabled=false;},1200);});
         return;
       }
       var ss=e.target.closest&&e.target.closest('#saveStoBtn');
@@ -8554,12 +8729,27 @@
         var stories=(sq.stories||[]).map(function(s,i){var f=document.querySelector('[data-story-fala="'+i+'"]');return Object.assign({},s,{fala:f?f.textContent:s.fala});});
         var patch3={stories:Object.assign({},sq,{cta:ctaEl3?ctaEl3.textContent:sq.cta,stories:stories})};
         ss.disabled=true;ss.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch3).then(function(){Object.assign(it.stories,patch3.stories);ss.textContent="✓ Salvo";setTimeout(function(){ss.textContent="💾 Salvar edições";ss.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch3).then(function(){Object.assign(it.stories,patch3.stories);recordExample(state.client,"Stories",it.stories.cta,(it.stories.stories||[]).map(function(s){return s.fala}).join(" / "),"editado por você");ss.textContent="✓ Salvo";setTimeout(function(){ss.textContent="💾 Salvar edições";ss.disabled=false;},1200);});
         return;
       }
     });
     selTab('estrategia');
-    Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',function(){b.parentNode.querySelector('span').textContent="Ação registrada (prévia)"})});
+    Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',async function(){
+      var span=b.parentNode.querySelector('span');
+      if(!db){span.textContent="Ação registrada (prévia)";return;}
+      var aprovar=b.classList.contains('pri'),st=aprovar?"APPROVED":"REVIEW";
+      try{
+        await dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st});
+        it.status=st;span.textContent=st;span.className="badge "+(aprovar?"act":"prog");
+        if(aprovar){
+          var cc=it.content,cr=it.carousel;
+          if(cc&&!isRascunho(cc))await recordExample(state.client,"Reel/copy",cc.headline,cc.copy,"aprovado");
+          else if(cr)await recordExample(state.client,"Carrossel",cr.capaHeadline,cr.copy,"aprovado");
+          toast(cc&&isRascunho(cc)&&!cr?"Aprovado. (Rascunho sem IA não entra na memória de voz.)":"Aprovado — esta peça agora ensina a voz do cliente nas próximas gerações.");
+        }
+        renderCal();
+      }catch(e){span.textContent="Não consegui salvar";}
+    })});
   }
   function renderContentList(){
     if(genOn()){I("#contentList").innerHTML=GENERATED.calendar.items.map(genCard).join('');wireGen('#contentList [data-gen]');return;}
@@ -8605,7 +8795,7 @@
     return '<div class="clist">'+items.map(function(it,idx){
       var bc=col[it.idea.surface]||"#575663",headline=it.content?it.content.headline:it.idea.titulo,produced=!!it.content;
       return '<div class="card content-card" data-gen="'+idx+'" style="border-left:3px solid '+bc+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(it.data)+'</span><span class="badge '+(STCOL[it.status]||"badge")+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
-        '<div class="cc-h">'+esc(headline)+'</div><div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
+        '<div class="cc-h">'+esc(headline)+'</div>'+(isRascunho(it.content)?'<div style="margin-top:6px">'+rascunhoBadge(it.content)+'</div>':'')+'<div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
         '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="badge">'+esc(it.idea.funil)+'</span>'+(produced?'':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
     }).join('')+'</div>';
   }
@@ -8694,12 +8884,13 @@
     var h='';
     h+='<div class="section-head" style="margin-top:6px"><div><h3>Configuração — chaves & integrações</h3><p>Preencha <b>uma vez</b>. As chaves ficam salvas <b>no seu navegador</b> e você gera o arquivo <code>.env</code> para conectar tudo de forma permanente.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></div>';
     h+='<div class="callout" style="margin-bottom:16px"><span style="font-size:15px">🔒</span><div class="em"><b>Como funciona a permanência.</b> Os comandos (<code>pipeline</code>, <code>notion:sync</code>, <code>doctor</code>) leem as chaves de um arquivo <code>.env</code> na raiz do projeto — carregado automaticamente. Preencha aqui, clique em <b>Baixar .env</b>, salve na raiz e pronto: fica sempre conectado, sem redigitar. <br>No Claude Code na web, prefira cadastrar as mesmas chaves em <b>Credenciais de API do ambiente</b> (persistem entre sessões) e liberar os hosts <code>api.anthropic.com</code> e <code>api.notion.com</code> na rede.</div></div>';
-    h+=forms;
+    h+=backupHtml()+forms;
     h+='<div class="card pad"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">⬇︎ Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" style="align-self:center;font-size:12px;color:var(--good)"></span></div><div class="fld"><label>Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></div>';
     I('.view[data-view="config"]').innerHTML=h;
     function refresh(){var v=cfgVals();I("#cfgEnv").value=buildEnvText(v);I("#cfgStatus").innerHTML=cfgStatus(v);}
     CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.addEventListener('input',refresh)});
     refresh();
+    wireBackup();
     function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
     I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
     I("#cfgDownload").addEventListener('click',function(){
@@ -8761,15 +8952,21 @@
 
   // ---- Novo cliente: cadastro em branco (sem exemplos, sem dados fictícios) ----
   function openNewClientModal(){
-    if(!aiAvailable()){
+    if(!CAP.db){
       I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(440px,100%)"><div class="dh"><div class="d-title">IA ao vivo indisponível aqui</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block"><div style="font-size:13px;color:var(--muted)">Cadastrar um cliente novo e gerar com IA real só funciona quando este painel é aberto pelo <b>link publicado no claude.ai</b> — a cópia offline (arquivo local) não tem essa capacidade. Peça o link do painel para usar esta função.</div></div></div></aside>';
       I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
       return;
     }
     var html='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(440px,100%)"><div class="dh"><div class="d-title">Novo cliente</div><button class="icon-btn" id="dclose">✕</button></div><div class="db">'+
-      '<div class="block"><div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Começa 100% em branco — sem Linha Editorial, ideias, copies ou roteiros de exemplo. Você preenche o Content DNA (manualmente ou com a Íris) e gera cada etapa quando quiser.</div>'+
+      '<div class="block"><div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Começa 100% em branco — sem Linha Editorial, ideias, copies ou roteiros de exemplo. Você preenche o Content DNA (manualmente ou com a Íris) e gera cada etapa quando quiser. Tudo que você preencher fica gravado — não precisa digitar de novo.</div>'+
       '<div class="fld"><label for="ncName">Nome do cliente</label><input id="ncName" placeholder="Ex.: Consultório Dr. Paulo"></div>'+
       '<div class="fld"><label for="ncNiche">Nicho / segmento</label><input id="ncNiche" placeholder="Ex.: Odontologia"></div>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin:4px 0 12px">Opcional — quanto mais você preencher agora, mais ricos ficam todos os agentes (dá pra completar depois na Ficha do cliente):</div>'+
+      '<div class="fld"><label for="ncInsta">Instagram (@)</label><input id="ncInsta" placeholder="@perfil"></div>'+
+      '<div class="fld"><label for="ncOferta">Produtos / serviços principais</label><input id="ncOferta" placeholder="Ex.: lentes de contato dental, clareamento"></div>'+
+      '<div class="fld"><label for="ncPublico">Público-alvo</label><input id="ncPublico" placeholder="Ex.: mulheres de 30 a 50 anos que querem sorrir sem vergonha"></div>'+
+      '<div class="fld"><label for="ncTom">Tom de voz</label><input id="ncTom" placeholder="Ex.: acolhedor, sem jargão"></div>'+
+      '<div class="fld"><label for="ncBrief">Briefing / anotações da reunião</label><textarea class="ta" id="ncBrief" style="min-height:90px" placeholder="Cole aqui o que o cliente contou — a Íris usa isso para montar o Content DNA."></textarea></div>'+
       '<button class="btn pri genbtn" id="ncCreate">Criar cliente</button><span id="ncMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div></div></aside>';
     I("#overlay").innerHTML=html;
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
@@ -8779,6 +8976,8 @@
       I("#ncCreate").disabled=true;I("#ncMsg").textContent="Criando…";I("#ncMsg").style.color="var(--muted)";
       try{
         var id=await createClient(name,niche);
+        var ficha={instagram:I("#ncInsta").value.trim(),oferta:I("#ncOferta").value.trim(),publico:I("#ncPublico").value.trim(),tom:I("#ncTom").value.trim()},brief=I("#ncBrief").value.trim();
+        if(ficha.instagram||ficha.oferta||ficha.publico||ficha.tom||brief){try{await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{ficha:ficha,briefing:brief}));}catch(e){}}
         closeDrawer();
         setClient(id);go("dna");
       }catch(e){
@@ -8799,10 +8998,245 @@
   var DB_CLIENTS={}; // clientId -> {id,name,niche,createdAt}
   var DB_STATE_CACHE={}; // clientId -> estado montado (cache em memória)
   var LIB=(GENERATED_ALL.aurora&&GENERATED_ALL.aurora.libraries)||{gatilhos:[],elementos:[],formatos:[]};
+  if(NICHE_FORMATS.formatos&&NICHE_FORMATS.formatos.length)LIB.formatos=NICHE_FORMATS.formatos;
   function isDbClient(id){return !!DB_CLIENTS[id];}
   function aiAvailable(){return !!(CAP.sample&&CAP.db);}
   function dbDoc(path){return CAP.db.doc(path);}
   function dbItemsCol(root,id){return dbDoc(root+"/"+id).collection("items");}
+  // ---- Armazenamento local (fallback) — quando o painel é aberto como arquivo
+  // (sem window.claude), os clientes e tudo que você preenche ficam gravados
+  // NESTE navegador, com a mesma API do db publicado. A IA ao vivo continua
+  // exclusiva do link do claude.ai. ----
+  function localDb(){
+    var KEY="cos-db-v1";
+    function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){return {}}}
+    function save(s){localStorage.setItem(KEY,JSON.stringify(s));}
+    function snap(path,s){return {id:path.split('/').pop(),exists:Object.prototype.hasOwnProperty.call(s,path),data:function(){return s[path]}};}
+    function doc(path){return {id:path.split('/').pop(),
+      get:async function(){return snap(path,load())},
+      set:async function(v){var s=load();s[path]=JSON.parse(JSON.stringify(v));save(s);},
+      update:async function(v){var s=load();s[path]=Object.assign({},s[path]||{},JSON.parse(JSON.stringify(v)));save(s);},
+      delete:async function(){var s=load();delete s[path];save(s);},
+      collection:function(n){return col(path+"/"+n)}};}
+    function col(prefix){var depth=prefix.split('/').length+1;return {doc:function(id){return doc(prefix+"/"+id)},
+      get:async function(){var s=load();return {docs:Object.keys(s).filter(function(k){return k.indexOf(prefix+"/")===0&&k.split('/').length===depth}).map(function(k){return snap(k,s)})}}};}
+    return {doc:doc,collection:col};
+  }
+  function toast(text){
+    var t=I("#cosToast");if(!t){t=document.createElement("div");t.id="cosToast";t.setAttribute("role","status");t.className="cos-toast";document.body.appendChild(t);}
+    t.textContent=text;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("on")},4200);
+  }
+  function noAi(){toast("A IA ao vivo só funciona pelo link publicado no claude.ai. Tudo que você digitou continua salvo neste navegador.");}
+
+  // ---- Ficha do cliente — informações fixas, digitadas uma vez e salvas
+  // automaticamente. Entram em TODOS os prompts (como fato) e na detecção do nicho. ----
+  var FICHA_FIELDS=[
+    ["name","Nome do cliente","Ex.: Consultório Dr. Paulo",0],
+    ["niche","Nicho / segmento","Ex.: Odontologia estética",0],
+    ["instagram","Instagram (@)","@perfil",0],
+    ["site","Site / link","https://…",0],
+    ["regiao","Cidade / região de atuação","Ex.: São Paulo — Zona Sul, ou 100% online",0],
+    ["ticket","Ticket médio / faixa de preço","Ex.: R$ 1.500 a R$ 12.000",0],
+    ["oferta","Produtos / serviços principais","Ex.: lentes de contato dental, clareamento",1],
+    ["publico","Público-alvo","Ex.: mulheres de 30 a 50 anos que querem sorrir sem vergonha",1],
+    ["tom","Tom de voz (palavras que usa e que evita)","Ex.: acolhedor, sem jargão; evita “barato” e “promoção”",1],
+    ["restricoes","O que NÃO pode aparecer no conteúdo","Ex.: preço no feed, fotos de pacientes, nome de concorrentes",1],
+    ["obs","Observações fixas","Datas importantes, pedidos recorrentes, aprovações…",1]
+  ];
+  function fichaVal(c,k){return k==="name"?(c.name||""):k==="niche"?(c.niche||""):((c.ficha||{})[k]||"");}
+  function fichaFilled(c){return FICHA_FIELDS.filter(function(f){return fichaVal(c,f[0])}).length;}
+  function fichaHtml(){
+    var c=DB_CLIENTS[state.client]||{},n=fichaFilled(c);
+    var fld=function(f){var v=esc(fichaVal(c,f[0]));
+      return '<div class="fld"'+(f[3]?' style="grid-column:1/-1"':'')+'><label for="fc_'+f[0]+'">'+esc(f[1])+'</label>'+
+        (f[3]?'<textarea class="ta" id="fc_'+f[0]+'" data-ficha="'+f[0]+'" style="min-height:58px" placeholder="'+esc(f[2])+'">'+v+'</textarea>':'<input id="fc_'+f[0]+'" data-ficha="'+f[0]+'" placeholder="'+esc(f[2])+'" value="'+v+'">')+'</div>';};
+    return '<details class="card pad ficha" style="margin-bottom:16px"'+(n<4?' open':'')+'><summary><span class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)">Ficha do cliente</span>'+
+      '<span class="badge" style="margin-left:10px">'+n+'/'+FICHA_FIELDS.length+' preenchidos</span><span id="fichaMsg" style="margin-left:auto;font-size:12px;color:var(--muted)">'+(CAP.local?'Salvo neste navegador':'Salvo automaticamente')+'</span></summary>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin:10px 0 12px">Digite uma vez — fica gravado e todos os agentes usam como fato (Íris, Estratégia, Ideias, Formatos, Estúdio Criativo).</div>'+
+      '<div class="grid cols-2" style="gap:0 16px">'+FICHA_FIELDS.map(fld).join('')+'</div></details>';
+  }
+  var fichaTimer=null;
+  function wireFicha(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-ficha]'),function(el){
+      el.addEventListener('input',function(){
+        var id=state.client,m=I("#fichaMsg");if(m){m.textContent="Salvando…";m.style.color="var(--muted)";}
+        clearTimeout(fichaTimer);
+        fichaTimer=setTimeout(function(){saveFicha(id);},600);
+      });
+    });
+  }
+  async function saveFicha(id){
+    if(state.client!==id||!DB_CLIENTS[id])return;
+    var rec=Object.assign({},DB_CLIENTS[id]),ficha=Object.assign({},rec.ficha||{});
+    FICHA_FIELDS.forEach(function(f){var el=I("#fc_"+f[0]);if(!el)return;var v=el.value.trim();
+      if(f[0]==="name"){if(v)rec.name=v;}else if(f[0]==="niche"){rec.niche=v;}else{ficha[f[0]]=v;}});
+    rec.ficha=ficha;
+    var m=I("#fichaMsg");
+    try{
+      await saveClientRecord(id,rec);
+      if(m){m.textContent="✓ Salvo";m.style.color="var(--good)";}
+    }catch(e){if(m){m.textContent="Não consegui salvar — tente de novo.";m.style.color="var(--warn)";}}
+  }
+  async function saveClientRecord(id,rec){
+    rec.updatedAt=new Date().toISOString();
+    await dbDoc("cos_clients/"+id).set(rec);
+    DB_CLIENTS[id]=rec;
+    var c=byId(id);
+    if(c&&c.id===id){c.name=rec.name;c.niche=rec.niche||"";c.full=rec.name+(rec.niche?" — "+rec.niche:"");}
+    refreshClientOptions();
+    if(state.client===id){I("#csav").textContent=rec.name.charAt(0);var t=I("#dnaTitle");if(t)t.textContent="Content DNA — "+rec.name;}
+  }
+  function fichaCompact(){
+    var c=DB_CLIENTS[state.client];if(!c)return "";
+    var lines=FICHA_FIELDS.filter(function(f){return f[0]!=="name"}).map(function(f){var v=fichaVal(c,f[0]);return v?('- '+f[1]+': '+v):''}).filter(Boolean);
+    return lines.length?('FICHA DO CLIENTE (informada pelo estrategista — trate como FACT e respeite as restrições):\n'+lines.join('\n')):'';
+  }
+  var briefTimer=null;
+  function wireBriefingAutosave(){
+    var ta=I("#dnaBriefing");if(!ta)return;
+    ta.addEventListener('input',function(){
+      var id=state.client;clearTimeout(briefTimer);
+      briefTimer=setTimeout(function(){
+        if(state.client!==id||!DB_CLIENTS[id])return;
+        var rec=Object.assign({},DB_CLIENTS[id],{briefing:ta.value});
+        saveClientRecord(id,rec).then(function(){var m=I("#briefSaved");if(m)m.textContent="✓ Briefing salvo";},function(){});
+      },800);
+    });
+  }
+
+  // ---- Rascunho × IA — peça sem IA nunca se passa por texto final ----
+  function isRascunho(c){return !!c&&(c.origem==="rascunho"||(!c.origem&&/ancorado no Content DNA do cliente/.test((c.copy||"")+" "+((c.roteiro||[]).map(function(s){return s.text}).join(" ")))));}
+  function rascunhoBadge(c){return isRascunho(c)?'<span class="badge rasc" title="Escrito sem IA — base para revisar, não publicar assim">✎ rascunho</span>':'';}
+
+  // ---- Memória de voz: peças que você aprova ou edita viram exemplo para as próximas ----
+  async function recordExample(id,tipo,headline,texto,fonte){
+    if(!CAP.db||!isDbClient(id)||!texto)return;
+    var g=DB_STATE_CACHE[id]||GENERATED||{},items=(g.exemplos||[]).slice();
+    items.unshift({tipo:tipo,headline:String(headline||""),texto:String(texto).slice(0,1200),fonte:fonte,at:new Date().toISOString()});
+    items=items.slice(0,6);
+    try{await dbDoc("cos_exemplos/"+id).set({items:items});}catch(e){return;}
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].exemplos=items;
+    if(state.client===id&&GENERATED)GENERATED.exemplos=items;
+  }
+  function exemplosCompact(){
+    var ex=(GENERATED&&GENERATED.exemplos)||[];if(!ex.length)return "";
+    return '\n\nEXEMPLOS APROVADOS PELO ESTRATEGISTA (a voz real deste cliente — imite ritmo, vocabulário e tom; NÃO copie o conteúdo nem repita as mesmas frases):\n'+
+      ex.map(function(x,i){return (i+1)+'. ['+x.tipo+(x.fonte?' · '+x.fonte:'')+'] '+x.headline+'\n'+x.texto.slice(0,600)}).join('\n\n');
+  }
+
+  // ---- Resultados reais (colados por você) → guia de formatos ----
+  var MET_FIELDS=[["alcance","Alcance"],["salvamentos","Salvamentos"],["compartilhamentos","Compartilhamentos"],["comentarios","Comentários"],["seguidores","Seguidores ganhos"]];
+  function metricsBlockHtml(it,idx){
+    var m=it.metrics||{};
+    return '<div class="block"><div class="bt">📈 Resultado depois de publicar <span class="tag-mock">cole os números do Instagram</span></div>'+
+      '<div class="grid cols-3" style="gap:0 12px">'+MET_FIELDS.map(function(f){return '<div class="fld"><label for="mt_'+f[0]+'">'+f[1]+'</label><input id="mt_'+f[0]+'" type="number" min="0" inputmode="numeric" value="'+(m[f[0]]!=null?esc(m[f[0]]):'')+'"></div>'}).join('')+'</div>'+
+      '<button class="btn" id="saveMetBtn" data-idx="'+idx+'">Salvar resultado</button><span id="metMsg" style="margin-left:10px;font-size:12px;color:var(--muted)">'+(m.at?'Último registro: '+esc(String(m.at).slice(0,10)):'Os resultados ensinam o guia de Formatos o que funciona para este cliente.')+'</span></div>';
+  }
+  async function saveMetrics(idx){
+    var it=GENERATED.calendar.items[idx];if(!it)return;
+    var m={at:new Date().toISOString()};
+    MET_FIELDS.forEach(function(f){var el=I("#mt_"+f[0]);var v=el&&el.value!==''?Math.max(0,+el.value):null;if(v!=null&&!isNaN(v))m[f[0]]=v;});
+    var msg=I("#metMsg");
+    if(!m.alcance){if(msg){msg.textContent="Informe ao menos o alcance.";msg.style.color="var(--warn)";}return;}
+    try{
+      await dbItemsCol("cos_calendar",state.client).doc(it.id).update({metrics:m});
+      it.metrics=m;
+      if(msg){msg.textContent="✓ Resultado salvo — já conta no guia de Formatos";msg.style.color="var(--good)";}
+    }catch(e){if(msg){msg.textContent="Não consegui salvar — tente de novo.";msg.style.color="var(--warn)";}}
+  }
+  function itemFormato(it){var x=it.idea||{};return (x.formatRec&&x.formatRec.formato)||x.format||"—";}
+  // Agrupa por formato: engajamento = (salvamentos + compartilhamentos + comentários) / alcance.
+  function formatPerformance(){
+    var items=((GENERATED&&GENERATED.calendar&&GENERATED.calendar.items)||[]).filter(function(it){return it.metrics&&it.metrics.alcance>0});
+    var by={};
+    items.forEach(function(it){var k=itemFormato(it),m=it.metrics,b=by[k]=by[k]||{formato:k,n:0,alcance:0,inter:0,salv:0};
+      b.n++;b.alcance+=m.alcance;b.salv+=(m.salvamentos||0);b.inter+=(m.salvamentos||0)+(m.compartilhamentos||0)+(m.comentarios||0);});
+    return Object.keys(by).map(function(k){var b=by[k];return {formato:b.formato,n:b.n,alcanceMedio:Math.round(b.alcance/b.n),eng:b.inter/b.alcance,salvRate:b.salv/b.alcance}})
+      .sort(function(a,b){return b.eng-a.eng});
+  }
+  function pct(x){return (Math.round(x*1000)/10).toLocaleString('pt-BR')+'%';}
+  function perfCompact(){
+    var p=formatPerformance();if(!p.length)return "";
+    return 'DESEMPENHO REAL deste cliente por formato (engajamento = salvamentos+compartilhamentos+comentários ÷ alcance; poucos posts = sinal fraco): '+
+      p.map(function(r){return r.formato+' '+pct(r.eng)+' ('+r.n+' post'+(r.n>1?'s':'')+', alcance médio '+r.alcanceMedio+')'}).join('; ');
+  }
+  function perfCardHtml(){
+    var p=formatPerformance();
+    if(!p.length)return '<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">📈 O que os seus dados dizem</div><div style="font-size:12.5px;color:var(--muted)">Ainda sem resultados. Depois de publicar, abra o conteúdo no Calendário e cole alcance, salvamentos e compartilhamentos — o guia passa a mostrar quais formatos funcionam <b>para este cliente</b>, não só para o nicho.</div></div>';
+    var tot=p.reduce(function(a,r){return a+r.n},0);
+    return '<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">📈 O que os seus dados dizem · '+tot+' post'+(tot>1?'s':'')+' medido'+(tot>1?'s':'')+'</div>'+
+      p.map(function(r,i){return '<div class="fnbar"><span class="fnl" style="flex:0 0 190px">'+(i===0?'🏆 ':'')+esc(r.formato)+' <span style="color:var(--faint);font-size:10.5px">· '+r.n+'</span></span><span class="fnt"><i style="width:'+Math.min(100,r.eng/p[0].eng*100)+'%"></i></span><span class="fnv tnum" style="flex:0 0 60px">'+pct(r.eng)+'</span></div>'}).join('')+
+      '<div style="font-size:11.5px;color:var(--faint);margin-top:8px">Engajamento = (salvamentos + compartilhamentos + comentários) ÷ alcance. '+(tot<6?'Com poucos posts por formato, trate como sinal inicial — não como regra.':'Use para ajustar o mix do próximo mês.')+'</div></div>';
+  }
+
+  // ---- Próximos passos: o painel guia o que falta para cada cliente ----
+  function nextStepsHtml(){
+    if(!state.client||!isDbClient(state.client))return '';
+    var g=GENERATED||{},c=DB_CLIENTS[state.client]||{};
+    var items=(g.calendar&&g.calendar.items)||[];
+    var steps=[
+      ["dna","Preencher a Ficha do cliente",fichaFilled(c)>=5],
+      ["dna","Montar o Content DNA (Íris ou manual)",(g.dna||[]).length>=5],
+      ["strategy","Gerar a Estratégia",!!g.strategy],
+      ["editorial","Gerar a Linha Editorial",(g.editorial||[]).length>0],
+      ["ideas","Gerar as Ideias",(g.ideas||[]).length>0],
+      ["formats","Conferir o guia de Formatos do nicho",!!(g.formats&&(g.formats.perfil||g.formats.ia))],
+      ["calendar","Montar o Calendário",items.length>0],
+      ["calendar","Produzir a primeira peça com IA",items.some(function(it){return it.content&&!isRascunho(it.content)})],
+      ["calendar","Registrar resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
+    ];
+    var done=steps.filter(function(s){return s[2]}).length,next=steps.filter(function(s){return !s[2]})[0];
+    return '<div class="card pad" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><div class="eyebrow">Próximos passos — '+esc(clientName(state.client))+'</div><span class="badge">'+done+'/'+steps.length+'</span>'+
+      (next?'<button class="btn pri genbtn" data-goto-step="'+next[0]+'" style="margin-left:auto">Continuar: '+esc(next[1])+' →</button>':'<span class="badge act" style="margin-left:auto">✓ Cliente completo</span>')+'</div>'+
+      '<div class="steplist">'+steps.map(function(s){return '<a class="stepi'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="dot">'+(s[2]?'✓':'')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div></div>';
+  }
+  function wireSteps(root){Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
+
+  // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
+  // (ou guarda uma cópia de segurança). ----
+  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos"],BK_COLS=["cos_ideas","cos_calendar"];
+  async function exportBackup(){
+    var out={app:"content-os",v:1,at:new Date().toISOString(),clients:[]};
+    for(var id in DB_CLIENTS){
+      var e={client:DB_CLIENTS[id],docs:{},cols:{}};
+      for(var i=0;i<BK_DOCS.length;i++){var s=await dbDoc(BK_DOCS[i]+"/"+id).get();if(s.exists)e.docs[BK_DOCS[i]]=s.data();}
+      for(var j=0;j<BK_COLS.length;j++){var sn=await dbItemsCol(BK_COLS[j],id).get();e.cols[BK_COLS[j]]=sn.docs.map(function(d){return d.data()});}
+      out.clients.push(e);
+    }
+    return out;
+  }
+  async function importBackup(data){
+    if(!data||data.app!=="content-os"||!Array.isArray(data.clients))throw new Error("arquivo inválido");
+    for(var i=0;i<data.clients.length;i++){
+      var e=data.clients[i],c=e.client;if(!c||!c.id)continue;
+      await dbDoc("cos_clients/"+c.id).set(c);
+      for(var k in (e.docs||{}))if(BK_DOCS.indexOf(k)>=0)await dbDoc(k+"/"+c.id).set(e.docs[k]);
+      for(var k2 in (e.cols||{}))if(BK_COLS.indexOf(k2)>=0){var items=e.cols[k2]||[];for(var n=0;n<items.length;n++){var it=items[n];await dbItemsCol(k2,c.id).doc(String(it.id||("item-"+n))).set(it);}}
+      delete DB_STATE_CACHE[c.id];
+    }
+    await loadDbClients();
+    return data.clients.length;
+  }
+  function backupHtml(){
+    return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:8px">Backup dos clientes</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">'+(CAP.local?'Você está na <b>cópia offline</b>: os clientes ficam salvos neste navegador. ':'Os clientes ficam salvos no painel publicado. ')+'Exporte um arquivo para ter uma cópia de segurança ou para levar tudo entre o link publicado e a cópia offline.</div>'+
+      '<button class="btn" id="bkExport">⬇ Exportar backup (.json)</button> <label class="btn" style="display:inline-block">⬆ Importar backup<input type="file" id="bkImport" accept="application/json,.json" hidden></label><span id="bkMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
+  }
+  function wireBackup(){
+    var msg=function(t,c){var m=I("#bkMsg");if(m){m.textContent=t;m.style.color=c||"var(--muted)";}};
+    var ex=I("#bkExport");if(ex)ex.addEventListener('click',async function(){
+      if(!CAP.db)return;msg("Preparando…");
+      try{
+        var json=JSON.stringify(await exportBackup(),null,1),name="content-os-backup-"+new Date().toISOString().slice(0,10)+".json";
+        var localDL=function(){var b=new Blob([json],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ Backup baixado","var(--good)");};
+        if(window.claude&&claude.use){claude.use("downloads").then(function(dl){if(!dl){localDL();return;}dl.save({filename:name,data:json}).then(function(){msg("✓ Backup baixado","var(--good)")},function(){msg("Download recusado.","var(--warn)")});},localDL);}else{localDL();}
+      }catch(e){msg("Não consegui exportar — tente de novo.","var(--warn)");}
+    });
+    var im=I("#bkImport");if(im)im.addEventListener('change',function(){
+      var f=im.files&&im.files[0];if(!f)return;msg("Importando…");
+      f.text().then(function(t){return importBackup(JSON.parse(t));}).then(function(n){msg("✓ "+n+" cliente(s) importado(s)","var(--good)");renderClients();},function(){msg("Arquivo inválido — use um backup exportado por este painel.","var(--warn)");});
+    });
+  }
 
   async function initCapabilities(){
     try{
@@ -8811,6 +9245,7 @@
         CAP.db=await window.claude.use("db");
       }
     }catch(e){}
+    if(!CAP.db){CAP.db=localDb();CAP.local=true;}
     CAP.ready=true;
     if(CAP.db){try{await loadDbClients();}catch(e){}}
     renderAiBadge();
@@ -8819,7 +9254,7 @@
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
     var on=aiAvailable();
-    el.textContent=on?"● ativa":"○ indisponível";
+    el.textContent=on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
     el.title=on?"Gerar com IA real e cadastrar clientes está disponível neste painel.":"Abra pelo link do painel publicado no claude.ai para gerar com IA real e cadastrar clientes — a cópia offline não tem essa capacidade.";
   }
@@ -8852,7 +9287,7 @@
   }
   function blankClientState(id,name){
     return {clientId:id,clientName:name,generatedAt:null,provider:"sample",
-      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],
+      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],formats:null,exemplos:[],
       calendar:{total:0,mix:{topo:0,meio:0,fundo:0},items:[]},notion:[],performance:[],
       libraries:LIB,warnings:[]};
   }
@@ -8866,6 +9301,8 @@
       var edDoc=await dbDoc("cos_editorial/"+id).get();if(edDoc.exists)g.editorial=(edDoc.data()||{}).pilares||[];
       var resDoc=await dbDoc("cos_research/"+id).get();if(resDoc.exists)g.research=(resDoc.data()||{}).items||[];
       var refsDoc=await dbDoc("cos_refs/"+id).get();if(refsDoc.exists)g.refs=(refsDoc.data()||{}).items||[];
+      var fmtDoc=await dbDoc("cos_formats/"+id).get();if(fmtDoc.exists)g.formats=fmtDoc.data();
+      var exDoc=await dbDoc("cos_exemplos/"+id).get();if(exDoc.exists)g.exemplos=(exDoc.data()||{}).items||[];
       var ideasSnap=await dbItemsCol("cos_ideas",id).get();g.ideas=ideasSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       var calSnap=await dbItemsCol("cos_calendar",id).get();g.calendar.items=calSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       g.calendar.total=g.calendar.items.length;
@@ -8878,12 +9315,12 @@
     var sel=I("#csel");if(sel&&sel.value!==id)sel.value=id;
     if(isDbClient(id)){
       GENERATED=DB_STATE_CACHE[id]||blankClientState(id,c.name);
-      renderKpis();renderView(state.view);
+      renderKpis();go(state.view);
       loadDbClientState(id).then(function(g){if(state.client===id){GENERATED=g;renderKpis();renderView(state.view);}});
       return;
     }
     GENERATED=(GENERATED_ALL||{})[id]||null;
-    renderKpis();renderView(state.view);
+    renderKpis();if(state.view)go(state.view);
   }
   function refreshClientOptions(){
     var opts=CLIENTS.length?CLIENTS.map(function(c){return '<option value="'+c.id+'">'+esc(c.full)+'</option>'}).join(''):'<option value="">Nenhum cliente ainda</option>';
@@ -8903,6 +9340,7 @@
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});
   I("#newClientBtn").addEventListener('click',openNewClientModal);
+  I("#ncHeroBtn").addEventListener('click',openNewClientModal);
   go("overview");
   initCapabilities();
 })();

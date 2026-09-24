@@ -18,6 +18,7 @@ import type {
 import { clean, short } from "./text.js";
 import { deriveStrategyPaths } from "./strategy-paths.js";
 import { recommendFormat } from "./formats.js";
+import type { NicheProfile } from "./niche-formats.js";
 import { recommendTriggers } from "../agents/creative/triggers.js";
 import { recommendDevices } from "../agents/creative/devices.js";
 import type { CreativeContext } from "../agents/creative/context.js";
@@ -156,7 +157,7 @@ const SURFACE_BY_FUNNEL: Record<FunnelStage, [string, string][]> = {
   fundo: [["Carrossel", "Case"], ["Stories", "Quebra de objeção"], ["Reel", "Demonstração"], ["Stories", "Prova"]],
 };
 
-export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15): Idea[] {
+export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15, niche?: NicheProfile): Idea[] {
   const v = dnaView(dna);
   const dor = clean(v.dores[0] ?? "a dor da persona");
   const desejo = clean(v.desejos[0] ?? "o desejo da persona");
@@ -208,7 +209,7 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
       subtema: pick[1],
       surface: pick[0],
       format: pick[1],
-      formatRec: recommendFormat(funcao, meta.funil, pick[0]),
+      formatRec: recommendFormat(funcao, meta.funil, pick[0], niche),
       hook: seed.hook,
       cta: meta.funil === "fundo" ? "Chamar no direct" : "Salvar + seguir",
       justificativa: `Função ${funcao} (${meta.funil}); usa a dor/desejo reais e o diferencial do cliente — não é intercambiável entre marcas.`,
@@ -242,11 +243,15 @@ export function produceContent(idea: Idea, dna: Dna, ctx?: CreativeContext): Pro
   const recursos = elementosRec.length ? elementosRec.map((d) => d.nome) : idea.funil === "topo" ? ["Open loop", "Quebra de expectativa", "Cena do cotidiano"] : ["Paralelismo", "Contraste", "Storytelling"];
   const direcao = `Tom ${tom}. Identidade visual consistente da marca; ${idea.surface === "Reel" ? "cortes no ritmo da fala, legendas grandes, rosto humano" : idea.surface === "Carrossel" ? "um conceito por slide, hierarquia clara, capa com contraste" : "sequência curta, stickers de interação"}.`;
 
+  // RASCUNHO determinístico (sem IA): só frases montadas com o Content DNA —
+  // nunca o texto interno da ideia (conceito/ângulo), que é meta-descrição.
   // Mesma copy em três extensões — todas com Hook + desenvolvimento + CTA.
+  const dd = lcf(idea.dorDesejo);
+  const voc = v.voc[0] ? clean(v.voc[0]) : "";
   const copyVariants = {
-    curta: `${idea.hook}\n\n${idea.dorDesejo} tem caminho: ${lcf(dif)}.\n\n${idea.cta}.`,
-    media: `${idea.hook}\n\n${idea.conceito} ${idea.dorDesejo} não precisa ser permanente — ${lcf(desejo)} é possível com ${lcf(dif)}.\n\n${idea.cta}.`,
-    longa: `${idea.hook}\n\nSe você sente ${lcf(idea.dorDesejo)}, não está sozinho. ${idea.conceito}\n\nO que muda o jogo é ${lcf(dif)} — e é por isso que ${lcf(desejo)} deixa de ser distante. ${prova}\n\n${idea.dorDesejo} não precisa ser o fim da linha.\n\n${idea.cta}.`,
+    curta: `${idea.hook}\n\n${idea.dorDesejo} tem saída — e ela passa por ${lcf(dif)}.\n\n${idea.cta}.`,
+    media: `${idea.hook}\n\nQuem vive ${dd} costuma achar que é assim mesmo. Não precisa ser: ${lcf(desejo)} fica possível quando ${lcf(dif)} entra no caminho.\n\n${idea.cta}.`,
+    longa: `${idea.hook}\n\nSe você vive ${dd}, não está sozinho — e não é falta de esforço seu.\n\nO que muda o jogo é ${lcf(dif)}. É por isso que ${lcf(desejo)} deixa de ser distante. ${prova}${voc ? `\n\nComo alguém já disse: ${voc}` : ""}\n\n${idea.cta}.`,
   };
 
   const base: ProducedContent = {
@@ -255,6 +260,7 @@ export function produceContent(idea: Idea, dna: Dna, ctx?: CreativeContext): Pro
     kind: idea.surface === "Reel" ? "reel" : idea.surface === "Carrossel" ? "carrossel" : idea.surface === "Stories" ? "stories" : "outro",
     copy: copyVariants.media,
     copyVariants,
+    origem: "rascunho",
     cta: idea.cta,
     gatilhos,
     recursos,
@@ -269,8 +275,8 @@ export function produceContent(idea: Idea, dna: Dna, ctx?: CreativeContext): Pro
     // Estrutura canônica: Hook → Desenvolvimento → Retenção/Tensão → Payoff → CTA.
     base.roteiro = [
       { label: "Hook", text: idea.hook },
-      { label: "Desenvolvimento", text: `${idea.conceito} A maioria vive ${lcf(idea.dorDesejo)} sem enxergar a saída.` },
-      { label: "Retenção/Tensão", text: "Abre um loop: 'mas tem um detalhe que muda tudo…' — segura até revelar." },
+      { label: "Desenvolvimento", text: `Quem vive ${dd} costuma achar que não tem jeito.` },
+      { label: "Retenção/Tensão", text: `Só que tem um detalhe que quase ninguém percebe — e ele muda tudo.` },
       { label: "Payoff", text: `${idea.dorDesejo} deixa de travar quando se olha por ${lcf(dif)}. ${prova}` },
       { label: "CTA", text: idea.cta },
     ];
@@ -278,8 +284,8 @@ export function produceContent(idea: Idea, dna: Dna, ctx?: CreativeContext): Pro
     base.slides = [
       { label: "Capa", text: idea.hook },
       { label: "Slide 2", text: `Por que isto importa para ${idea.persona.slice(0, 40)}…` },
-      { label: "Slide 3", text: `${idea.conceito}` },
-      { label: "Slide 4", text: "Exemplo/aplicação prática (ancorada no real, sem inventar)." },
+      { label: "Slide 3", text: `${idea.dorDesejo}: o que quase ninguém te explica.` },
+      { label: "Slide 4", text: voc || prova },
       { label: "Slide 5", text: v.diferenciais[0] ? clean(v.diferenciais[0]) : "O diferencial em ação." },
       { label: "Conclusão", text: `${idea.dorDesejo} tem caminho.` },
       { label: "CTA", text: idea.cta },
@@ -287,8 +293,8 @@ export function produceContent(idea: Idea, dna: Dna, ctx?: CreativeContext): Pro
   } else if (base.kind === "stories") {
     base.stories = [
       { label: "Story 1 (Atração)", text: idea.hook },
-      { label: "Story 2 (Curiosidade)", text: `${idea.conceito}` },
-      { label: "Story 3 (Conexão)", text: "Prova/identificação com pessoa real; enquete de engajamento." },
+      { label: "Story 2 (Curiosidade)", text: `Você também sente ${dd}? (enquete: sim / às vezes)` },
+      { label: "Story 3 (Conexão)", text: voc || `O que muda é ${lcf(dif)}.` },
       { label: "Story 4 (CTA)", text: `${idea.cta} — caixa de perguntas.` },
     ];
   }
@@ -337,6 +343,7 @@ export function toNotionPages(calendar: MonthlyCalendar, clientName: string): No
     const ele = it.content.elementosRec.map((d) => d.nome).join(", ");
     // Estrutura clara para o cliente: O QUE + COMO + POR QUÊ.
     const body = [
+      ...(it.content.origem === "ia" ? [] : [`⚠️ RASCUNHO (sem IA) — base para revisar; gere com IA antes de publicar.`, ""]),
       `📌 O QUE SERÁ PUBLICADO`,
       `Headline: ${it.content.headline}`,
       "",
@@ -382,6 +389,7 @@ export function toNotionPages(calendar: MonthlyCalendar, clientName: string): No
         Headline: it.content.headline,
         CTA: it.content.cta,
         Status: it.status,
+        Origem: it.content.origem === "ia" ? "IA" : "Rascunho (sem IA)",
       },
       bodyPreview: body,
     };

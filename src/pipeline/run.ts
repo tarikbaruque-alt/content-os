@@ -12,6 +12,7 @@ import { createVisualRefProvider, type VisualRefProvider } from "../core/integra
 import { GATILHOS } from "../agents/creative/triggers.js";
 import { ELEMENTOS } from "../agents/creative/devices.js";
 import { FORMATOS } from "./formats.js";
+import { buildFormatGuide, detectNiche } from "./niche-formats.js";
 import { mapWithConcurrency } from "../core/concurrency.js";
 import type { CalendarItem, MonthlyCalendar } from "./types.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
@@ -42,7 +43,7 @@ export type PipelineOptions = {
  * Estratégia, que alimenta Editorial → Ideias → Produção → Calendário → Notion.
  */
 export async function runPipeline(
-  client: { id: string; name: string },
+  client: { id: string; name: string; niche?: string },
   briefing: string,
   source: string,
   opts: PipelineOptions = {},
@@ -70,7 +71,11 @@ export async function runPipeline(
   const strategy = deriveStrategy(dna);
   const research = deriveResearch(dna);
   const editorial = buildEditorial(strategy);
-  const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15);
+  // Nicho: cadastro do cliente → campo "nicho" do DNA → oferta/posicionamento → nome.
+  const dnaField = (f: string) => dna.filter((d) => d.field === f).map((d) => d.value).join(" · ");
+  const niche = detectNiche([client.niche, dnaField("nicho"), dnaField("oferta"), dnaField("posicionamento"), client.name]);
+  const formatGuide = buildFormatGuide(niche.profile, niche.from);
+  const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15, niche.profile);
   const mix = opts.funnelMix ?? { topo: 45, meio: 35, fundo: 20 };
 
   // Contexto criativo completo para os especialistas (Rima, Mosaico, Enredo).
@@ -92,7 +97,12 @@ export async function runPipeline(
       real ? writeCarousel(it.idea, ctx, llm, visual) : buildCarousel(it.idea, ctx, visual),
       real ? writeStorySequence(it.idea, ctx, llm, undefined, visual) : buildStorySequence(it.idea, ctx, undefined, visual),
     ]);
-    const full: CalendarItem = { ...it, content, carousel, stories };
+    const full: CalendarItem = {
+      ...it,
+      content: { ...content, origem: content.origem ?? "rascunho" },
+      carousel: { ...carousel, origem: carousel.origem ?? "rascunho" },
+      stories: { ...stories, origem: stories.origem ?? "rascunho" },
+    };
     return full;
   });
   const calendar: MonthlyCalendar = { total: draft.total, mix: draft.mix, items };
@@ -102,6 +112,8 @@ export async function runPipeline(
 
   const warnings = [...iris.warnings];
   if (ideas.length < 15) warnings.push("Menos de 15 ideias geradas.");
+  const rascunhos = items.filter((i) => i.content.origem !== "ia").length;
+  if (rascunhos) warnings.push(`${rascunhos} peça(s) em RASCUNHO (sem IA) — gere com IA antes de publicar.`);
 
   return {
     clientId: client.id,
@@ -113,6 +125,7 @@ export async function runPipeline(
     research,
     editorial,
     ideas,
+    formatGuide,
     calendar,
     notion,
     performance,

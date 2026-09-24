@@ -377,6 +377,7 @@ export function parseStoryJson(text: string, base: StorySequence): StorySequence
   if (stories.length < 3) return null;
   return {
     ...base,
+    origem: "ia",
     tipo: str(p.tipo) || base.tipo,
     objetivo: str(p.objetivo) || base.objetivo,
     contexto: str(p.contexto) || base.contexto,

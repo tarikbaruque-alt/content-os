@@ -1,4 +1,5 @@
 import type { FormatRecommendation, FunnelStage } from "./types.js";
+import type { NicheProfile } from "./niche-formats.js";
 
 /**
  * Biblioteca de formatos organizada por DIMENSÕES (não uma lista solta de 50
@@ -52,8 +53,15 @@ export const FORMATOS: FormatoDef[] = [
   { key: "comparacao", nome: "Comparação", descricao: "X vs Y para dar clareza pela diferença.", producao: "Mid-fi", superficie: "Carrossel" },
   { key: "resposta_comentario", nome: "Resposta a Comentário", descricao: "Responde uma dúvida/comentário real da audiência.", producao: "Lo-fi", superficie: "Reel" },
   { key: "serie", nome: "Série / Quadro Recorrente", descricao: "Formato que se repete (ex.: “toda terça”). Cria hábito.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "mito_verdade", nome: "Mito × Verdade", descricao: "Derruba uma crença comum do nicho com a versão correta.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "antes_depois", nome: "Antes e Depois", descricao: "Mostra uma transformação real, com autorização e sem prometer resultado.", producao: "Mid-fi", superficie: "Carrossel" },
+  { key: "tour", nome: "Tour / Ambiente", descricao: "Apresenta o espaço, o produto ou o lugar como se a pessoa estivesse lá.", producao: "Mid-fi", superficie: "Reel" },
+  { key: "checklist", nome: "Checklist / Guia Salvável", descricao: "Lista prática para salvar e consultar depois.", producao: "Mid-fi", superficie: "Carrossel" },
+  { key: "provador", nome: "Provador / Look do Dia", descricao: "Veste, combina e mostra o caimento real do produto.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "trend", nome: "Trend Adaptada", descricao: "Usa um áudio ou formato em alta, traduzido para o assunto da marca.", producao: "Lo-fi", superficie: "Reel" },
+  { key: "live", nome: "Live / Aula Aberta", descricao: "Encontro ao vivo para ensinar, tirar dúvidas e aquecer para a oferta.", producao: "Mid-fi", superficie: "Live" },
 ];
-const FORMATO_BY_KEY = new Map(FORMATOS.map((f) => [f.key, f]));
+export const FORMATO_BY_KEY = new Map(FORMATOS.map((f) => [f.key, f]));
 
 // Formato nomeado + objetivo estratégico recomendado por função.
 const FN_FORMATO: Record<string, { key: string; objetivo: string }> = {
@@ -74,6 +82,51 @@ const FN_FORMATO: Record<string, { key: string; objetivo: string }> = {
   Relacionamento: { key: "vlog", objetivo: "Aproximar e criar vínculo" },
   Rapport: { key: "bastidores", objetivo: "Gerar proximidade antes da venda" },
 };
+
+/**
+ * Formatos que servem a cada função, em ordem de preferência (o 1º é o padrão
+ * de FN_FORMATO). Com um perfil de nicho, escolhe-se entre estes o que o nicho
+ * mais favorece — a função continua mandando, o nicho desempata.
+ */
+export const FN_ALTERNATIVAS: Record<string, string[]> = {
+  Descoberta: ["curiosidade", "trend", "pov", "mito_verdade"],
+  Atenção: ["curiosidade", "trend", "pov"],
+  Identificação: ["pov", "storytelling", "talking_head"],
+  Conscientização: ["analise", "mito_verdade", "talking_head"],
+  Educação: ["tutorial", "checklist", "tela_dividida"],
+  Autoridade: ["analise", "talking_head", "react", "tela_dividida"],
+  Prova: ["case", "antes_depois", "entrevista", "demonstracao"],
+  "Experiência Própria": ["bastidores", "vlog", "storytelling"],
+  "Experiência Compartilhada": ["entrevista", "case", "storytelling"],
+  "Quebra de Objeção": ["duplo_personagem", "resposta_comentario", "talking_head"],
+  Diferenciação: ["comparacao", "demonstracao", "bastidores"],
+  Consideração: ["comparacao", "checklist", "tour"],
+  Desejo: ["demonstracao", "tour", "provador", "antes_depois", "storytelling"],
+  Conversão: ["demonstracao", "tour", "live"],
+  Relacionamento: ["vlog", "bastidores", "resposta_comentario"],
+  Rapport: ["bastidores", "vlog", "pov"],
+};
+
+/** Formatos que só fazem sentido quando o perfil do nicho os recomenda. */
+const SO_SE_O_NICHO_PEDIR = new Set(["antes_depois", "provador", "tour", "trend", "live"]);
+
+/** Escolhe, entre os formatos da função, o que o nicho mais favorece. */
+function pickForNiche(funcao: string, niche?: NicheProfile): { key: string; porque?: string } | undefined {
+  const alts = FN_ALTERNATIVAS[funcao];
+  if (!alts || !niche) return undefined;
+  // Segue a ordem da função (não a do nicho) para manter variedade entre peças:
+  // primeiro carro-chefe/apoio do nicho, depois os pontuais.
+  const evitar = new Set(niche.evitar.map((e) => e.key).filter(Boolean));
+  const picks = new Map(niche.formatos.map((f) => [f.key, f]));
+  const pick =
+    alts.map((k) => picks.get(k)).find((f) => f && f.papel !== "Pontual") ??
+    alts.map((k) => picks.get(k)).find((f) => f && !evitar.has(f.key));
+  if (pick) return { key: pick.key, porque: pick.porque };
+  // Sem formato do nicho para esta função: o primeiro que não seja arriscado
+  // no nicho nem específico de outro nicho.
+  const livre = alts.find((k) => !evitar.has(k) && !SO_SE_O_NICHO_PEDIR.has(k));
+  return livre ? { key: livre } : undefined;
+}
 
 type Rec = Omit<FormatRecommendation, "justificativa" | "formato" | "objetivo">;
 
@@ -110,20 +163,27 @@ const PROD_WHY: Record<string, string> = {
 
 /**
  * Recomenda a combinação de formato para uma função estratégica + etapa de funil.
- * Se a ideia já sugere uma superfície, ela é respeitada.
+ * Se a ideia já sugere uma superfície, ela é respeitada. Com um perfil de
+ * nicho, o formato nomeado passa a ser o que o nicho favorece dentre os que
+ * servem à função (ver FN_ALTERNATIVAS).
  */
 export function recommendFormat(
   funcao: string,
   funil: FunnelStage,
   surfaceHint?: string,
+  niche?: NicheProfile,
 ): FormatRecommendation {
   const base = BY_FUNCTION[funcao] ?? BY_FUNNEL[funil];
   const superficie = surfaceHint || base.superficie;
   const fn = FN_FORMATO[funcao];
-  const def = fn ? FORMATO_BY_KEY.get(fn.key)! : FORMATO_BY_KEY.get("talking_head")!;
+  const nichePick = pickForNiche(funcao, niche);
+  const key = nichePick?.key ?? fn?.key ?? "talking_head";
+  const def = FORMATO_BY_KEY.get(key)!;
   const objetivo = fn ? fn.objetivo : `Servir à função ${funcao} no ${funil} de funil`;
+  const doNicho = nichePick?.porque ? ` No nicho ${niche!.nome}: ${nichePick.porque}` : "";
   const justificativa =
     `Formato "${def.nome}" para ${funcao} (${funil}): ${def.descricao} ` +
-    `Combina com ${base.estrutura} + ${base.narrativa} — ${PROD_WHY[base.producao]}, e ${superficie} entrega no ritmo certo desta etapa.`;
+    `Combina com ${base.estrutura} + ${base.narrativa} — ${PROD_WHY[base.producao]}, e ${superficie} entrega no ritmo certo desta etapa.` +
+    doNicho;
   return { formato: def.nome, objetivo, ...base, superficie, justificativa };
 }

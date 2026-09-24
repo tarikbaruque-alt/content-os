@@ -91,3 +91,20 @@ describe("Esqueleto estratégico — gatilhos, elementos, copy, propósito, Big 
     expect(r.libraries.elementos.length).toBe(ELEMENTOS.length);
   });
 });
+
+describe("Rascunho (sem IA) nunca se passa por texto final", () => {
+  it("peças determinísticas saem marcadas como rascunho, sem meta-texto interno na copy", async () => {
+    const { runPipeline } = await import("../../src/pipeline/run.js");
+    const { PIPELINE_CLIENTS } = await import("../../src/demo/pipeline-client.js");
+    const c = PIPELINE_CLIENTS[0]!;
+    const r = await runPipeline(c, c.briefing, c.source, { total: 4 });
+    for (const it of r.calendar.items) {
+      expect(it.content.origem).toBe("rascunho");
+      expect(it.carousel.origem).toBe("rascunho");
+      const texto = [it.content.copyVariants.curta, it.content.copyVariants.media, it.content.copyVariants.longa, ...(it.content.roteiro ?? []).map((s) => s.text)].join(" ");
+      expect(texto).not.toMatch(/ancorado no Content DNA|através de|sem inventar\)/);
+    }
+    expect(r.notion.every((p) => p.properties.Origem === "Rascunho (sem IA)" && p.bodyPreview.startsWith("⚠️ RASCUNHO"))).toBe(true);
+    expect(r.warnings.some((w) => w.includes("RASCUNHO"))).toBe(true);
+  });
+});
