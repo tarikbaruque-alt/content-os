@@ -1918,6 +1918,28 @@
     L.push("END:VCALENDAR");
     return L.map(icsFold).join("\r\n")+"\r\n";
   }
+  // Parte estratégica do documento do cliente: estratégia + linha editorial + como vamos trabalhar.
+  function planoClienteHtml(items,r){
+    var g=GENERATED||{},st=g.strategy,ed=g.editorial||[],h='';
+    if(st){
+      h+='<section><h2>Estratégia</h2>'+(st.posicionamento?'<p><b>Posicionamento:</b> '+esc(st.posicionamento)+'</p>':'')+(st.bigMessage?'<p class="big">“'+esc(st.bigMessage)+'”</p>':'')+
+        (st.persona?'<p><b>Para quem falamos:</b> '+esc(st.persona)+'</p>':'')+(st.percepcao?'<p><b>Como queremos ser percebidos:</b> '+esc(st.percepcao)+'</p>':'')+
+        ((st.mix||[]).length?'<p><b>Caminhos deste período:</b> '+st.mix.map(function(m){return esc(m.nome)+' ('+esc(String(m.pct))+'%)'}).join(' · ')+'</p>':'')+'</section>';
+    }
+    if(ed.length){
+      h+='<section><h2>Linha editorial</h2><p class="m">Os assuntos que vamos repetir com consistência — é isso que faz o público lembrar da marca.</p>'+ed.map(function(p){
+        return '<div class="pil"><b>'+esc(p.pilar||"")+'</b>'+(p.territorio?' <span class="m">— '+esc(p.territorio)+'</span>':'')+'<ul>'+(p.temas||[]).map(function(t){return '<li><b>'+esc(t.tema||"")+'</b>'+((t.subtemas||[]).length?': '+esc(t.subtemas.join(', ')):'')+((t.topicos||[]).length?'<br><span class="m">Ex.: '+esc(t.topicos.join(' · '))+'</span>':'')+'</li>'}).join('')+'</ul></div>';
+      }).join('')+'</section>';
+    }
+    var sf={},fu={topo:0,meio:0,fundo:0};items.forEach(function(it){var x=it.idea||{};sf[x.surface]=(sf[x.surface]||0)+1;if(fu[x.funil]!=null)fu[x.funil]++;});
+    var n=items.length||1,dias=(r.diasPost||[]).slice().sort().map(function(d){return DIAS_SEM_LONGO[d]}).join(', ');
+    h+='<section><h2>Como vamos trabalhar</h2><ul>'+
+      '<li><b>'+items.length+' conteúdos</b> neste período'+(dias?' — postagens em: '+esc(dias):'')+'</li>'+
+      '<li><b>Formatos:</b> '+Object.keys(sf).map(function(k){return esc(surfLbl(k))+' '+sf[k]}).join(' · ')+'</li>'+
+      '<li><b>Objetivo de cada conteúdo:</b> atrair gente nova '+Math.round(fu.topo*100/n)+'% · aquecer quem já segue '+Math.round(fu.meio*100/n)+'% · converter em clientes '+Math.round(fu.fundo*100/n)+'%</li>'+
+      '<li><b>Rotina:</b> '+esc(rotinaResumo(r))+'</li></ul></section>';
+    return h;
+  }
   function buildAgendaHtml(items,r,cliente){
     var A=agendaData(items,r),st=storyTimes(r),body='';
     A.keys.forEach(function(k){var D=A.days[k],d=parseD(k);
@@ -1933,7 +1955,7 @@
       body+='</section>';
     });
     var css='body{font:15px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1b1a22;background:#f6f5fb;margin:0;padding:24px 16px}main{max-width:720px;margin:0 auto}h1{font-size:22px;margin:0 0 4px}.sub{color:#666;font-size:13px;margin:0 0 18px}.rot{background:#fff;border:1px solid #e6e4ef;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:18px}section{background:#fff;border:1px solid #e6e4ef;border-radius:12px;padding:12px 14px;margin-bottom:12px;break-inside:avoid}h2{font-size:15px;margin:0 0 8px}h2 span{color:#888;font-weight:500}.row{display:flex;gap:12px;padding:8px 0;border-top:1px solid #f0eef6}.row:first-of-type{border-top:0}.t{min-width:46px;font-variant-numeric:tabular-nums;color:#5B45E6}.grav .t{color:#0E8C9B}.m{color:#777;font-size:12.5px}.st{color:#666;font-size:13px}details{margin-top:6px;font-size:13.5px}summary{cursor:pointer;color:#5B45E6}.copy{white-space:pre-wrap}ul,ol{margin:6px 0;padding-left:20px}@media print{body{background:#fff;padding:0}details{display:block}details>summary{list-style:none}section{border-color:#ccc}}';
-    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agenda de conteúdo — '+esc(cliente)+'</title><style>'+css+'</style></head><body><main><h1>Agenda de conteúdo — '+esc(cliente)+'</h1><p class="sub">O que gravar, quando postar e em que horário. Toque em “Roteiro”, “Legenda” e “Stories” para ver o conteúdo pronto. Para salvar em PDF: Imprimir → Salvar como PDF.</p><div class="rot"><b>Rotina:</b> '+esc(rotinaResumo(r))+'</div>'+body+'</main></body></html>';
+    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plano de conteúdo — '+esc(cliente)+'</title><style>'+css+'.big{font-size:17px;font-weight:700;color:#4634B6}.pil{margin:10px 0}.pil ul{margin:6px 0 0}h2.cal{font-size:18px;margin:26px 0 10px}</style></head><body><main><h1>Plano de conteúdo — '+esc(cliente)+'</h1><p class="sub">Estratégia, linha editorial e calendário: o que gravar, quando postar e em que horário. No calendário, toque em “Roteiro”, “Legenda” e “Stories” para ver o conteúdo pronto. Para salvar em PDF: Imprimir → Salvar como PDF.</p>'+planoClienteHtml(items,r)+'<h2 class="cal">Calendário</h2>'+body+'</main></body></html>';
   }
   function slugify(s){return (normalizeTextPanel(s)||"cliente").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"cliente";}
   function normalizeTextPanel(s){return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();}
@@ -1946,14 +1968,14 @@
       '<button class="preset calMode" data-mode="agenda" style="'+(state.calMode!=="lista"?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':'')+'">🗓 Rotina da semana</button>'+
       '<button class="preset calMode" data-mode="lista" style="'+(state.calMode==="lista"?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':'')+'">☰ Lista</button>'+
       '<span style="flex:1"></span><button class="btn" id="expIcs" title="Importa no Google Agenda ou no calendário do celular, com lembrete 30 min antes">📅 Baixar para a agenda do celular (.ics)</button>'+
-      '<button class="btn" id="expHtml" title="Arquivo para enviar ao cliente: abre no celular e pode ser salvo em PDF">📤 Agenda para o cliente</button><span id="expMsg" style="font-size:12px;color:var(--muted)"></span></div>';
+      '<button class="btn" id="expHtml" title="Arquivo para enviar ao cliente: estratégia, linha editorial e calendário — abre no celular e pode ser salvo em PDF">📤 Plano de conteúdo para o cliente</button><span id="expMsg" style="font-size:12px;color:var(--muted)"></span></div>';
   }
   function wireCalExtras(items){
     Array.prototype.forEach.call(document.querySelectorAll('.calMode'),function(b){b.addEventListener('click',function(){state.calMode=b.getAttribute('data-mode');renderCal();})});
     var cli=clientName(state.client),r=rotinaOf(state.client),slug=slugify(cli);
     function msg(ok,t){var m=I("#expMsg");if(m){m.textContent=ok?t:"Não consegui baixar agora";m.style.color=ok?"var(--good)":"var(--warn)";}}
     var a=I("#expIcs");if(a)a.addEventListener('click',function(){downloadText("agenda-"+slug+".ics",buildIcs(items,r,cli),"text/calendar",function(ok){msg(ok,"✓ Abra o arquivo no celular ou importe no Google Agenda");});});
-    var b=I("#expHtml");if(b)b.addEventListener('click',function(){downloadText("agenda-"+slug+".html",buildAgendaHtml(items,r,cli),"text/html",function(ok){msg(ok,"✓ Envie o arquivo ao cliente (WhatsApp/e-mail)");});});
+    var b=I("#expHtml");if(b)b.addEventListener('click',function(){downloadText("plano-de-conteudo-"+slug+".html",buildAgendaHtml(items,r,cli),"text/html",function(ok){msg(ok,"✓ Envie o arquivo ao cliente (WhatsApp/e-mail)");});});
     wireRotina();
   }
   function calListHtml(items){
