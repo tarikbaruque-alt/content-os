@@ -605,7 +605,7 @@
   function genCard(it,idx){
     var x=it.idea,c=it.content,stc=STCOL[it.status]||"badge";
     return '<div class="card content-card" data-gen="'+idx+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+stc+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
-      '<div class="cc-h">'+esc(c?c.headline:x.titulo)+'</div>'+(isRascunho(c)?'<div style="margin-top:6px">'+rascunhoBadge(c)+'</div>':'')+
+      '<div class="cc-h">'+esc(pecaTitulo(it))+'</div>'+(isRascunho(c)?'<div style="margin-top:6px">'+rascunhoBadge(c)+'</div>':'')+
       '<div class="cc-m">'+esc(x.surface)+' + '+esc(x.format)+' · '+esc((x.pilar||"").split(":")[0])+'</div>'+
       '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="badge">'+esc(x.funil)+'</span>'+(c?'<span class="pill emo-pill">♥ '+esc(c.emocao)+'</span>':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
   }
@@ -1339,13 +1339,15 @@
     if(!GENERATED){el.innerHTML=emptyView("Plano do Mês","Plano gerado não embutido nesta build. Rode: npm run pipeline (ou npx tsx src/demo/run-pipeline.ts).");return;}
     if(!GENERATED.strategy){el.innerHTML=emptyView("Plano do Mês","O plano do mês aparece aqui depois que este cliente tiver Content DNA e Estratégia. Comece pela aba Content DNA e siga os próximos passos do Dashboard.");return;}
     var g=GENERATED,s=g.strategy;
+    function uniq(a){return a.filter(function(x,i){return x&&a.indexOf(x)===i})}
+    var fx=s.funcoes||uniq([].concat.apply([],(s.paths||[]).map(function(p){return p.funcoes||[]}))),ex=s.emocoes||uniq([].concat.apply([],(s.paths||[]).map(function(p){return p.emocoes||[]}))),px=s.pilares||[];
     var h='<div class="section-head" style="margin-top:6px"><div><h3>Plano do Mês — '+esc(g.clientName)+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p>Gerado <b>ponta a ponta</b> pelo pipeline (Íris → Estratégia → Editorial → Ideias → Produção → Calendário → Notion), provider <b>'+esc(g.provider)+'</b>. Prosa final publicável depende do Anthropic.</p></div></div>';
     // Estratégia
     h+='<div class="grid cols-2"><div class="card pad"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:6px">Posicionamento</div><div style="font-size:13.5px">'+esc(s.posicionamento)+'</div></div>'+
       '<div class="card pad" style="background:var(--brand-weak);border-color:transparent"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--brand-ink);margin-bottom:6px">Big Message</div><div style="font-size:14px;font-family:var(--font-display);font-weight:700;color:var(--brand-ink)">'+esc(s.bigMessage)+'</div></div></div>';
-    h+='<div class="card pad" style="margin-top:16px"><div class="metagrid"><div style="grid-column:1/-1"><div class="mk">Funções estratégicas ('+s.funcoes.length+')</div><div class="mv chips" style="margin-top:5px">'+s.funcoes.map(function(f){return chip(f,"pill st-INSIGHT")}).join('')+'</div></div>'+
-      '<div><div class="mk">Pilares</div><div class="mv chips" style="margin-top:5px">'+s.pilares.map(function(p){return chip(p.split(":")[0],"badge")}).join('')+'</div></div>'+
-      '<div><div class="mk">Emoções-alvo</div><div class="mv chips" style="margin-top:5px">'+s.emocoes.map(function(e){return chip("♥ "+e,"pill emo-pill")}).join('')+'</div></div>'+
+    h+='<div class="card pad" style="margin-top:16px"><div class="metagrid"><div style="grid-column:1/-1"><div class="mk">Funções estratégicas ('+fx.length+')</div><div class="mv chips" style="margin-top:5px">'+fx.map(function(f){return chip(f,"pill st-INSIGHT")}).join('')+'</div></div>'+
+      '<div><div class="mk">Pilares</div><div class="mv chips" style="margin-top:5px">'+px.map(function(p){return chip(String(p).split(":")[0],"badge")}).join('')+'</div></div>'+
+      '<div><div class="mk">Emoções-alvo</div><div class="mv chips" style="margin-top:5px">'+ex.map(function(e){return chip("♥ "+e,"pill emo-pill")}).join('')+'</div></div>'+
       '<div style="grid-column:1/-1"><div class="mk">Percepção a construir</div><div class="mv">'+esc(s.percepcao)+'</div></div></div></div>';
     if(s.mix){h+='<div class="card pad" style="margin-top:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Mix estratégico recomendado (Átlas)</div><div class="stack">'+s.mix.map(function(m,i){return '<div class="seg" style="flex:'+m.pct+' 1 0;background:'+avc(i)+'">'+m.pct+'%</div>'}).join('')+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">'+s.mix.map(function(m,i){return '<span class="badge"><span style="width:8px;height:8px;border-radius:50%;background:'+avc(i)+';display:inline-block"></span>&nbsp;'+m.pct+'% '+esc(m.nome)+'</span>'}).join('')+'</div><div style="font-size:11.5px;color:var(--faint);margin-top:9px">Combine e ajuste os caminhos na aba <b>Estratégia</b>.</div></div>';}
     // Ideias
@@ -1353,7 +1355,7 @@
     h+='<div class="grid cols-2">'+g.ideas.map(function(i){return '<div class="card pad" style="padding:13px 15px"><div style="font-size:13px;font-weight:600">'+esc(i.titulo)+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+chip(i.funil,"badge")+chip(i.funcao,"pill st-INSIGHT")+chip("♥ "+i.emocao,"pill emo-pill")+chip(i.surface+" + "+i.format,"badge")+'</div></div>'}).join('')+'</div>';
     // Calendário
     h+='<div class="section-head"><div><h3>Calendário do mês — '+g.calendar.items.length+' conteúdos</h3><p>Mix: topo '+g.calendar.mix.topo+' · meio '+g.calendar.mix.meio+' · fundo '+g.calendar.mix.fundo+'. Clique para abrir roteiro/copy + payload do Notion.</p></div></div>';
-    h+='<div class="clist">'+g.calendar.items.map(function(it,idx){return '<div class="card content-card" data-gen="'+idx+'"><div class="cc-h">'+esc(it.content.headline)+'</div>'+rascunhoBadge(it.content)+'<div class="cc-m">'+esc(it.data)+' · '+esc(it.idea.surface)+' + '+esc(it.idea.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[it.status]||"badge")+'">'+it.status+'</span><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="pill emo-pill">♥ '+esc(it.content.emocao)+'</span></div></div>'}).join('')+'</div>';
+    h+='<div class="clist">'+g.calendar.items.map(function(it,idx){return '<div class="card content-card" data-gen="'+idx+'"><div class="cc-h">'+esc(pecaTitulo(it))+'</div>'+rascunhoBadge(it.content)+'<div class="cc-m">'+esc(quando(it))+' · '+esc(it.idea.surface)+' + '+esc(it.idea.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[it.status]||"badge")+'">'+it.status+'</span><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="pill emo-pill">♥ '+esc((it.content||it.carousel||it.stories||it.idea).emocao||it.idea.emocao||"—")+'</span></div></div>'}).join('')+'</div>';
     el.innerHTML=h;
     Array.prototype.forEach.call(el.querySelectorAll('[data-gen]'),function(c){c.addEventListener('click',function(){openGenerated(+c.getAttribute('data-gen'))})});
   }
@@ -1712,6 +1714,8 @@
   function quando(it){return isIsoDate(it.data)?dataBR(it.data)+" · "+itemHora(it):(it.data||"");}
   // Gravação em lote: o último "dia de gravação" ANTES da data de publicação (se já passou, hoje).
   function recDate(it,r){if(!isIsoDate(it.data))return "";var d=parseD(it.data);d.setDate(d.getDate()-1);for(var k=0;k<7&&d.getDay()!==+r.gravDia;k++)d.setDate(d.getDate()-1);var g=fmtD(d),hoje=fmtD(new Date());return g<hoje&&hoje<it.data?hoje:g;}
+  function pecaTitulo(it){return it.content?it.content.headline:it.carousel?it.carousel.capaHeadline:it.idea.titulo;}
+  function pecaPronta(it){return !!(it.content||it.carousel||(it.stories&&it.stories.stories&&it.stories.stories.length));}
   function acaoProducao(s){return s==="Carrossel"||s==="Imagem"?"produzir a arte":"gravar";}
   function agendaData(items,r){
     var days={};
@@ -1752,9 +1756,9 @@
       var d=parseD(k),mon=new Date(d.getTime());mon.setDate(d.getDate()-((d.getDay()+6)%7));var wk=fmtD(mon);
       if(wk!==lastWeek){if(lastWeek)h+='</div>';h+='<div class="bt" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin:18px 0 8px">Semana de '+("0"+mon.getDate()).slice(-2)+'/'+("0"+(mon.getMonth()+1)).slice(-2)+'</div><div class="grid" style="gap:10px">';lastWeek=wk;}
       var D=A.days[k],rows='';
-      if(D.grav.length)rows+='<div class="ag-row ag-grav"><span class="ag-t">'+padT(r.gravHora)+'</span><div><b>🎥 Dia de gravação e produção</b> — '+D.grav.length+' peça'+(D.grav.length>1?'s':'')+' da semana<div class="ag-sub">'+D.grav.map(function(g){return '<a data-gen="'+g.idx+'">'+surfIc(g.it.idea.surface)+' '+esc(acaoProducao(g.it.idea.surface))+': '+esc(g.it.content?g.it.content.headline:g.it.idea.titulo)+' <span style="color:var(--faint)">(vai ao ar '+esc(dataBR(g.it.data))+')</span></a>'}).join('')+'</div></div></div>';
+      if(D.grav.length)rows+='<div class="ag-row ag-grav"><span class="ag-t">'+padT(r.gravHora)+'</span><div><b>🎥 Dia de gravação e produção</b> — '+D.grav.length+' peça'+(D.grav.length>1?'s':'')+' da semana<div class="ag-sub">'+D.grav.map(function(g){return '<a data-gen="'+g.idx+'">'+surfIc(g.it.idea.surface)+' '+esc(acaoProducao(g.it.idea.surface))+': '+esc(pecaTitulo(g.it))+' <span style="color:var(--faint)">(vai ao ar '+esc(dataBR(g.it.data))+')</span></a>'}).join('')+'</div></div></div>';
       D.pub.forEach(function(p){var x=p.it.idea,c=p.it.content,s=p.it.stories;
-        rows+='<div class="ag-row" data-gen="'+p.idx+'"><span class="ag-t">'+p.t+'</span><div><b>'+surfIc(x.surface)+' '+esc(surfLbl(x.surface))+'</b> · '+esc(c?c.headline:x.titulo)+'<div class="ag-sub">'+esc(x.format)+' · '+esc(x.funcao)+' · '+esc(x.funil)+(c?'':' · <span class="badge prog">ainda não produzido</span>')+'</div>'+
+        rows+='<div class="ag-row" data-gen="'+p.idx+'"><span class="ag-t">'+p.t+'</span><div><b>'+surfIc(x.surface)+' '+esc(surfLbl(x.surface))+'</b> · '+esc(pecaTitulo(p.it))+'<div class="ag-sub">'+esc(x.format)+' · '+esc(x.funcao)+' · '+esc(x.funil)+(pecaPronta(p.it)?'':' · <span class="badge prog">ainda não produzido</span>')+'</div>'+
           (s&&s.stories&&s.stories.length?'<div class="ag-sub">📱 Stories de apoio ('+s.stories.length+' telas) — '+esc(st.filter(function(t){return t>=p.t})[0]||st[st.length-1]||"")+'</div>':'')+'</div></div>';});
       if(D.pub.length&&st.length)rows+='<div class="ag-row ag-st"><span class="ag-t">📱</span><div class="ag-sub" style="margin:0">Stories do dia: '+st.join(' · ')+'</div></div>';
       h+='<div class="card pad ag-day"><div class="ag-d">'+esc(DIAS_SEM_LONGO[d.getDay()])+' <span>'+("0"+d.getDate()).slice(-2)+'/'+("0"+(d.getMonth()+1)).slice(-2)+'</span></div>'+rows+'</div>';
@@ -1769,12 +1773,13 @@
     var A=agendaData(items,r),stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Content OS//Agenda//PT-BR","CALSCALE:GREGORIAN","X-WR-CALNAME:"+icsEsc("Conteúdo — "+cliente)];
     function ev(uid,date,t,min,sum,desc){L.push("BEGIN:VEVENT","UID:"+uid+"@content-os","DTSTAMP:"+stamp,"DTSTART:"+icsDt(date,t,0),"DTEND:"+icsDt(date,t,min),"SUMMARY:"+icsEsc(sum),"DESCRIPTION:"+icsEsc(desc),"BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(sum),"TRIGGER:-PT30M","END:VALARM","END:VEVENT");}
     A.keys.forEach(function(k){var D=A.days[k];
-      if(D.grav.length)ev("grav-"+k,k,r.gravHora,(+r.gravDur||3)*60,"🎥 Gravação/produção — "+D.grav.length+" peça(s)",D.grav.map(function(g){return "• "+surfLbl(g.it.idea.surface)+" ("+acaoProducao(g.it.idea.surface)+"): "+(g.it.content?g.it.content.headline:g.it.idea.titulo)+" — vai ao ar "+dataBR(g.it.data)}).join("\n"));
+      if(D.grav.length)ev("grav-"+k,k,r.gravHora,(+r.gravDur||3)*60,"🎥 Gravação/produção — "+D.grav.length+" peça(s)",D.grav.map(function(g){return "• "+surfLbl(g.it.idea.surface)+" ("+acaoProducao(g.it.idea.surface)+"): "+pecaTitulo(g.it)+" — vai ao ar "+dataBR(g.it.data)}).join("\n"));
       D.pub.forEach(function(p){var x=p.it.idea,c=p.it.content,desc=[x.format+" · "+x.funcao+" · "+x.funil];
         if(c&&c.roteiro&&c.roteiro.length)desc.push("Roteiro:\n"+c.roteiro.map(function(s){return "- "+s.label+": "+s.text}).join("\n"));
         if(c&&c.copy)desc.push("Legenda:\n"+c.copy);
         if(c&&c.cta)desc.push("CTA: "+c.cta);
-        ev("pub-"+(p.it.id||p.idx)+"-"+k,k,p.t,30,surfIc(x.surface)+" Postar "+surfLbl(x.surface)+": "+(c?c.headline:x.titulo),desc.join("\n\n"));});
+        var cr=p.it.carousel;if(cr&&cr.slides&&cr.slides.length)desc.push("Slides:\n"+cr.slides.map(function(q,i){return (i+1)+". "+q.titulo+(q.texto?" — "+q.texto:"")}).join("\n")+(cr.copy?"\n\nLegenda:\n"+cr.copy:""));
+        ev("pub-"+(p.it.id||p.idx)+"-"+k,k,p.t,30,surfIc(x.surface)+" Postar "+surfLbl(x.surface)+": "+pecaTitulo(p.it),desc.join("\n\n"));});
     });
     L.push("END:VCALENDAR");
     return L.map(icsFold).join("\r\n")+"\r\n";
@@ -1783,11 +1788,12 @@
     var A=agendaData(items,r),st=storyTimes(r),body='';
     A.keys.forEach(function(k){var D=A.days[k],d=parseD(k);
       body+='<section><h2>'+esc(DIAS_SEM_LONGO[d.getDay()])+' <span>'+esc(k.split("-").reverse().join("/"))+'</span></h2>';
-      if(D.grav.length)body+='<div class="row grav"><b class="t">'+padT(r.gravHora)+'</b><div><b>🎥 Gravação e produção</b><ul>'+D.grav.map(function(g){return '<li>'+esc(surfLbl(g.it.idea.surface))+' ('+esc(acaoProducao(g.it.idea.surface))+'): '+esc(g.it.content?g.it.content.headline:g.it.idea.titulo)+' — vai ao ar '+esc(dataBR(g.it.data))+'</li>'}).join('')+'</ul></div></div>';
+      if(D.grav.length)body+='<div class="row grav"><b class="t">'+padT(r.gravHora)+'</b><div><b>🎥 Gravação e produção</b><ul>'+D.grav.map(function(g){return '<li>'+esc(surfLbl(g.it.idea.surface))+' ('+esc(acaoProducao(g.it.idea.surface))+'): '+esc(pecaTitulo(g.it))+' — vai ao ar '+esc(dataBR(g.it.data))+'</li>'}).join('')+'</ul></div></div>';
       D.pub.forEach(function(p){var x=p.it.idea,c=p.it.content,s=p.it.stories;
-        body+='<div class="row"><b class="t">'+p.t+'</b><div><b>'+surfIc(x.surface)+' '+esc(surfLbl(x.surface))+'</b> — '+esc(c?c.headline:x.titulo)+'<div class="m">'+esc(x.format)+' · '+esc(x.funcao)+'</div>'+
+        body+='<div class="row"><b class="t">'+p.t+'</b><div><b>'+surfIc(x.surface)+' '+esc(surfLbl(x.surface))+'</b> — '+esc(pecaTitulo(p.it))+'<div class="m">'+esc(x.format)+' · '+esc(x.funcao)+'</div>'+
           (c&&c.roteiro&&c.roteiro.length?'<details><summary>Roteiro</summary><ol>'+c.roteiro.map(function(q){return '<li><b>'+esc(q.label)+':</b> '+esc(q.text)+'</li>'}).join('')+'</ol></details>':'')+
           (c&&c.copy?'<details><summary>Legenda</summary><p class="copy">'+esc(c.copy)+'</p></details>':'')+
+          (p.it.carousel&&p.it.carousel.slides&&p.it.carousel.slides.length?'<details><summary>Slides do carrossel ('+p.it.carousel.slides.length+')</summary><ol>'+p.it.carousel.slides.map(function(q){return '<li><b>'+esc(q.titulo)+'</b>'+(q.texto?' — '+esc(q.texto):'')+'</li>'}).join('')+'</ol>'+(p.it.carousel.copy?'<p class="copy"><b>Legenda:</b> '+esc(p.it.carousel.copy)+'</p>':'')+'</details>':'')+
           (s&&s.stories&&s.stories.length?'<details><summary>Stories de apoio ('+s.stories.length+' telas)</summary><ol>'+s.stories.map(function(q){return '<li>'+esc(q.fala)+(q.interacao?' <i>('+esc(q.interacao)+')</i>':'')+'</li>'}).join('')+'</ol></details>':'')+'</div></div>';});
       if(D.pub.length&&st.length)body+='<div class="row st"><b class="t">📱</b><div>Stories do dia: '+esc(st.join(' · '))+'</div></div>';
       body+='</section>';
@@ -1819,7 +1825,7 @@
   function calListHtml(items){
     var col={Reel:"#5B45E6",Carrossel:"#2E6FB7",Stories:"#0E8C9B"};
     return '<div class="clist">'+items.map(function(it,idx){
-      var bc=col[it.idea.surface]||"#575663",headline=it.content?it.content.headline:it.idea.titulo,produced=!!it.content;
+      var bc=col[it.idea.surface]||"#575663",headline=pecaTitulo(it),produced=pecaPronta(it);
       return '<div class="card content-card" data-gen="'+idx+'" style="border-left:3px solid '+bc+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+(STCOL[it.status]||"badge")+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
         '<div class="cc-h">'+esc(headline)+'</div>'+(isRascunho(it.content)?'<div style="margin-top:6px">'+rascunhoBadge(it.content)+'</div>':'')+'<div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
         '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="badge">'+esc(it.idea.funil)+'</span>'+(produced?'':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
