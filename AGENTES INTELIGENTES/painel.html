@@ -1,4 +1,4 @@
-<title>Content OS</title>
+<title>Content OS - Painel administrativo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
@@ -351,8 +351,6 @@
         <div class="grid cols-4" style="margin-top:16px" id="kpis"></div>
         <div class="section-head"><div><h3>Próximas publicações</h3><p>Clique para abrir o contexto estratégico completo.</p></div><a class="badge" data-goto="calendar" style="cursor:pointer">Calendário →</a></div>
         <div class="clist" id="ovContent"></div>
-        <div class="section-head"><div><h3>Atividade recente</h3></div></div>
-        <div class="card" id="activity"></div>
       </section>
 
       <section class="view" data-view="clients" hidden>
@@ -7760,10 +7758,7 @@
     if(genOn()){I("#ovContent").innerHTML=GENERATED.calendar.items.slice(0,4).map(genCard).join('');wireGen('#ovContent [data-gen]');return;}
     I("#ovContent").innerHTML=CONTENT.slice(0,4).map(contentCard).join('');wireContent('#ovContent [data-content]');
   }
-  function renderActivity(){
-    var rows=[["Íris","estruturou o Content DNA de Dra. Marina","13 registros","agora"],["Íris","estruturou o Content DNA de Rafa Nutri","6 registros","há 2 min"],["Acervo","indexou 6 pilares da Knowledge Base","Instagram-first","há 5 min"]];
-    I("#activity").innerHTML=rows.map(function(r,i){return '<div style="display:flex;gap:12px;align-items:center;padding:13px 16px;'+(i<rows.length-1?'border-bottom:1px solid var(--line-2)':'')+'"><div style="width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:13px;background:'+avc(r[0]==="Acervo"?8:0)+'">'+r[0].charAt(0)+'</div><div><div style="font-size:13px"><b>'+r[0]+'</b> '+esc(r[1])+'</div><div style="font-size:11.5px;color:var(--faint)">'+esc(r[2])+'</div></div><div style="margin-left:auto;font-size:11.5px;color:var(--faint)">'+r[3]+'</div></div>'}).join('')
-  }
+
   function renderClients(){
     var cards=CLIENTS.map(function(c){var g=(GENERATED_ALL||{})[c.id]||DB_STATE_CACHE[c.id];
       var n=g&&g.dna?g.dna.length:(DNA[c.id]||[]).length,ct=g&&g.calendar?g.calendar.items.length:CONTENT.filter(function(x){return x.client===c.id}).length;
@@ -9336,7 +9331,7 @@
     I("#theme").addEventListener('click',function(){var cur=root.getAttribute('data-theme');var dark=cur?cur==="dark":window.matchMedia('(prefers-color-scheme: dark)').matches;var nx=dark?"light":"dark";root.setAttribute('data-theme',nx);try{localStorage.setItem('cos-theme',nx)}catch(e){}})}
 
   DNA["aurora"]=irisToDnaEntries(irisExtract(AURORA_BRIEFING,AURORA_SRC)); // Íris estrutura o cliente novo no load
-  buildNav();renderPipe();renderKpis();renderOverviewContent();renderActivity();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
+  buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});
   I("#newClientBtn").addEventListener('click',openNewClientModal);
