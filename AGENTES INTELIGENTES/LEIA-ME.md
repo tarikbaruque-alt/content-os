@@ -4,9 +4,12 @@ Bem-vindo. Aqui está o acesso rápido ao seu painel e às integrações.
 
 ## 🖥️ Abrir o painel
 
-- **Online (recomendado):** clique em **`Painel Content OS.url`** (abre no navegador)
-  ou acesse: https://claude.ai/artifact/KtsKVcyzXyNUoxDTbcG6xk
-- **Offline (no seu PC):** dê duplo clique em **`painel.html`** (nesta mesma pasta).
+- **Versão mais atual (recomendado agora):** dê duplo clique em **`painel.html`**
+  (nesta mesma pasta) — já tem a aba **Formatos**, a **Ficha do cliente** e o
+  **Backup**. Tudo que você digitar fica salvo neste navegador.
+- **Online (IA ao vivo):** **`Painel Content OS.url`** ou
+  https://claude.ai/artifact/KtsKVcyzXyNUoxDTbcG6xk — ⚠️ ainda na versão
+  anterior (sem Formatos/Ficha) até ser republicado.
 
 No painel: **Plano do Mês** / **Calendário** → clique num conteúdo para ver o
 esqueleto estratégico completo + 🎠 Carrossel + 📱 Sequência de Stories.
