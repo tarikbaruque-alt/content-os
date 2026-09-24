@@ -262,6 +262,9 @@
   .skelchain .sc.hot{background:var(--emo-bg);border-color:transparent;color:var(--emo)} .skelchain .sc.hot b{color:var(--emo)}
   .skelchain .sca{color:var(--faint);font-size:11px}
 
+  .capbox{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;padding:12px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);margin-bottom:14px}
+  .plrow{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.pllbl{flex:0 0 150px;font-size:12px;font-weight:600;color:var(--muted)}
+  .pchip.use{border-color:transparent;background:var(--fact-bg)}.pchip.use b{color:var(--good)}.pchip.ban{border-color:transparent;background:var(--emo-bg)}.pchip.ban b{color:var(--emo);text-decoration:line-through}
   .ag-day{padding:12px 14px}.ag-d{font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:6px}.ag-d span{color:var(--faint);font-weight:500}
   .ag-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);font-size:13px;cursor:pointer}.ag-d+.ag-row{border-top:0}
   .ag-t{flex:0 0 46px;font-family:var(--font-mono);font-size:12.5px;color:var(--brand-ink);font-weight:600;padding-top:1px}.ag-grav{cursor:default}.ag-grav .ag-t{color:#0E8C9B}.ag-st{cursor:default}
@@ -985,7 +988,8 @@
     }).join('');
   }
   function buildEditorialPrompt(name,strategy){
-    return ['Você é Bússola, o agente de Linha Editorial do Content OS. A partir dos pilares estratégicos abaixo, construa a árvore editorial: Pilar → Território → Temas → Subtemas → Tópicos.',
+    var ppw=state.client?diasPostOf().length:3,cp=capacidadePrompt();
+    return [cp?cp+'\nCom '+ppw+' postagens por semana, priorize '+(ppw<=2?'2 a 3':ppw<=4?'3 a 4':'4 a 5')+' pilares realmente ativos — frequência baixa pede poucas frentes, repetidas com consistência.\n':'','Você é Bússola, o agente de Linha Editorial do Content OS. A partir dos pilares estratégicos abaixo, construa a árvore editorial: Pilar → Território → Temas → Subtemas → Tópicos.',
       '', 'REGRA: nada genérico — ancore tudo no negócio real do cliente (persona, Big Message, pilares).',
       '', 'Cliente: '+name,
       'Pilares estratégicos: '+((strategy&&strategy.pilares)||[]).join(' | '),
@@ -1042,32 +1046,38 @@
   function refsCompact(){
     return (GENERATED.refs||[]).map(function(r){return '- ['+r.tipo+'] '+r.nome+(r.descricao?': '+r.descricao:'')}).join('\n');
   }
-  function buildIdeasPrompt(name,strategy,editorial,dnaText){
+  function buildIdeasPrompt(name,strategy,editorial,dnaText,opts){
+    opts=opts||{};var qtd=opts.count||15,ja=opts.existentes||[];
     var pilares=((strategy&&strategy.pilares)||[]).join(' | ');
     var temas=[];(editorial||[]).forEach(function(p){(p.temas||[]).forEach(function(t){temas.push(t.tema)})});
     var formatos=(LIB.formatos||[]).map(function(f){return f.nome}).join(', ');
     var refs=refsCompact();
-    return ['Você é Musa, o agente de Ideias do Content OS. Gere 15 ideias de conteúdo REAIS para este cliente, cada uma ancorada no Content DNA e na estratégia — nunca genéricas, nunca intercambiáveis entre marcas.',
+    return ['Você é Musa, o agente de Ideias do Content OS. Gere '+qtd+' ideias de conteúdo REAIS para este cliente, cada uma ancorada no Content DNA e na estratégia — nunca genéricas, nunca intercambiáveis entre marcas.',
       '', 'Cliente: '+name, 'CONTENT DNA:', dnaText,
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
       refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
       'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), '',
+      'Gatilhos mentais disponíveis: '+(LIB.gatilhos||[]).map(function(g){return g.nome}).join(', '),
+      'Elementos literários disponíveis: '+(LIB.elementos||[]).map(function(e){return e.nome}).join(', '),
+      prefsPrompt(), capacidadePrompt(),
+      opts.soSemGravacao?'IMPORTANTE: TODAS estas ideias devem ser em formato que NÃO exige o cliente gravar — escolha só formatos de Carrossel da lista (ex.: Checklist, Passo a Passo, Comparação, Case).':'',
+      ja.length?('Estas ideias JÁ EXISTEM no calendário — NÃO repita, NÃO faça variações delas, traga ângulos novos:\n- '+ja.slice(0,80).join('\n- ')):'', '',
       'Distribua pelo funil: ~45% topo, ~35% meio, ~20% fundo. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
       'Cada ideia precisa de: título, conceito (1 frase), ângulo, dor/desejo específico usado, função/objetivo, propósito (1 frase: de onde a persona sai e pra onde vai), emoção-alvo, hook (frase de abertura real), CTA, formato escolhido + objetivo do formato + por que esse formato, e justificativa (por que não serve pra outra marca).',
-      '', 'Responda SOMENTE com JSON: {"ideas":[{"titulo":string,"conceito":string,"angulo":string,"dorDesejo":string,"funcao":string,"funil":"topo"|"meio"|"fundo","jornada":string,"emocao":string,"pilar":string,"tema":string,"proposito":string,"formato":string,"formatoObjetivo":string,"formatoJustificativa":string,"hook":string,"cta":string,"justificativa":string}]}',
+      '', 'Responda SOMENTE com JSON: {"ideas":[{"titulo":string,"conceito":string,"angulo":string,"dorDesejo":string,"funcao":string,"funil":"topo"|"meio"|"fundo","jornada":string,"emocao":string,"pilar":string,"tema":string,"proposito":string,"formato":string,"formatoObjetivo":string,"formatoJustificativa":string,"hook":string,"cta":string,"justificativa":string,"gatilhos":[string],"elementos":[string]}]}',
+      'Em "gatilhos" escolha 2-3 nomes da lista de gatilhos e em "elementos" 1-2 nomes da lista de elementos — exatamente como escritos, respeitando as escolhas do estrategista.',
     ].filter(Boolean).join('\n');
   }
-  async function runGerarIdeias(){
-    var id=state.client;if(!CAP.sample){noAi();return;}
-    var btn=I("#genIdeasBtn");if(btn)btn.disabled=true;
-    var msg=I("#ideasMsg");setBusy(msg,"Pensando…");
-    try{
-      var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact()),{modelTier:"complex",cache:false});
-      var raw=Array.isArray(out.ideas)?out.ideas:[];
-      var strat=GENERATED.strategy||{};
-      var ideas=raw.map(function(x,i){
-        return {id:"idea-"+(i+1),ord:i,titulo:String(x.titulo||""),conceito:String(x.conceito||""),angulo:String(x.angulo||""),
+  // Gera ideias. append=true acrescenta às existentes (sem repetir) — usado por "Gerar mais" e pelo calendário de 45/60/90 dias.
+  async function gerarIdeiasCore(id,append,count,soSemGravacao){
+    var atuais=append?((GENERATED.ideas||[]).slice()):[];
+    var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact(),{count:count||15,soSemGravacao:!!soSemGravacao,existentes:atuais.map(function(x){return x.titulo})}),{modelTier:"complex",cache:false});
+    var raw=Array.isArray(out.ideas)?out.ideas:[];
+    var strat=GENERATED.strategy||{},pf=prefsOf(id),base=atuais.reduce(function(m,x){var n=+(String(x.id||"").split("-")[1])||0;return Math.max(m,n,(x.ord||0)+1)},0);
+    function okNomes(lib,arr,ban){var ks=keysByNome(lib,arr).filter(function(k){return ban.indexOf(k)<0});return (lib||[]).filter(function(x){return ks.indexOf(x.key)>=0}).map(function(x){return x.nome});}
+    var novas=raw.map(function(x,j){var i=base+j;
+        return {id:"idea-"+(i+1),ord:i,gatilhos:okNomes(LIB.gatilhos,x.gatilhos,pf.gEvitar),elementos:okNomes(LIB.elementos,x.elementos,pf.eEvitar),titulo:String(x.titulo||""),conceito:String(x.conceito||""),angulo:String(x.angulo||""),
           persona:strat.persona||"",dorDesejo:String(x.dorDesejo||""),objetivo:String(x.funcao||""),proposito:String(x.proposito||""),
           bigMessage:strat.bigMessage||"",funcao:String(x.funcao||""),funil:["topo","meio","fundo"].indexOf(x.funil)>=0?x.funil:"topo",
           jornada:String(x.jornada||""),emocao:String(x.emocao||""),percepcao:strat.percepcao||"",
@@ -1076,11 +1086,21 @@
           formatRec:{formato:String(x.formato||""),objetivo:String(x.formatoObjetivo||""),justificativa:String(x.formatoJustificativa||"")},
           hook:String(x.hook||""),cta:String(x.cta||""),justificativa:String(x.justificativa||"")};
       });
-      var col=dbItemsCol("cos_ideas",id);
-      await clearCollection(col);
-      await Promise.all(ideas.map(function(idea){return col.doc(idea.id).set(idea);}));
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].ideas=ideas;
-      if(state.client===id){GENERATED.ideas=ideas;renderIdeas();}
+    var col=dbItemsCol("cos_ideas",id);
+    if(!append)await clearCollection(col);
+    await Promise.all(novas.map(function(idea){return col.doc(idea.id).set(idea);}));
+    var ideas=atuais.concat(novas);
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].ideas=ideas;
+    if(state.client===id)GENERATED.ideas=ideas;
+    return novas.length;
+  }
+  async function runGerarIdeias(ev,append){
+    var id=state.client;if(!CAP.sample){noAi();return;}
+    var btn=I(append?"#moreIdeasBtn":"#genIdeasBtn");if(btn)btn.disabled=true;
+    var msg=I("#ideasMsg");setBusy(msg,append?"Criando mais 15 ideias, sem repetir as atuais…":"Pensando…");
+    try{
+      await gerarIdeiasCore(id,!!append,15);
+      if(state.client===id)renderIdeas();
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
@@ -1091,12 +1111,13 @@
     if(GENERATED&&GENERATED.ideas&&GENERATED.ideas.length){
       var g=GENERATED,gi=g.ideas||[];
       el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+clientName(state.client)+'</h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona + performance, com formato recomendado por objetivo. Não é uma lista de "30 ideias".</p></div></div>'+
-        (isDbClient(state.client)?'<div style="margin:-6px 0 14px"><button class="btn" id="genIdeasBtn">↻ Gerar de novo</button><span id="ideasMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>':'')+
+        (isDbClient(state.client)?prefsCardHtml()+'<div style="margin:-6px 0 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="badge">'+gi.length+' ideias</span><button class="btn pri" id="moreIdeasBtn">＋ Gerar mais 15 ideias</button><button class="btn" id="genIdeasBtn" title="Apaga as atuais e gera outras">↻ Gerar do zero</button><span id="ideasMsg" style="font-size:12px;color:var(--muted)"></span></div>':'')+
         '<div class="clist">'+gi.map(function(x){
           var fr=x.formatRec||{};
           return '<div class="card pad"><div style="font-family:var(--font-display);font-weight:700;font-size:14.5px;line-height:1.25">'+esc(x.titulo)+'</div>'+
             '<div style="font-size:12.5px;color:var(--muted);margin-top:5px">'+esc(x.conceito)+'</div>'+
             '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:11px"><span class="badge">'+esc(fr.formato||x.format||'')+'</span><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="pill emo-pill">♥ '+esc(x.emocao)+'</span><span class="badge">'+esc(x.jornada)+'</span><span class="badge">'+esc(x.surface||'')+'</span></div>'+
+            ((x.gatilhos&&x.gatilhos.length)||(x.elementos&&x.elementos.length)?'<div style="margin-top:9px;font-size:11.5px;color:var(--muted)"><b style="color:var(--ink)">Gatilhos:</b> '+esc((x.gatilhos||[]).join(', ')||'—')+' · <b style="color:var(--ink)">Elementos:</b> '+esc((x.elementos||[]).join(', ')||'—')+'</div>':'')+
             (fr.objetivo?'<div style="margin-top:10px;font-size:12px;color:var(--muted)"><b style="color:var(--ink)">Objetivo do formato:</b> '+esc(fr.objetivo)+'</div>':'')+
             '<div style="margin-top:12px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--brand-ink);font-weight:600">HOOK</span> · '+esc(x.hook)+'</div>'+
             '<div style="margin-top:6px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--faint);font-weight:600">CTA</span> · '+esc(x.cta)+'</div>'+
@@ -1105,14 +1126,16 @@
             (x.justificativa?'<div style="margin-top:6px;font-size:12px;color:var(--muted)"><b style="color:var(--ink)">Por que esta ideia:</b> '+esc(x.justificativa)+'</div>':'')+
             '</div>';
         }).join('')+'</div>';
-      var gb=I("#genIdeasBtn");if(gb)gb.addEventListener('click',runGerarIdeias);
+      var gb=I("#genIdeasBtn");if(gb)gb.addEventListener('click',function(){if(confirm("Apagar as ideias atuais e gerar outras do zero?"))runGerarIdeias(null,false);});
+      var mb=I("#moreIdeasBtn");if(mb)mb.addEventListener('click',function(){runGerarIdeias(null,true);});
+      wirePrefs();
       return;
     }
     if(isDbClient(state.client)){
       var hasEd=GENERATED&&GENERATED.editorial&&GENERATED.editorial.length;
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+esc(clientName(state.client))+'</h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona, com formato recomendado por objetivo.</p></div></div>'+
+      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+esc(clientName(state.client))+'</h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona, com formato recomendado por objetivo.</p></div></div>'+prefsCardHtml()+
         '<div class="card empty-hero"><div class="eh-ic">✦</div>'+(hasEd?'<button class="btn pri genbtn" id="genIdeasBtn">✦ Gerar Ideias</button><span id="ideasMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>':'<div class="eh-t">Gere a <b>Linha Editorial</b> primeiro.</div>')+'</div>';
-      var gb2=I("#genIdeasBtn");if(gb2)gb2.addEventListener('click',runGerarIdeias);
+      var gb2=I("#genIdeasBtn");if(gb2)gb2.addEventListener('click',function(){runGerarIdeias(null,false);});wirePrefs();
       return;
     }
     var items=IDEAS[state.client]||[];
@@ -1426,8 +1449,50 @@
   }
   var ANTI_AI_VOICE_JS='VOZ HUMANA — nunca "cara de IA". Evite ativamente:\n- Clichês: "no mundo de hoje", "é fundamental", "destravar", "elevar", "mergulhar", "jornada" fora de contexto, "não é só X, é Y", "imagine só".\n- Frases perfeitamente simétricas em sequência (parece lista gerada por máquina).\n- Entusiasmo genérico sem substância ("incrível!", "imperdível!", "revolucionário") — mostre o específico, não anuncie o genérico.\n- Todo parágrafo com a mesma cadência/abertura (varie o ritmo das frases: curtas e longas).\n- Travessões e negritos em excesso como muleta de ênfase.\nEm vez disso: use o VOCABULÁRIO REAL do cliente (VoC), seja específico ao ponto de um concorrente não conseguir copiar trocando só o nome, e prefira uma frase imperfeita e concreta a uma frase "redonda" demais. Se soa como texto que qualquer marca do nicho poderia ter publicado, reescreva.';
   function contentGuardrails(){
-    return 'REGRAS INEGOCIÁVEIS:\n- NUNCA invente dados, fontes, tendências, métricas, provas, depoimentos, resultados, números, autoridade, urgência ou escassez.\n- Use SOMENTE o que está no Content DNA e na configuração abaixo. Se algo não está lá, não afirme.\n- Escreva prosa publicável de verdade — não rótulos, não placeholders, não "[inserir aqui]".\n- Teste do concorrente: se um concorrente pudesse publicar o mesmo texto só trocando o nome, aprofunde no que é específico deste cliente.\n\n'+ANTI_AI_VOICE_JS;
+    var pp=prefsPrompt();return (pp?pp+'\n\n':'')+'REGRAS INEGOCIÁVEIS:\n- NUNCA invente dados, fontes, tendências, métricas, provas, depoimentos, resultados, números, autoridade, urgência ou escassez.\n- Use SOMENTE o que está no Content DNA e na configuração abaixo. Se algo não está lá, não afirme.\n- Escreva prosa publicável de verdade — não rótulos, não placeholders, não "[inserir aqui]".\n- Teste do concorrente: se um concorrente pudesse publicar o mesmo texto só trocando o nome, aprofunde no que é específico deste cliente.\n\n'+ANTI_AI_VOICE_JS;
   }
+  // ---------- Gatilhos e elementos escolhidos por cliente (valem para Ideias, Roteiro/Copy, Carrossel e Stories) ----------
+  function prefsOf(id){var p=((DB_CLIENTS[id]||{}).prefs)||{};return {gUsar:p.gUsar||[],gEvitar:p.gEvitar||[],eUsar:p.eUsar||[],eEvitar:p.eEvitar||[]};}
+  function libNomes(lib,keys){return (lib||[]).filter(function(x){return keys.indexOf(x.key)>=0}).map(function(x){return x.nome});}
+  function prefsPrompt(){
+    if(!state.client)return '';var p=prefsOf(state.client),L=[];
+    var gu=libNomes(LIB.gatilhos,p.gUsar),ge=libNomes(LIB.gatilhos,p.gEvitar),eu=libNomes(LIB.elementos,p.eUsar),ee=libNomes(LIB.elementos,p.eEvitar);
+    if(gu.length)L.push('Gatilhos mentais PREFERIDOS por este cliente (priorize): '+gu.join(', '));
+    if(ge.length)L.push('Gatilhos mentais PROIBIDOS para este cliente (NUNCA use): '+ge.join(', '));
+    if(eu.length)L.push('Elementos literários PREFERIDOS (priorize): '+eu.join(', '));
+    if(ee.length)L.push('Elementos literários PROIBIDOS (NUNCA use): '+ee.join(', '));
+    return L.length?('ESCOLHAS DO ESTRATEGISTA PARA ESTE CLIENTE:\n- '+L.join('\n- ')):'';
+  }
+  function prefChipsHtml(lib,usar,evitar,tipo){
+    return '<div class="selgrid">'+(lib||[]).map(function(it){
+      var st=usar.indexOf(it.key)>=0?'use':evitar.indexOf(it.key)>=0?'ban':'';
+      return '<div class="selchip pchip '+st+'" data-pref="'+tipo+'" data-key="'+esc(it.key)+'" title="'+esc(it.descricao||'')+'"><b style="font-size:12px">'+(st==='use'?'✓ ':st==='ban'?'⛔ ':'')+esc(it.nome)+'</b></div>';
+    }).join('')+'</div>';
+  }
+  function prefsCardHtml(){
+    var id=state.client;if(!isDbClient(id)||state.clientView)return '';
+    var p=prefsOf(id),n=p.gUsar.length+p.gEvitar.length+p.eUsar.length+p.eEvitar.length;
+    return '<details class="card pad prefs" style="margin-bottom:16px"'+(n?'':' open')+'><summary style="cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)">Gatilhos e elementos deste cliente</span><span class="badge">'+(n?n+' escolhas':'a IA escolhe sozinha')+'</span></summary>'+
+      '<div style="font-size:12px;color:var(--muted);margin:10px 0 12px">Clique para alternar: <b>neutro</b> → <b style="color:var(--good)">✓ usar</b> → <b style="color:var(--emo)">⛔ nunca usar</b>. Vale para as <b>Ideias</b>, o <b>Roteiro/Copy</b>, o <b>Carrossel</b> e os <b>Stories</b> deste cliente. Em cada peça você ainda pode ajustar antes de gerar.</div>'+
+      '<div class="bt" style="font-size:11px;font-weight:600;color:var(--faint);margin-bottom:6px">GATILHOS MENTAIS</div>'+prefChipsHtml(LIB.gatilhos,p.gUsar,p.gEvitar,'g')+
+      '<div class="bt" style="font-size:11px;font-weight:600;color:var(--faint);margin:14px 0 6px">ELEMENTOS LITERÁRIOS / NARRATIVOS</div>'+prefChipsHtml(LIB.elementos,p.eUsar,p.eEvitar,'e')+
+      '<div style="display:flex;gap:10px;align-items:center;margin-top:14px"><button class="btn pri" id="prefsSave">Salvar escolhas</button><button class="btn ghost" id="prefsClear">Limpar</button><span id="prefsMsg" style="font-size:12px;color:var(--muted)"></span></div></details>';
+  }
+  function wirePrefs(){
+    var box=document.querySelector('details.prefs');if(!box)return;
+    box.addEventListener('click',function(e){var c=e.target.closest&&e.target.closest('.pchip');if(!c)return;
+      var st=c.classList.contains('use')?'ban':c.classList.contains('ban')?'':'use';c.classList.remove('use','ban');if(st)c.classList.add(st);
+      var b=c.querySelector('b');b.textContent=(st==='use'?'✓ ':st==='ban'?'⛔ ':'')+b.textContent.replace(/^(✓|⛔) /,'');
+      var m=I("#prefsMsg");if(m){m.textContent="Não esqueça de salvar";m.style.color="var(--warn)";}});
+    function col(t,cls){return Array.prototype.map.call(box.querySelectorAll('.pchip[data-pref="'+t+'"].'+cls),function(x){return x.getAttribute('data-key')});}
+    I("#prefsSave").addEventListener('click',function(){
+      var id=state.client,rec=DB_CLIENTS[id];if(!rec)return;
+      var prefs={gUsar:col('g','use'),gEvitar:col('g','ban'),eUsar:col('e','use'),eEvitar:col('e','ban')};
+      saveClientRecord(id,Object.assign({},rec,{prefs:prefs})).then(function(){toast("Escolhas salvas — os agentes deste cliente passam a seguir.");renderView(state.view);},function(){var m=I("#prefsMsg");if(m)m.textContent="Não consegui salvar";});
+    });
+    I("#prefsClear").addEventListener('click',function(){Array.prototype.forEach.call(box.querySelectorAll('.pchip'),function(c){c.classList.remove('use','ban');var b=c.querySelector('b');b.textContent=b.textContent.replace(/^(✓|⛔) /,'');});var m=I("#prefsMsg");if(m){m.textContent="Limpo — clique em Salvar";m.style.color="var(--warn)";}});
+  }
+  function keysByNome(lib,nomes){return (lib||[]).filter(function(x){return (nomes||[]).indexOf(x.nome)>=0}).map(function(x){return x.key});}
   function defaultTriggerKeys(funil){
     var names=funil==="fundo"?["Prova","Especificidade","Redução de risco"]:funil==="meio"?["Autoridade","Reciprocidade","Especificidade"]:["Curiosidade","Identificação","Contraste"];
     return names.map(function(n){var f=(LIB.gatilhos||[]).filter(function(g){return g.nome===n})[0];return f?f.key:null}).filter(Boolean);
@@ -1442,8 +1507,12 @@
   }
   function configPanelHtml(idea){
     var dnaTom=(GENERATED.dna||[]).filter(function(x){return x.field==="tom"})[0];
-    var gDefaults=defaultTriggerKeys(idea.funil).map(function(k){return {key:k}});
-    var eDefaults=defaultElementKeys(idea.funil).map(function(k){return {key:k}});
+    var pf=prefsOf(state.client);
+    var gK=keysByNome(LIB.gatilhos,idea.gatilhos);if(!gK.length)gK=pf.gUsar.length?pf.gUsar:defaultTriggerKeys(idea.funil);
+    var eK=keysByNome(LIB.elementos,idea.elementos);if(!eK.length)eK=pf.eUsar.length?pf.eUsar:defaultElementKeys(idea.funil);
+    var gDefaults=gK.filter(function(k){return pf.gEvitar.indexOf(k)<0}).map(function(k){return {key:k}});
+    var eDefaults=eK.filter(function(k){return pf.eEvitar.indexOf(k)<0}).map(function(k){return {key:k}});
+    var gLib=(LIB.gatilhos||[]).filter(function(x){return pf.gEvitar.indexOf(x.key)<0}),eLib=(LIB.elementos||[]).filter(function(x){return pf.eEvitar.indexOf(x.key)<0});
     return '<div class="block"><div class="bt">Configuração antes de gerar <span class="tag-mock">edite tudo — a IA recomenda, você decide</span></div>'+
       '<div class="grid cols-2">'+
       '<div class="fld"><label for="cfFormato">Formato</label><select id="cfFormato">'+(LIB.formatos||[]).map(function(f){return '<option'+(f.nome===idea.format?' selected':'')+'>'+esc(f.nome)+'</option>'}).join('')+'</select></div>'+
@@ -1453,8 +1522,8 @@
       cfgFieldRow("Tom","cfTom",dnaTom?dnaTom.value:"")+cfgFieldRow("CTA","cfCta",idea.cta)+
       '</div>'+
       cfgFieldRow("Persona","cfPersona",idea.persona,'textarea')+cfgFieldRow("Dor/Desejo","cfDorDesejo",idea.dorDesejo,'textarea')+cfgFieldRow("Big Message","cfBigMessage",idea.bigMessage,'textarea')+
-      '<div class="bt" style="margin-top:14px">Gatilhos mentais</div><div id="cfGatilhos">'+chipSet(LIB.gatilhos,gDefaults,true)+'</div>'+
-      '<div class="bt" style="margin-top:14px">Elementos literários/narrativos</div><div id="cfElementos">'+chipSet(LIB.elementos,eDefaults,false)+'</div>'+
+      '<div class="bt" style="margin-top:14px">Gatilhos mentais</div><div id="cfGatilhos">'+chipSet(gLib,gDefaults,true)+'</div>'+
+      '<div class="bt" style="margin-top:14px">Elementos literários/narrativos</div><div id="cfElementos">'+chipSet(eLib,eDefaults,false)+'</div>'+
       '</div>';
   }
   function readContentConfig(idea){
@@ -1665,29 +1734,61 @@
     if(genOn()){var g=GENERATED.calendar.items.map(function(it,i){return {it:it,i:i}}).filter(function(o){return o.it.status==="WAITING APPROVAL"||o.it.status==="REVIEW"});I("#approvalList").innerHTML=g.map(function(o){return genCard(o.it,o.i)}).join('');wireGen('#approvalList [data-gen]');return;}
     var items=CONTENT.filter(function(x){return x.status==="WAITING APPROVAL"||x.status==="REVIEW"});I("#approvalList").innerHTML=items.map(contentCard).join('');wireContent('#approvalList [data-content]');
   }
-  function periodTotal(days){return Math.max(4,Math.round(days/7*3));}
+  var DIAS_PADRAO={1:[3],2:[2,4],3:[2,3,5],4:[2,3,4,5],5:[1,2,3,4,5],6:[1,2,3,4,5,6],7:[0,1,2,3,4,5,6]};
+  function diasPostOf(){if(state.diasPost&&state.diasPostCli===state.client)return state.diasPost;var r=rotinaOf(state.client);return (r.diasPost&&r.diasPost.length)?r.diasPost.slice():DIAS_PADRAO[3].slice();}
+  // Datas de publicação: a partir de amanhã, só nos dias da semana escolhidos.
+  function slotsFor(days,dias){var out=[],d=new Date();d.setHours(12,0,0,0);for(var k=1;k<=days;k++){var x=new Date(d.getTime());x.setDate(d.getDate()+k);if(dias.indexOf(x.getDay())>=0)out.push(fmtD(x));}return out;}
   async function runGerarPlanejamento(days){
     var id=state.client;
     var ideas=(GENERATED.ideas||[]).slice();if(!ideas.length)return;
     var btn=I("#genPlanBtn");if(btn)btn.disabled=true;
     var msg=I("#planMsg");setBusy(msg,"Montando o calendário…");
     try{
-      var total=periodTotal(days),mix={topo:45,meio:35,fundo:20};
+      var dias=diasPostOf(),slots=slotsFor(days,dias),total=slots.length,mix={topo:45,meio:35,fundo:20};
+      if(!total){if(msg){msg.textContent="Escolha ao menos um dia de postagem.";msg.style.color="var(--warn)";}if(btn)btn.disabled=false;return;}
+      // Período longo: completa as ideias (sem repetir) antes de montar o calendário.
+      for(var tent=0;ideas.length<total&&CAP.sample&&tent<6;tent++){
+        setBusy(msg,"Criando mais ideias para "+total+" postagens ("+ideas.length+" de "+total+")…");
+        if(state.client!==id)throw new Error("cliente trocado");
+        var n=await gerarIdeiasCore(id,true,Math.min(15,total-ideas.length));ideas=(GENERATED.ideas||[]).slice();if(!n)break;
+      }
+      var capT=capOf(id);
+      if(capT&&CAP.sample){
+        var semanas={};slots.forEach(function(ds){var d=parseD(ds);d.setDate(d.getDate()-((d.getDay()+6)%7));var k=fmtD(d);semanas[k]=(semanas[k]||0)+1;});
+        var precisaSG=Object.keys(semanas).reduce(function(a,k){return a+Math.max(0,semanas[k]-capT.grav)},0);
+        for(var t2=0;t2<4;t2++){var temSG=ideas.filter(function(x){return !precisaGravar(x.surface)}).length;if(temSG>=precisaSG)break;
+          if(state.client!==id)throw new Error("cliente trocado");
+          setBusy(msg,"Criando ideias de carrossel (sem gravação) para caber na rotina do cliente…");
+          var n2=await gerarIdeiasCore(id,true,Math.min(15,precisaSG-temSG),true);ideas=(GENERATED.ideas||[]).slice();if(!n2)break;}
+      }
+      setBusy(msg,"Montando o calendário…");
       var wTopo=Math.round(total*mix.topo/100),wMeio=Math.round(total*mix.meio/100),wFundo=total-wTopo-wMeio;
       var byFunnel={topo:ideas.filter(function(i){return i.funil==="topo"}),meio:ideas.filter(function(i){return i.funil==="meio"}),fundo:ideas.filter(function(i){return i.funil==="fundo"})};
       var order=[];
-      function pick(stage,n){var pool=byFunnel[stage].length?byFunnel[stage]:ideas;for(var k=0;k<n;k++)order.push(pool[k%pool.length]);}
-      pick("topo",wTopo);pick("meio",wMeio);pick("fundo",wFundo);
-      var start=new Date();
+      // Sem repetir ideia enquanto houver ideia nova; intercala topo/meio/fundo ao longo do período.
+      var usadas=[];
+      var cap=capOf(id),gravSem={};
+      function semanaDe(ds){var d=parseD(ds);d.setDate(d.getDate()-((d.getDay()+6)%7));return fmtD(d);}
+      function take(stage,slot){
+        var lim=cap&&(gravSem[semanaDe(slot)]||0)>=cap.grav;
+        var livres=ideas.filter(function(x){return usadas.indexOf(x)<0});
+        if(lim){var sg=livres.filter(function(x){return !precisaGravar(x.surface)});var sgF=sg.filter(function(x){return x.funil===stage});var pick=sgF[0]||sg[0];if(pick){usadas.push(pick);return pick;}}
+        if(cap){var gv=livres.filter(function(x){return precisaGravar(x.surface)});var gvF=gv.filter(function(x){return x.funil===stage});var pk=gvF[0]||gv[0];if(pk){usadas.push(pk);var w0=semanaDe(slot);gravSem[w0]=(gravSem[w0]||0)+1;return pk;}}
+        var r0=take0(stage);if(precisaGravar(r0.surface)){var w=semanaDe(slot);gravSem[w]=(gravSem[w]||0)+1;}return r0;
+      }
+      function take0(stage){var pool=byFunnel[stage].filter(function(x){return usadas.indexOf(x)<0});if(!pool.length)pool=ideas.filter(function(x){return usadas.indexOf(x)<0});if(!pool.length){usadas=[];pool=ideas.slice();}usadas.push(pool[0]);return pool[0];}
+      var ord2=[],ct={topo:0,meio:0,fundo:0},tt={topo:wTopo,meio:wMeio,fundo:wFundo};
+      for(var z=0;z<total;z++){var best="topo",bs=-1;["topo","meio","fundo"].forEach(function(st){var sc=tt[st]?(tt[st]-ct[st])/tt[st]:-1;if(sc>bs){bs=sc;best=st;}});ct[best]++;ord2.push(take(best,slots[z]));}
+      order=ord2;
       var items=order.map(function(idea,i){
-        var d=new Date(start.getTime());d.setDate(d.getDate()+Math.round(i*days/Math.max(1,order.length)));
-        return {ord:i,id:"cal-"+(i+1),data:d.toISOString().slice(0,10),idea:idea,content:null,carousel:null,stories:null,
+        return {ord:i,id:"cal-"+(i+1),data:slots[i],idea:idea,content:null,carousel:null,stories:null,
           status:i===0?"WAITING APPROVAL":i<3?"REVIEW":"PLANNED"};
       });
       var col2=dbItemsCol("cos_calendar",id);
       await clearCollection(col2);
       await Promise.all(items.map(function(it){return col2.doc(it.id).set(it);}));
-      var meta={periodDays:days,total:total,mix:{topo:wTopo,meio:wMeio,fundo:wFundo},updatedAt:new Date().toISOString()};
+      var meta={periodDays:days,diasPost:dias,total:total,mix:{topo:wTopo,meio:wMeio,fundo:wFundo},updatedAt:new Date().toISOString()};
+      if(DB_CLIENTS[id]){var rr=Object.assign({},rotinaOf(id),{diasPost:dias});await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{rotina:rr}));}
       await dbDoc("cos_meta/"+id).set(meta);
       if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].calendar={total:items.length,mix:meta.mix,items:items};
       if(state.client===id){GENERATED.calendar={total:items.length,mix:meta.mix,items:items};state.period=days;renderCal();renderKpis();}
@@ -1725,28 +1826,45 @@
     return {keys:Object.keys(days).sort(),days:days};
   }
   function rotinaResumo(r){
-    return ROTINA_TIPOS.map(function(t){return t[2]+" "+t[1]+" "+padT(r[t[0]])}).join(" · ")+" · 📱 Stories "+storyTimes(r).join(" / ")+" · 🎥 Gravação: "+DIAS_SEM_LONGO[+r.gravDia]+" "+padT(r.gravHora);
+    return (r.tempoGrav!=null&&r.tempoGrav!==""?"⏱ "+tempoLbl(r.tempoGrav)+" de gravação/semana · ":"")+ROTINA_TIPOS.map(function(t){return t[2]+" "+t[1]+" "+padT(r[t[0]])}).join(" · ")+" · 📱 Stories "+storyTimes(r).join(" / ")+" · 🎥 Gravação: "+DIAS_SEM_LONGO[+r.gravDia]+" "+padT(r.gravHora);
+  }
+  // ---- Capacidade do cliente: tempo de gravação por semana → frequência e mix (gravado × sem gravação) ----
+  var TEMPO_OPC=[[0,"Não grava (só arte/carrossel)"],[30,"Até 30 min"],[60,"1 hora"],[120,"2 horas"],[180,"3 horas"],[240,"4 horas ou mais"]];
+  var CAPACIDADE={0:{total:2,grav:0},30:{total:3,grav:1},60:{total:3,grav:2},120:{total:4,grav:3},180:{total:5,grav:4},240:{total:6,grav:5}};
+  function precisaGravar(surface){return ["Reel","Vídeo","Stories","Live"].indexOf(surface)>=0;}
+  function capOf(id){var r=rotinaOf(id);if(r.tempoGrav==null||r.tempoGrav==="")return null;var c=CAPACIDADE[+r.tempoGrav]||CAPACIDADE[60];return {tempo:+r.tempoGrav,total:c.total,grav:(r.maxGrav!=null?+r.maxGrav:c.grav)};}
+  function tempoLbl(t){for(var i=0;i<TEMPO_OPC.length;i++)if(TEMPO_OPC[i][0]===+t)return TEMPO_OPC[i][1];return t+" min";}
+  function capacidadePrompt(){
+    var id=state.client;if(!id)return '';var c=capOf(id),dias=diasPostOf();if(!c)return '';
+    var ppw=dias.length,semGrav=Math.max(0,ppw-c.grav);
+    return 'FREQUÊNCIA E CAPACIDADE REAL DO CLIENTE: '+ppw+' postagens por semana. Tempo do cliente para gravar: '+tempoLbl(c.tempo)+' por semana → no máximo '+c.grav+' peça(s) GRAVADA(S) por semana (Reels, Vídeo, Stories-roteiro)'+(semGrav?' e '+semGrav+' sem gravação (Carrossel/post estático, produzidos pela agência)':'')+'. Estruture para caber nessa rotina: menos frentes bem feitas é melhor que muitas pela metade.';
   }
   function rotinaCardHtml(){
     var r=rotinaOf(state.client),ro=state.clientView;
     var head='<div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Rotina de publicação e gravação</div>';
     if(ro)return '<div class="card pad" style="margin-bottom:16px">'+head+'<div style="font-size:13px;line-height:1.7">'+esc(rotinaResumo(r))+'</div></div>';
     var tm=function(k,l){return '<div class="fld" style="margin:0"><label for="rt_'+k+'">'+l+'</label><input type="time" id="rt_'+k+'" data-rot="'+k+'" value="'+padT(r[k])+'"></div>';};
-    return '<details class="card pad" style="margin-bottom:16px"'+(DB_CLIENTS[state.client]&&DB_CLIENTS[state.client].rotina?'':' open')+'><summary style="cursor:pointer;list-style:none">'+head.replace('margin-bottom:10px','display:inline')+' <span style="font-size:12px;color:var(--muted);margin-left:6px">'+esc(rotinaResumo(r))+'</span></summary>'+
+    var cp=capOf(state.client),rec=cp?CAPACIDADE[cp.tempo]||CAPACIDADE[60]:null;
+    var capHtml='<div class="capbox"><div class="fld" style="margin:0;flex:1 1 220px"><label for="rt_tempoGrav">⏱ Tempo do cliente para gravar por semana</label><select id="rt_tempoGrav" data-rot="tempoGrav"><option value="">— escolha —</option>'+TEMPO_OPC.map(function(o){return '<option value="'+o[0]+'"'+(cp&&cp.tempo===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
+      '<div style="flex:2 1 300px;font-size:12.5px;color:var(--muted)" id="capRec">'+(rec?'Recomendado: <b style="color:var(--ink)">'+rec.total+' postagens/semana</b>, sendo <b style="color:var(--ink)">até '+rec.grav+' gravada(s)</b> (Reels/Stories) e o resto em carrossel/post estático, que você produz sem depender do cliente. <button class="btn" id="capApply" style="margin-left:6px">Aplicar ao calendário</button>':'Diga quanto tempo o cliente tem para gravar e o painel recomenda a frequência e o mix de formatos — e limita as gravações por semana no calendário.')+'</div></div>';
+    return '<details class="card pad" style="margin-bottom:16px"'+(DB_CLIENTS[state.client]&&DB_CLIENTS[state.client].rotina&&cp?'':' open')+'><summary style="cursor:pointer;list-style:none">'+head.replace('margin-bottom:10px','display:inline')+' <span style="font-size:12px;color:var(--muted);margin-left:6px">'+esc(rotinaResumo(r))+'</span></summary>'+
       '<div style="font-size:11.5px;color:var(--faint);margin:10px 0 12px">Horário em que cada tipo vai ao ar e o dia da semana em que o cliente grava/produz tudo em lote. Ajuste pelo Instagram → Insights → Público → <b>Horários mais ativos</b>. Cada conteúdo também aceita horário próprio (abra o conteúdo).</div>'+
-      '<div class="grid cols-4" style="gap:12px">'+ROTINA_TIPOS.map(function(t){return tm(t[0],t[2]+" "+t[1])}).join('')+'</div>'+
+      capHtml+'<div class="grid cols-4" style="gap:12px">'+ROTINA_TIPOS.map(function(t){return tm(t[0],t[2]+" "+t[1])}).join('')+'</div>'+
       '<div class="grid cols-3" style="gap:12px;margin-top:12px"><div class="fld" style="margin:0"><label for="rt_Stories">📱 Stories — horários do dia</label><input id="rt_Stories" data-rot="Stories" value="'+esc(r.Stories)+'" placeholder="09:00, 13:00, 20:30"></div>'+
       '<div class="fld" style="margin:0"><label for="rt_gravDia">🎥 Dia de gravação/produção</label><select id="rt_gravDia" data-rot="gravDia">'+DIAS_SEM_LONGO.map(function(d,i){return '<option value="'+i+'"'+(+r.gravDia===i?' selected':'')+'>'+d+'</option>'}).join('')+'</select></div>'+
       tm("gravHora","⏰ Início da gravação")+'</div>'+
       '<div style="display:flex;gap:10px;align-items:center;margin-top:14px"><button class="btn pri" id="rotSave">Salvar rotina</button><span id="rotMsg" style="font-size:12px;color:var(--muted)"></span></div></details>';
   }
   function wireRotina(){
+    var tg=I("#rt_tempoGrav");if(tg)tg.addEventListener('change',function(){var v=tg.value,box=I("#capRec");if(!box)return;if(v===""){box.textContent="";return;}var c=CAPACIDADE[+v];box.innerHTML='Recomendado: <b style="color:var(--ink)">'+c.total+' postagens/semana</b>, sendo <b style="color:var(--ink)">até '+c.grav+' gravada(s)</b>. Clique em <b>Salvar rotina</b> para aplicar.';});
+    var ap=I("#capApply");if(ap)ap.addEventListener('click',function(){var c=capOf(state.client);if(!c)return;state.diasPost=DIAS_PADRAO[CAPACIDADE[c.tempo].total].slice();state.diasPostCli=state.client;toast("Frequência recomendada aplicada — agora é só gerar o planejamento.");renderCal();});
     var b=I("#rotSave");if(!b)return;
     b.addEventListener('click',function(){
       var id=state.client,rec=DB_CLIENTS[id];if(!rec)return;
-      var r=rotinaOf(id);Array.prototype.forEach.call(document.querySelectorAll('[data-rot]'),function(el){var k=el.getAttribute('data-rot');r[k]=k==="gravDia"?+el.value:el.value.trim();});
+      var r=rotinaOf(id);Array.prototype.forEach.call(document.querySelectorAll('[data-rot]'),function(el){var k=el.getAttribute('data-rot');r[k]=k==="gravDia"?+el.value:k==="tempoGrav"?(el.value===""?null:+el.value):el.value.trim();});
+      if(r.tempoGrav!=null)r.maxGrav=(CAPACIDADE[r.tempoGrav]||CAPACIDADE[60]).grav;
       if(!storyTimes(r).length){I("#rotMsg").textContent="Stories: use horários como 09:00, 13:00";return;}
-      saveClientRecord(id,Object.assign({},rec,{rotina:r})).then(function(){toast("Rotina salva — o calendário já usa os novos horários.");renderCal();},function(){I("#rotMsg").textContent="Não consegui salvar";});
+      saveClientRecord(id,Object.assign({},rec,{rotina:r})).then(function(){if(r.tempoGrav!=null){state.diasPost=DIAS_PADRAO[(CAPACIDADE[r.tempoGrav]||CAPACIDADE[60]).total].slice();state.diasPostCli=id;}toast("Rotina salva — frequência, horários e limite de gravações aplicados.");renderCal();},function(){I("#rotMsg").textContent="Não consegui salvar";});
     });
   }
   function agendaHtml(items){
@@ -1832,10 +1950,15 @@
     }).join('')+'</div>';
   }
   function periodSelectorHtml(){
-    var cur=state.period||30;
+    var cur=state.period||30,dias=diasPostOf(),nSlots=slotsFor(cur,dias).length,nIdeas=(GENERATED.ideas||[]).length;
+    var sty=function(on){return on?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':''};
     return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Planejamento editorial por período</div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+[30,60,90].map(function(d){return '<button class="preset periodBtn" data-days="'+d+'" style="'+(cur===d?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':'')+'">'+d+' dias</button>'}).join('')+
-      '<button class="btn pri genbtn" id="genPlanBtn" style="margin-left:auto">✦ Gerar Planejamento Editorial</button><span id="planMsg" style="font-size:12px;color:var(--muted)"></span></div></div>';
+      '<div class="plrow"><span class="pllbl">Período</span>'+[30,45,60,90].map(function(d){return '<button class="preset periodBtn" data-days="'+d+'" style="'+sty(cur===d)+'">'+d+' dias</button>'}).join('')+'</div>'+
+      '<div class="plrow"><span class="pllbl">Postagens por semana</span>'+[1,2,3,4,5,6,7].map(function(n){return '<button class="preset ppwBtn" data-n="'+n+'" style="'+sty(dias.length===n)+'">'+n+'</button>'}).join('')+'</div>'+
+      '<div class="plrow"><span class="pllbl">Dias de postagem</span>'+[1,2,3,4,5,6,0].map(function(i){return '<button class="preset diaBtn" data-dia="'+i+'" style="'+sty(dias.indexOf(i)>=0)+'">'+DIAS_SEM[i]+'</button>'}).join('')+'</div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div style="font-size:13px"><b>'+nSlots+' postagens</b> em '+cur+' dias · '+dias.length+' por semana'+(capOf(state.client)?' · até '+capOf(state.client).grav+' gravada(s)/semana':'')+(nIdeas&&nIdeas<nSlots?' <span style="color:var(--muted)">· você tem '+nIdeas+' ideias — o painel cria as '+(nSlots-nIdeas)+' que faltam, sem repetir</span>':'')+'</div>'+
+      '<button class="btn pri genbtn" id="genPlanBtn" style="margin-left:auto">✦ Gerar Planejamento Editorial</button><span id="planMsg" style="font-size:12px;color:var(--muted)"></span></div>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin-top:8px">Gerar de novo substitui o calendário atual deste cliente (os horários e o dia de gravação ficam na Rotina).</div></div>';
   }
   function renderCal(){
     var col={Reel:"#5B45E6",Carrossel:"#2E6FB7",Stories:"#0E8C9B"};
@@ -1843,13 +1966,16 @@
       var el=I('.view[data-view="calendar"]');
       var items=(GENERATED.calendar&&GENERATED.calendar.items)||[];
       var hasIdeas=GENERATED.ideas&&GENERATED.ideas.length;
-      var h='<div class="section-head" style="margin-top:6px"><div><h3>Calendário editorial — '+esc(clientName(state.client))+'</h3><p>Operado por <b>Cronos</b>. Clique num conteúdo para ver o contexto estratégico e gerar o roteiro/copy.</p></div></div>'+periodSelectorHtml();
-      if(items.length)h+=rotinaCardHtml()+exportBarHtml();
+      var h='<div class="section-head" style="margin-top:6px"><div><h3>Calendário editorial — '+esc(clientName(state.client))+'</h3><p>Operado por <b>Cronos</b>. Clique num conteúdo para ver o contexto estratégico e gerar o roteiro/copy.</p></div></div>'+rotinaCardHtml()+periodSelectorHtml();
+      if(items.length)h+=exportBarHtml();
       h+=items.length?(state.calMode==="lista"?calListHtml(items):agendaHtml(items)):('<div class="card empty-hero"><div class="eh-ic">▦</div><div class="eh-t">'+(hasIdeas?'Escolha o período acima e gere o planejamento.':'Gere as <b>Ideias</b> primeiro.')+'</div></div>');
       el.innerHTML=h;
       Array.prototype.forEach.call(el.querySelectorAll('.periodBtn'),function(b){b.addEventListener('click',function(){state.period=+b.getAttribute('data-days');renderCal();})});
+      function setDias(d){state.diasPost=d.slice().sort();state.diasPostCli=state.client;renderCal();}
+      Array.prototype.forEach.call(el.querySelectorAll('.ppwBtn'),function(b){b.addEventListener('click',function(){setDias(DIAS_PADRAO[+b.getAttribute('data-n')]);})});
+      Array.prototype.forEach.call(el.querySelectorAll('.diaBtn'),function(b){b.addEventListener('click',function(){var d=diasPostOf(),v=+b.getAttribute('data-dia'),i=d.indexOf(v);if(i>=0)d.splice(i,1);else d.push(v);setDias(d);})});
       var gp=I("#genPlanBtn");if(gp)gp.addEventListener('click',function(){runGerarPlanejamento(state.period||30);});
-      if(items.length){wireGen('.view[data-view="calendar"] [data-gen]');wireCalExtras(items);}
+      if(items.length){wireGen('.view[data-view="calendar"] [data-gen]');wireCalExtras(items);}else wireRotina();
       return;
     }
     if(genOn()){
