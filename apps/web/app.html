@@ -2236,6 +2236,44 @@
     I("#bfBaixar").addEventListener('click',function(){var cfg={nome:I("#bfNome").value.trim(),whats:I("#bfWhats").value.trim()};saveFormCfg(cfg);
       downloadText("briefing-de-conteudo.html",buildBriefingFormHtml(cfg),"text/html",function(ok){var m=I("#bfMsg");if(m){m.textContent=ok?"✓ Baixado — envie ao cliente":"Não consegui baixar agora";m.style.color=ok?"var(--good)":"var(--warn)";}});});
   }
+  // ---------- Montar tudo automaticamente: DNA (Íris) → Estratégia → Linha Editorial → Ideias → Calendário ----------
+  var AUTO_STEPS=[["dna","Content DNA (Íris lê o briefing)"],["strategy","Estratégia (Átlas)"],["editorial","Linha Editorial (Bússola)"],["ideas","Ideias (Musa)"],["calendar","Calendário editorial (Cronos)"]];
+  function autoFeito(k,g){g=g||{};return k==="dna"?(g.dna||[]).length>=5:k==="strategy"?!!g.strategy:k==="editorial"?(g.editorial||[]).length>0:k==="ideas"?(g.ideas||[]).length>0:((g.calendar&&g.calendar.items)||[]).length>0;}
+  function autoModalHtml(done,atual,erro,days){
+    return '<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(480px,100%)"><div class="dh"><div class="d-title">Montando tudo — '+esc(clientName(state.client))+'</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Cada agente usa o resultado do anterior. Leva alguns minutos — pode deixar esta janela aberta. Calendário de <b>'+days+' dias</b>, na frequência e com o limite de gravações da rotina do cliente.</div>'+
+      AUTO_STEPS.map(function(st){var ok=done.indexOf(st[0])>=0,cur=atual===st[0];return '<div class="stepi'+(ok?' ok':'')+'" style="cursor:default"><span class="dot">'+(ok?'✓':cur&&!erro?'<span class="spinner" style="margin:0;width:11px;height:11px"></span>':'')+'</span>'+esc(st[1])+(cur&&erro?' <span style="color:var(--warn)">— '+esc(erro)+'</span>':'')+'</div>'}).join('')+
+      (erro?'<div style="margin-top:14px"><button class="btn pri" id="autoRetry">Continuar de onde parou</button></div>':'')+
+      (done.length===AUTO_STEPS.length?'<div style="margin-top:14px;font-size:13px">✓ Pronto! Revise o <b>Content DNA</b> (as sugestões ficam pendentes para você aprovar) e confira a <b>Linha Editorial</b> e o <b>Calendário</b>.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn pri" id="autoGoCal">Ver o calendário</button><button class="btn" id="autoGoEd">Ver a linha editorial</button></div>':'')+
+      '</div></div></aside>';
+  }
+  async function montarTudo(id,days){
+    if(!CAP.sample){noAi();return;}
+    if(state.client!==id)setClient(id);
+    state.autoRunning=id;
+    try{GENERATED=await loadDbClientState(id);}catch(e){state.autoRunning=null;throw e;}
+    var done=[],atual="",erro="";
+    function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days);I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
+      var r=I("#autoRetry");if(r)r.addEventListener('click',function(){montarTudo(id,days)});
+      var gc=I("#autoGoCal");if(gc)gc.addEventListener('click',function(){closeDrawer();go("calendar")});var ge=I("#autoGoEd");if(ge)ge.addEventListener('click',function(){closeDrawer();go("editorial")});}
+    AUTO_STEPS.forEach(function(st){if(autoFeito(st[0],GENERATED))done.push(st[0]);});
+    for(var i=0;i<AUTO_STEPS.length;i++){var k=AUTO_STEPS[i][0];if(done.indexOf(k)>=0)continue;
+      if(state.client!==id){state.autoRunning=null;return;}
+      atual=k;erro="";draw();
+      try{
+        if(k==="dna"){var rec=DB_CLIENTS[id]||{},brief=[rec.briefing||"",fichaCompact()].filter(Boolean).join("\n");
+          var out=await CAP.sample.json(buildIrisPrompt(byId(id).name,brief),{modelTier:"default",cache:false});
+          var entries=(GENERATED.dna||[]).slice();((out&&out.suggestions)||[]).forEach(function(x){if(!x||!x.field||!x.value)return;entries.push({section:x.section||"business",field:String(x.field),value:String(x.value),state:x.state||"HYPOTHESIS",status:"pending",src:"Briefing do cliente — Íris"});});
+          await saveDna(id,entries);if(!entries.length)throw new Error("sem dados");}
+        else if(k==="strategy"){await runGerarEstrategia();if(!GENERATED.strategy)throw new Error("falhou");}
+        else if(k==="editorial"){await runGerarEditorial();if(!(GENERATED.editorial||[]).length)throw new Error("falhou");}
+        else if(k==="ideas"){await gerarIdeiasCore(id,false,15);if(!(GENERATED.ideas||[]).length)throw new Error("falhou");}
+        else{state.period=days;await runGerarPlanejamento(days);if(!((GENERATED.calendar&&GENERATED.calendar.items)||[]).length)throw new Error("falhou");}
+        done.push(k);
+      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";state.autoRunning=null;draw();return;}
+    }
+    state.autoRunning=null;atual="";draw();renderKpis();
+  }
   function openBriefImportModal(){
     I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(560px,100%)"><div class="dh"><div class="d-title">Importar briefing recebido</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
       '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Cole aqui a mensagem que o cliente enviou (começa com “'+esc(BRIEF_MARK)+'”).</div>'+
@@ -2249,8 +2287,15 @@
       var n=Object.keys(parsed).length;p.innerHTML='✓ <b>'+esc(parsed.name)+'</b>'+(parsed.niche?' — '+esc(parsed.niche):'')+' · '+n+' respostas'+(parsed.frequencia?' · '+esc(parsed.frequencia):'')+(parsed.tempo?' · gravação: '+esc(parsed.tempo):'');I("#bfGo").disabled=false;});
     I("#bfGo").addEventListener('click',async function(){if(!parsed)return;if(!CAP.db){noAi();return;}
       I("#bfGo").disabled=true;setBusy(I("#bfIMsg"),"Importando…");
-      try{var r=await importarBriefing(parsed);closeDrawer();setClient(r.id);go("dna");
-        toast((r.atualizado?"Cliente atualizado":"Cliente criado")+" com o briefing: "+r.sugestoes+" sugestões no Content DNA"+(r.freq?", "+r.freq+" posts/semana":"")+(r.tempo?", gravação "+r.tempo:"")+". Revise e aprove o DNA, depois siga os próximos passos.");}
+      try{var r=await importarBriefing(parsed);setClient(r.id);go("dna");
+        I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(480px,100%)"><div class="dh"><div class="d-title">'+(r.atualizado?'Cliente atualizado':'Cliente criado')+' ✓</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
+          '<div style="font-size:13px;margin-bottom:12px"><b>'+esc(parsed.name)+'</b> — ficha preenchida, '+r.sugestoes+' sugestões no Content DNA'+(r.refs?', '+r.refs+' referência(s)':'')+(r.freq?', <b>'+r.freq+' conteúdos/semana</b>':'')+(r.tempo?', gravação: <b>'+esc(r.tempo)+'</b>':'')+'.</div>'+
+          '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Quer que o painel monte o resto agora? A Íris lê o briefing, e os agentes geram Estratégia → Linha Editorial → Ideias → Calendário, na frequência que o cliente pediu.</div>'+
+          '<div class="plrow"><span class="pllbl">Calendário de</span>'+[30,45,60,90].map(function(d){return '<button class="preset autoDays" data-days="'+d+'" style="'+(d===30?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':'')+'">'+d+' dias</button>'}).join('')+'</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn pri genbtn" id="autoGo">✦ Montar tudo automaticamente</button><button class="btn" id="autoNo">Agora não — vou revisar antes</button></div></div></div></aside>';
+        var dias=30;I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);I("#autoNo").addEventListener('click',closeDrawer);
+        Array.prototype.forEach.call(document.querySelectorAll('.autoDays'),function(b){b.addEventListener('click',function(){dias=+b.getAttribute('data-days');Array.prototype.forEach.call(document.querySelectorAll('.autoDays'),function(x){x.style.cssText=x===b?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':''});})});
+        I("#autoGo").addEventListener('click',function(){montarTudo(r.id,dias);});}
       catch(e){I("#bfIMsg").textContent="Não consegui importar — tente de novo.";I("#bfIMsg").style.color="var(--warn)";I("#bfGo").disabled=false;}});
   }
   function openNewClientModal(){
@@ -2486,11 +2531,13 @@
       ["calendar","Registrar resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
     ];
     var done=steps.filter(function(s){return s[2]}).length,next=steps.filter(function(s){return !s[2]})[0];
+    var falta=(g.dna||[]).length>=3&&!state.clientView&&AUTO_STEPS.some(function(st){return st[0]!=="dna"&&!autoFeito(st[0],g)});
     return '<div class="card pad" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><div class="eyebrow">Próximos passos — '+esc(clientName(state.client))+'</div><span class="badge">'+done+'/'+steps.length+'</span>'+
-      (next?'<button class="btn pri genbtn" data-goto-step="'+next[0]+'" style="margin-left:auto">Continuar: '+esc(next[1])+' →</button>':'<span class="badge act" style="margin-left:auto">✓ Cliente completo</span>')+'</div>'+
+      (falta?'<button class="btn pri genbtn" id="autoBuildBtn" style="margin-left:auto">✦ Montar o restante automaticamente</button>':'')+
+      (next?'<button class="btn '+(falta?'':'pri ')+'genbtn" data-goto-step="'+next[0]+'" style="'+(falta?'':'margin-left:auto')+'">Continuar: '+esc(next[1])+' →</button>':'<span class="badge act" style="margin-left:auto">✓ Cliente completo</span>')+'</div>'+
       '<div class="steplist">'+steps.map(function(s){return '<a class="stepi'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="dot">'+(s[2]?'✓':'')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div></div>';
   }
-  function wireSteps(root){Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
+  function wireSteps(root){var ab=(root||document).querySelector('#autoBuildBtn');if(ab)ab.addEventListener('click',function(){montarTudo(state.client,state.period||30)});Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
 
   // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
   // (ou guarda uma cópia de segurança). ----
@@ -2619,7 +2666,7 @@
     if(isDbClient(id)){
       GENERATED=DB_STATE_CACHE[id]||blankClientState(id,c.name);
       renderKpis();go(state.view);
-      loadDbClientState(id).then(function(g){if(state.client===id){GENERATED=g;renderKpis();renderView(state.view);}});
+      loadDbClientState(id).then(function(g){if(state.client===id&&state.autoRunning!==id){GENERATED=g;renderKpis();renderView(state.view);}});
       return;
     }
     GENERATED=(GENERATED_ALL||{})[id]||null;
