@@ -363,6 +363,7 @@
 
       <section class="view" data-view="clients" hidden>
         <div class="section-head" style="margin-top:6px"><div><h3>Clientes</h3><p>Cada cliente tem uma memória estratégica própria (Content DNA).</p></div></div>
+        <div id="briefTools"></div>
         <div class="grid cols-3" id="clientCards"></div>
       </section>
 
@@ -676,6 +677,7 @@
     I("#clientCards").innerHTML=cards+addCard;
     Array.prototype.forEach.call(document.querySelectorAll('[data-client]'),function(el){el.addEventListener('click',function(){setClient(el.getAttribute('data-client'));go('dna')})});
     I("#clientAddCard").addEventListener('click',openNewClientModal);
+    var bt=I("#briefTools");if(bt){bt.innerHTML=briefToolsHtml();var b1=I("#bfForm");if(b1)b1.addEventListener('click',openBriefFormModal);var b2=I("#bfImport");if(b2)b2.addEventListener('click',openBriefImportModal);}
   }
   function busyHtml(text){return '<span class="spinner"></span>'+esc(text);}
   function setBusy(el,text){if(!el)return;el.innerHTML=busyHtml(text);el.classList.add('busy');}
@@ -1954,7 +1956,8 @@
     var sty=function(on){return on?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':''};
     return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Planejamento editorial por período</div>'+
       '<div class="plrow"><span class="pllbl">Período</span>'+[30,45,60,90].map(function(d){return '<button class="preset periodBtn" data-days="'+d+'" style="'+sty(cur===d)+'">'+d+' dias</button>'}).join('')+'</div>'+
-      '<div class="plrow"><span class="pllbl">Postagens por semana</span>'+[1,2,3,4,5,6,7].map(function(n){return '<button class="preset ppwBtn" data-n="'+n+'" style="'+sty(dias.length===n)+'">'+n+'</button>'}).join('')+'</div>'+
+      '<div class="plrow"><span class="pllbl">Conteúdos por semana</span>'+[[3,"3 por semana"],[4,"4 por semana"],[5,"5 por semana"],[7,"7 por semana (todo dia)"]].map(function(p){return '<button class="preset ppwBtn" data-n="'+p[0]+'" style="'+sty(dias.length===p[0])+'">'+p[1]+'</button>'}).join('')+
+        '<span style="font-size:11.5px;color:var(--faint);margin-left:4px">outro:</span>'+[1,2,6].map(function(n){return '<button class="preset ppwBtn" data-n="'+n+'" style="padding:4px 9px;'+sty(dias.length===n)+'">'+n+'</button>'}).join('')+'</div>'+
       '<div class="plrow"><span class="pllbl">Dias de postagem</span>'+[1,2,3,4,5,6,0].map(function(i){return '<button class="preset diaBtn" data-dia="'+i+'" style="'+sty(dias.indexOf(i)>=0)+'">'+DIAS_SEM[i]+'</button>'}).join('')+'</div>'+
       '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div style="font-size:13px"><b>'+nSlots+' postagens</b> em '+cur+' dias · '+dias.length+' por semana'+(capOf(state.client)?' · até '+capOf(state.client).grav+' gravada(s)/semana':'')+(nIdeas&&nIdeas<nSlots?' <span style="color:var(--muted)">· você tem '+nIdeas+' ideias — o painel cria as '+(nSlots-nIdeas)+' que faltam, sem repetir</span>':'')+'</div>'+
       '<button class="btn pri genbtn" id="genPlanBtn" style="margin-left:auto">✦ Gerar Planejamento Editorial</button><span id="planMsg" style="font-size:12px;color:var(--muted)"></span></div>'+
@@ -2110,6 +2113,146 @@
   function closeDrawer(){I("#overlay").innerHTML='';document.removeEventListener('keydown',escClose)}
 
   // ---- Novo cliente: cadastro em branco (sem exemplos, sem dados fictícios) ----
+  // ---------- Formulário de briefing para o cliente (arquivo que você envia) + importação das respostas ----------
+  var BRIEF_MARK="📋 BRIEFING DE CONTEÚDO";
+  var BRIEF_FREQ=["3 por semana","4 por semana","5 por semana","7 por semana (todo dia)"];
+  var BRIEF_FIELDS=[
+    {k:"name",l:"Nome da empresa ou marca",t:"text",req:1,g:"Sobre o negócio"},
+    {k:"responsavel",l:"Seu nome (quem está preenchendo)",t:"text"},
+    {k:"niche",l:"Área de atuação / nicho",t:"text",req:1,ph:"Ex.: odontologia estética, loja de roupas femininas"},
+    {k:"instagram",l:"Instagram (@)",t:"text",ph:"@seuperfil"},
+    {k:"site",l:"Site ou link",t:"text"},
+    {k:"regiao",l:"Cidade / região de atendimento",t:"text",ph:"Ex.: São Paulo — Zona Sul, ou 100% online"},
+    {k:"oferta",l:"O que você vende? (produtos e serviços principais)",t:"area",req:1},
+    {k:"ticket",l:"Faixa de preço / ticket médio",t:"text",ph:"Ex.: R$ 300 a R$ 2.000"},
+    {k:"publico",l:"Quem é o seu cliente ideal?",t:"area",req:1,ph:"Idade, momento de vida, o que procura",g:"Sobre o seu cliente"},
+    {k:"dores",l:"Quais são as maiores dores ou problemas dele?",t:"area"},
+    {k:"desejos",l:"O que ele mais deseja conquistar?",t:"area"},
+    {k:"objecoes",l:"O que faz ele hesitar antes de comprar?",t:"area",ph:"Ex.: acha caro, tem medo do resultado, não tem tempo"},
+    {k:"diferencial",l:"Por que escolher você e não outro?",t:"area",g:"Sobre a sua marca"},
+    {k:"provas",l:"Provas: anos de experiência, nº de clientes, resultados, prêmios",t:"area"},
+    {k:"tom",l:"Como você gosta de falar? Palavras que usa e que evita",t:"area",ph:"Ex.: acolhedor e direto; evito “barato” e “promoção”"},
+    {k:"restricoes",l:"O que NÃO pode aparecer no conteúdo?",t:"area"},
+    {k:"objetivo",l:"Principal objetivo com o Instagram",t:"choice",opts:["Ser referência no assunto (autoridade)","Vender mais / gerar pedidos","Encher a agenda","Criar comunidade e relacionamento","Lançar algo novo"],g:"Sobre a rotina de conteúdo"},
+    {k:"frequencia",l:"Quantos conteúdos por semana você quer?",t:"choice",req:1,opts:BRIEF_FREQ},
+    {k:"tempo",l:"Quanto tempo por semana você consegue reservar para gravar?",t:"choice",req:1,opts:TEMPO_OPC.map(function(o){return o[1]})},
+    {k:"aparece",l:"Você aparece nos vídeos?",t:"choice",opts:["Sim, gosto de aparecer","Às vezes / ainda tenho vergonha","Prefiro não aparecer"]},
+    {k:"gravdia",l:"Melhor dia da semana para gravar",t:"choice",opts:DIAS_SEM_LONGO.slice(1).concat([DIAS_SEM_LONGO[0]])},
+    {k:"dias",l:"Dias que prefere postar (pode marcar vários)",t:"multi",opts:["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"]},
+    {k:"referencias",l:"Perfis que você admira (referência) — e por quê",t:"area",g:"Referências"},
+    {k:"concorrentes",l:"Concorrentes diretos",t:"area"},
+    {k:"datas",l:"Datas importantes, lançamentos ou campanhas",t:"area"},
+    {k:"obs",l:"Algo mais que devemos saber?",t:"area"}
+  ];
+  function formCfg(){try{return JSON.parse(localStorage.getItem("cos_form_cfg")||"{}")||{}}catch(e){return {}}}
+  function saveFormCfg(o){try{localStorage.setItem("cos_form_cfg",JSON.stringify(o))}catch(e){}}
+  function buildBriefingFormHtml(cfg){
+    var de=cfg.nome?String(cfg.nome):"",wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
+    var data=JSON.stringify({mark:BRIEF_MARK,de:de,wa:wa,fields:BRIEF_FIELDS}).replace(/</g,"\\u003c");
+    var css='*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f4fb;color:#1b1a22}main{max-width:640px;margin:0 auto;padding:22px 16px 60px}h1{font-size:22px;margin:0 0 6px}.sub{color:#5f5d6e;font-size:14px;margin:0 0 18px}.card{background:#fff;border:1px solid #e6e4ef;border-radius:14px;padding:16px;margin-bottom:14px}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5B45E6;margin:22px 0 10px}label.q{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px}.req{color:#c0392b}input[type=text],textarea{width:100%;border:1px solid #d9d6e6;border-radius:10px;padding:11px 12px;font:inherit;background:#fbfbfe}textarea{min-height:84px;resize:vertical}.opts{display:flex;flex-wrap:wrap;gap:8px}.opts label{display:flex;align-items:center;gap:7px;border:1px solid #d9d6e6;border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer;background:#fbfbfe}.opts input{accent-color:#5B45E6}.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font:600 16px system-ui,sans-serif;cursor:pointer;margin-top:10px}.pri{background:#5B45E6;color:#fff}.wa{background:#1fa855;color:#fff}.sec{background:#eeebff;color:#4634b6}.msg{font-size:13.5px;color:#5f5d6e;text-align:center;margin-top:10px;min-height:20px}.err{color:#c0392b}#out{display:none}';
+    var js='(function(){var D='+data+';var F=D.fields,box=document.getElementById("form"),KEY="cos_briefing_rascunho";'+
+      'function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[c]})}'+
+      'var h="";F.forEach(function(f,i){if(f.g)h+="<h2>"+esc(f.g)+"</h2>";h+="<div class=card><label class=q for=f"+i+">"+esc(f.l)+(f.req?" <span class=req>*</span>":"")+"</label>";'+
+      'if(f.t==="text")h+="<input type=text id=f"+i+" data-k="+f.k+" placeholder=\\""+esc(f.ph||"")+"\\">";'+
+      'else if(f.t==="area")h+="<textarea id=f"+i+" data-k="+f.k+" placeholder=\\""+esc(f.ph||"")+"\\"></textarea>";'+
+      'else h+="<div class=opts>"+f.opts.map(function(o){return "<label><input type="+(f.t==="multi"?"checkbox":"radio")+" name="+f.k+" value=\\""+esc(o)+"\\"> "+esc(o)+"</label>"}).join("")+"</div>";h+="</div>"});box.innerHTML=h;'+
+      'function val(f){if(f.t==="text"||f.t==="area"){var el=box.querySelector("[data-k="+f.k+"]");return el?el.value.trim():""}return [].map.call(box.querySelectorAll("input[name="+f.k+"]:checked"),function(x){return x.value}).join(", ")}'+
+      'function setv(f,v){if(!v)return;if(f.t==="text"||f.t==="area"){var el=box.querySelector("[data-k="+f.k+"]");if(el)el.value=v;return}var vs=v.split(", ");[].forEach.call(box.querySelectorAll("input[name="+f.k+"]"),function(x){x.checked=vs.indexOf(x.value)>=0})}'+
+      'try{var r=JSON.parse(localStorage.getItem(KEY)||"{}");F.forEach(function(f){setv(f,r[f.k])})}catch(e){}'+
+      'box.addEventListener("input",function(){var o={};F.forEach(function(f){o[f.k]=val(f)});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}});'+
+      'function texto(){var t=D.mark+"\\n";F.forEach(function(f){var v=val(f);if(v)t+="\\n▸ "+f.l+"\\n"+v+"\\n"});return t}'+
+      'function ok(){var m=document.getElementById("msg");var faltam=F.filter(function(f){return f.req&&!val(f)}).map(function(f){return f.l});if(faltam.length){m.className="msg err";m.textContent="Falta responder: "+faltam.join(" · ");return false}m.className="msg";m.textContent="";return true}'+
+      'document.getElementById("go").addEventListener("click",function(){if(!ok())return;document.getElementById("out").style.display="block";document.getElementById("txt").value=texto();document.getElementById("out").scrollIntoView({behavior:"smooth"})});'+
+      'var wa=document.getElementById("wa");if(!D.wa)wa.textContent="Enviar pelo WhatsApp";wa.addEventListener("click",function(){var u="https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(texto());window.open(u,"_blank")});'+
+      'document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt");t.select();var done=function(){document.getElementById("cpm").textContent="✓ Copiado — agora cole na conversa e envie."};if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(done,function(){document.execCommand("copy");done()});else{document.execCommand("copy");done()}});'+
+      '})();';
+    var S='scr'+'ipt';
+    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo'+(de?' — '+esc(de):'')+'</title><style>'+css+'</style></head><body><main>'+
+      '<h1>Briefing de conteúdo</h1><p class="sub">'+(de?'<b>'+esc(de)+'</b> vai usar'+'':'Vamos usar')+' estas respostas para montar a sua estratégia, a linha editorial e o calendário de conteúdo. Leva uns 10 minutos. Suas respostas ficam salvas neste aparelho enquanto você preenche. Campos com <span class="req">*</span> são obrigatórios.</p>'+
+      '<div id="form"></div><button class="btn pri" id="go">Concluir briefing</button><div class="msg" id="msg"></div>'+
+      '<div id="out"><h2>Pronto! Agora é só enviar</h2><div class="card"><button class="btn wa" id="wa">Enviar pelo WhatsApp'+(de?' para '+esc(de):'')+'</button><button class="btn sec" id="cp">Copiar respostas</button><div class="msg" id="cpm">Se preferir, copie e cole num e-mail ou mensagem.</div><textarea id="txt" readonly style="min-height:160px;margin-top:10px"></textarea></div></div>'+
+      '</main><'+S+'>'+js+'</'+S+'></body></html>';
+  }
+  function parseBriefing(txt){
+    txt=String(txt||"").replace(/\r/g,"");if(txt.indexOf("▸")<0)return null;
+    var byLbl={};BRIEF_FIELDS.forEach(function(f){byLbl[normalizeTextPanel(f.l).replace(/[^a-z0-9]+/g,"")]=f;});
+    var out={};txt.split(/\n?▸ ?/).slice(1).forEach(function(ch){var nl=ch.indexOf("\n");var lbl=(nl<0?ch:ch.slice(0,nl)).trim(),v=(nl<0?"":ch.slice(nl+1)).trim();
+      var f=byLbl[normalizeTextPanel(lbl).replace(/[^a-z0-9]+/g,"")];if(f&&v)out[f.k]=v;});
+    return out.name?out:null;
+  }
+  function briefingNarrativa(b){
+    var s=[];function add(k,frase){if(b[k])s.push(frase.replace("%",b[k].replace(/\n+/g,"; ")));}
+    add("oferta","Vendemos %.");add("ticket","Nosso ticket médio / faixa de preço é %.");add("publico","Meu público são %.");add("dores","A maior dor deles é %.");
+    add("desejos","Eles desejam %.");add("objecoes","Uma objeção comum é %.");add("diferencial","Nosso diferencial é %.");add("provas","Provas e experiência: %.");
+    add("tom","Falamos de forma %.");add("objetivo","Objetivo com o Instagram: %.");add("regiao","Atendemos em %.");add("restricoes","Não pode aparecer no conteúdo: %.");
+    add("aparece","Sobre aparecer nos vídeos: %.");add("datas","Datas importantes: %.");add("obs","Observações: %.");
+    return s.join("\n");
+  }
+  async function importarBriefing(b){
+    var nome=b.name.trim(),alvo=null,norm=function(x){return normalizeTextPanel(x).replace(/[^a-z0-9]+/g,"")};
+    Object.keys(DB_CLIENTS).forEach(function(id){if(norm(DB_CLIENTS[id].name||"")===norm(nome))alvo=id;});
+    if(alvo&&!confirm("Já existe um cliente chamado \""+nome+"\". Atualizar a ficha dele com este briefing?"))alvo=null;
+    var id=alvo||await createClient(nome,b.niche||"");
+    var rec=Object.assign({},DB_CLIENTS[id]);
+    rec.niche=b.niche||rec.niche||"";
+    var fic=Object.assign({},rec.ficha||{});["instagram","site","regiao","ticket","oferta","publico","tom","restricoes"].forEach(function(k){if(b[k])fic[k]=b[k];});
+    var extra=[b.objetivo?"Objetivo: "+b.objetivo:"",b.datas?"Datas: "+b.datas:"",b.obs||"",b.responsavel?"Briefing preenchido por "+b.responsavel:""].filter(Boolean).join("\n");
+    if(extra)fic.obs=(fic.obs?fic.obs+"\n":"")+extra;
+    rec.ficha=fic;
+    var narr=briefingNarrativa(b);rec.briefing=(rec.briefing?rec.briefing+"\n\n":"")+narr;
+    var r=Object.assign({},rotinaOf(id));
+    var ti=TEMPO_OPC.map(function(o){return o[1]}).indexOf(b.tempo);if(ti>=0){r.tempoGrav=TEMPO_OPC[ti][0];r.maxGrav=CAPACIDADE[r.tempoGrav].grav;}
+    var fi=BRIEF_FREQ.indexOf(b.frequencia),n=fi>=0?[3,4,5,7][fi]:0;
+    if(n){var map={"Dom":0,"Seg":1,"Ter":2,"Qua":3,"Qui":4,"Sex":5,"Sáb":6},esc2=(b.dias||"").split(/,\s*/).map(function(d){return map[d]}).filter(function(x){return x!=null});
+      var dias=esc2.slice(0,n);DIAS_PADRAO[n].forEach(function(d){if(dias.length<n&&dias.indexOf(d)<0)dias.push(d);});r.diasPost=dias.sort();}
+    var gi=DIAS_SEM_LONGO.indexOf(b.gravdia);if(gi>=0)r.gravDia=gi;
+    rec.rotina=r;
+    await saveClientRecord(id,rec);
+    var cli=byId(id);if(cli){cli.niche=rec.niche;cli.full=rec.name+(rec.niche?" — "+rec.niche:"");refreshClientOptions();}
+    var refs=[];function addRefs(txt,tipo){String(txt||"").split(/\n|;|,(?=\s*@)/).map(function(x){return x.trim()}).filter(Boolean).forEach(function(l){var m=l.match(/^(@?[\w.]+)\s*[-—–:]?\s*(.*)$/);refs.push({nome:m?m[1]:l.slice(0,40),tipo:tipo,descricao:m?m[2]:l});});}
+    addRefs(b.referencias,"Referência de estilo");addRefs(b.concorrentes,"Concorrente direto");
+    if(refs.length)await dbDoc("cos_refs/"+id).set({items:refs.slice(0,5)});
+    var dnaDoc=await dbDoc("cos_dna/"+id).get(),atuais=dnaDoc.exists?((dnaDoc.data()||{}).entries||[]):[];
+    var novas=irisToDnaEntries(irisExtract(narr,"Briefing do cliente (formulário) — "+new Date().toLocaleDateString("pt-BR")));
+    await dbDoc("cos_dna/"+id).set({entries:atuais.concat(novas)});
+    delete DB_STATE_CACHE[id];
+    return {id:id,atualizado:!!alvo,sugestoes:novas.length,refs:Math.min(5,refs.length),freq:n,tempo:b.tempo||""};
+  }
+  function briefToolsHtml(){
+    if(state.clientView)return '';
+    return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:8px">Briefing do cliente por formulário</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">1) Baixe o formulário e envie ao cliente (WhatsApp/e-mail) · 2) ele preenche no celular e toca em <b>Enviar pelo WhatsApp</b> · 3) você cola a mensagem em <b>Importar briefing</b> — o cliente é criado com ficha, frequência, tempo de gravação e o Content DNA sugerido pela Íris.</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="bfForm">📨 Formulário de briefing para enviar</button><button class="btn" id="bfImport">📥 Importar briefing recebido</button></div></div>';
+  }
+  function openBriefFormModal(){
+    var c=formCfg();
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(460px,100%)"><div class="dh"><div class="d-title">Formulário de briefing</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Gera um arquivo que abre no celular do cliente. Ele responde (frequência desejada, tempo para gravar, público, dores, diferencial…) e as respostas chegam no seu WhatsApp, prontas para importar.</div>'+
+      '<div class="fld"><label for="bfNome">Seu nome ou agência (aparece no formulário)</label><input id="bfNome" value="'+esc(c.nome||"")+'" placeholder="Ex.: Tarik Estratégia de Conteúdo"></div>'+
+      '<div class="fld"><label for="bfWhats">Seu WhatsApp com DDD (para receber as respostas)</label><input id="bfWhats" value="'+esc(c.whats||"")+'" placeholder="Ex.: 11 99999-9999"></div>'+
+      '<button class="btn pri genbtn" id="bfBaixar">⬇ Baixar formulário</button><span id="bfMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin-top:12px">Envie o arquivo <b>briefing-de-conteudo.html</b> ao cliente. No celular ele toca no arquivo e abre no navegador. Não precisa de login nem de conta.</div></div></div></aside>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    I("#bfBaixar").addEventListener('click',function(){var cfg={nome:I("#bfNome").value.trim(),whats:I("#bfWhats").value.trim()};saveFormCfg(cfg);
+      downloadText("briefing-de-conteudo.html",buildBriefingFormHtml(cfg),"text/html",function(ok){var m=I("#bfMsg");if(m){m.textContent=ok?"✓ Baixado — envie ao cliente":"Não consegui baixar agora";m.style.color=ok?"var(--good)":"var(--warn)";}});});
+  }
+  function openBriefImportModal(){
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(560px,100%)"><div class="dh"><div class="d-title">Importar briefing recebido</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Cole aqui a mensagem que o cliente enviou (começa com “'+esc(BRIEF_MARK)+'”).</div>'+
+      '<textarea class="ta" id="bfTxt" style="min-height:220px" placeholder="'+esc(BRIEF_MARK)+'&#10;&#10;▸ Nome da empresa ou marca&#10;…"></textarea>'+
+      '<div id="bfPrev" style="font-size:12.5px;color:var(--muted);margin:10px 0"></div>'+
+      '<button class="btn pri genbtn" id="bfGo" disabled>Criar cliente com este briefing</button><span id="bfIMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div></div></aside>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    var parsed=null;
+    I("#bfTxt").addEventListener('input',function(){parsed=parseBriefing(this.value);var p=I("#bfPrev");
+      if(!parsed){p.innerHTML=this.value.trim()?'<span style="color:var(--warn)">Não reconheci o briefing — cole a mensagem inteira, do jeito que chegou.</span>':'';I("#bfGo").disabled=true;return;}
+      var n=Object.keys(parsed).length;p.innerHTML='✓ <b>'+esc(parsed.name)+'</b>'+(parsed.niche?' — '+esc(parsed.niche):'')+' · '+n+' respostas'+(parsed.frequencia?' · '+esc(parsed.frequencia):'')+(parsed.tempo?' · gravação: '+esc(parsed.tempo):'');I("#bfGo").disabled=false;});
+    I("#bfGo").addEventListener('click',async function(){if(!parsed)return;if(!CAP.db){noAi();return;}
+      I("#bfGo").disabled=true;setBusy(I("#bfIMsg"),"Importando…");
+      try{var r=await importarBriefing(parsed);closeDrawer();setClient(r.id);go("dna");
+        toast((r.atualizado?"Cliente atualizado":"Cliente criado")+" com o briefing: "+r.sugestoes+" sugestões no Content DNA"+(r.freq?", "+r.freq+" posts/semana":"")+(r.tempo?", gravação "+r.tempo:"")+". Revise e aprove o DNA, depois siga os próximos passos.");}
+      catch(e){I("#bfIMsg").textContent="Não consegui importar — tente de novo.";I("#bfIMsg").style.color="var(--warn)";I("#bfGo").disabled=false;}});
+  }
   function openNewClientModal(){
     if(!CAP.db){
       I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(440px,100%)"><div class="dh"><div class="d-title">IA ao vivo indisponível aqui</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block"><div style="font-size:13px;color:var(--muted)">Cadastrar um cliente novo e gerar com IA real só funciona quando este painel é aberto pelo <b>link publicado no claude.ai</b> — a cópia offline (arquivo local) não tem essa capacidade. Peça o link do painel para usar esta função.</div></div></div></aside>';
