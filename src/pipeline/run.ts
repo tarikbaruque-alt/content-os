@@ -97,7 +97,12 @@ export async function runPipeline(
       real ? writeCarousel(it.idea, ctx, llm, visual) : buildCarousel(it.idea, ctx, visual),
       real ? writeStorySequence(it.idea, ctx, llm, undefined, visual) : buildStorySequence(it.idea, ctx, undefined, visual),
     ]);
-    const full: CalendarItem = { ...it, content, carousel, stories };
+    const full: CalendarItem = {
+      ...it,
+      content: { ...content, origem: content.origem ?? "rascunho" },
+      carousel: { ...carousel, origem: carousel.origem ?? "rascunho" },
+      stories: { ...stories, origem: stories.origem ?? "rascunho" },
+    };
     return full;
   });
   const calendar: MonthlyCalendar = { total: draft.total, mix: draft.mix, items };
@@ -107,6 +112,8 @@ export async function runPipeline(
 
   const warnings = [...iris.warnings];
   if (ideas.length < 15) warnings.push("Menos de 15 ideias geradas.");
+  const rascunhos = items.filter((i) => i.content.origem !== "ia").length;
+  if (rascunhos) warnings.push(`${rascunhos} peça(s) em RASCUNHO (sem IA) — gere com IA antes de publicar.`);
 
   return {
     clientId: client.id,

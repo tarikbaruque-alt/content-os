@@ -231,6 +231,7 @@ export function parseCarouselJson(text: string, base: Carousel): Carousel | null
   if (slides.length < 3 || copy.length < 20) return null;
   return {
     ...base,
+    origem: "ia",
     capaHeadline: str(p.capaHeadline) || base.capaHeadline,
     hook: str(p.hook) || base.hook,
     estrutura: str(p.estrutura) || base.estrutura,

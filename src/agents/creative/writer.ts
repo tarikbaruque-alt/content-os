@@ -148,6 +148,7 @@ export function parseWriterJson(
   const steps = asSteps(parsed.roteiro);
   const content: ProducedContent = {
     ideaId: idea.id,
+    origem: "ia",
     headline,
     kind: fallback.kind,
     copy,

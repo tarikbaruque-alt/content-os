@@ -293,6 +293,13 @@
   .cos-toast.on{opacity:1;transform:translate(-50%,0)}
   .ficha summary{display:flex;align-items:center;cursor:pointer;list-style:none} .ficha summary::-webkit-details-marker{display:none}
   .ficha[open] summary{margin-bottom:2px}
+  .badge.rasc{color:var(--warn);background:var(--hyp-bg);border-color:transparent}
+  .steplist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+  .stepi{display:flex;gap:9px;align-items:center;font-size:12.5px;padding:7px 9px;border-radius:9px;cursor:pointer;color:var(--ink)}
+  .stepi:hover{background:var(--surface-2)}
+  .stepi .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11px;flex:0 0 auto}
+  .stepi.ok{color:var(--muted)} .stepi.ok .dot{background:var(--fact-bg);border-color:transparent;color:var(--good)}
+  #noClientHero[hidden]{display:none}
   .fmt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
   .selchip{transition:border-color .12s ease,background .12s ease,transform .08s ease}
   .selchip:active{transform:scale(.97)}
@@ -333,11 +340,13 @@
     <div id="cvBanner">👁 Visualização do cliente — somente leitura · <b id="cvName">Studio Aurora</b><span style="opacity:.8"> · você está vendo exatamente o que o cliente veria</span></div>
 
     <div class="wrap">
+      <div id="noClientHero" class="card empty-hero" style="margin-top:6px" hidden><div class="eh-ic">＋</div><div class="eh-t" style="margin-bottom:14px">Esta área trabalha <b>por cliente</b> e ainda não há nenhum selecionado. Cadastre um cliente — cada agente se alimenta do anterior (Ficha → DNA → Estratégia → Editorial → Ideias → Formatos → Calendário).</div><button class="btn pri genbtn" id="ncHeroBtn">+ Novo cliente</button></div>
       <section class="view" data-view="overview">
         <div class="eyebrow">Content OS</div>
         <h1 style="font-size:26px;margin:8px 0 6px">Inteligência estratégica de conteúdo</h1>
         <p class="lead">Uma equipe de agentes de IA que entende cada cliente, decide com fundamento, pesquisa, cria, planeja e aprende — para melhores decisões de conteúdo, não apenas mais conteúdo.</p>
         <div class="card pad" style="margin-top:16px"><div class="legend"><b style="color:var(--ink);font-size:12px">Estado de cada área:</b><span class="li"><span class="statuspill lvl-func">Funcional</span> roda de verdade</span><span class="li"><span class="statuspill lvl-parcial">Parcial</span> motor real, painel em progresso</span><span class="li"><span class="statuspill lvl-mock">Mock</span> só visual</span><span class="li"><span class="statuspill lvl-nao">Não impl.</span> depende de API</span></div><div style="font-size:11.5px;color:var(--faint);margin-top:9px">O painel é um <b>preview de UX</b> com dados de exemplo. O selo no topo de cada tela indica o estado da <b>inteligência por trás</b> dela.</div></div>
+        <div id="ovSteps"></div>
         <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-bottom:12px">Como o sistema pensa</div><div class="pipe" id="pipe"></div></div>
         <div class="grid cols-4" style="margin-top:16px" id="kpis"></div>
         <div class="section-head"><div><h3>Próximas publicações</h3><p>Clique para abrir o contexto estratégico completo.</p></div><a class="badge" data-goto="calendar" style="cursor:pointer">Calendário →</a></div>
@@ -7693,7 +7702,7 @@
   function genCard(it,idx){
     var x=it.idea,c=it.content,stc=STCOL[it.status]||"badge";
     return '<div class="card content-card" data-gen="'+idx+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(it.data)+'</span><span class="badge '+stc+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
-      '<div class="cc-h">'+esc(c?c.headline:x.titulo)+'</div>'+
+      '<div class="cc-h">'+esc(c?c.headline:x.titulo)+'</div>'+(isRascunho(c)?'<div style="margin-top:6px">'+rascunhoBadge(c)+'</div>':'')+
       '<div class="cc-m">'+esc(x.surface)+' + '+esc(x.format)+' · '+esc((x.pilar||"").split(":")[0])+'</div>'+
       '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="badge">'+esc(x.funil)+'</span>'+(c?'<span class="pill emo-pill">♥ '+esc(c.emocao)+'</span>':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
   }
@@ -7718,9 +7727,11 @@
     if(state.clientView&&["overview","strategy","editorial","formats","content","calendar"].indexOf(v)<0)v="overview";
     state.view=v;
     Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
-    Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.getAttribute('data-view')!==v});
+    var needs=["dna","plan","strategy","research","editorial","ideas","formats","content","calendar","approvals","performance"].indexOf(v)>=0,noCli=needs&&!state.client;
+    Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=noCli||s.getAttribute('data-view')!==v});
+    var nh=I("#noClientHero");if(nh)nh.hidden=!noCli;
     var t=TITLES[v]||["",v];I("#crumb").textContent=t[0];I("#ptitle").textContent=t[1];
-    renderView(v);
+    if(!noCli)renderView(v);else renderStatus(v);
     window.scrollTo({top:0});
   }
   function renderPipe(){I("#pipe").innerHTML=PIPE.map(function(s,i){return '<span class="step'+(i===0?' on':'')+'">'+s+'</span>'+(i<PIPE.length-1?'<span class="arr">→</span>':'')}).join('')}
@@ -7740,6 +7751,12 @@
   }
   function wireContent(sel){Array.prototype.forEach.call(document.querySelectorAll(sel),function(el){el.addEventListener('click',function(){openContent(el.getAttribute('data-content'))})})}
   function renderOverviewContent(){
+    var ov=I("#ovSteps");
+    if(ov){
+      ov.innerHTML=!CLIENTS.length?'<div class="card empty-hero" style="margin-top:16px"><div class="eh-ic">＋</div><div class="eh-t" style="margin-bottom:14px">Comece cadastrando o <b>primeiro cliente</b>. Cada agente se alimenta do anterior: Ficha → Content DNA → Estratégia → Linha Editorial → Ideias → Formatos → Calendário.</div><button class="btn pri genbtn" id="ovNewClient">+ Novo cliente</button></div>':nextStepsHtml();
+      var nb=I("#ovNewClient");if(nb)nb.addEventListener('click',openNewClientModal);
+      wireSteps(ov);
+    }
     if(genOn()){I("#ovContent").innerHTML=GENERATED.calendar.items.slice(0,4).map(genCard).join('');wireGen('#ovContent [data-gen]');return;}
     I("#ovContent").innerHTML=CONTENT.slice(0,4).map(contentCard).join('');wireContent('#ovContent [data-content]');
   }
@@ -8135,7 +8152,7 @@
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
       refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
-      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), '',
+      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), '',
       'Distribua pelo funil: ~45% topo, ~35% meio, ~20% fundo. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
       'Cada ideia precisa de: título, conceito (1 frase), ângulo, dor/desejo específico usado, função/objetivo, propósito (1 frase: de onde a persona sai e pra onde vai), emoção-alvo, hook (frase de abertura real), CTA, formato escolhido + objetivo do formato + por que esse formato, e justificativa (por que não serve pra outra marca).',
       '', 'Responda SOMENTE com JSON: {"ideas":[{"titulo":string,"conceito":string,"angulo":string,"dorDesejo":string,"funcao":string,"funil":"topo"|"meio"|"fundo","jornada":string,"emocao":string,"pilar":string,"tema":string,"proposito":string,"formato":string,"formatoObjetivo":string,"formatoJustificativa":string,"hook":string,"cta":string,"justificativa":string}]}',
@@ -8297,6 +8314,7 @@
       '<div style="font-size:12px;color:var(--muted);margin-top:10px">Quadros fixos criam hábito: mesmo nome, mesma abertura, mesmo dia da semana.</div></div></div>';
     h+='<div class="clist" style="margin-top:14px"><div class="card pad"><div class="eyebrow" style="margin-bottom:8px;color:var(--warn)">Evitar</div>'+g.evitar.map(function(e){return '<div style="font-size:12.5px;margin-top:8px"><b>'+esc(e.pratica)+'</b> — <span style="color:var(--muted)">'+esc(e.porque)+'</span></div>'}).join('')+'</div>'+
       '<div class="card pad"><div class="eyebrow" style="margin-bottom:8px;color:var(--warn)">Cuidados éticos e regulatórios</div>'+g.cuidados.map(function(c){return '<div style="font-size:12.5px;margin-top:8px;color:var(--muted)">• '+esc(c)+'</div>'}).join('')+'</div></div>';
+    if(!cv)h+=perfCardHtml();
     h+='<div class="section-head"><div><h3>Todas as opções</h3><p>A biblioteca completa, com o encaixe de cada formato neste nicho. “Livre” = pode usar quando a ideia pedir.</p></div></div>';
     h+='<div class="fmt-grid">'+g.opcoes.map(function(o){
       return '<div class="card pad" style="padding:13px 14px"><div style="display:flex;gap:6px;align-items:center;justify-content:space-between"><b style="font-size:13px">'+esc(o.nome)+'</b>'+fitBadge(o.fit)+'</div>'+
@@ -8324,7 +8342,7 @@
       'Formatos: '+g.perfil.formatos.map(function(f){var d=nfFormato(f.key);return (d?d.nome:f.key)+' ['+f.papel+']'}).join('; '),
       'Mix: '+g.perfil.superficies.map(function(s){return s.superficie+' '+s.pct+'%'}).join(', '), 'Cadência: '+g.perfil.cadencia,
       'Evitar: '+g.perfil.evitar.map(function(e){return e.pratica}).join('; '), 'Cuidados: '+g.perfil.cuidados.join(' '),
-      '', 'BIBLIOTECA DE FORMATOS:', lib, '',
+      perfCompact()?('\n'+perfCompact()+'\nPriorize o que os dados reais mostram, sem descartar formatos com poucos posts.'):'', '', 'BIBLIOTECA DE FORMATOS:', lib, '',
       'Entregue 5 a 6 formatos em ordem de prioridade (2 Carro-chefe, 2-3 Apoio, 1 Pontual), cada um com "porque" (ligado à persona/dor/oferta deste cliente) e "comoFazer" (instrução prática de gravação/estrutura, 1-2 frases). Ajuste o mix de superfícies (soma 100), a cadência e 3 séries/quadros com nome próprio para este cliente. Liste 2-3 práticas a evitar (use "formato" com o nome da biblioteca quando o alerta for sobre um formato; senão "").',
       '', 'Responda SOMENTE com JSON: {"leitura":string,"formatos":[{"nome":string,"papel":"Carro-chefe"|"Apoio"|"Pontual","porque":string,"comoFazer":string}],"superficies":[{"superficie":string,"pct":number}],"cadencia":string,"series":[string],"evitar":[{"pratica":string,"porque":string,"formato":string}]}',
     ].join('\n');
@@ -8434,7 +8452,7 @@
     h+='<div class="grid cols-2">'+g.ideas.map(function(i){return '<div class="card pad" style="padding:13px 15px"><div style="font-size:13px;font-weight:600">'+esc(i.titulo)+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+chip(i.funil,"badge")+chip(i.funcao,"pill st-INSIGHT")+chip("♥ "+i.emocao,"pill emo-pill")+chip(i.surface+" + "+i.format,"badge")+'</div></div>'}).join('')+'</div>';
     // Calendário
     h+='<div class="section-head"><div><h3>Calendário do mês — '+g.calendar.items.length+' conteúdos</h3><p>Mix: topo '+g.calendar.mix.topo+' · meio '+g.calendar.mix.meio+' · fundo '+g.calendar.mix.fundo+'. Clique para abrir roteiro/copy + payload do Notion.</p></div></div>';
-    h+='<div class="clist">'+g.calendar.items.map(function(it,idx){return '<div class="card content-card" data-gen="'+idx+'"><div class="cc-h">'+esc(it.content.headline)+'</div><div class="cc-m">'+esc(it.data)+' · '+esc(it.idea.surface)+' + '+esc(it.idea.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[it.status]||"badge")+'">'+it.status+'</span><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="pill emo-pill">♥ '+esc(it.content.emocao)+'</span></div></div>'}).join('')+'</div>';
+    h+='<div class="clist">'+g.calendar.items.map(function(it,idx){return '<div class="card content-card" data-gen="'+idx+'"><div class="cc-h">'+esc(it.content.headline)+'</div>'+rascunhoBadge(it.content)+'<div class="cc-m">'+esc(it.data)+' · '+esc(it.idea.surface)+' + '+esc(it.idea.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[it.status]||"badge")+'">'+it.status+'</span><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="pill emo-pill">♥ '+esc(it.content.emocao)+'</span></div></div>'}).join('')+'</div>';
     el.innerHTML=h;
     Array.prototype.forEach.call(el.querySelectorAll('[data-gen]'),function(c){c.addEventListener('click',function(){openGenerated(+c.getAttribute('data-gen'))})});
   }
@@ -8585,12 +8603,12 @@
     var idea=it.idea,id=state.client;if(!CAP.sample){noAi();return;}
     var btn=document.querySelector('[data-genpeca="'+kind+'"]');if(btn)btn.disabled=true;
     var msg=I("#pecaMsg");setBusy(msg,"Pensando…");
-    var cfg=readContentConfig(idea),dnaText=dnaCompact();
+    var cfg=readContentConfig(idea),dnaText=dnaCompact()+exemplosCompact();
     try{
       var patch={};
       if(kind==="reel"){
         var out=await CAP.sample.json(buildReelPrompt(dnaText,cfg),{modelTier:"complex",cache:false});
-        patch.content={ideaId:idea.id,headline:String(out.headline||idea.hook||idea.titulo),kind:"reel",
+        patch.content={origem:"ia",ideaId:idea.id,headline:String(out.headline||idea.hook||idea.titulo),kind:"reel",
           copy:String(out.copyMedia||""),copyVariants:{curta:String(out.copyCurta||""),media:String(out.copyMedia||""),longa:String(out.copyLonga||"")},
           cta:String(out.cta||cfg.cta),gatilhos:cfg.gatilhos,recursos:cfg.elementos,gatilhosRec:[],elementosRec:[],
           emocao:String(out.emocao||cfg.emocao),emocaoPor:String(out.emocaoPor||""),direcaoVisual:String(out.direcaoVisual||""),
@@ -8598,13 +8616,13 @@
       }else if(kind==="carrossel"){
         var out2=await CAP.sample.json(buildCarrosselPrompt(dnaText,cfg),{modelTier:"complex",cache:false});
         var slides=(Array.isArray(out2.slides)?out2.slides:[]).map(function(s,i){return {n:i+1,papel:String(s.papel||(i===0?"Capa":"Slide")),titulo:String(s.titulo||""),texto:String(s.texto||""),visual:String(out2.direcaoVisual||""),imagem:""};});
-        patch.carousel={capaHeadline:String(out2.capaHeadline||idea.titulo),hook:String(out2.hook||idea.hook),estrutura:String(out2.estrutura||""),
+        patch.carousel={origem:"ia",capaHeadline:String(out2.capaHeadline||idea.titulo),hook:String(out2.hook||idea.hook),estrutura:String(out2.estrutura||""),
           slides:slides,copy:String(out2.copy||""),cta:String(out2.cta||cfg.cta),gatilhos:cfg.gatilhos,elementosLiterarios:cfg.elementos,
           emocao:String(out2.emocao||cfg.emocao),emocaoPor:String(out2.emocaoPor||""),direcaoVisual:String(out2.direcaoVisual||""),referencias:[]};
       }else{
         var out3=await CAP.sample.json(buildStoriesPrompt(dnaText,cfg),{modelTier:"default",cache:false});
         var storiesSteps=(Array.isArray(out3.stories)?out3.stories:[]).map(function(s,i){return {n:i+1,papel:String(s.papel||("Story "+(i+1))),fala:String(s.fala||""),visual:"",interacao:String(s.interacao||"")};});
-        patch.stories={tipo:String(out3.tipo||"Sequência"),objetivo:cfg.objetivo,contexto:"",emocao:String(out3.emocao||cfg.emocao),emocaoPor:String(out3.emocaoPor||""),
+        patch.stories={origem:"ia",tipo:String(out3.tipo||"Sequência"),objetivo:cfg.objetivo,contexto:"",emocao:String(out3.emocao||cfg.emocao),emocaoPor:String(out3.emocaoPor||""),
           percepcaoDesejada:"",narrativa:"",publico:cfg.persona,progressao:storiesSteps.map(function(s){return s.papel}),stories:storiesSteps,cta:String(out3.cta||cfg.cta),gatilhos:cfg.gatilhos};
       }
       await dbItemsCol("cos_calendar",id).doc(it.id).update(patch);
@@ -8643,6 +8661,7 @@
       body+=configPanelHtml(x);
       body+='<div style="text-align:right;margin-top:14px"><button class="btn pri genbtn" id="genPecaBtn" data-genpeca="reel" data-idx="'+idx+'">✦ Gerar Roteiro + Copy</button><span id="pecaMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
     }else if(c){
+      if(isRascunho(c))body+='<div class="callout" style="background:var(--hyp-bg)"><span>✎</span><div class="em" style="color:var(--warn)"><b>Rascunho escrito sem IA.</b> Serve de base para revisar — não publique assim.'+(db?' Gere a versão final com IA nas abas acima ou reescreva e salve.':' Rode o pipeline com a chave da Anthropic para a prosa final.')+'</div></div>';
       body+='<div class="emo-hero"><div class="eh-l">♥ Emoção estratégica</div><div class="eh-v">'+esc(c.emocao)+'</div><div class="eh-w"><b>Por quê:</b> '+esc(c.emocaoPor)+'</div></div>';
       body+=skeletonHtml(x,c,"content");
       if(!cli){
@@ -8659,6 +8678,7 @@
         body+='<div class="block" style="border-style:dashed"><div class="bt">Prévia de sincronização com o Notion <span class="tag-mock">payload · sem chamada real</span></div>'+props+'</div>';
       }
       if(db)body+='<div style="text-align:right"><button class="btn pri" id="saveReelBtn" data-idx="'+idx+'">💾 Salvar edições</button></div>';
+      if(db&&!cli)body+=metricsBlockHtml(it,idx);
     }
     var VIEWS={estrategia:body,carrossel:carouselHtml(it.carousel,x,idx),stories:storyHtml(it.stories,x,idx)};
     var tabsDef=[["estrategia","Estratégia"],["carrossel","🎠 Criar Carrossel"],["stories","📱 Criar Sequência de Stories"]];
@@ -8681,6 +8701,8 @@
       }
       var gp=e.target.closest&&e.target.closest('[data-genpeca]');
       if(gp){runGerarPeca(+gp.getAttribute('data-idx'),gp.getAttribute('data-genpeca'));return;}
+      var smt=e.target.closest&&e.target.closest('#saveMetBtn');
+      if(smt){saveMetrics(+smt.getAttribute('data-idx'));return;}
       var sr=e.target.closest&&e.target.closest('#saveReelBtn');
       if(sr){
         var box2=I('#copybox');if(box2)cvData[activeCv]=box2.textContent;
@@ -8689,7 +8711,7 @@
         var ctaEl=I('#reelCta');
         var patch={content:Object.assign({},it.content,{copyVariants:cvData,copy:cvData.media,roteiro:it.content.roteiro?roteiro:it.content.roteiro,cta:ctaEl?ctaEl.textContent:it.content.cta})};
         sr.disabled=true;sr.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it.content,patch.content);sr.textContent="✓ Salvo";setTimeout(function(){sr.textContent="💾 Salvar edições";sr.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it.content,patch.content,{origem:"ia"});recordExample(state.client,"Reel/copy",it.content.headline,it.content.copy,"editado por você");sr.textContent="✓ Salvo";setTimeout(function(){sr.textContent="💾 Salvar edições";sr.disabled=false;},1200);});
         return;
       }
       var sc=e.target.closest&&e.target.closest('#saveCarrBtn');
@@ -8698,7 +8720,7 @@
         var slides=(cr.slides||[]).map(function(s,i){var t=document.querySelector('[data-slide-t="'+i+'"]'),tx=document.querySelector('[data-slide-x="'+i+'"]');return Object.assign({},s,{titulo:t?t.textContent:s.titulo,texto:tx?tx.textContent:s.texto});});
         var patch2={carousel:Object.assign({},cr,{capaHeadline:capaEl?capaEl.textContent:cr.capaHeadline,copy:copyEl?copyEl.textContent:cr.copy,cta:ctaEl2?ctaEl2.textContent:cr.cta,slides:slides})};
         sc.disabled=true;sc.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch2).then(function(){Object.assign(it.carousel,patch2.carousel);sc.textContent="✓ Salvo";setTimeout(function(){sc.textContent="💾 Salvar edições";sc.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch2).then(function(){Object.assign(it.carousel,patch2.carousel);recordExample(state.client,"Carrossel",it.carousel.capaHeadline,it.carousel.copy,"editado por você");sc.textContent="✓ Salvo";setTimeout(function(){sc.textContent="💾 Salvar edições";sc.disabled=false;},1200);});
         return;
       }
       var ss=e.target.closest&&e.target.closest('#saveStoBtn');
@@ -8707,12 +8729,27 @@
         var stories=(sq.stories||[]).map(function(s,i){var f=document.querySelector('[data-story-fala="'+i+'"]');return Object.assign({},s,{fala:f?f.textContent:s.fala});});
         var patch3={stories:Object.assign({},sq,{cta:ctaEl3?ctaEl3.textContent:sq.cta,stories:stories})};
         ss.disabled=true;ss.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch3).then(function(){Object.assign(it.stories,patch3.stories);ss.textContent="✓ Salvo";setTimeout(function(){ss.textContent="💾 Salvar edições";ss.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch3).then(function(){Object.assign(it.stories,patch3.stories);recordExample(state.client,"Stories",it.stories.cta,(it.stories.stories||[]).map(function(s){return s.fala}).join(" / "),"editado por você");ss.textContent="✓ Salvo";setTimeout(function(){ss.textContent="💾 Salvar edições";ss.disabled=false;},1200);});
         return;
       }
     });
     selTab('estrategia');
-    Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',function(){b.parentNode.querySelector('span').textContent="Ação registrada (prévia)"})});
+    Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',async function(){
+      var span=b.parentNode.querySelector('span');
+      if(!db){span.textContent="Ação registrada (prévia)";return;}
+      var aprovar=b.classList.contains('pri'),st=aprovar?"APPROVED":"REVIEW";
+      try{
+        await dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st});
+        it.status=st;span.textContent=st;span.className="badge "+(aprovar?"act":"prog");
+        if(aprovar){
+          var cc=it.content,cr=it.carousel;
+          if(cc&&!isRascunho(cc))await recordExample(state.client,"Reel/copy",cc.headline,cc.copy,"aprovado");
+          else if(cr)await recordExample(state.client,"Carrossel",cr.capaHeadline,cr.copy,"aprovado");
+          toast(cc&&isRascunho(cc)&&!cr?"Aprovado. (Rascunho sem IA não entra na memória de voz.)":"Aprovado — esta peça agora ensina a voz do cliente nas próximas gerações.");
+        }
+        renderCal();
+      }catch(e){span.textContent="Não consegui salvar";}
+    })});
   }
   function renderContentList(){
     if(genOn()){I("#contentList").innerHTML=GENERATED.calendar.items.map(genCard).join('');wireGen('#contentList [data-gen]');return;}
@@ -8758,7 +8795,7 @@
     return '<div class="clist">'+items.map(function(it,idx){
       var bc=col[it.idea.surface]||"#575663",headline=it.content?it.content.headline:it.idea.titulo,produced=!!it.content;
       return '<div class="card content-card" data-gen="'+idx+'" style="border-left:3px solid '+bc+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(it.data)+'</span><span class="badge '+(STCOL[it.status]||"badge")+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
-        '<div class="cc-h">'+esc(headline)+'</div><div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
+        '<div class="cc-h">'+esc(headline)+'</div>'+(isRascunho(it.content)?'<div style="margin-top:6px">'+rascunhoBadge(it.content)+'</div>':'')+'<div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
         '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="badge">'+esc(it.idea.funil)+'</span>'+(produced?'':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
     }).join('')+'</div>';
   }
@@ -8924,6 +8961,12 @@
       '<div class="block"><div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Começa 100% em branco — sem Linha Editorial, ideias, copies ou roteiros de exemplo. Você preenche o Content DNA (manualmente ou com a Íris) e gera cada etapa quando quiser. Tudo que você preencher fica gravado — não precisa digitar de novo.</div>'+
       '<div class="fld"><label for="ncName">Nome do cliente</label><input id="ncName" placeholder="Ex.: Consultório Dr. Paulo"></div>'+
       '<div class="fld"><label for="ncNiche">Nicho / segmento</label><input id="ncNiche" placeholder="Ex.: Odontologia"></div>'+
+      '<div style="font-size:11.5px;color:var(--faint);margin:4px 0 12px">Opcional — quanto mais você preencher agora, mais ricos ficam todos os agentes (dá pra completar depois na Ficha do cliente):</div>'+
+      '<div class="fld"><label for="ncInsta">Instagram (@)</label><input id="ncInsta" placeholder="@perfil"></div>'+
+      '<div class="fld"><label for="ncOferta">Produtos / serviços principais</label><input id="ncOferta" placeholder="Ex.: lentes de contato dental, clareamento"></div>'+
+      '<div class="fld"><label for="ncPublico">Público-alvo</label><input id="ncPublico" placeholder="Ex.: mulheres de 30 a 50 anos que querem sorrir sem vergonha"></div>'+
+      '<div class="fld"><label for="ncTom">Tom de voz</label><input id="ncTom" placeholder="Ex.: acolhedor, sem jargão"></div>'+
+      '<div class="fld"><label for="ncBrief">Briefing / anotações da reunião</label><textarea class="ta" id="ncBrief" style="min-height:90px" placeholder="Cole aqui o que o cliente contou — a Íris usa isso para montar o Content DNA."></textarea></div>'+
       '<button class="btn pri genbtn" id="ncCreate">Criar cliente</button><span id="ncMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div></div></aside>';
     I("#overlay").innerHTML=html;
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
@@ -8933,6 +8976,8 @@
       I("#ncCreate").disabled=true;I("#ncMsg").textContent="Criando…";I("#ncMsg").style.color="var(--muted)";
       try{
         var id=await createClient(name,niche);
+        var ficha={instagram:I("#ncInsta").value.trim(),oferta:I("#ncOferta").value.trim(),publico:I("#ncPublico").value.trim(),tom:I("#ncTom").value.trim()},brief=I("#ncBrief").value.trim();
+        if(ficha.instagram||ficha.oferta||ficha.publico||ficha.tom||brief){try{await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{ficha:ficha,briefing:brief}));}catch(e){}}
         closeDrawer();
         setClient(id);go("dna");
       }catch(e){
@@ -9059,9 +9104,97 @@
     });
   }
 
+  // ---- Rascunho × IA — peça sem IA nunca se passa por texto final ----
+  function isRascunho(c){return !!c&&(c.origem==="rascunho"||(!c.origem&&/ancorado no Content DNA do cliente/.test((c.copy||"")+" "+((c.roteiro||[]).map(function(s){return s.text}).join(" ")))));}
+  function rascunhoBadge(c){return isRascunho(c)?'<span class="badge rasc" title="Escrito sem IA — base para revisar, não publicar assim">✎ rascunho</span>':'';}
+
+  // ---- Memória de voz: peças que você aprova ou edita viram exemplo para as próximas ----
+  async function recordExample(id,tipo,headline,texto,fonte){
+    if(!CAP.db||!isDbClient(id)||!texto)return;
+    var g=DB_STATE_CACHE[id]||GENERATED||{},items=(g.exemplos||[]).slice();
+    items.unshift({tipo:tipo,headline:String(headline||""),texto:String(texto).slice(0,1200),fonte:fonte,at:new Date().toISOString()});
+    items=items.slice(0,6);
+    try{await dbDoc("cos_exemplos/"+id).set({items:items});}catch(e){return;}
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].exemplos=items;
+    if(state.client===id&&GENERATED)GENERATED.exemplos=items;
+  }
+  function exemplosCompact(){
+    var ex=(GENERATED&&GENERATED.exemplos)||[];if(!ex.length)return "";
+    return '\n\nEXEMPLOS APROVADOS PELO ESTRATEGISTA (a voz real deste cliente — imite ritmo, vocabulário e tom; NÃO copie o conteúdo nem repita as mesmas frases):\n'+
+      ex.map(function(x,i){return (i+1)+'. ['+x.tipo+(x.fonte?' · '+x.fonte:'')+'] '+x.headline+'\n'+x.texto.slice(0,600)}).join('\n\n');
+  }
+
+  // ---- Resultados reais (colados por você) → guia de formatos ----
+  var MET_FIELDS=[["alcance","Alcance"],["salvamentos","Salvamentos"],["compartilhamentos","Compartilhamentos"],["comentarios","Comentários"],["seguidores","Seguidores ganhos"]];
+  function metricsBlockHtml(it,idx){
+    var m=it.metrics||{};
+    return '<div class="block"><div class="bt">📈 Resultado depois de publicar <span class="tag-mock">cole os números do Instagram</span></div>'+
+      '<div class="grid cols-3" style="gap:0 12px">'+MET_FIELDS.map(function(f){return '<div class="fld"><label for="mt_'+f[0]+'">'+f[1]+'</label><input id="mt_'+f[0]+'" type="number" min="0" inputmode="numeric" value="'+(m[f[0]]!=null?esc(m[f[0]]):'')+'"></div>'}).join('')+'</div>'+
+      '<button class="btn" id="saveMetBtn" data-idx="'+idx+'">Salvar resultado</button><span id="metMsg" style="margin-left:10px;font-size:12px;color:var(--muted)">'+(m.at?'Último registro: '+esc(String(m.at).slice(0,10)):'Os resultados ensinam o guia de Formatos o que funciona para este cliente.')+'</span></div>';
+  }
+  async function saveMetrics(idx){
+    var it=GENERATED.calendar.items[idx];if(!it)return;
+    var m={at:new Date().toISOString()};
+    MET_FIELDS.forEach(function(f){var el=I("#mt_"+f[0]);var v=el&&el.value!==''?Math.max(0,+el.value):null;if(v!=null&&!isNaN(v))m[f[0]]=v;});
+    var msg=I("#metMsg");
+    if(!m.alcance){if(msg){msg.textContent="Informe ao menos o alcance.";msg.style.color="var(--warn)";}return;}
+    try{
+      await dbItemsCol("cos_calendar",state.client).doc(it.id).update({metrics:m});
+      it.metrics=m;
+      if(msg){msg.textContent="✓ Resultado salvo — já conta no guia de Formatos";msg.style.color="var(--good)";}
+    }catch(e){if(msg){msg.textContent="Não consegui salvar — tente de novo.";msg.style.color="var(--warn)";}}
+  }
+  function itemFormato(it){var x=it.idea||{};return (x.formatRec&&x.formatRec.formato)||x.format||"—";}
+  // Agrupa por formato: engajamento = (salvamentos + compartilhamentos + comentários) / alcance.
+  function formatPerformance(){
+    var items=((GENERATED&&GENERATED.calendar&&GENERATED.calendar.items)||[]).filter(function(it){return it.metrics&&it.metrics.alcance>0});
+    var by={};
+    items.forEach(function(it){var k=itemFormato(it),m=it.metrics,b=by[k]=by[k]||{formato:k,n:0,alcance:0,inter:0,salv:0};
+      b.n++;b.alcance+=m.alcance;b.salv+=(m.salvamentos||0);b.inter+=(m.salvamentos||0)+(m.compartilhamentos||0)+(m.comentarios||0);});
+    return Object.keys(by).map(function(k){var b=by[k];return {formato:b.formato,n:b.n,alcanceMedio:Math.round(b.alcance/b.n),eng:b.inter/b.alcance,salvRate:b.salv/b.alcance}})
+      .sort(function(a,b){return b.eng-a.eng});
+  }
+  function pct(x){return (Math.round(x*1000)/10).toLocaleString('pt-BR')+'%';}
+  function perfCompact(){
+    var p=formatPerformance();if(!p.length)return "";
+    return 'DESEMPENHO REAL deste cliente por formato (engajamento = salvamentos+compartilhamentos+comentários ÷ alcance; poucos posts = sinal fraco): '+
+      p.map(function(r){return r.formato+' '+pct(r.eng)+' ('+r.n+' post'+(r.n>1?'s':'')+', alcance médio '+r.alcanceMedio+')'}).join('; ');
+  }
+  function perfCardHtml(){
+    var p=formatPerformance();
+    if(!p.length)return '<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">📈 O que os seus dados dizem</div><div style="font-size:12.5px;color:var(--muted)">Ainda sem resultados. Depois de publicar, abra o conteúdo no Calendário e cole alcance, salvamentos e compartilhamentos — o guia passa a mostrar quais formatos funcionam <b>para este cliente</b>, não só para o nicho.</div></div>';
+    var tot=p.reduce(function(a,r){return a+r.n},0);
+    return '<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">📈 O que os seus dados dizem · '+tot+' post'+(tot>1?'s':'')+' medido'+(tot>1?'s':'')+'</div>'+
+      p.map(function(r,i){return '<div class="fnbar"><span class="fnl" style="flex:0 0 190px">'+(i===0?'🏆 ':'')+esc(r.formato)+' <span style="color:var(--faint);font-size:10.5px">· '+r.n+'</span></span><span class="fnt"><i style="width:'+Math.min(100,r.eng/p[0].eng*100)+'%"></i></span><span class="fnv tnum" style="flex:0 0 60px">'+pct(r.eng)+'</span></div>'}).join('')+
+      '<div style="font-size:11.5px;color:var(--faint);margin-top:8px">Engajamento = (salvamentos + compartilhamentos + comentários) ÷ alcance. '+(tot<6?'Com poucos posts por formato, trate como sinal inicial — não como regra.':'Use para ajustar o mix do próximo mês.')+'</div></div>';
+  }
+
+  // ---- Próximos passos: o painel guia o que falta para cada cliente ----
+  function nextStepsHtml(){
+    if(!state.client||!isDbClient(state.client))return '';
+    var g=GENERATED||{},c=DB_CLIENTS[state.client]||{};
+    var items=(g.calendar&&g.calendar.items)||[];
+    var steps=[
+      ["dna","Preencher a Ficha do cliente",fichaFilled(c)>=5],
+      ["dna","Montar o Content DNA (Íris ou manual)",(g.dna||[]).length>=5],
+      ["strategy","Gerar a Estratégia",!!g.strategy],
+      ["editorial","Gerar a Linha Editorial",(g.editorial||[]).length>0],
+      ["ideas","Gerar as Ideias",(g.ideas||[]).length>0],
+      ["formats","Conferir o guia de Formatos do nicho",!!(g.formats&&(g.formats.perfil||g.formats.ia))],
+      ["calendar","Montar o Calendário",items.length>0],
+      ["calendar","Produzir a primeira peça com IA",items.some(function(it){return it.content&&!isRascunho(it.content)})],
+      ["calendar","Registrar resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
+    ];
+    var done=steps.filter(function(s){return s[2]}).length,next=steps.filter(function(s){return !s[2]})[0];
+    return '<div class="card pad" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><div class="eyebrow">Próximos passos — '+esc(clientName(state.client))+'</div><span class="badge">'+done+'/'+steps.length+'</span>'+
+      (next?'<button class="btn pri genbtn" data-goto-step="'+next[0]+'" style="margin-left:auto">Continuar: '+esc(next[1])+' →</button>':'<span class="badge act" style="margin-left:auto">✓ Cliente completo</span>')+'</div>'+
+      '<div class="steplist">'+steps.map(function(s){return '<a class="stepi'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="dot">'+(s[2]?'✓':'')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div></div>';
+  }
+  function wireSteps(root){Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
+
   // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
   // (ou guarda uma cópia de segurança). ----
-  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats"],BK_COLS=["cos_ideas","cos_calendar"];
+  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos"],BK_COLS=["cos_ideas","cos_calendar"];
   async function exportBackup(){
     var out={app:"content-os",v:1,at:new Date().toISOString(),clients:[]};
     for(var id in DB_CLIENTS){
@@ -9154,7 +9287,7 @@
   }
   function blankClientState(id,name){
     return {clientId:id,clientName:name,generatedAt:null,provider:"sample",
-      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],formats:null,
+      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],formats:null,exemplos:[],
       calendar:{total:0,mix:{topo:0,meio:0,fundo:0},items:[]},notion:[],performance:[],
       libraries:LIB,warnings:[]};
   }
@@ -9169,6 +9302,7 @@
       var resDoc=await dbDoc("cos_research/"+id).get();if(resDoc.exists)g.research=(resDoc.data()||{}).items||[];
       var refsDoc=await dbDoc("cos_refs/"+id).get();if(refsDoc.exists)g.refs=(refsDoc.data()||{}).items||[];
       var fmtDoc=await dbDoc("cos_formats/"+id).get();if(fmtDoc.exists)g.formats=fmtDoc.data();
+      var exDoc=await dbDoc("cos_exemplos/"+id).get();if(exDoc.exists)g.exemplos=(exDoc.data()||{}).items||[];
       var ideasSnap=await dbItemsCol("cos_ideas",id).get();g.ideas=ideasSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       var calSnap=await dbItemsCol("cos_calendar",id).get();g.calendar.items=calSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       g.calendar.total=g.calendar.items.length;
@@ -9181,12 +9315,12 @@
     var sel=I("#csel");if(sel&&sel.value!==id)sel.value=id;
     if(isDbClient(id)){
       GENERATED=DB_STATE_CACHE[id]||blankClientState(id,c.name);
-      renderKpis();renderView(state.view);
+      renderKpis();go(state.view);
       loadDbClientState(id).then(function(g){if(state.client===id){GENERATED=g;renderKpis();renderView(state.view);}});
       return;
     }
     GENERATED=(GENERATED_ALL||{})[id]||null;
-    renderKpis();renderView(state.view);
+    renderKpis();if(state.view)go(state.view);
   }
   function refreshClientOptions(){
     var opts=CLIENTS.length?CLIENTS.map(function(c){return '<option value="'+c.id+'">'+esc(c.full)+'</option>'}).join(''):'<option value="">Nenhum cliente ainda</option>';
@@ -9206,6 +9340,7 @@
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});
   I("#newClientBtn").addEventListener('click',openNewClientModal);
+  I("#ncHeroBtn").addEventListener('click',openNewClientModal);
   go("overview");
   initCapabilities();
 })();

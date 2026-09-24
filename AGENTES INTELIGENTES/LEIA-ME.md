@@ -28,6 +28,19 @@ os agentes usam a ficha como fato.
 - Para levar os clientes de um para o outro (ou ter cópia de segurança):
   aba **🔑 Configuração → Backup dos clientes → Exportar / Importar**.
 
+### 🧭 O painel te guia e aprende com você
+
+- **Dashboard → Próximos passos:** mostra o que falta em cada cliente (Ficha →
+  DNA → Estratégia → Editorial → Ideias → Formatos → Calendário → peça com IA →
+  resultados) e leva direto para a próxima etapa.
+- **✎ rascunho:** peça escrita sem IA aparece marcada — é base para revisar,
+  **não publique assim**.
+- **Aprovar / Salvar edições** numa peça: ela vira exemplo da voz do cliente e
+  os agentes passam a imitar esse estilo nas próximas gerações.
+- **📈 Resultado depois de publicar:** cole alcance, salvamentos e
+  compartilhamentos no conteúdo; a aba **Formatos** mostra quais formatos
+  funcionam para aquele cliente.
+
 ### ⚠️ Os botões "Gerar" (IA ao vivo) só funcionam ONLINE
 
 Os botões de **Gerar Estratégia / Pesquisa / Linha Editorial / Ideias /

@@ -81,6 +81,11 @@ export type EditorialArchitecture = EditorialNode[];
 export type TriggerRec = { key: string; nome: string; porque: string; guardrail?: string };
 /** Elemento literário/narrativo recomendado, com o PORQUÊ. */
 export type DeviceRec = { key: string; nome: string; porque: string };
+/**
+ * De onde veio o texto da peça: "ia" = escrito pelo modelo (prosa publicável);
+ * "rascunho" = esqueleto determinístico (sem IA) — serve de base, NÃO publicar.
+ */
+export type ContentOrigin = "ia" | "rascunho";
 /** Mesma copy em três extensões, todas com Hook + desenvolvimento + CTA. */
 export type CopyVariants = { curta: string; media: string; longa: string };
 
@@ -145,6 +150,7 @@ export type ProducedContent = {
   emocao: string;
   emocaoPor: string;
   direcaoVisual: string;
+  origem?: ContentOrigin;
 };
 
 /** Referência visual (nunca inventada): termo de busca + link real de busca. */
@@ -185,6 +191,7 @@ export type Carousel = {
   emocaoPor: string;
   direcaoVisual: string;
   referencias: VisualRef[];
+  origem?: ContentOrigin;
 };
 
 /** Um Story dentro de uma sequência (agente Enredo). */
@@ -216,6 +223,7 @@ export type StorySequence = {
   /** Elementos literários recomendados com o porquê. */
   elementosRec: DeviceRec[];
   referencias: VisualRef[];
+  origem?: ContentOrigin;
 };
 
 export type CalendarItem = {
