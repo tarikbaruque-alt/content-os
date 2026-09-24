@@ -1,9 +1,11 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { FORMATOS, FN_ALTERNATIVAS } from "../pipeline/formats.js";
 import { GENERIC_PROFILE, NICHE_PROFILES } from "../pipeline/niche-formats.js";
+import { GATILHOS } from "../agents/creative/triggers.js";
+import { ELEMENTOS } from "../agents/creative/devices.js";
 
 /**
- * Embute no painel a biblioteca de formatos + o guia por nicho (fonte única:
+ * Embute no painel as bibliotecas (formatos, gatilhos, elementos) + o guia por nicho (fonte única:
  * src/pipeline/formats.ts e niche-formats.ts), entre os marcadores
  * NICHE_FORMATS_START/END, e mantém as três cópias do painel idênticas.
  *
@@ -13,7 +15,7 @@ const COPIES = ["apps/web/index.html", "apps/web/app.html", "AGENTES INTELIGENTE
 const START = "/*__NICHE_FORMATS_START__*/";
 const END = "/*__NICHE_FORMATS_END__*/";
 
-const data = { formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS };
+const data = { formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS, gatilhos: GATILHOS, elementos: ELEMENTOS };
 const block = `${START} var NICHE_FORMATS=${JSON.stringify(data)}; ${END}`;
 
 const html = readFileSync(COPIES[0]!, "utf8");
