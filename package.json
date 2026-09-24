@@ -16,6 +16,7 @@
     "notion:sync": "tsx src/demo/notion-sync.ts",
     "doctor": "tsx src/demo/doctor.ts",
     "smoke": "tsx src/demo/smoke.ts",
+    "panel:sync": "tsx src/demo/sync-panel.ts",
     "preview": "echo \"Abra apps/web/index.html no navegador (ou rode: npx --yes serve apps/web)\""
   },
   "dependencies": {

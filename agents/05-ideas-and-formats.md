@@ -77,7 +77,12 @@ Entrega ideias+formato ao **Creative Studio** (para virar conteúdo) e ao
 - Não escreve o roteiro/copy final (Creative Studio).
 - Não define pilares/temas (Editorial) — consome-os.
 
+## Guia de formatos por nicho
+Para cada cliente, a Musa entrega o **guia de formatos do nicho** (formatos
+recomendados com por quê e como fazer, mix de superfícies, produção, cadência,
+séries, o que evitar e cuidados regulatórios), que pode ser personalizado com IA a
+partir do Content DNA. Ver [Formatos §5](../foundation/formats.md).
+
 ## Status
-Arquitetura definida, com **prioridade de detalhamento** por pedido do
-estrategista. Critérios de ideação e de escolha de formato a incorporar após
-materiais. Candidato natural a usar o **Jev** para ranquear/priorizar ideias.
+Arquitetura definida; **guia de formatos por nicho implementado** (16 perfis).
+Critérios de ideação a detalhar após materiais. Candidato natural a usar o **Jev** para ranquear/priorizar ideias.

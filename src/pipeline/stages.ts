@@ -18,6 +18,7 @@ import type {
 import { clean, short } from "./text.js";
 import { deriveStrategyPaths } from "./strategy-paths.js";
 import { recommendFormat } from "./formats.js";
+import type { NicheProfile } from "./niche-formats.js";
 import { recommendTriggers } from "../agents/creative/triggers.js";
 import { recommendDevices } from "../agents/creative/devices.js";
 import type { CreativeContext } from "../agents/creative/context.js";
@@ -156,7 +157,7 @@ const SURFACE_BY_FUNNEL: Record<FunnelStage, [string, string][]> = {
   fundo: [["Carrossel", "Case"], ["Stories", "Quebra de objeção"], ["Reel", "Demonstração"], ["Stories", "Prova"]],
 };
 
-export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15): Idea[] {
+export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15, niche?: NicheProfile): Idea[] {
   const v = dnaView(dna);
   const dor = clean(v.dores[0] ?? "a dor da persona");
   const desejo = clean(v.desejos[0] ?? "o desejo da persona");
@@ -208,7 +209,7 @@ export function generateIdeas(dna: Dna, strategy: StrategyArchitecture, min = 15
       subtema: pick[1],
       surface: pick[0],
       format: pick[1],
-      formatRec: recommendFormat(funcao, meta.funil, pick[0]),
+      formatRec: recommendFormat(funcao, meta.funil, pick[0], niche),
       hook: seed.hook,
       cta: meta.funil === "fundo" ? "Chamar no direct" : "Salvar + seguir",
       justificativa: `Função ${funcao} (${meta.funil}); usa a dor/desejo reais e o diferencial do cliente — não é intercambiável entre marcas.`,

@@ -1,3 +1,5 @@
+import type { FormatGuide } from "./niche-formats.js";
+
 /**
  * Contratos do pipeline ponta a ponta do Content OS.
  * Cliente → Content DNA → Estratégia → Pesquisa → Editorial → Ideias →
@@ -259,6 +261,8 @@ export type CreativeLibraries = {
 };
 
 export type PipelineResult = {
+  /** Guia de formatos do nicho do cliente (Musa) — opções + orientação. */
+  formatGuide: FormatGuide;
   clientId: string;
   clientName: string;
   generatedAt: string;

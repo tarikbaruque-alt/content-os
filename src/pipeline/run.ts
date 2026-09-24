@@ -12,6 +12,7 @@ import { createVisualRefProvider, type VisualRefProvider } from "../core/integra
 import { GATILHOS } from "../agents/creative/triggers.js";
 import { ELEMENTOS } from "../agents/creative/devices.js";
 import { FORMATOS } from "./formats.js";
+import { buildFormatGuide, detectNiche } from "./niche-formats.js";
 import { mapWithConcurrency } from "../core/concurrency.js";
 import type { CalendarItem, MonthlyCalendar } from "./types.js";
 import type { FunnelStage } from "../core/planning/distribution.js";
@@ -42,7 +43,7 @@ export type PipelineOptions = {
  * Estratégia, que alimenta Editorial → Ideias → Produção → Calendário → Notion.
  */
 export async function runPipeline(
-  client: { id: string; name: string },
+  client: { id: string; name: string; niche?: string },
   briefing: string,
   source: string,
   opts: PipelineOptions = {},
@@ -70,7 +71,11 @@ export async function runPipeline(
   const strategy = deriveStrategy(dna);
   const research = deriveResearch(dna);
   const editorial = buildEditorial(strategy);
-  const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15);
+  // Nicho: cadastro do cliente → campo "nicho" do DNA → oferta/posicionamento → nome.
+  const dnaField = (f: string) => dna.filter((d) => d.field === f).map((d) => d.value).join(" · ");
+  const niche = detectNiche([client.niche, dnaField("nicho"), dnaField("oferta"), dnaField("posicionamento"), client.name]);
+  const formatGuide = buildFormatGuide(niche.profile, niche.from);
+  const ideas = generateIdeas(dna, strategy, opts.minIdeas ?? 15, niche.profile);
   const mix = opts.funnelMix ?? { topo: 45, meio: 35, fundo: 20 };
 
   // Contexto criativo completo para os especialistas (Rima, Mosaico, Enredo).
@@ -113,6 +118,7 @@ export async function runPipeline(
     research,
     editorial,
     ideas,
+    formatGuide,
     calendar,
     notion,
     performance,
