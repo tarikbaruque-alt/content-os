@@ -885,6 +885,7 @@
     return [fichaCompact(),d].filter(Boolean).join('\n')||'(nenhum registro ainda)';
   }
   function buildStrategyPrompt(name,dnaText){
+    var mp=metasPrompt();if(mp)dnaText=dnaText+'\n\n'+mp;
     var archNames=["Autoridade","Posicionamento","Rapport / Relacionamento","Educação","Diferenciação","Construção de Categoria","Comunidade","Geração de Demanda","Quebra de Objeções","Prova","Desejo","Conversão / Vendas","Lançamento","Crescimento de Audiência","Marca Pessoal"];
     return ['Você é Átlas, o agente de Estratégia do Content OS. A partir do Content DNA real abaixo, construa a estratégia de conteúdo deste cliente.',
       '', 'REGRA: nunca invente fatos além do que está no Content DNA. Use termos/linguagem reais do cliente quando possível.',
@@ -991,7 +992,8 @@
   }
   function buildEditorialPrompt(name,strategy){
     var ppw=state.client?diasPostOf().length:3,cp=capacidadePrompt();
-    return [cp?cp+'\nCom '+ppw+' postagens por semana, priorize '+(ppw<=2?'2 a 3':ppw<=4?'3 a 4':'4 a 5')+' pilares realmente ativos — frequência baixa pede poucas frentes, repetidas com consistência.\n':'','Você é Bússola, o agente de Linha Editorial do Content OS. A partir dos pilares estratégicos abaixo, construa a árvore editorial: Pilar → Território → Temas → Subtemas → Tópicos.',
+    var mp2=metasPrompt();
+    return [mp2,cp?cp+'\nCom '+ppw+' postagens por semana, priorize '+(ppw<=2?'2 a 3':ppw<=4?'3 a 4':'4 a 5')+' pilares realmente ativos — frequência baixa pede poucas frentes, repetidas com consistência.\n':'','Você é Bússola, o agente de Linha Editorial do Content OS. A partir dos pilares estratégicos abaixo, construa a árvore editorial: Pilar → Território → Temas → Subtemas → Tópicos.',
       '', 'REGRA: nada genérico — ancore tudo no negócio real do cliente (persona, Big Message, pilares).',
       '', 'Cliente: '+name,
       'Pilares estratégicos: '+((strategy&&strategy.pilares)||[]).join(' | '),
@@ -1062,10 +1064,10 @@
       'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), '',
       'Gatilhos mentais disponíveis: '+(LIB.gatilhos||[]).map(function(g){return g.nome}).join(', '),
       'Elementos literários disponíveis: '+(LIB.elementos||[]).map(function(e){return e.nome}).join(', '),
-      prefsPrompt(), capacidadePrompt(),
+      prefsPrompt(), capacidadePrompt(), metasPrompt(),
       opts.soSemGravacao?'IMPORTANTE: TODAS estas ideias devem ser em formato que NÃO exige o cliente gravar — escolha só formatos de Carrossel da lista (ex.: Checklist, Passo a Passo, Comparação, Case).':'',
       ja.length?('Estas ideias JÁ EXISTEM no calendário — NÃO repita, NÃO faça variações delas, traga ângulos novos:\n- '+ja.slice(0,80).join('\n- ')):'', '',
-      'Distribua pelo funil: ~45% topo, ~35% meio, ~20% fundo. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
+      'Distribua pelo funil: '+(function(){var mx=mixDoCliente(state.client);return '~'+mx.topo+'% topo, ~'+mx.meio+'% meio, ~'+mx.fundo+'% fundo';})()+'. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
       'Cada ideia precisa de: título, conceito (1 frase), ângulo, dor/desejo específico usado, função/objetivo, propósito (1 frase: de onde a persona sai e pra onde vai), emoção-alvo, hook (frase de abertura real), CTA, formato escolhido + objetivo do formato + por que esse formato, e justificativa (por que não serve pra outra marca).',
       '', 'Responda SOMENTE com JSON: {"ideas":[{"titulo":string,"conceito":string,"angulo":string,"dorDesejo":string,"funcao":string,"funil":"topo"|"meio"|"fundo","jornada":string,"emocao":string,"pilar":string,"tema":string,"proposito":string,"formato":string,"formatoObjetivo":string,"formatoJustificativa":string,"hook":string,"cta":string,"justificativa":string,"gatilhos":[string],"elementos":[string]}]}',
       'Em "gatilhos" escolha 2-3 nomes da lista de gatilhos e em "elementos" 1-2 nomes da lista de elementos — exatamente como escritos, respeitando as escolhas do estrategista.',
@@ -1746,7 +1748,7 @@
     var btn=I("#genPlanBtn");if(btn)btn.disabled=true;
     var msg=I("#planMsg");setBusy(msg,"Montando o calendário…");
     try{
-      var dias=diasPostOf(),slots=slotsFor(days,dias),total=slots.length,mix={topo:45,meio:35,fundo:20};
+      var dias=diasPostOf(),slots=slotsFor(days,dias),total=slots.length,mix=mixDoCliente(id);
       if(!total){if(msg){msg.textContent="Escolha ao menos um dia de postagem.";msg.style.color="var(--warn)";}if(btn)btn.disabled=false;return;}
       // Período longo: completa as ideias (sem repetir) antes de montar o calendário.
       for(var tent=0;ideas.length<total&&CAP.sample&&tent<6;tent++){
@@ -1828,7 +1830,8 @@
     return {keys:Object.keys(days).sort(),days:days};
   }
   function rotinaResumo(r){
-    return (r.tempoGrav!=null&&r.tempoGrav!==""?"⏱ "+tempoLbl(r.tempoGrav)+" de gravação/semana · ":"")+ROTINA_TIPOS.map(function(t){return t[2]+" "+t[1]+" "+padT(r[t[0]])}).join(" · ")+" · 📱 Stories "+storyTimes(r).join(" / ")+" · 🎥 Gravação: "+DIAS_SEM_LONGO[+r.gravDia]+" "+padT(r.gravHora);
+    var fo=FUNIL_OPC.filter(function(x){return x[0]===(r.foco||"")})[0];
+    return (fo?"🎯 "+fo[1]+" · ":"")+(r.tempoGrav!=null&&r.tempoGrav!==""?"⏱ "+tempoLbl(r.tempoGrav)+" de gravação/semana · ":"")+ROTINA_TIPOS.map(function(t){return t[2]+" "+t[1]+" "+padT(r[t[0]])}).join(" · ")+" · 📱 Stories "+storyTimes(r).join(" / ")+" · 🎥 Gravação: "+DIAS_SEM_LONGO[+r.gravDia]+" "+padT(r.gravHora);
   }
   // ---- Capacidade do cliente: tempo de gravação por semana → frequência e mix (gravado × sem gravação) ----
   var TEMPO_OPC=[[0,"Não grava (só arte/carrossel)"],[30,"Até 30 min"],[60,"1 hora"],[120,"2 horas"],[180,"3 horas"],[240,"4 horas ou mais"]];
@@ -1836,6 +1839,16 @@
   function precisaGravar(surface){return ["Reel","Vídeo","Stories","Live"].indexOf(surface)>=0;}
   function capOf(id){var r=rotinaOf(id);if(r.tempoGrav==null||r.tempoGrav==="")return null;var c=CAPACIDADE[+r.tempoGrav]||CAPACIDADE[60];return {tempo:+r.tempoGrav,total:c.total,grav:(r.maxGrav!=null?+r.maxGrav:c.grav)};}
   function tempoLbl(t){for(var i=0;i<TEMPO_OPC.length;i++)if(TEMPO_OPC[i][0]===+t)return TEMPO_OPC[i][1];return t+" min";}
+  var FUNIL_OPC=[["topo","Atrair gente nova (topo)",{topo:60,meio:25,fundo:15}],["meio","Aquecer e educar (meio)",{topo:30,meio:50,fundo:20}],["fundo","Converter em clientes (fundo)",{topo:25,meio:30,fundo:45}],["equilibrio","Equilíbrio",{topo:45,meio:35,fundo:20}]];
+  function mixDoCliente(id){var f=rotinaOf(id).foco||"equilibrio";for(var i=0;i<FUNIL_OPC.length;i++)if(FUNIL_OPC[i][0]===f)return FUNIL_OPC[i][2];return FUNIL_OPC[3][2];}
+  function metasPrompt(){
+    var id=state.client;if(!id)return '';var m=(DB_CLIENTS[id]||{}).metas||{},r=rotinaOf(id),L=[];
+    if(m.objetivos&&m.objetivos.length)L.push('Objetivos declarados pelo cliente: '+m.objetivos.join('; '));
+    if(r.foco){var fo=FUNIL_OPC.filter(function(x){return x[0]===r.foco})[0];if(fo)L.push('Foco do funil agora: '+fo[1]+' — mix alvo topo '+fo[2].topo+'% / meio '+fo[2].meio+'% / fundo '+fo[2].fundo+'%');}
+    if(m.proposito)L.push('Propósito da marca: '+m.proposito);
+    if(m.identidade)L.push('Identidade / como quer ser percebida: '+m.identidade);
+    return L.length?('METAS DO CLIENTE (respeite ao decidir caminhos, pilares e ideias):\n- '+L.join('\n- ')):'';
+  }
   function capacidadePrompt(){
     var id=state.client;if(!id)return '';var c=capOf(id),dias=diasPostOf();if(!c)return '';
     var ppw=dias.length,semGrav=Math.max(0,ppw-c.grav);
@@ -1847,7 +1860,8 @@
     if(ro)return '<div class="card pad" style="margin-bottom:16px">'+head+'<div style="font-size:13px;line-height:1.7">'+esc(rotinaResumo(r))+'</div></div>';
     var tm=function(k,l){return '<div class="fld" style="margin:0"><label for="rt_'+k+'">'+l+'</label><input type="time" id="rt_'+k+'" data-rot="'+k+'" value="'+padT(r[k])+'"></div>';};
     var cp=capOf(state.client),rec=cp?CAPACIDADE[cp.tempo]||CAPACIDADE[60]:null;
-    var capHtml='<div class="capbox"><div class="fld" style="margin:0;flex:1 1 220px"><label for="rt_tempoGrav">⏱ Tempo do cliente para gravar por semana</label><select id="rt_tempoGrav" data-rot="tempoGrav"><option value="">— escolha —</option>'+TEMPO_OPC.map(function(o){return '<option value="'+o[0]+'"'+(cp&&cp.tempo===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
+    var focoAt=rotinaOf(state.client).foco||"equilibrio";
+    var capHtml='<div class="capbox"><div class="fld" style="margin:0;flex:1 1 200px"><label for="rt_foco">🎯 Foco do funil</label><select id="rt_foco" data-rot="foco">'+FUNIL_OPC.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===focoAt?' selected':'')+'>'+o[1]+' — '+o[2].topo+'/'+o[2].meio+'/'+o[2].fundo+'</option>'}).join('')+'</select></div></div><div class="capbox"><div class="fld" style="margin:0;flex:1 1 220px"><label for="rt_tempoGrav">⏱ Tempo do cliente para gravar por semana</label><select id="rt_tempoGrav" data-rot="tempoGrav"><option value="">— escolha —</option>'+TEMPO_OPC.map(function(o){return '<option value="'+o[0]+'"'+(cp&&cp.tempo===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
       '<div style="flex:2 1 300px;font-size:12.5px;color:var(--muted)" id="capRec">'+(rec?'Recomendado: <b style="color:var(--ink)">'+rec.total+' postagens/semana</b>, sendo <b style="color:var(--ink)">até '+rec.grav+' gravada(s)</b> (Reels/Stories) e o resto em carrossel/post estático, que você produz sem depender do cliente. <button class="btn" id="capApply" style="margin-left:6px">Aplicar ao calendário</button>':'Diga quanto tempo o cliente tem para gravar e o painel recomenda a frequência e o mix de formatos — e limita as gravações por semana no calendário.')+'</div></div>';
     return '<details class="card pad" style="margin-bottom:16px"'+(DB_CLIENTS[state.client]&&DB_CLIENTS[state.client].rotina&&cp?'':' open')+'><summary style="cursor:pointer;list-style:none">'+head.replace('margin-bottom:10px','display:inline')+' <span style="font-size:12px;color:var(--muted);margin-left:6px">'+esc(rotinaResumo(r))+'</span></summary>'+
       '<div style="font-size:11.5px;color:var(--faint);margin:10px 0 12px">Horário em que cada tipo vai ao ar e o dia da semana em que o cliente grava/produz tudo em lote. Ajuste pelo Instagram → Insights → Público → <b>Horários mais ativos</b>. Cada conteúdo também aceita horário próprio (abra o conteúdo).</div>'+
@@ -2129,12 +2143,15 @@
     {k:"dores",l:"Quais são as maiores dores ou problemas dele?",t:"area"},
     {k:"desejos",l:"O que ele mais deseja conquistar?",t:"area"},
     {k:"objecoes",l:"O que faz ele hesitar antes de comprar?",t:"area",ph:"Ex.: acha caro, tem medo do resultado, não tem tempo"},
-    {k:"diferencial",l:"Por que escolher você e não outro?",t:"area",g:"Sobre a sua marca"},
+    {k:"proposito",l:"Qual é o propósito da sua marca? (por que ela existe, além de vender)",t:"area",g:"Sobre a sua marca"},
+    {k:"identidade",l:"Identidade: como quer ser percebido(a)? Valores, personalidade, estilo visual",t:"area",ph:"Ex.: próxima e elegante; valores: honestidade e cuidado; cores claras, visual minimalista"},
+    {k:"diferencial",l:"Por que escolher você e não outro?",t:"area"},
     {k:"provas",l:"Provas: anos de experiência, nº de clientes, resultados, prêmios",t:"area"},
     {k:"tom",l:"Como você gosta de falar? Palavras que usa e que evita",t:"area",ph:"Ex.: acolhedor e direto; evito “barato” e “promoção”"},
     {k:"restricoes",l:"O que NÃO pode aparecer no conteúdo?",t:"area"},
-    {k:"objetivo",l:"Principal objetivo com o Instagram",t:"choice",opts:["Ser referência no assunto (autoridade)","Vender mais / gerar pedidos","Encher a agenda","Criar comunidade e relacionamento","Lançar algo novo"],g:"Sobre a rotina de conteúdo"},
-    {k:"frequencia",l:"Quantos conteúdos por semana você quer?",t:"choice",req:1,opts:BRIEF_FREQ},
+    {k:"objetivo",l:"Objetivos com o Instagram (marque até 3)",t:"multi",max:3,req:1,opts:["Ter mais autoridade / ser referência no assunto","Vender mais / gerar pedidos","Encher a agenda","Fortalecer marca pessoal (perfil de influenciador)","Criar proximidade e conexão (rapport)","Fortalecer a identidade da marca","Criar comunidade","Lançar algo novo"],g:"Objetivos e estratégia"},
+    {k:"funil",l:"Neste momento, qual o foco principal?",t:"choice",req:1,opts:["Atrair gente nova que ainda não me conhece (topo)","Aquecer e educar quem já me segue (meio)","Transformar seguidores em clientes (fundo)","Equilíbrio entre os três"]},
+    {k:"frequencia",l:"Quantos conteúdos por semana você quer?",t:"choice",req:1,opts:BRIEF_FREQ,g:"Sobre a rotina de conteúdo"},
     {k:"tempo",l:"Quanto tempo por semana você consegue reservar para gravar?",t:"choice",req:1,opts:TEMPO_OPC.map(function(o){return o[1]})},
     {k:"aparece",l:"Você aparece nos vídeos?",t:"choice",opts:["Sim, gosto de aparecer","Às vezes / ainda tenho vergonha","Prefiro não aparecer"]},
     {k:"gravdia",l:"Melhor dia da semana para gravar",t:"choice",opts:DIAS_SEM_LONGO.slice(1).concat([DIAS_SEM_LONGO[0]])},
@@ -2159,6 +2176,7 @@
       'function val(f){if(f.t==="text"||f.t==="area"){var el=box.querySelector("[data-k="+f.k+"]");return el?el.value.trim():""}return [].map.call(box.querySelectorAll("input[name="+f.k+"]:checked"),function(x){return x.value}).join(", ")}'+
       'function setv(f,v){if(!v)return;if(f.t==="text"||f.t==="area"){var el=box.querySelector("[data-k="+f.k+"]");if(el)el.value=v;return}var vs=v.split(", ");[].forEach.call(box.querySelectorAll("input[name="+f.k+"]"),function(x){x.checked=vs.indexOf(x.value)>=0})}'+
       'try{var r=JSON.parse(localStorage.getItem(KEY)||"{}");F.forEach(function(f){setv(f,r[f.k])})}catch(e){}'+
+      'box.addEventListener("change",function(e){var t=e.target;if(t.type!=="checkbox")return;var f=F.filter(function(x){return x.k===t.name})[0];if(f&&f.max&&box.querySelectorAll("input[name="+f.k+"]:checked").length>f.max){t.checked=false;alert("Marque no máximo "+f.max+" opções.")}});'+
       'box.addEventListener("input",function(){var o={};F.forEach(function(f){o[f.k]=val(f)});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}});'+
       'function texto(){var t=D.mark+"\\n";F.forEach(function(f){var v=val(f);if(v)t+="\\n▸ "+f.l+"\\n"+v+"\\n"});return t}'+
       'function ok(){var m=document.getElementById("msg");var faltam=F.filter(function(f){return f.req&&!val(f)}).map(function(f){return f.l});if(faltam.length){m.className="msg err";m.textContent="Falta responder: "+faltam.join(" · ");return false}m.className="msg";m.textContent="";return true}'+
@@ -2184,7 +2202,8 @@
     var s=[];function add(k,frase){if(b[k])s.push(frase.replace("%",b[k].replace(/\n+/g,"; ")));}
     add("oferta","Vendemos %.");add("ticket","Nosso ticket médio / faixa de preço é %.");add("publico","Meu público são %.");add("dores","A maior dor deles é %.");
     add("desejos","Eles desejam %.");add("objecoes","Uma objeção comum é %.");add("diferencial","Nosso diferencial é %.");add("provas","Provas e experiência: %.");
-    add("tom","Falamos de forma %.");add("objetivo","Objetivo com o Instagram: %.");add("regiao","Atendemos em %.");add("restricoes","Não pode aparecer no conteúdo: %.");
+    add("proposito","Nosso propósito é %.");add("identidade","Queremos ser percebidos como %.");
+    add("tom","Falamos de forma %.");add("objetivo","Objetivos com o Instagram: %.");add("funil","Foco atual do conteúdo: %.");add("regiao","Atendemos em %.");add("restricoes","Não pode aparecer no conteúdo: %.");
     add("aparece","Sobre aparecer nos vídeos: %.");add("datas","Datas importantes: %.");add("obs","Observações: %.");
     return s.join("\n");
   }
@@ -2196,7 +2215,8 @@
     var rec=Object.assign({},DB_CLIENTS[id]);
     rec.niche=b.niche||rec.niche||"";
     var fic=Object.assign({},rec.ficha||{});["instagram","site","regiao","ticket","oferta","publico","tom","restricoes"].forEach(function(k){if(b[k])fic[k]=b[k];});
-    var extra=[b.objetivo?"Objetivo: "+b.objetivo:"",b.datas?"Datas: "+b.datas:"",b.obs||"",b.responsavel?"Briefing preenchido por "+b.responsavel:""].filter(Boolean).join("\n");
+    rec.metas={objetivos:(b.objetivo||"").split(/,\s*(?=[A-ZÁÉÍÓÚ])/).filter(Boolean),proposito:b.proposito||"",identidade:b.identidade||""};
+    var extra=[b.objetivo?"Objetivos: "+b.objetivo:"",b.datas?"Datas: "+b.datas:"",b.obs||"",b.responsavel?"Briefing preenchido por "+b.responsavel:""].filter(Boolean).join("\n");
     if(extra)fic.obs=(fic.obs?fic.obs+"\n":"")+extra;
     rec.ficha=fic;
     var narr=briefingNarrativa(b);rec.briefing=(rec.briefing?rec.briefing+"\n\n":"")+narr;
@@ -2206,6 +2226,7 @@
     if(n){var map={"Dom":0,"Seg":1,"Ter":2,"Qua":3,"Qui":4,"Sex":5,"Sáb":6},esc2=(b.dias||"").split(/,\s*/).map(function(d){return map[d]}).filter(function(x){return x!=null});
       var dias=esc2.slice(0,n);DIAS_PADRAO[n].forEach(function(d){if(dias.length<n&&dias.indexOf(d)<0)dias.push(d);});r.diasPost=dias.sort();}
     var gi=DIAS_SEM_LONGO.indexOf(b.gravdia);if(gi>=0)r.gravDia=gi;
+    if(b.funil){var fz=/\(topo\)/.test(b.funil)?"topo":/\(meio\)/.test(b.funil)?"meio":/\(fundo\)/.test(b.funil)?"fundo":"equilibrio";r.foco=fz;}
     rec.rotina=r;
     await saveClientRecord(id,rec);
     var cli=byId(id);if(cli){cli.niche=rec.niche;cli.full=rec.name+(rec.niche?" — "+rec.niche:"");refreshClientOptions();}
