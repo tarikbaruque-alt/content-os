@@ -53,13 +53,13 @@ describe("Painel (apps/web)", () => {
     const fns = names.map((f) => pick(new RegExp(`function ${f}\\([\\s\\S]*?\\n  }\\n`), f));
     const ctx: Record<string, unknown> = { DB_CLIENTS: {} };
     new Script(vars.join("") + fns.join("") + `this.out={${names.join(",")}};`).runInNewContext(ctx);
-    return ctx as { DB_CLIENTS: Record<string, unknown>; out: Record<string, (...a: unknown[]) => any> };
+    return ctx as { DB_CLIENTS: Record<string, unknown>; out: { [k: string]: (...a: unknown[]) => any } };
   }
 
   it("briefing do formulário vira ficha, metas e rotina (frequência, dias espalhados, gravação, funil)", () => {
     const sb = panelSandbox(["rotinaOf", "fichaDoBriefing"]);
     sb.DB_CLIENTS["c1"] = { id: "c1", name: "Cliente", ficha: {} };
-    const rec = sb.out.fichaDoBriefing("c1", {
+    const rec = sb.out.fichaDoBriefing!("c1", {
       name: "Cliente", niche: "Educador Físico", tempo: "Até 30 min", frequencia: "3 por semana",
       dias: "Seg, Ter, Qua, Qui, Sex", gravdia: "Quinta", funil: "Aquecer e educar quem já me segue (meio)",
       objetivo: "Ter mais autoridade / ser referência no assunto, Vender mais / gerar pedidos",
@@ -75,8 +75,8 @@ describe("Painel (apps/web)", () => {
     expect(html).toMatch(/var pb=parseBriefing\(briefing\);\s*if\(pb&&isDbClient\(id\)\)\{try\{await saveClientRecord\(id,Object\.assign\(fichaDoBriefing\(id,pb\)/);
     const sb = panelSandbox(["cooldownBtn"]);
     const btn = { textContent: "Analisar", disabled: false, isConnected: false };
-    expect(sb.out.cooldownBtn(btn, { code: "rate_limited" }, 60)).toBe(true);
+    expect(sb.out.cooldownBtn!(btn, { code: "rate_limited" }, 60)).toBe(true);
     expect(btn.disabled).toBe(true);
-    expect(sb.out.cooldownBtn({ ...btn, disabled: false }, { code: "invalid_json" }, 60)).toBe(false);
+    expect(sb.out.cooldownBtn!({ ...btn, disabled: false }, { code: "invalid_json" }, 60)).toBe(false);
   });
 });
