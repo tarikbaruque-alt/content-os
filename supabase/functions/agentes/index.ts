@@ -6,6 +6,7 @@
 //   {op:"decidir", ws, id, aprovar}      marca a proposta como aplicada/rejeitada
 //   {op:"acervo", ws, nome, texto|pdf}   Acervo: material novo vira Knowledge Base
 //   {op:"estado", ws}                    chave configurada? gasto do mês? teto?
+//   {op:"conversar", ws, mensagem, historico, cliente}  chat do Maestro: responde e aciona agentes
 // Agenda (pg_cron, com x-cron-secret):
 //   {op:"batida"}                        Maestro: enfileira pela agenda e consome a fila
 //
@@ -16,6 +17,7 @@ import { batida, executarAgente, type Deps } from "../_shared/maestro.ts";
 import { AGENTE } from "../_shared/agentes.ts";
 import { custoUsd } from "../_shared/executor.ts";
 import { trechosDoMarkdown } from "../_shared/kb.ts";
+import { conversar } from "../_shared/conversa.ts";
 import type { ClienteLlm } from "../_shared/tipos.ts";
 
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void };
@@ -105,6 +107,31 @@ async function acervo(ws: string, nome: string, texto?: string, pdfBase64?: stri
   return json({ ok: true, fonte, trechos: trechos.length });
 }
 
+/** Chat do Maestro: responde, e os agentes que ele acionou rodam em segundo plano, um depois do outro. */
+async function conversa(ws: string, body: any): Promise<Response> {
+  if (!anthropic) return erro("sem_chave", "A chave da Anthropic ainda não foi configurada no servidor.", 503);
+  const mensagem = String(body.mensagem ?? "").trim().slice(0, 4000);
+  if (!mensagem) return erro("vazio", "Escreva uma mensagem.");
+  const gasto = await b.gastoDoMes(ws);
+  if (gasto >= ORCAMENTO) return erro("rate_limited", `Teto do mês atingido (US$ ${gasto.toFixed(2)} de ${ORCAMENTO}).`, 429);
+  const run = await b.iniciarExecucao(ws, body.cliente || null, "maestro", "chat do Maestro");
+  try {
+    const historico = Array.isArray(body.historico) ? body.historico.filter((m: any) => m && (m.de === "voce" || m.de === "maestro")).map((m: any) => ({ de: m.de, texto: String(m.texto ?? "").slice(0, 2000) })) : [];
+    const r = await conversar({ b, llm, modelo: MODELO, ws, mensagem, historico, clienteEmFoco: body.cliente ? String(body.cliente) : null });
+    await b.terminarExecucao(run, { status: "ok", modelo: MODELO, tokens_in: r.uso.tokens_in, tokens_out: r.uso.tokens_out, custo_usd: r.uso.custo_usd });
+    if (r.acoes.length) {
+      EdgeRuntime.waitUntil((async () => {
+        for (const a of r.acoes) await executarAgente(deps, ws, a.cliente, a.agente, "pedido no chat do Maestro").catch((e) => console.error(e));
+      })());
+    }
+    return json({ resposta: r.resposta, acoes: r.acoes, custo_usd: r.uso.custo_usd });
+  } catch (e) {
+    await b.terminarExecucao(run, { status: "erro", erro: (e as Error).message });
+    const st = (e as any)?.status;
+    return erro(st === 429 ? "rate_limited" : "erro", (e as Error).message, st === 429 ? 429 : 502);
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return erro("metodo", "Use POST.", 405);
@@ -144,6 +171,8 @@ Deno.serve(async (req) => {
     }
     case "acervo":
       return acervo(ws, String(body.nome ?? "material"), body.texto, body.pdf);
+    case "conversar":
+      return conversa(ws, body);
     default:
       return erro("op", "Operação desconhecida.");
   }

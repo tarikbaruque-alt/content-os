@@ -28,7 +28,9 @@ describe("Painel (apps/web)", () => {
     const m = html.match(/\/\*__NICHE_FORMATS_START__\*\/ var NICHE_FORMATS=(.*); \/\*__NICHE_FORMATS_END__\*\//);
     expect(m).not.toBeNull();
     const embedded = JSON.parse(m![1]!);
-    expect(embedded).toEqual(JSON.parse(JSON.stringify({ formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS, gatilhos: GATILHOS, elementos: ELEMENTOS })));
+    // O sync troca travessão e seta por vírgula no texto que vai para o painel.
+    expect(embedded).toEqual(JSON.parse(JSON.stringify({ formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS, gatilhos: GATILHOS, elementos: ELEMENTOS }).replace(/\s+[—→]\s+/g, ", ")));
+    expect(m![1]).not.toMatch(/[—→]/);
   });
 
   it("todo JavaScript inline compila (sem erro de sintaxe)", () => {

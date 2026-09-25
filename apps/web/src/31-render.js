@@ -1,40 +1,67 @@
   // ---------- render ----------
   function buildNav(){
-    var src=state.clientView?CLIENT_NAV:NAV;
-    I("#nav").innerHTML=src.map(function(grp){return '<div class="nav-group"><div class="lbl">'+grp.g+'</div>'+grp.items.map(function(it){return '<a data-view="'+it[0]+'">'+(IC[it[0]]||"")+'<span>'+it[1]+'</span></a>'}).join('')+'</div>'}).join('');
-    Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.addEventListener('click',function(){go(a.getAttribute('data-view'))})});
-    var a2=I("#nav a[data-view=\""+state.view+"\"]");if(a2)a2.classList.add("active");
+    var item=function(it){return '<a data-view="'+it[0]+'"><span class="ni">'+(iconeUI(NAV_ICONE[it[0]])||IC[it[0]]||"")+'</span><span class="nl">'+esc(it[1])+'</span><b class="nav-n" hidden></b></a>'};
+    if(state.clientView){I("#nav").innerHTML=CLIENT_NAV[0].items.map(item).join('');I("#nav2").innerHTML="";}
+    else{I("#nav").innerHTML=NAV[0].items.map(item).join('');I("#nav2").innerHTML=NAV2.map(item).join('');}
+    Array.prototype.forEach.call(document.querySelectorAll('.side .nav a'),function(a){a.addEventListener('click',function(){var v=a.getAttribute('data-view');go(v==="clients"&&!state.clientView?"clients":v)})});
+    var lg=I("#logoMark");if(lg&&!lg.innerHTML)lg.innerHTML=iconeUI("logomark");
+    marcarNav(state.view);
+    if(typeof atualizarContadorPropostas==="function")atualizarContadorPropostas();
   }
-  // Dispatca a renderização da view v — usado por go() e também por
+  function marcarNav(v){
+    var alvo=state.clientView?v:(abaDoCliente(v)||v==="ativos"?"clients":v==="propostas"?"overview":v);
+    Array.prototype.forEach.call(document.querySelectorAll('.side .nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===alvo)});
+  }
+  // Cabeçalho da página do cliente: troca de cliente + abas das etapas + sub-abas.
+  function renderCliHead(v){
+    var h=I("#cliHead"),aba=abaDoCliente(v),naLista=(v==="clients"||v==="ativos");
+    var mostra=!state.clientView&&((aba&&state.client)||naLista);
+    h.hidden=!mostra;I("#clientview").hidden=!(aba&&state.client&&!state.clientView);
+    I("#clientSwitch").hidden=!aba;
+    if(!mostra){return;}
+    if(naLista){
+      I("#cliTabs").innerHTML=CLIENTES_TABS.map(function(t){return '<button class="tab'+(t[0]===v?' on':'')+'" data-tab-ir="'+t[0]+'">'+esc(t[1])+'</button>'}).join('');
+      I("#cliSub").innerHTML="";
+    }else{
+      I("#cliTabs").innerHTML=CLI_TABS.map(function(t){return '<button class="tab'+(t===aba?' on':'')+'" data-tab-ir="'+t[2][0]+'">'+esc(t[1])+'</button>'}).join('');
+      I("#cliSub").innerHTML=aba[2].length>1?aba[2].map(function(x){return '<button class="sub'+(x===v?' on':'')+'" data-tab-ir="'+x+'">'+esc(SUB_LBL[x]||x)+'</button>'}).join(''):'';
+    }
+    Array.prototype.forEach.call(h.querySelectorAll('[data-tab-ir]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-tab-ir'))})});
+  }
+  // Dispatca a renderização da view v, usado por go() e também por
   // setClient() quando o estado de um cliente real termina de carregar do db
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
     if(state.clientView&&["overview","strategy","editorial","formats","content","calendar"].indexOf(v)<0)v="overview";
     state.view=v;
-    Array.prototype.forEach.call(document.querySelectorAll('#nav a'),function(a){a.classList.toggle('active',a.getAttribute('data-view')===v)});
-    var needs=["dna","plan","strategy","research","editorial","ideas","formats","content","calendar","approvals","performance"].indexOf(v)>=0,noCli=needs&&!state.client;
+    marcarNav(v);
+    var aba=abaDoCliente(v),needs=!!aba||["plan","content","analyze","distribution"].indexOf(v)>=0,noCli=needs&&!state.client;
     Array.prototype.forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=noCli||s.getAttribute('data-view')!==v});
     var nh=I("#noClientHero");if(nh)nh.hidden=!noCli;
-    var t=TITLES[v]||["",v];I("#crumb").textContent=t[0];I("#ptitle").textContent=t[1];
+    var t=TITLES[v]||["",v];
+    if(aba&&state.client&&!state.clientView){I("#crumb").textContent="Clientes";I("#ptitle").textContent=clientName(state.client);}
+    else{I("#crumb").textContent=t[0]==="Trabalho"||t[0]==="Fluxo"||t[0]==="Sistema"?"":t[0];I("#ptitle").textContent=t[1];}
+    renderCliHead(v);
     if(!noCli)renderView(v);else renderStatus(v);
     window.scrollTo({top:0});
   }
-  function renderPipe(){I("#pipe").innerHTML=PIPE.map(function(s,i){return '<span class="step'+(i===0?' on':'')+'">'+s+'</span>'+(i<PIPE.length-1?'<span class="arr">→</span>':'')}).join('')}
-  function kpiCard(l,v,s){return '<div class="card kpi"><span class="k-lbl">'+l+'</span><div class="k-val tnum">'+v+'</div><div class="k-sub">'+s+'</div></div>'}
+  function renderPipe(){if(!I("#pipe"))return;I("#pipe").innerHTML=PIPE.map(function(s,i){return '<span class="step'+(i===0?' on':'')+'">'+s+'</span>'+(i<PIPE.length-1?'<span class="arr">→</span>':'')}).join('')}
+  function kpiCard(l,v,s){return '<div class="stat"><span class="st-l">'+l+'</span><div class="st-v tnum">'+v+'</div>'+(s?'<div class="st-s">'+s+'</div>':'')+'</div>'}
+  // Hoje: três números do cliente em foco. Cada um responde "o que eu preciso fazer?".
   function renderKpis(){
-    var active=AGENTS.filter(function(a){return a.s==="active"}).length;
-    var calCount=genOn()?GENERATED.calendar.items.length:CONTENT.length;
-    var dnaCount=(genOn()&&GENERATED.dna)?GENERATED.dna.length:(DNA[state.client]||[]).length;
-    I("#kpis").innerHTML=
-      kpiCard("Clientes",String(CLIENTS.length),CLIENTS.length+" nichos distintos")+
-      kpiCard("Agentes",active+" <span style='font-size:15px;color:var(--faint)'>/ "+AGENTS.length+"</span>",active+" ativos (veja Agentes)")+
-      kpiCard("Registros no Content DNA",String(dnaCount),genOn()?"gerado pela Íris":"exemplo")+
-      kpiCard("Conteúdos no calendário",String(calCount),genOn()?"plano real do mês":"demonstração");
+    var el=I("#kpis");if(!el)return;
+    var itens=genOn()?GENERATED.calendar.items:[],hoje=new Date().toISOString().slice(0,10),em7=new Date(Date.now()+7*864e5).toISOString().slice(0,10);
+    var pend=(typeof PROPOSTAS!=="undefined"?PROPOSTAS:[]).filter(function(p){return p.status==="pendente"}).length;
+    var aprovar=itens.filter(function(it){return (it.status==="WAITING APPROVAL"||it.status==="REVIEW")&&(it.content||it.carousel||it.stories)}).length;
+    var semana=itens.filter(function(it){return it.data>=hoje&&it.data<=em7}).length;
+    el.innerHTML=kpiCard("Propostas dos agentes",String(pend),pend?"esperando sua decisão":"nada esperando")+
+      kpiCard("Peças para aprovar",String(aprovar),state.client?esc(clientName(state.client)):"escolha um cliente")+
+      kpiCard("Posts nos próximos 7 dias",String(semana),state.client?esc(clientName(state.client)):"");
   }
   function contentCard(x){
     return '<div class="card content-card" data-content="'+x.id+'"><div class="cc-h">'+esc(x.headline)+'</div><div class="cc-m">'+esc(clientName(x.client))+' · '+esc(x.surface)+' + '+esc(x.format)+'</div><div class="cc-tags"><span class="badge '+(STCOL[x.status]||'badge')+'">'+x.status+'</span><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="pill emo-pill">♥ '+esc(x.emocao)+'</span></div></div>';
@@ -43,23 +70,42 @@
   function renderOverviewContent(){
     var ov=I("#ovSteps");
     if(ov){
-      ov.innerHTML=!CLIENTS.length?'<div class="card empty-hero" style="margin-top:16px"><div class="eh-ic">＋</div><div class="eh-t" style="margin-bottom:14px">Comece cadastrando o <b>primeiro cliente</b>. Cada agente se alimenta do anterior: Ficha → Content DNA → Estratégia → Linha Editorial → Ideias → Formatos → Calendário.</div><button class="btn pri genbtn" id="ovNewClient">+ Novo cliente</button></div>':nextStepsHtml();
+      ov.innerHTML=!CLIENTS.length?'<div class="card empty-hero"><div class="eh-t" style="margin-bottom:14px">Cadastre o primeiro cliente. A Íris lê o briefing, e o planejamento do mês começa em cadeia: estratégia, linha editorial, ideias e calendário.</div><button class="btn pri" id="ovNewClient">Novo cliente</button></div>':nextStepsHtml();
       var nb=I("#ovNewClient");if(nb)nb.addEventListener('click',openNewClientModal);
       wireSteps(ov);
     }
-    if(genOn()){I("#ovContent").innerHTML=GENERATED.calendar.items.slice(0,4).map(genCard).join('');wireGen('#ovContent [data-gen]');return;}
-    I("#ovContent").innerHTML=CONTENT.slice(0,4).map(contentCard).join('');wireContent('#ovContent [data-content]');
+    if(typeof renderMaestroChat==="function")renderMaestroChat();
+    if(typeof renderPropostasResumo==="function")renderPropostasResumo();
+    var oc=I("#ovContent");if(!oc)return;
+    var hoje=new Date().toISOString().slice(0,10),prox=genOn()?GENERATED.calendar.items.map(function(it,i){return {it:it,i:i}}).filter(function(o){return !o.it.data||o.it.data>=hoje}).slice(0,4):[];
+    oc.innerHTML=pecasTabelaHtml(prox,state.client?'Nenhuma publicação marcada.':'Escolha um cliente para ver as publicações.');
+    wireGen('#ovContent [data-gen]');
+    var ir=document.querySelector('[data-ir="calendar"]');if(ir&&!ir._ok){ir._ok=1;ir.addEventListener('click',function(){if(state.client)go("calendar");else go("clients");});}
   }
 
+  // Etapa do trabalho em que o cliente está (o mesmo processo das abas).
+  function etapaDo(id){
+    var g=DB_STATE_CACHE[id]||(GENERATED_ALL||{})[id]||{},itens=(g.calendar&&g.calendar.items)||[];
+    if((g.dna||[]).length<5)return ["Entender","dna","prog"];
+    if(!g.strategy||!(g.editorial||[]).length||!(g.ideas||[]).length)return ["Planejar",!g.strategy?"strategy":!(g.editorial||[]).length?"editorial":"ideas","prog"];
+    if(!itens.length)return ["Calendário","calendar","prog"];
+    return ["Em execução","calendar","act"];
+  }
   function renderClients(){
-    var cards=CLIENTS.map(function(c){var g=(GENERATED_ALL||{})[c.id]||DB_STATE_CACHE[c.id];
-      var n=g&&g.dna?g.dna.length:(DNA[c.id]||[]).length,ct=g&&g.calendar?g.calendar.items.length:CONTENT.filter(function(x){return x.client===c.id}).length;
-      var blank=isDbClient(c.id)&&!n&&!ct;
-      return '<div class="card pad" style="cursor:pointer" data-client="'+c.id+'"><div style="display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+avc(c.av)+'">'+c.name.charAt(0)+'</div><div><div style="font-family:var(--font-display);font-weight:700;font-size:15px">'+esc(c.full)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(c.niche)+'</div></div></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'+(blank?'<span class="badge">em branco — pronto pra preencher</span>':'<span class="badge">'+n+' registros DNA</span><span class="badge">'+ct+' conteúdos</span>')+'</div></div>'}).join('');
-    var addCard='<div class="card pad dashed-add" style="cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:96px;border-style:dashed;color:var(--muted)" id="clientAddCard"><div style="text-align:center"><div style="font-size:22px;line-height:1">+</div><div style="font-size:12.5px;font-weight:600;margin-top:4px">Novo cliente</div></div></div>';
-    I("#clientCards").innerHTML=cards+addCard;
-    Array.prototype.forEach.call(document.querySelectorAll('[data-client]'),function(el){el.addEventListener('click',function(){setClient(el.getAttribute('data-client'));go('dna')})});
-    I("#clientAddCard").addEventListener('click',openNewClientModal);
+    var el=I("#clientTable");if(!el)return;
+    var linhas=CLIENTS.map(function(c){var e=etapaDo(c.id),g=DB_STATE_CACHE[c.id]||{},itens=(g.calendar&&g.calendar.items)||[];
+      var feitos=itens.filter(function(it){return it.content||it.carousel||it.stories}).length;
+      return '<tr data-client="'+esc(c.id)+'"><td><div class="cel-cli"><span class="av-cli" style="background:'+avc(c.av)+'">'+esc(c.name.charAt(0))+'</span><span><b>'+esc(c.name)+'</b><small>'+esc(c.niche||"sem nicho")+'</small></span></div></td>'+
+        '<td><span class="chip '+e[2]+'">'+esc(e[0])+'</span></td>'+
+        '<td>'+(itens.length?'<div class="prog-l"><i style="width:'+Math.round(feitos/itens.length*100)+'%"></i></div><small>'+feitos+' de '+itens.length+' peças escritas</small>':'<small>sem calendário</small>')+'</td>'+
+        '<td class="acao"><button class="btn" data-abrir="'+esc(c.id)+'" data-etapa="'+e[1]+'">Abrir</button></td></tr>';}).join('');
+    el.innerHTML=CLIENTS.length?'<div class="tabela"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Peças do calendário</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>':
+      '<div class="card empty-hero"><div class="eh-t" style="margin-bottom:14px">Nenhum cliente ainda. Cadastre o primeiro: a Íris lê o briefing e o planejamento começa sozinho.</div><button class="btn pri" id="clientAddCard">Novo cliente</button></div>';
+    Array.prototype.forEach.call(el.querySelectorAll('tr[data-client]'),function(tr){tr.addEventListener('click',function(){var b=tr.querySelector('[data-abrir]');setClient(tr.getAttribute('data-client'));go(b.getAttribute('data-etapa'));})});
+    var ad=I("#clientAddCard");if(ad)ad.addEventListener('click',openNewClientModal);
+    // carrega o estado de quem ainda não foi aberto, para a etapa aparecer certa
+    var faltam=CLIENTS.filter(function(c){return isDbClient(c.id)&&!DB_STATE_CACHE[c.id]});
+    if(faltam.length&&!state.carregandoTabela){state.carregandoTabela=true;Promise.all(faltam.map(function(c){return loadDbClientState(c.id)})).then(function(){state.carregandoTabela=false;if(state.view==="clients")renderClients();},function(){state.carregandoTabela=false;});}
     var bt=I("#briefTools");if(bt){bt.innerHTML=briefToolsHtml();var b1=I("#bfForm");if(b1)b1.addEventListener('click',openBriefFormModal);var b2=I("#bfImport");if(b2)b2.addEventListener('click',openBriefImportModal);var b3=I("#inboxRefresh");if(b3)b3.addEventListener('click',renderInbox);}
   }
   function busyHtml(text){return '<span class="spinner"></span>'+esc(text);}
@@ -67,16 +113,16 @@
   function clearBusy(el){if(!el)return;el.classList.remove('busy');}
   function sampleErrCopy(e){
     var code=e&&e.code;
-    if(code==="not_granted")return "Você precisa permitir que este painel use IA — aparece um aviso do Claude na primeira chamada.";
-    if(code==="rate_limited")return "O Claude pediu uma pausa (limite de uso da sua conta ou outra aba do painel usando a IA). Seu texto está salvo — feche outras abas do painel e tente de novo em 1 minuto.";
+    if(code==="not_granted")return "Você precisa permitir que este painel use IA, aparece um aviso do Claude na primeira chamada.";
+    if(code==="rate_limited")return "O Claude pediu uma pausa (limite de uso da sua conta ou outra aba do painel usando a IA). Seu texto está salvo, feche outras abas do painel e tente de novo em 1 minuto.";
     if(code==="cancelled")return "Cancelado.";
-    if(code==="prompt_too_large")return "Muita informação de uma vez — tenta com um texto mais curto.";
-    if(code==="invalid_json")return "A IA não respondeu num formato que eu consegui ler — tenta de novo.";
-    if(code==="refused"||code==="empty_completion")return "A IA não conseguiu responder a isso — tenta reformular.";
+    if(code==="prompt_too_large")return "Muita informação de uma vez, tenta com um texto mais curto.";
+    if(code==="invalid_json")return "A IA não respondeu num formato que eu consegui ler, tenta de novo.";
+    if(code==="refused"||code==="empty_completion")return "A IA não conseguiu responder a isso, tenta reformular.";
     if(code==="not_declared"||code==="sampling_disabled"||code==="capability_disabled"||code==="capability_removed")return "IA ao vivo indisponível neste painel agora.";
-    return "Algo deu errado ("+(code||"erro")+") — tenta de novo.";
+    return "Algo deu errado ("+(code||"erro")+"), tenta de novo.";
   }
-  // rate_limited: a plataforma pede que a página NÃO repita sozinha — só
+  // rate_limited: a plataforma pede que a página NÃO repita sozinha, só
   // travamos o botão por um tempo, com contagem, e a pessoa clica de novo.
   function cooldownBtn(btn,e,secs){
     if(!btn||!e||e.code!=="rate_limited")return false;
@@ -93,10 +139,10 @@
     return ['Você é Íris, o agente de Inteligência do Content OS. Sua tarefa é ENTENDER profundamente um cliente e estruturar o Content DNA a partir do material fornecido.',
       '', 'REGRAS INEGOCIÁVEIS:',
       '1. NUNCA invente informações, fontes, números, resultados ou depoimentos.',
-      '2. Só afirme como FACT o que estiver declarado no texto abaixo — o resto é HYPOTHESIS ou INSIGHT.',
+      '2. Só afirme como FACT o que estiver declarado no texto abaixo, o resto é HYPOTHESIS ou INSIGHT.',
       '3. Estados possíveis: FACT (fato declarado), HYPOTHESIS (suposição plausível), INSIGHT (interpretação derivada de fatos), STRATEGIC_DECISION (decisão já tomada), LEARNING (aprendizado com evidência de performance).',
       '',
-      'CAMPOS CANÔNICOS — use exatamente estas chaves em "field" quando a informação existir (uma sugestão por ocorrência: cada dor real vira uma sugestão separada com field "dores"):',
+      'CAMPOS CANÔNICOS, use exatamente estas chaves em "field" quando a informação existir (uma sugestão por ocorrência: cada dor real vira uma sugestão separada com field "dores"):',
       '- section "audience", field "persona": resumo de 1 frase da persona/público principal',
       '- section "audience", field "dores": cada dor/problema real',
       '- section "audience", field "desejos": cada desejo/resultado desejado',
@@ -123,7 +169,7 @@
     if(!CAP.sample){noAi();return;}
     I("#dnaRun").disabled=true;setBusy(I("#dnaMsg"),"Analisando…");
     // Briefing do formulário colado aqui: aplica ficha, metas e rotina (frequência,
-    // dias, gravação) como no "Importar briefing" — senão o calendário sai no padrão.
+    // dias, gravação) como no "Importar briefing", senão o calendário sai no padrão.
     var pb=parseBriefing(briefing);
     if(pb&&isDbClient(id)){try{await saveClientRecord(id,Object.assign(fichaDoBriefing(id,pb),{briefing:briefing}));}catch(e){}}
     try{
@@ -133,20 +179,24 @@
       sugs.forEach(function(s){if(!s||!s.field||!s.value)return;
         entries.push({section:s.section||"business",field:String(s.field),value:String(s.value),state:s.state||"HYPOTHESIS",status:"pending",src:"Briefing informado no painel"});});
       await saveDna(id,entries);
-      I("#dnaMsg").textContent=sugs.length+" sugestões — revise e aprove abaixo.";I("#dnaMsg").style.color="var(--good)";
+      I("#dnaMsg").textContent=sugs.length+" sugestões, revise e aprove abaixo.";I("#dnaMsg").style.color="var(--good)";
     }catch(e){I("#dnaMsg").textContent=sampleErrCopy(e);I("#dnaMsg").style.color="var(--warn)";if(cooldownBtn(I("#dnaRun"),e,60))return;}
     var btn=I("#dnaRun");if(btn)btn.disabled=false;
   }
+  function quadro(titulo,apoio,acoes,corpo,extra){
+    return '<section class="quadro"'+(extra||'')+'><div class="q-head"><div><h3>'+titulo+'</h3>'+(apoio?'<p>'+apoio+'</p>':'')+'</div>'+(acoes?'<div class="q-acoes">'+acoes+'</div>':'')+'</div>'+corpo+'</section>';
+  }
   function dnaOnboardingHtml(){
-    return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Preencher com a Íris (opcional)</div>'+
-      '<div class="fld"><label for="dnaBriefing">Cole um briefing, entrevista ou anotações do cliente</label><textarea class="ta" id="dnaBriefing" placeholder="Ex.: Vendo X, meu público é Y, a maior dor deles é Z…">'+esc((DB_CLIENTS[state.client]||{}).briefing||"")+'</textarea><div id="briefSaved" style="font-size:11px;color:var(--faint)">'+((DB_CLIENTS[state.client]||{}).briefing?"✓ Briefing salvo — fica aqui para as próximas vezes":"O texto fica salvo automaticamente")+'</div></div>'+
-      '<button class="btn pri genbtn" id="dnaRun">✦ Analisar com a Íris</button><span id="dnaMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>'+
-      '<div style="font-size:11px;color:var(--faint);margin-top:10px">Cada sugestão vem marcada como pendente — nada vira fato sem você aprovar.</div></div>'+
-      '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Ou adicionar um registro manual</div>'+
-      '<div class="grid cols-2"><div class="fld"><label for="dnaSec">Seção</label><select id="dnaSec">'+SECORDER.map(function(s){return '<option value="'+s+'">'+SECLBL[s]+'</option>'}).join('')+'</select></div>'+
-      '<div class="fld"><label for="dnaField">Campo (ex.: dores, desejos, persona, oferta, tom)</label><input id="dnaField" placeholder="dores"></div></div>'+
-      '<div class="fld"><label for="dnaVal">Valor</label><textarea class="ta" id="dnaVal" style="min-height:70px"></textarea></div>'+
-      '<button class="btn" id="dnaAddManual">+ Adicionar (já aprovado — você digitou)</button></div>';
+    var br=(DB_CLIENTS[state.client]||{}).briefing||"";
+    return quadro("Briefing","O que o cliente contou. A Íris lê e sugere registros para o Content DNA; nada vira fato sem você aprovar.",'',
+      '<div class="fld" style="margin:0"><label for="dnaBriefing" class="sr">Briefing</label><textarea class="ta" id="dnaBriefing" placeholder="Cole o briefing, a entrevista ou as anotações da reunião">'+esc(br)+'</textarea></div>'+
+      '<div class="q-rodape"><span id="briefSaved" class="pp-m">'+(br?"Salvo":"O texto fica salvo sozinho")+'</span><span class="spacer"></span><span id="dnaMsg" class="pp-m"></span><button class="btn pri genbtn" id="dnaRun">Analisar com a Íris</button></div>');
+  }
+  function dnaManualHtml(){
+    return '<details class="dobra q-dobra"><summary>Adicionar um registro à mão</summary><div class="grid cols-2"><div class="fld"><label for="dnaSec">Seção</label><select id="dnaSec">'+SECORDER.map(function(s){return '<option value="'+s+'">'+SECLBL[s]+'</option>'}).join('')+'</select></div>'+
+      '<div class="fld"><label for="dnaField">Campo</label><input id="dnaField" placeholder="dores, desejos, persona, oferta, tom"></div></div>'+
+      '<div class="fld"><label for="dnaVal">Registro</label><textarea class="ta" id="dnaVal" style="min-height:72px"></textarea></div>'+
+      '<button class="btn" id="dnaAddManual">Adicionar como aprovado</button></details>';
   }
   async function addManualDna(){
     var id=state.client,sec=I("#dnaSec").value,field=(I("#dnaField").value||"").trim(),val=(I("#dnaVal").value||"").trim();
@@ -156,7 +206,7 @@
     await saveDna(id,entries);
     I("#dnaField").value="";I("#dnaVal").value="";
   }
-  // ---- Referências & Concorrentes — sempre digitadas por você, nunca inventadas pela IA
+  // ---- Referências & Concorrentes, sempre digitadas por você, nunca inventadas pela IA
   // (a IA não navega a internet; ela só usa o que você descrever aqui como inspiração). ----
   async function saveRefs(id,items){
     await dbDoc("cos_refs/"+id).set({items:items});
@@ -167,7 +217,7 @@
     var id=state.client,nome=(I("#refNome").value||"").trim(),tipo=I("#refTipo").value,desc=(I("#refDesc").value||"").trim();
     if(!nome)return;
     var items=(GENERATED.refs||[]).slice();
-    if(items.length>=5){I("#refMsg").textContent="Máximo de 5 — remova uma antes de adicionar outra.";I("#refMsg").style.color="var(--warn)";return;}
+    if(items.length>=5){I("#refMsg").textContent="Máximo de 5, remova uma antes de adicionar outra.";I("#refMsg").style.color="var(--warn)";return;}
     items.push({nome:nome,tipo:tipo,descricao:desc});
     await saveRefs(id,items);
     I("#refNome").value="";I("#refDesc").value="";
@@ -179,16 +229,27 @@
   }
   function refsBlockHtml(){
     var items=GENERATED.refs||[];
-    var list=items.map(function(r,i){return '<div class="entry"><div class="e-top"><span class="pill st-INSIGHT">'+esc(r.tipo)+'</span><span class="e-field">'+esc(r.nome)+'</span><button class="btn ghost" data-refrm="'+i+'" style="margin-left:auto;padding:3px 9px;font-size:11px">Remover</button></div>'+(r.descricao?'<div class="e-val">'+esc(r.descricao)+'</div>':'')+'</div>';}).join('');
-    return '<div class="card pad" style="margin-bottom:16px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:6px">Referências & Concorrentes <span class="tag-mock">até 5 · digitados por você</span></div>'+
-      '<div style="font-size:11.5px;color:var(--faint);margin-bottom:12px">A IA não navega a internet — ela nunca inventa perfis. Digite aqui contas reais que você já conhece (referência de estilo ou concorrente direto) e o porquê; a Musa usa isso como inspiração de ângulo/tom ao gerar ideias — nunca copia nem cita o nome deles no conteúdo final.</div>'+
-      (list||'<div style="font-size:12.5px;color:var(--faint);margin-bottom:10px">Nenhuma referência ainda.</div>')+
-      (items.length<5?'<div class="grid cols-2" style="margin-top:12px"><div class="fld"><label for="refNome">Nome / @</label><input id="refNome" placeholder="@perfilreal"></div><div class="fld"><label for="refTipo">Tipo</label><select id="refTipo"><option>Referência de estilo</option><option>Concorrente direto</option></select></div></div><div class="fld"><label for="refDesc">O que você percebe nele (opcional)</label><input id="refDesc" placeholder="Ex.: usa muito humor, foca em antes/depois…"></div><button class="btn" id="refAdd">+ Adicionar referência</button><span id="refMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>':'')+
-      '</div>';
+    var linhas=items.map(function(r,i){return '<div class="linha"><div class="l-main"><b>'+esc(r.nome)+'</b>'+(r.descricao?'<small>'+esc(r.descricao)+'</small>':'')+'</div><span class="chip">'+esc(r.tipo)+'</span><button class="icon-btn sm" data-refrm="'+i+'" title="Remover" aria-label="Remover">'+iconeUI("linha-trash")+'</button></div>';}).join('');
+    var form=items.length<5?'<div class="grid cols-3 q-form"><div class="fld"><label for="refNome">Perfil</label><input id="refNome" placeholder="@perfil"></div><div class="fld"><label for="refTipo">Tipo</label><select id="refTipo"><option>Referência de estilo</option><option>Concorrente direto</option></select></div><div class="fld"><label for="refDesc">O que você percebe nele</label><input id="refDesc" placeholder="Usa humor, mostra bastidores"></div></div><button class="btn" id="refAdd">Adicionar referência</button><span id="refMsg" class="pp-m" style="margin-left:10px"></span>':'';
+    return quadro("Referências e concorrentes","Até 5 perfis reais que você conhece. A Musa usa como inspiração de ângulo e tom, sem copiar nem citar.",'',
+      (linhas||'<div class="vazio">Nenhuma referência ainda.</div>')+form);
   }
+  var ESTADO_PT={FACT:["Fato","act"],HYPOTHESIS:["Hipótese","warn"],INSIGHT:["Insight","prog"],STRATEGIC_DECISION:["Decisão",""],LEARNING:["Aprendizado","act"]};
   function dnaEntryHtml(x,i){
-    return '<div class="entry" data-i="'+i+'"><div class="e-top"><span class="pill mono st-'+x.state+'">'+STLBL[x.state]+'</span><span class="e-field">'+esc(x.field)+'</span>'+(x.status==="approved"?'<span class="badge act" style="margin-left:auto">✓ aprovado</span>':'<span class="badge prog" style="margin-left:auto">pendente</span>')+'</div><div class="e-val" data-role="val">'+esc(x.value)+'</div><div class="e-prov">↳ '+esc(x.src)+'</div>'+
-      (isDbClient(state.client)?'<div class="e-actions">'+(x.status!=="approved"?'<button class="btn pri" data-act="approve">Aprovar</button>':'')+'<button class="btn" data-act="edit">Editar</button><button class="btn ghost" data-act="reject">Remover</button></div>':(x.status==="pending"?'<div class="e-actions"><button class="btn pri">Aprovar</button><button class="btn">Editar</button><button class="btn ghost">Rejeitar</button></div>':''))+'</div>';
+    var e=ESTADO_PT[x.state]||[x.state,""],db=isDbClient(state.client),pend=x.status!=="approved";
+    return '<tr class="entry" data-i="'+i+'"><td><b>'+esc(x.field)+'</b><small>'+esc(SECLBL[x.section]||x.section)+'</small></td>'+
+      '<td class="e-reg"><div data-role="val">'+esc(x.value)+'</div><small>'+esc(x.src||"")+'</small></td>'+
+      '<td><span class="chip '+e[1]+'">'+esc(e[0])+'</span></td>'+
+      '<td><span class="chip '+(pend?'warn':'act')+'">'+(pend?'Pendente':'Aprovado')+'</span></td>'+
+      '<td class="acao nowrap">'+(db?(pend?'<button class="icon-btn sm ok" data-act="approve" title="Aprovar" aria-label="Aprovar">'+iconeUI("check-done")+'</button>':'')+
+        '<button class="icon-btn sm" data-act="edit" title="Editar" aria-label="Editar">'+iconeUI("edit")+'</button><button class="icon-btn sm" data-act="reject" title="Remover" aria-label="Remover">'+iconeUI("linha-trash")+'</button>':'')+'</td></tr>';
+  }
+  function dnaTabelaHtml(list){
+    var linhas=list.map(function(x,i){return [x,i]}).sort(function(a,b){return (a[0].status==="approved")-(b[0].status==="approved")||SECORDER.indexOf(a[0].section)-SECORDER.indexOf(b[0].section)});
+    var pend=list.filter(function(x){return x.status!=="approved"}).length;
+    return quadro("Content DNA",list.length?(list.length-pend)+' aprovado'+(list.length-pend===1?'':'s')+(pend?' · '+pend+' esperando você':''):'Ainda vazio. Analise o briefing com a Íris ou adicione à mão.','',
+      (list.length?'<div class="tabela"><table><thead><tr><th>Campo</th><th>Registro</th><th>Estado</th><th>Situação</th><th></th></tr></thead><tbody>'+linhas.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</tbody></table></div>':'')+
+      (isDbClient(state.client)?dnaManualHtml():''));
   }
   function wireDnaActions(){
     if(!isDbClient(state.client)){
@@ -204,7 +265,7 @@
           else if(act==="reject"){entries.splice(i,1);await saveDna(state.client,entries);}
           else if(act==="edit"){
             var valEl=el.querySelector('[data-role="val"]');valEl.contentEditable="true";valEl.focus();
-            b.textContent="Salvar";b.setAttribute('data-act','save-edit');
+            b.innerHTML="Salvar";b.classList.add("txt");b.setAttribute('data-act','save-edit');
             b.addEventListener('click',async function saveEdit(){
               var entries2=(GENERATED.dna||[]).slice();entries2[i]=Object.assign({},entries2[i],{value:valEl.textContent.trim()});
               await saveDna(state.client,entries2);
@@ -215,12 +276,10 @@
     });
   }
   function renderDNA(){
-    var c=byId(state.client);I("#dnaTitle").textContent="Content DNA — "+c.name;
+    var t=I("#dnaTitle");if(t)t.textContent="";
     if(isDbClient(state.client)){
-      var list=GENERATED.dna||[],h=fichaHtml()+dnaOnboardingHtml()+refsBlockHtml();
-      SECORDER.forEach(function(sec){var items=list.map(function(x,i){return [x,i]}).filter(function(p){return p[0].section===sec});if(!items.length)return;
-        h+='<div class="card dna-sec"><h4>'+SECLBL[sec]+'<span class="ct">'+items.length+'</span></h4>'+items.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</div>';});
-      I("#dnaSections").innerHTML=h;
+      var list=GENERATED.dna||[];
+      I("#dnaSections").innerHTML=fichaHtml()+dnaOnboardingHtml()+dnaTabelaHtml(list)+refsBlockHtml();
       I("#dnaRun").addEventListener('click',runIrisLive);
       wireFicha();wireBriefingAutosave();
       I("#dnaAddManual").addEventListener('click',addManualDna);
@@ -229,43 +288,38 @@
       wireDnaActions();
       return;
     }
-    var list=DNA[state.client]||[];
-    var h="";SECORDER.forEach(function(sec){var items=list.filter(function(x){return x.section===sec});if(!items.length)return;
-      h+='<div class="card dna-sec"><h4>'+SECLBL[sec]+'<span class="ct">'+items.length+'</span></h4>'+items.map(function(x,i){return dnaEntryHtml(x,i)}).join('')+'</div>'});
-    I("#dnaSections").innerHTML=h;
+    I("#dnaSections").innerHTML=dnaTabelaHtml(DNA[state.client]||[]);
     wireDnaActions();
   }
+  var MIX_TONS=[1,.7,.48,.3];
+  var MIX_TONS=[1,.7,.48,.3];
   function drawStratMix(){
     var sp=GENERATED.strategy,box=I("#stratMix");if(!box)return;
     var sel=sp.paths.filter(function(p){return state.stratSel.indexOf(p.key)>=0});
-    if(!sel.length){box.innerHTML='<div style="font-size:12.5px;color:var(--faint)">Selecione ao menos um caminho abaixo.</div>';return;}
-    var w=sel.map(function(p){return Math.max(1,p.relevancia-25)});
-    var pcts=largestRemainder(w,100);
-    var seg=sel.map(function(p,i){return '<div class="seg" style="flex:'+pcts[i]+' 1 0;background:'+avc(i)+'">'+pcts[i]+'%</div>'}).join('');
-    var list=sel.map(function(p,i){return '<span class="badge" style="border-color:transparent;background:var(--surface-2)"><span style="width:8px;height:8px;border-radius:50%;background:'+avc(i)+';display:inline-block"></span> '+pcts[i]+'% '+esc(p.nome)+'</span>'}).join(' ');
-    box.innerHTML='<div class="stack">'+seg+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">'+list+'</div>';
+    if(!sel.length){box.innerHTML='<div class="vazio">Marque ao menos um caminho na tabela abaixo.</div>';return;}
+    var pcts=largestRemainder(sel.map(function(p){return Math.max(1,p.relevancia-25)}),100);
+    box.innerHTML='<div class="mixbar">'+sel.map(function(p,i){return '<i style="flex:'+pcts[i]+' 1 0;opacity:'+(MIX_TONS[i]||.2)+'" title="'+esc(p.nome)+' '+pcts[i]+'%"></i>'}).join('')+'</div>'+
+      '<div class="mixleg">'+sel.map(function(p,i){return '<span><i style="opacity:'+(MIX_TONS[i]||.2)+'"></i><b>'+pcts[i]+'%</b> '+esc(p.nome)+'</span>'}).join('')+'</div>';
   }
   function renderStrategyPaths(el){
     var g=GENERATED,sp=g.strategy;
     sp.paths=(sp.paths||[]).map(function(p){return Object.assign({funcoes:[],emocoes:[],metricas:[],relevancia:50},p)});
     if(!state.stratSel)state.stratSel=(sp.mix||[]).map(function(m){return m.key});
     if(!state.stratSel.length)state.stratSel=sp.paths.slice(0,3).map(function(p){return p.key});
-    var h='<div class="section-head" style="margin-top:6px"><div><h3>Estratégia — '+esc(g.clientName.split("—")[0].trim())+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p><b>Átlas</b> não entrega "uma" estratégia: propõe caminhos, explica quando/por que usar cada um e recomenda um <b>mix</b>. Clique nos caminhos para combinar o seu.</p></div></div>'+
-      (isDbClient(state.client)?'<div style="margin:-6px 0 14px"><button class="btn" id="regenStratBtn">↻ Gerar de novo</button></div>':'');
-    h+='<div class="card pad"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:10px">Mix estratégico do mês</div><div id="stratMix"></div></div>';
-    // Big Message + percepção
-    h+='<div class="grid cols-2" style="margin-top:16px"><div class="card pad" style="background:var(--brand-weak);border-color:transparent"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--brand-ink);margin-bottom:6px">Big Message</div><div style="font-size:14px;font-family:var(--font-display);font-weight:700;color:var(--brand-ink)">'+esc(sp.bigMessage)+'</div></div>'+
-      '<div class="card pad"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:6px">Percepção a construir</div><div style="font-size:13.5px">'+esc(sp.percepcao)+'</div></div></div>';
-    // Caminhos
-    h+='<div class="section-head"><div><h3>Caminhos estratégicos possíveis</h3><p>Ranqueados pela aderência ao Content DNA. Os do mix ficam destacados.</p></div></div>';
-    h+='<div class="clist">'+sp.paths.map(function(p){
-      var on=state.stratSel.indexOf(p.key)>=0;
-      return '<div class="card pad" data-path="'+p.key+'" style="cursor:pointer;'+(on?'border-color:var(--brand);box-shadow:0 0 0 1px var(--brand) inset':'')+'">'+
-        '<div style="display:flex;align-items:center;gap:8px"><div style="font-family:var(--font-display);font-weight:700;font-size:15px;flex:1">'+esc(p.nome)+'</div><span class="pill '+(on?'st-INSIGHT':'')+'" style="'+(on?'':'background:var(--surface-2);color:var(--muted)')+'">'+p.relevancia+'</span>'+(on?'<span class="badge act">no mix</span>':'')+'</div>'+
-        '<div style="font-size:12px;color:var(--muted);margin-top:6px">'+esc(p.quando)+' '+esc(p.porque)+'</div>'+
-        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+p.funcoes.map(function(f){return '<span class="pill st-INSIGHT">'+esc(f)+'</span>'}).join('')+p.emocoes.map(function(e){return '<span class="pill emo-pill">♥ '+esc(e)+'</span>'}).join('')+'</div>'+
-        '<div style="font-size:11.5px;color:var(--faint);margin-top:9px"><b style="color:var(--muted)">Métricas:</b> '+p.metricas.join(" · ")+'</div></div>';
-    }).join('')+'</div>';
+    var db=isDbClient(state.client);
+    var linha=function(l,v){return v?'<div class="kv"><span>'+l+'</span><div>'+esc(v)+'</div></div>':''};
+    var h=quadro("Big Message",sp.mudancas?esc(sp.mudancas):'',db?'<button class="btn" id="regenStratBtn">Gerar de novo</button>':'',
+      '<p class="bigmsg">'+esc(sp.bigMessage||"")+'</p>'+linha("Posicionamento",sp.posicionamento)+linha("Para quem falamos",sp.persona)+linha("Percepção a construir",sp.percepcao));
+    h+=quadro("Mix do mês","Quanto de cada caminho entra no calendário. Marque e desmarque na tabela para ajustar.",'','<div id="stratMix"></div>');
+    var ordem=sp.paths.slice().sort(function(a,b){return b.relevancia-a.relevancia});
+    h+=quadro("Caminhos estratégicos","Ordenados pela aderência ao Content DNA deste cliente.",'',
+      '<div class="tabela"><table><thead><tr><th></th><th>Caminho</th><th>Funil</th><th>Relevância</th><th>Funções</th><th>Métricas</th></tr></thead><tbody>'+
+      ordem.map(function(p){var on=state.stratSel.indexOf(p.key)>=0;
+        return '<tr data-path="'+esc(p.key)+'" class="'+(on?'sel':'')+'"><td class="ck">'+(on?iconeUI("checkbox-on"):'<i class="cb-vazio"></i>')+'</td>'+
+          '<td><b class="cel-t">'+esc(p.nome)+'</b><small>'+esc([p.quando,p.porque].filter(Boolean).join(". "))+'</small></td>'+
+          '<td><span class="chip">'+esc(p.funil||"")+'</span></td>'+
+          '<td class="nowrap"><div class="prog-l"><i style="width:'+Math.max(0,Math.min(100,+p.relevancia||0))+'%"></i></div><small>'+esc(String(p.relevancia))+' de 100</small></td>'+
+          '<td>'+esc(p.funcoes.join(", "))+'</td><td>'+esc(p.metricas.join(", "))+'</td></tr>';}).join('')+'</tbody></table></div>');
     el.innerHTML=h;
     drawStratMix();
     Array.prototype.forEach.call(el.querySelectorAll('[data-path]'),function(c){c.addEventListener('click',function(){
@@ -291,7 +345,7 @@
       '{"posicionamento":string,"bigMessage":string,"persona":string,"percepcao":string,"pilares":[string,string,string,string],',
       '"paths":[{"key":string,"nome":string,"quando":string,"porque":string,"objetivo":string,"funil":"topo"|"meio"|"fundo","jornada":string,"funcoes":[string],"emocoes":[string],"metricas":[string],"relevancia":number}],',
       '"mix":[{"key":string,"nome":string,"pct":number}]}',
-      'O "mix" é um subconjunto de 2-4 caminhos (chaves que aparecem em "paths") cujos pct somam 100 — o combo recomendado para este mês.',
+      'O "mix" é um subconjunto de 2-4 caminhos (chaves que aparecem em "paths") cujos pct somam 100, o combo recomendado para este mês.',
     ].join('\n');
   }
   async function runGerarEstrategia(){
@@ -314,31 +368,34 @@
     if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=strat;
     if(state.client===id){GENERATED.strategy=strat;state.stratSel=null;renderStrategy();}
   }
+  function vazioQuadro(titulo,texto,botao){
+    return '<section class="quadro"><div class="vazio-t"><b>'+titulo+'</b><span>'+texto+'</span></div>'+(botao||'')+'</section>';
+  }
   function renderStrategyEmpty(el){
     var hasDna=GENERATED&&GENERATED.dna&&GENERATED.dna.length;
-    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Estratégia — '+esc(clientName(state.client))+'</h3><p><b>Átlas</b> lê o Content DNA e propõe posicionamento, Big Message e caminhos estratégicos — nada genérico.</p></div></div>'+
-      '<div class="card empty-hero"><div class="eh-ic">◈</div>'+
-      (hasDna?'<div class="eh-t" style="margin-bottom:16px">Ainda não gerada.</div><button class="btn pri genbtn" id="genStratBtn">✦ Gerar Estratégia</button><span id="stratMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>'
-        :'<div class="eh-t">Preencha o <b>Content DNA</b> primeiro — a estratégia nasce dele, não é genérica.</div>')+'</div>';
+    el.innerHTML=hasDna?vazioQuadro("A estratégia ainda não foi gerada.","O Átlas lê o Content DNA e propõe posicionamento, Big Message e os caminhos do mês.",'<div class="q-rodape"><button class="btn pri genbtn" id="genStratBtn">Gerar estratégia</button><span id="stratMsg" class="pp-m"></span></div>'):
+      vazioQuadro("Falta o Content DNA.","A estratégia nasce do que o cliente é. Preencha o DNA na aba Entender.",'<div class="q-rodape"><button class="btn pri" data-ir-aba="dna">Ir para Entender</button></div>');
     var btn=I("#genStratBtn");if(btn)btn.addEventListener('click',runGerarEstrategia);
+    ligarIrAba(el);
   }
+  function ligarIrAba(el){Array.prototype.forEach.call(el.querySelectorAll('[data-ir-aba]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-ir-aba'))})});}
   function renderStrategy(){
     var el=I('.view[data-view="strategy"]');
     if(GENERATED&&GENERATED.strategy){return renderStrategyPaths(el);}
     if(isDbClient(state.client)){return renderStrategyEmpty(el);}
     var s=STRATEGY[state.client];
-    if(!s){el.innerHTML=emptyView("Estratégia — "+clientName(state.client),"Ainda sem estratégia para este cliente. Gere o Content DNA e rode o Átlas para criar a estratégia.");return;}
-    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Estratégia — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p>Definida por <b>Átlas</b> a partir do Content DNA.</p></div></div>'+
+    if(!s){el.innerHTML=emptyView("Estratégia, "+clientName(state.client),"Ainda sem estratégia para este cliente. Gere o Content DNA e rode o Átlas para criar a estratégia.");return;}
+    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Estratégia'+' <span class="tag-mock">demonstração</span></h3><p>Definida por <b>Átlas</b> a partir do Content DNA.</p></div></div>'+
       '<div class="grid cols-2"><div class="card pad"><div class="bt" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:6px">Posicionamento</div><div style="font-size:14px">'+esc(s.posicionamento)+'</div></div>'+
       '<div class="card pad" style="background:var(--brand-weak);border-color:transparent"><div class="bt" style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-ink);margin-bottom:6px">Big Message</div><div style="font-size:15px;font-family:var(--font-display);font-weight:700;color:var(--brand-ink)">'+esc(s.bigmsg)+'</div></div></div>'+
       '<div class="card pad" style="margin-top:16px"><div class="metagrid"><div><div class="mk">Objetivos</div><div class="mv">'+s.objetivos.join(' · ')+'</div></div><div><div class="mk">Jornada</div><div class="mv">'+esc(s.jornada)+'</div></div><div style="grid-column:1/-1"><div class="mk">Percepção que queremos construir</div><div class="mv">'+esc(s.percepcao)+'</div></div><div><div class="mk">Crenças a construir</div><div class="mv chips">'+s.construir.map(function(x){return '<span class="badge act">'+esc(x)+'</span>'}).join('')+'</div></div><div><div class="mk">Crenças a desafiar</div><div class="mv chips">'+s.desafiar.map(function(x){return '<span class="badge prog">'+esc(x)+'</span>'}).join('')+'</div></div></div></div>';
   }
   function researchItemHtml(r){
-    return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r.tipo)+'</span><div><div class="ri-t">'+esc(r.insight)+'</div><div class="ri-m">'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.origem)+'</a>':esc(r.origem))+(r.data?' · '+esc(r.data.split("-").reverse().join("/")):'')+(r.relevancia&&r.relevancia!=="—"?' · '+esc(r.relevancia):'')+'</div></div></div>';
+    return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r.tipo)+'</span><div><div class="ri-t">'+esc(r.insight)+'</div><div class="ri-m">'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.origem)+'</a>':esc(r.origem))+(r.data?' · '+esc(r.data.split("-").reverse().join("/")):'')+(r.relevancia&&r.relevancia!==""?' · '+esc(r.relevancia):'')+'</div></div></div>';
   }
   function buildResearchPrompt(name,dnaText){
-    return ['Você é Radar, o agente de Pesquisa do Content OS. A partir do Content DNA real abaixo, aponte oportunidades de conteúdo ANCORADAS no que já se sabe sobre o cliente — dores, objeções e diferenciais reais.',
-      '', 'REGRA CRÍTICA: você NÃO tem acesso à internet. NUNCA invente tendências de mercado, dados de concorrentes ou pesquisa externa — isso exigiria acesso web/API real, que você não tem. Só derive oportunidades do Content DNA fornecido.',
+    return ['Você é Radar, o agente de Pesquisa do Content OS. A partir do Content DNA real abaixo, aponte oportunidades de conteúdo ANCORADAS no que já se sabe sobre o cliente, dores, objeções e diferenciais reais.',
+      '', 'REGRA CRÍTICA: você NÃO tem acesso à internet. NUNCA invente tendências de mercado, dados de concorrentes ou pesquisa externa, isso exigiria acesso web/API real, que você não tem. Só derive oportunidades do Content DNA fornecido.',
       '', 'Cliente: '+name, 'CONTENT DNA:', dnaText, '',
       'Gere de 3 a 5 oportunidades. Responda SOMENTE com JSON: {"items":[{"tipo":string,"insight":string,"origem":string,"relevancia":string}]}',
       '"tipo" ex.: "Pauta quente","Oportunidade","Ângulo de autoridade". "origem" deve citar que vem do Content DNA (não fonte externa).',
@@ -359,8 +416,8 @@
   // Pesquisa com link (a do agente Radar, que busca na web) ou sem (a do botão, que só lê o DNA).
   async function salvarPesquisa(id,out){
     var today=new Date().toISOString().slice(0,10);
-    var items=(Array.isArray(out.items)?out.items:[]).map(function(r){var it={tipo:String(r.tipo||"Oportunidade"),insight:String(r.insight||""),origem:String(r.origem||"Derivado do Content DNA"),data:String(r.data||today),relevancia:String(r.relevancia||"—")};if(r.url)it.url=String(r.url);return it;});
-    if(!items.some(function(i){return i.url}))items.push({tipo:"Nota",insight:"Sinais tirados do próprio Content DNA, sem pesquisa na web. Para pesquisa com fonte, rode o agente Radar.",origem:"Sistema",data:today,relevancia:"—"});
+    var items=(Array.isArray(out.items)?out.items:[]).map(function(r){var it={tipo:String(r.tipo||"Oportunidade"),insight:String(r.insight||""),origem:String(r.origem||"Derivado do Content DNA"),data:String(r.data||today),relevancia:String(r.relevancia||"")};if(r.url)it.url=String(r.url);return it;});
+    if(!items.some(function(i){return i.url}))items.push({tipo:"Nota",insight:"Sinais tirados do próprio Content DNA, sem pesquisa na web. Para pesquisa com fonte, rode o agente Radar.",origem:"Sistema",data:today,relevancia:""});
     await dbDoc("cos_research/"+id).set({items:items});
     if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].research=items;
     if(state.client===id){GENERATED.research=items;renderResearch();}
@@ -370,38 +427,36 @@
     return 'PESQUISA APROVADA (use as pautas que fizerem sentido para este cliente; cite a fonte quando usar):\n'+r.slice(0,10).map(function(x){return '- ['+x.tipo+'] '+x.insight+(x.url?' ('+x.origem+', '+x.data+')':'')}).join('\n');
   }
   function renderResearch(){
-    var el=I('.view[data-view="research"]');
-    if(GENERATED&&GENERATED.research&&GENERATED.research.length){
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+esc(clientName(state.client))+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p><b>Radar</b> — '+(GENERATED.research.some(function(r){return r.url})?'pesquisa na web, cada item com fonte e data.':'sinais internos derivados do Content DNA. Para pesquisa na web com fonte, rode o agente Radar.')+'</p></div></div>'+
-        (isDbClient(state.client)?'<div style="margin:-6px 0 14px"><button class="btn" id="genResBtn">↻ Gerar de novo</button><span id="resMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>':'')+
-        '<div class="card pad">'+GENERATED.research.map(researchItemHtml).join('')+'</div>';
+    var el=I('.view[data-view="research"]'),db=isDbClient(state.client);
+    var itens=((GENERATED&&GENERATED.research)||[]).filter(function(r){return r.tipo!=="Nota"});
+    if(itens.length){
+      var web=itens.some(function(r){return r.url});
+      el.innerHTML=quadro("Pesquisa",web?"Pautas da web, cada uma com fonte e data. O Radar atualiza toda segunda.":"Sinais tirados do Content DNA, sem busca na web. Para pesquisa com fonte, rode o Radar na aba Operação.",
+        db?'<button class="btn" id="genResBtn">Gerar de novo</button>':'',
+        '<div class="tabela"><table><thead><tr><th>Tipo</th><th>Pauta</th><th>Fonte</th><th>Data</th><th>Relevância</th></tr></thead><tbody>'+itens.map(function(r){
+          return '<tr><td><span class="chip">'+esc(r.tipo)+'</span></td><td class="e-reg">'+esc(r.insight)+'</td><td>'+(r.url?'<a class="lnk" href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.origem)+'</a>':'<span class="pp-m">'+esc(r.origem)+'</span>')+'</td>'+
+            '<td class="nowrap">'+esc((r.data||"").split("-").reverse().join("/"))+'</td><td>'+(r.relevancia&&r.relevancia!==""?'<span class="chip '+(r.relevancia==="alta"?'act':'')+'">'+esc(r.relevancia)+'</span>':'')+'</td></tr>';}).join('')+'</tbody></table></div><span id="resMsg" class="pp-m"></span>');
       var btn=I("#genResBtn");if(btn)btn.addEventListener('click',runGerarPesquisa);
       return;
     }
-    if(isDbClient(state.client)){
-      var hasDna=GENERATED&&GENERATED.dna&&GENERATED.dna.length;
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+esc(clientName(state.client))+'</h3><p><b>Radar</b> — sinais internos derivados do Content DNA. Pesquisa externa exige acesso web/API.</p></div></div>'+
-        '<div class="card empty-hero"><div class="eh-ic">◎</div>'+(hasDna?'<button class="btn pri genbtn" id="genResBtn">✦ Gerar Pesquisa</button><span id="resMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>':'<div class="eh-t">Preencha o Content DNA primeiro.</div>')+'</div>';
-      var btn2=I("#genResBtn");if(btn2)btn2.addEventListener('click',runGerarPesquisa);
-      return;
-    }
-    var items=RESEARCH[state.client]||[];
-    if(!items.length){el.innerHTML=emptyView("Pesquisa — "+clientName(state.client),"Sem pesquisa de exemplo para este cliente ainda.");return;}
-    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p><b>Radar</b> — inteligência externa com fonte e data. Nunca inventa tendências.</p></div></div>'+
-      '<div class="card pad">'+items.map(function(r){return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r[0])+'</span><div><div class="ri-t">'+esc(r[1])+'</div><div class="ri-m">↳ '+esc(r[2])+'</div></div></div>'}).join('')+'</div>';
+    var hasDna=GENERATED&&GENERATED.dna&&GENERATED.dna.length;
+    el.innerHTML=hasDna?vazioQuadro("Nenhuma pesquisa ainda.","O Radar pesquisa na web o que o público deste cliente está vendo e traz pautas com fonte. Rode pela aba Operação, ou gere sinais a partir do DNA aqui.",'<div class="q-rodape"><button class="btn pri genbtn" id="genResBtn">Gerar a partir do DNA</button><span id="resMsg" class="pp-m"></span></div>'):
+      vazioQuadro("Falta o Content DNA.","Preencha o DNA na aba Entender.",'<div class="q-rodape"><button class="btn pri" data-ir-aba="dna">Ir para Entender</button></div>');
+    var btn2=I("#genResBtn");if(btn2)btn2.addEventListener('click',runGerarPesquisa);
+    ligarIrAba(el);
   }
   function editorialTreeHtml(ed){
-    return '<div class="tree">'+ed.map(function(p){
-      return '<div class="pil"><div class="h"><span style="width:8px;height:8px;border-radius:50%;background:var(--brand)"></span>'+esc((p.pilar||"").split(":")[0])+'<span class="role" style="margin-left:8px;font-weight:500">· '+esc(p.territorio)+'</span></div><div class="b" style="flex-direction:column;align-items:stretch;gap:10px">'+
-        (p.temas||[]).map(function(t){return '<div style="border:1px solid var(--line-2);border-radius:10px;padding:10px 12px"><div style="font-family:var(--font-display);font-weight:700;font-size:13px;margin-bottom:7px">'+esc(t.tema)+'</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span style="font-size:10px;color:var(--faint);font-weight:600;align-self:center">SUBTEMAS</span>'+(t.subtemas||[]).map(function(s){return '<span class="badge">'+esc(s)+'</span>'}).join('')+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span style="font-size:10px;color:var(--faint);font-weight:600;align-self:center">TÓPICOS</span>'+(t.topicos||[]).map(function(s){return '<span class="pill st-INSIGHT">'+esc(s)+'</span>'}).join('')+'</div></div>'}).join('')+
-      '</div></div>';
+    return ed.map(function(p){
+      return quadro(esc((p.pilar||"").split(":")[0]),esc(p.territorio||""),'',
+        (p.temas||[]).map(function(t){return '<div class="linha"><div class="l-main"><b>'+esc(t.tema)+'</b>'+
+          ((t.subtemas||[]).length?'<small>Subtemas: '+esc(t.subtemas.join(", "))+'</small>':'')+((t.topicos||[]).length?'<small>Tópicos: '+esc(t.topicos.join(", "))+'</small>':'')+'</div></div>'}).join(''));
     }).join('');
   }
   function buildEditorialPrompt(name,strategy){
     var ppw=state.client?diasPostOf().length:3,cp=capacidadePrompt();
     var mp2=metasPrompt();
-    return [mp2,cp?cp+'\nCom '+ppw+' postagens por semana, priorize '+(ppw<=2?'2 a 3':ppw<=4?'3 a 4':'4 a 5')+' pilares realmente ativos — frequência baixa pede poucas frentes, repetidas com consistência.\n':'','Você é Bússola, o agente de Linha Editorial do Content OS. A partir dos pilares estratégicos abaixo, construa a árvore editorial: Pilar → Território → Temas → Subtemas → Tópicos.',
-      '', 'REGRA: nada genérico — ancore tudo no negócio real do cliente (persona, Big Message, pilares).',
+    return [mp2,cp?cp+'\nCom '+ppw+' postagens por semana, priorize '+(ppw<=2?'2 a 3':ppw<=4?'3 a 4':'4 a 5')+' pilares realmente ativos, frequência baixa pede poucas frentes, repetidas com consistência.\n':'','Você é Bússola, o agente de Linha Editorial do Content OS. A partir dos pilares estratégicos abaixo, construa a árvore editorial: Pilar, Território, Temas, Subtemas, Tópicos.',
+      '', 'REGRA: nada genérico, ancore tudo no negócio real do cliente (persona, Big Message, pilares).',
       '', 'Cliente: '+name,
       'Pilares estratégicos: '+((strategy&&strategy.pilares)||[]).join(' | '),
       'Persona: '+((strategy&&strategy.persona)||''),
@@ -429,25 +484,17 @@
     if(state.client===id){GENERATED.editorial=pilares;renderEditorial();}
   }
   function renderEditorial(){
-    var el=I('.view[data-view="editorial"]');
+    var el=I('.view[data-view="editorial"]'),db=isDbClient(state.client);
     if(GENERATED&&GENERATED.editorial&&GENERATED.editorial.length){
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Linha Editorial — '+clientName(state.client)+'</h3><p><b>Bússola</b> — Pilar → Território → Tema → Subtemas & Tópicos. Gerado a partir do Content DNA. Impede conteúdo aleatório.</p></div></div>'+
-        (isDbClient(state.client)?'<div style="margin:-6px 0 14px"><button class="btn" id="genEdBtn">↻ Gerar de novo</button><span id="edMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>':'')+
-        editorialTreeHtml(GENERATED.editorial);
+      el.innerHTML=(db?'<div class="toolbar"><span class="pp-m">'+GENERATED.editorial.length+' pilares, feitos a partir da estratégia aprovada.</span><span class="spacer"></span><span id="edMsg" class="pp-m"></span><button class="btn" id="genEdBtn">Gerar de novo</button></div>':'')+editorialTreeHtml(GENERATED.editorial);
       var btn=I("#genEdBtn");if(btn)btn.addEventListener('click',runGerarEditorial);
       return;
     }
-    if(isDbClient(state.client)){
-      var hasStrat=GENERATED&&GENERATED.strategy;
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Linha Editorial — '+esc(clientName(state.client))+'</h3><p><b>Bússola</b> — Pilar → Território → Tema → Subtemas & Tópicos, a partir da Estratégia.</p></div></div>'+
-        '<div class="card empty-hero"><div class="eh-ic">⌗</div>'+(hasStrat?'<button class="btn pri genbtn" id="genEdBtn">✦ Gerar Linha Editorial</button><span id="edMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>':'<div class="eh-t">Gere a <b>Estratégia</b> primeiro.</div>')+'</div>';
-      var btn2=I("#genEdBtn");if(btn2)btn2.addEventListener('click',runGerarEditorial);
-      return;
-    }
-    var pil=EDITORIAL[state.client]||[];
-    if(!pil.length){el.innerHTML=emptyView("Linha Editorial — "+clientName(state.client),"Sem linha editorial de exemplo para este cliente ainda.");return;}
-    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Linha Editorial — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p><b>Bússola</b> — Pilar → Território → Tema. Impede conteúdo aleatório.</p></div></div>'+
-      '<div class="tree">'+pil.map(function(p){return '<div class="pil"><div class="h"><span style="width:8px;height:8px;border-radius:50%;background:var(--brand)"></span>'+esc(p[0])+'</div><div class="b">'+p[1].map(function(t){return '<span class="badge">'+esc(t)+'</span>'}).join('')+'</div></div>'}).join('')+'</div>';
+    var hasStrat=GENERATED&&GENERATED.strategy;
+    el.innerHTML=hasStrat?vazioQuadro("A linha editorial ainda não foi gerada.","A Bússola traduz a estratégia em pilares, territórios, temas e tópicos.",'<div class="q-rodape"><button class="btn pri genbtn" id="genEdBtn">Gerar linha editorial</button><span id="edMsg" class="pp-m"></span></div>'):
+      vazioQuadro("Falta a estratégia.","A linha editorial nasce da estratégia aprovada.",'<div class="q-rodape"><button class="btn pri" data-ir-aba="strategy">Ir para Estratégia</button></div>');
+    var btn2=I("#genEdBtn");if(btn2)btn2.addEventListener('click',runGerarEditorial);
+    ligarIrAba(el);
   }
   function formatSurface(nome){
     var f=(LIB.formatos||[]).filter(function(x){return x.nome===nome})[0];
@@ -466,24 +513,24 @@
     var temas=[];(editorial||[]).forEach(function(p){(p.temas||[]).forEach(function(t){temas.push(t.tema)})});
     var formatos=(LIB.formatos||[]).map(function(f){return f.nome}).join(', ');
     var refs=refsCompact();
-    return ['Você é Musa, o agente de Ideias do Content OS. Gere '+qtd+' ideias de conteúdo REAIS para este cliente, cada uma ancorada no Content DNA e na estratégia — nunca genéricas, nunca intercambiáveis entre marcas.',
+    return ['Você é Musa, o agente de Ideias do Content OS. Gere '+qtd+' ideias de conteúdo REAIS para este cliente, cada uma ancorada no Content DNA e na estratégia, nunca genéricas, nunca intercambiáveis entre marcas.',
       '', 'Cliente: '+name, 'CONTENT DNA:', dnaText,
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
-      refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
+      refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato, NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
       'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), pesquisaCompact(), '',
       'Gatilhos mentais disponíveis: '+(LIB.gatilhos||[]).map(function(g){return g.nome}).join(', '),
       'Elementos literários disponíveis: '+(LIB.elementos||[]).map(function(e){return e.nome}).join(', '),
       prefsPrompt(), capacidadePrompt(), metasPrompt(),
-      opts.soSemGravacao?'IMPORTANTE: TODAS estas ideias devem ser em formato que NÃO exige o cliente gravar — escolha só formatos de Carrossel da lista (ex.: Checklist, Passo a Passo, Comparação, Case).':'',
-      ja.length?('Estas ideias JÁ EXISTEM no calendário — NÃO repita, NÃO faça variações delas, traga ângulos novos:\n- '+ja.slice(0,80).join('\n- ')):'', '',
+      opts.soSemGravacao?'IMPORTANTE: TODAS estas ideias devem ser em formato que NÃO exige o cliente gravar, escolha só formatos de Carrossel da lista (ex.: Checklist, Passo a Passo, Comparação, Case).':'',
+      ja.length?('Estas ideias JÁ EXISTEM no calendário, NÃO repita, NÃO faça variações delas, traga ângulos novos:\n- '+ja.slice(0,80).join('\n- ')):'', '',
       'Distribua pelo funil: '+(function(){var mx=mixDoCliente(state.client);return '~'+mx.topo+'% topo, ~'+mx.meio+'% meio, ~'+mx.fundo+'% fundo';})()+'. Cubra funções variadas: Descoberta, Conscientização, Educação, Autoridade, Identificação, Experiência Própria, Experiência Compartilhada, Prova, Quebra de Objeção, Consideração, Conversão.',
       'Cada ideia precisa de: título, conceito (1 frase), ângulo, dor/desejo específico usado, função/objetivo, propósito (1 frase: de onde a persona sai e pra onde vai), emoção-alvo, hook (frase de abertura real), CTA, formato escolhido + objetivo do formato + por que esse formato, e justificativa (por que não serve pra outra marca).',
       '', 'Responda SOMENTE com JSON: {"ideas":[{"titulo":string,"conceito":string,"angulo":string,"dorDesejo":string,"funcao":string,"funil":"topo"|"meio"|"fundo","jornada":string,"emocao":string,"pilar":string,"tema":string,"proposito":string,"formato":string,"formatoObjetivo":string,"formatoJustificativa":string,"hook":string,"cta":string,"justificativa":string,"gatilhos":[string],"elementos":[string]}]}',
-      'Em "gatilhos" escolha 2-3 nomes da lista de gatilhos e em "elementos" 1-2 nomes da lista de elementos — exatamente como escritos, respeitando as escolhas do estrategista.',
+      'Em "gatilhos" escolha 2-3 nomes da lista de gatilhos e em "elementos" 1-2 nomes da lista de elementos, exatamente como escritos, respeitando as escolhas do estrategista.',
     ].filter(Boolean).join('\n');
   }
-  // Gera ideias. append=true acrescenta às existentes (sem repetir) — usado por "Gerar mais" e pelo calendário de 45/60/90 dias.
+  // Gera ideias. append=true acrescenta às existentes (sem repetir), usado por "Gerar mais" e pelo calendário de 45/60/90 dias.
   async function gerarIdeiasCore(id,append,count,soSemGravacao){
     var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact(),{count:count||15,soSemGravacao:!!soSemGravacao,existentes:atuais.map(function(x){return x.titulo})}),{modelTier:"complex",cache:false});
@@ -526,46 +573,40 @@
     }
   }
   function renderIdeas(){
-    var el=I('.view[data-view="ideas"]');
-    if(GENERATED&&GENERATED.ideas&&GENERATED.ideas.length){
-      var g=GENERATED,gi=g.ideas||[];
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+clientName(state.client)+'</h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona + performance, com formato recomendado por objetivo. Não é uma lista de "30 ideias".</p></div></div>'+
-        (isDbClient(state.client)?prefsCardHtml()+'<div style="margin:-6px 0 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="badge">'+gi.length+' ideias</span><button class="btn pri" id="moreIdeasBtn">＋ Gerar mais 15 ideias</button><button class="btn" id="genIdeasBtn" title="Apaga as atuais e gera outras">↻ Gerar do zero</button><span id="ideasMsg" style="font-size:12px;color:var(--muted)"></span></div>':'')+
-        '<div class="clist">'+gi.map(function(x){
-          var fr=x.formatRec||{};
-          return '<div class="card pad"><div style="font-family:var(--font-display);font-weight:700;font-size:14.5px;line-height:1.25">'+esc(x.titulo)+'</div>'+
-            '<div style="font-size:12.5px;color:var(--muted);margin-top:5px">'+esc(x.conceito)+'</div>'+
-            '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:11px"><span class="badge">'+esc(fr.formato||x.format||'')+'</span><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="pill emo-pill">♥ '+esc(x.emocao)+'</span><span class="badge">'+esc(x.jornada)+'</span><span class="badge">'+esc(x.surface||'')+'</span></div>'+
-            ((x.gatilhos&&x.gatilhos.length)||(x.elementos&&x.elementos.length)?'<div style="margin-top:9px;font-size:11.5px;color:var(--muted)"><b style="color:var(--ink)">Gatilhos:</b> '+esc((x.gatilhos||[]).join(', ')||'—')+' · <b style="color:var(--ink)">Elementos:</b> '+esc((x.elementos||[]).join(', ')||'—')+'</div>':'')+
-            (fr.objetivo?'<div style="margin-top:10px;font-size:12px;color:var(--muted)"><b style="color:var(--ink)">Objetivo do formato:</b> '+esc(fr.objetivo)+'</div>':'')+
-            '<div style="margin-top:12px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--brand-ink);font-weight:600">HOOK</span> · '+esc(x.hook)+'</div>'+
-            '<div style="margin-top:6px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--faint);font-weight:600">CTA</span> · '+esc(x.cta)+'</div>'+
-            (x.proposito?'<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--line-2);padding-top:9px"><b style="color:var(--ink)">Propósito:</b> '+esc(x.proposito)+'</div>':'')+
-            (fr.justificativa?'<div style="margin-top:6px;font-size:12px;color:var(--muted)"><b style="color:var(--ink)">Por que este formato:</b> '+esc(fr.justificativa)+'</div>':'')+
-            (x.justificativa?'<div style="margin-top:6px;font-size:12px;color:var(--muted)"><b style="color:var(--ink)">Por que esta ideia:</b> '+esc(x.justificativa)+'</div>':'')+
-            '</div>';
-        }).join('')+'</div>';
-      var gb=I("#genIdeasBtn");if(gb)gb.addEventListener('click',function(){if(confirm("Apagar as ideias atuais e gerar outras do zero?"))runGerarIdeias(null,false);});
-      var mb=I("#moreIdeasBtn");if(mb)mb.addEventListener('click',function(){runGerarIdeias(null,true);});
-      wirePrefs();
-      return;
-    }
-    if(isDbClient(state.client)){
+    var el=I('.view[data-view="ideas"]'),db=isDbClient(state.client),gi=(GENERATED&&GENERATED.ideas)||[];
+    var barra='<div class="toolbar"><span class="pp-m">'+(gi.length?gi.length+' ideias':'')+'</span><span class="spacer"></span><span id="ideasMsg" class="pp-m"></span>'+
+      (db?'<button class="btn" id="prefsOpen">Preferências de criação</button>'+(gi.length?'<button class="btn" id="genIdeasBtn" title="Apaga as atuais e gera outras">Gerar do zero</button><button class="btn pri" id="moreIdeasBtn"><span class="bi">'+iconeUI("mais")+'</span>Gerar mais 15</button>':''):'')+'</div>';
+    if(gi.length){
+      el.innerHTML=barra+'<div class="tabela"><table><thead><tr><th>Ideia</th><th>Formato</th><th>Funil</th><th>Função</th><th>Gancho</th></tr></thead><tbody>'+gi.map(function(x,i){var fr=x.formatRec||{};
+        return '<tr data-ideia="'+i+'"><td class="e-reg"><b class="cel-t">'+esc(x.titulo)+'</b><small>'+esc(x.angulo||x.conceito||"")+'</small></td><td>'+esc(fr.formato||x.format||"")+'<small>'+esc(surfLbl(x.surface))+'</small></td>'+
+          '<td><span class="chip">'+esc(x.funil||"")+'</span></td><td>'+esc(x.funcao||"")+'</td><td class="e-reg">'+esc(x.hook||"")+'</td></tr>';}).join('')+'</tbody></table></div>';
+      Array.prototype.forEach.call(el.querySelectorAll('[data-ideia]'),function(tr){tr.addEventListener('click',function(){abrirIdeia(+tr.getAttribute('data-ideia'))})});
+    }else{
       var hasEd=GENERATED&&GENERATED.editorial&&GENERATED.editorial.length;
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+esc(clientName(state.client))+'</h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona, com formato recomendado por objetivo.</p></div></div>'+prefsCardHtml()+
-        '<div class="card empty-hero"><div class="eh-ic">✦</div>'+(hasEd?'<button class="btn pri genbtn" id="genIdeasBtn">✦ Gerar Ideias</button><span id="ideasMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>':'<div class="eh-t">Gere a <b>Linha Editorial</b> primeiro.</div>')+'</div>';
-      var gb2=I("#genIdeasBtn");if(gb2)gb2.addEventListener('click',function(){runGerarIdeias(null,false);});wirePrefs();
-      return;
+      el.innerHTML=barra+(hasEd?vazioQuadro("Nenhuma ideia ainda.","A Musa cruza estratégia, linha editorial, pesquisa e o que já performou, e propõe uma ideia por data do calendário.",'<div class="q-rodape"><button class="btn pri genbtn" id="genIdeasBtn">Gerar ideias</button></div>'):
+        vazioQuadro("Falta a linha editorial.","As ideias nascem da linha editorial.",'<div class="q-rodape"><button class="btn pri" data-ir-aba="editorial">Ir para Linha editorial</button></div>'));
+      ligarIrAba(el);
     }
-    var items=IDEAS[state.client]||[];
-    if(!items.length){el.innerHTML=emptyView("Ideias — "+clientName(state.client),"Sem ideias de exemplo para este cliente ainda.");return;}
-    el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Ideias — '+clientName(state.client)+' <span class="tag-mock">demonstração</span></h3><p><b>Musa</b> — cada ideia nasce do cruzamento Content DNA + estratégia + persona + performance. Não é uma lista de “30 ideias”.</p></div></div>'+
-      '<div class="clist">'+items.map(function(x){
-        return '<div class="card pad"><div style="font-family:var(--font-display);font-weight:700;font-size:14.5px;line-height:1.25">'+esc(x.titulo)+'</div>'+
-          '<div style="font-size:12.5px;color:var(--muted);margin-top:5px">'+esc(x.conceito)+'</div>'+
-          '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:11px"><span class="badge">'+esc(x.formato)+'</span><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="pill emo-pill">♥ '+esc(x.emocao)+'</span><span class="badge">'+esc(x.jornada)+'</span></div>'+
-          '<div style="margin-top:12px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--brand-ink);font-weight:600">HOOK</span> · '+esc(x.hook)+'</div>'+
-          '<div style="margin-top:6px;font-size:12.5px"><span class="mono" style="font-size:10.5px;color:var(--faint);font-weight:600">CTA</span> · '+esc(x.cta)+'</div>'+
-          '<div style="margin-top:10px;font-size:12px;color:var(--muted);border-top:1px solid var(--line-2);padding-top:9px"><b style="color:var(--ink)">Por quê:</b> '+esc(x.just)+'</div></div>';
-      }).join('')+'</div>';
+    var gb=I("#genIdeasBtn");if(gb)gb.addEventListener('click',function(){if(!gi.length||confirm("Apagar as ideias atuais e gerar outras do zero?"))runGerarIdeias(null,false);});
+    var mb=I("#moreIdeasBtn");if(mb)mb.addEventListener('click',function(){runGerarIdeias(null,true);});
+    var po=I("#prefsOpen");if(po)po.addEventListener('click',abrirPrefs);
+  }
+  function gavetaHtml(titulo,sub,corpo,rodape){
+    return '<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="'+esc(titulo)+'"><div class="dh"><div style="flex:1;min-width:0"><div class="d-title">'+esc(titulo)+'</div>'+(sub?'<div class="d-sub">'+esc(sub)+'</div>':'')+'</div><button class="icon-btn" id="dclose" aria-label="Fechar">'+iconeUI("x-fechar")+'</button></div><div class="db">'+corpo+'</div>'+(rodape?'<div class="df">'+rodape+'</div>':'')+'</aside>';
+  }
+  function abrirGaveta(titulo,sub,corpo,rodape){
+    I("#overlay").innerHTML=gavetaHtml(titulo,sub,corpo,rodape);
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+  }
+  function abrirIdeia(i){
+    var x=(GENERATED.ideas||[])[i];if(!x)return;var fr=x.formatRec||{};
+    var kv=function(l,v){return v?'<div class="kv"><span>'+l+'</span><div>'+esc(v)+'</div></div>':''};
+    abrirGaveta(x.titulo,(fr.formato||x.format||"")+" · "+(x.funil||""),
+      '<div class="block">'+kv("Conceito",x.conceito)+kv("Ângulo",x.angulo)+kv("Dor ou desejo",x.dorDesejo)+kv("Gancho",x.hook)+kv("Chamada",x.cta)+'</div>'+
+      '<div class="block">'+kv("Função",x.funcao)+kv("Jornada",x.jornada)+kv("Emoção",x.emocao)+kv("Pilar",(x.pilar||"").split(":")[0])+kv("Tema",x.tema)+'</div>'+
+      '<div class="block">'+kv("Propósito",x.proposito)+kv("Por que este formato",fr.justificativa)+kv("Por que esta ideia",x.justificativa)+kv("Gatilhos",(x.gatilhos||[]).join(", "))+kv("Elementos literários",(x.elementos||[]).join(", "))+'</div>');
+  }
+  function abrirPrefs(){
+    abrirGaveta("Preferências de criação",clientName(state.client),prefsCardHtml());
+    wirePrefs();
   }

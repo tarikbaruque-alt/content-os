@@ -31,6 +31,16 @@ const errors: string[] = [];
 type Item = { id: string; status: string; data: string; content?: unknown; idea: { tema: string; surface: string } };
 const calendar = (): Promise<Item[]> =>
   page.evaluate(() => Object.entries((window as any).__MOCK.store).filter(([k]) => k.includes("cos_calendar/")).map(([, v]) => v as any));
+const ABAS: Record<string, string[]> = {
+  dna: ["dna"], strategy: ["strategy"], research: ["strategy", "research"], editorial: ["strategy", "editorial"],
+  ideas: ["strategy", "ideas"], formats: ["strategy", "formats"], calendar: ["calendar"], approvals: ["calendar", "approvals"],
+  performance: ["performance"], operacao: ["operacao"],
+};
+async function ir(v: string) {
+  if (!ABAS[v]) { await page.click(`.side .nav [data-view="${v}"]`); return; }
+  if (!(await page.isVisible('[data-tab-ir="dna"]'))) { await page.click('.side .nav [data-view="clients"]'); await page.click('.view[data-view="clients"] .tabela tbody tr'); }
+  for (const t of ABAS[v]!) await page.click(`[data-tab-ir="${t}"]`);
+}
 const text = (sel: string) => page.textContent(sel).then((t) => (t || "").replace(/\s+/g, " "));
 
 describe("Painel no navegador (window.claude simulado)", () => {
@@ -53,7 +63,7 @@ describe("Painel no navegador (window.claude simulado)", () => {
     await page.click("#ncCreate");
     await page.click("#dnaRun");
     await page.waitForFunction(() => /sugestões/.test(document.querySelector("#dnaMsg")?.textContent || ""));
-    await page.click('#nav [data-view="overview"]');
+    await ir("overview");
     await page.click("#autoBuildBtn");
     await page.waitForFunction(() => /Pronto/.test(document.querySelector("#overlay")?.textContent || ""), null, { timeout: 30_000 });
     await page.click("#dclose");
@@ -63,9 +73,9 @@ describe("Painel no navegador (window.claude simulado)", () => {
   }, 60_000);
 
   it("Aprovações só lista peça com texto produzido", async () => {
-    await page.click('#nav [data-view="approvals"]');
+    await ir("approvals");
     expect(await page.$$("#approvalList [data-gen]")).toHaveLength(0);
-    await page.click('#nav [data-view="calendar"]');
+    await ir("calendar");
     await page.click('.view[data-view="calendar"] [data-gen]');
     await page.click('[data-genpeca="reel"]');
     await page.waitForSelector("#saveReelBtn");
@@ -90,12 +100,12 @@ describe("Painel no navegador (window.claude simulado)", () => {
     });
     await page.selectOption("#pubStatus", "WAITING APPROVAL");
     await page.click("#dclose");
-    await page.click('#nav [data-view="approvals"]');
+    await ir("approvals");
     expect(await page.$$("#approvalList [data-gen]")).toHaveLength(1);
   }, 30_000);
 
   it("Performance importa o CSV do Meta e não mostra número inventado", async () => {
-    await page.click('#nav [data-view="performance"]');
+    await ir("performance");
     expect(await text('.view[data-view="performance"]')).toMatch(/Ainda não há resultados medidos/);
     const items = (await calendar()).sort((a, b) => (a.data < b.data ? -1 : 1)).slice(0, 4);
     const head = "Identificação da publicação;Horário de publicação;Link permanente;Tipo de publicação;Descrição;Alcance;Curtidas;Compartilhamentos;Seguimentos;Comentários;Salvamentos";
@@ -111,16 +121,26 @@ describe("Painel no navegador (window.claude simulado)", () => {
     expect(perf).not.toMatch(/48,2k/);
   }, 30_000);
 
-  it("abre as 20 telas (e o modo cliente) sem erro de JavaScript", async () => {
-    const views = await page.$$eval("#nav a", (as) => as.map((a) => a.getAttribute("data-view")!));
-    expect(views).toHaveLength(20);
-    for (const v of views) {
-      await page.click(`#nav [data-view="${v}"]`);
+  it("menu por processo: 4 itens; cliente com abas e sub-abas; nenhuma tela quebra", async () => {
+    const menu = await page.$$eval(".side .nav a", (as) => as.map((a) => a.getAttribute("data-view")!));
+    expect(menu).toEqual(["overview", "clients", "agents", "config"]);
+    for (const v of menu) {
+      await ir(v);
       expect(await page.$eval(`.view[data-view="${v}"]`, (s) => !(s as HTMLElement).hidden), v).toBe(true);
     }
+    for (const v of Object.keys(ABAS)) {
+      await ir(v);
+      expect(await page.$eval(`.view[data-view="${v}"]`, (s) => !(s as HTMLElement).hidden), v).toBe(true);
+      expect(await page.$eval("#cliHead", (h) => !(h as HTMLElement).hidden)).toBe(true);
+    }
+    await ir("overview");
+    expect(await page.$eval("#cliHead", (h) => getComputedStyle(h).display)).toBe("none");
+    // data do calendário continua saindo certo (a função do calendário não pode ser sobrescrita)
+    expect(await text("#ovContent")).toMatch(/(Seg|Ter|Qua|Qui|Sex|Sáb|Dom) \d{2}\/\d{2}/);
+    await ir("calendar");
     await page.click("#clientview");
-    for (const v of await page.$$eval("#nav a", (as) => as.map((a) => a.getAttribute("data-view")!))) await page.click(`#nav [data-view="${v}"]`);
-    await page.click("#clientview");
+    for (const v of await page.$$eval(".side .nav a", (as) => as.map((a) => a.getAttribute("data-view")!))) await page.click(`.side .nav [data-view="${v}"]`);
+    await ir("calendar").catch(() => {});
     expect(errors).toEqual([]);
   }, 60_000);
 });

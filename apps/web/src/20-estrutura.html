@@ -2,53 +2,56 @@
 
 <div class="app">
   <aside class="side">
-    <div class="brand"><div class="mark">C</div><div><div class="name">Content&nbsp;OS</div><div class="sub">Inteligência de conteúdo</div></div></div>
+    <div class="brand"><span class="logo" id="logoMark"></span><span class="name">Content OS</span></div>
     <nav class="nav" id="nav"></nav>
-    <div class="foot"><span>IA ao vivo</span><span class="chip-prov" id="aiBadge">verificando…</span></div>
+    <div class="side-fim">
+      <nav class="nav" id="nav2"></nav>
+      <div class="user-card"><div class="uc-av" id="ucAv">C</div><div class="uc-t"><b id="ucNome">Content OS</b><span id="aiBadge">verificando</span></div></div>
+    </div>
   </aside>
 
   <div class="main">
-    <header class="topbar">
-      <div style="display:flex;align-items:center;gap:12px"><div><div class="crumb" id="crumb">Trabalho</div><h2 id="ptitle">Dashboard</h2></div><span class="statuspill lvl-mock" id="statuspill" title="">MOCK</span></div>
+    <header class="pagehead">
+      <div class="ph-t"><div class="crumb" id="crumb"></div><h1 id="ptitle">Hoje</h1></div>
       <div class="spacer"></div>
-      <div class="client-switch" id="clientSwitch"><div class="av" id="csav">M</div><select id="csel" aria-label="Cliente ativo"></select></div>
-      <button class="btn" id="newClientBtn" title="Cadastrar um cliente novo, em branco" style="white-space:nowrap">+ Novo cliente</button>
-      <button class="btn" id="clientview" title="Ver como o cliente veria (somente leitura)" style="white-space:nowrap">👁 Ver como cliente</button>
-      <button class="icon-btn" id="theme" title="Alternar tema" aria-label="Alternar tema">◐</button>
+      <div class="ph-acoes">
+        <button class="btn" id="clientview" hidden>Ver como cliente</button>
+        <button class="btn pri" id="newClientBtn">Novo cliente</button>
+        <button class="icon-btn" id="theme" title="Alternar tema claro e escuro" aria-label="Alternar tema">◐</button>
+      </div>
     </header>
-    <div id="cvBanner">👁 Visualização do cliente — somente leitura · <b id="cvName">—</b><span style="opacity:.8"> · você está vendo exatamente o que o cliente veria</span></div>
+    <div class="cli-head" id="cliHead" hidden>
+      <div class="client-switch" id="clientSwitch"><div class="av" id="csav">C</div><select id="csel" aria-label="Cliente"></select></div>
+      <nav class="tabs" id="cliTabs" aria-label="Etapas do cliente"></nav>
+      <nav class="subtabs" id="cliSub"></nav>
+    </div>
+    <div id="cvBanner">Você está vendo o painel como o cliente vê: <b id="cvName"></b>. Somente leitura.</div>
 
     <div class="wrap">
-      <div id="noClientHero" class="card empty-hero" style="margin-top:6px" hidden><div class="eh-ic">＋</div><div class="eh-t" style="margin-bottom:14px">Esta área trabalha <b>por cliente</b> e ainda não há nenhum selecionado. Cadastre um cliente — cada agente se alimenta do anterior (Ficha → DNA → Estratégia → Editorial → Ideias → Formatos → Calendário).</div><button class="btn pri genbtn" id="ncHeroBtn">+ Novo cliente</button></div>
+      <div id="noClientHero" class="card empty-hero" hidden><div class="eh-t" style="margin-bottom:14px">Escolha um cliente na lista ou cadastre o primeiro.</div><button class="btn pri" id="ncHeroBtn">Novo cliente</button></div>
       <section class="view" data-view="overview">
-        <div class="eyebrow">Content OS</div>
-        <h1 style="font-size:26px;margin:8px 0 6px">Inteligência estratégica de conteúdo</h1>
-        <p class="lead">Uma equipe de agentes de IA que entende cada cliente, decide com fundamento, pesquisa, cria, planeja e aprende — para melhores decisões de conteúdo, não apenas mais conteúdo.</p>
-        <div class="card pad" style="margin-top:16px"><div class="legend"><b style="color:var(--ink);font-size:12px">Estado de cada área:</b><span class="li"><span class="statuspill lvl-func">Funcional</span> roda de verdade</span><span class="li"><span class="statuspill lvl-parcial">Parcial</span> motor real, painel em progresso</span><span class="li"><span class="statuspill lvl-mock">Mock</span> só visual</span><span class="li"><span class="statuspill lvl-nao">Não impl.</span> depende de API</span></div><div style="font-size:11.5px;color:var(--faint);margin-top:9px">Tudo o que aparece aqui vem dos clientes que você cadastra. O selo no topo de cada tela indica o estado da <b>inteligência por trás</b> dela.</div></div>
+        <div class="stat-cards" id="kpis"></div>
+        <div id="maestroChat"></div>
+        <div id="ovPropostas"></div>
+        <div id="ovSteps"></div>
+        <div class="bloco"><div class="bloco-head"><h3>Próximas publicações</h3><button class="lnk" data-ir="calendar">Abrir calendário</button></div><div id="ovContent"></div></div>
         <div id="ovCobranca"></div>
         <div id="ovBackup"></div>
-        <div id="ovSteps"></div>
-        <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-bottom:12px">Como o sistema pensa</div><div class="pipe" id="pipe"></div></div>
-        <div class="grid cols-4" style="margin-top:16px" id="kpis"></div>
-        <div class="section-head"><div><h3>Próximas publicações</h3><p>Clique para abrir o contexto estratégico completo.</p></div><a class="badge" data-goto="calendar" style="cursor:pointer">Calendário →</a></div>
-        <div class="clist" id="ovContent"></div>
       </section>
 
       <section class="view" data-view="ativos" hidden></section>
 
       <section class="view" data-view="clients" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3>Clientes</h3><p>Cada cliente tem uma memória estratégica própria (Content DNA).</p></div></div>
-        <div id="briefTools"></div>
-        <div class="grid cols-3" id="clientCards"></div>
+        <div id="clientTable"></div>
+        <details class="bloco dobra"><summary>Receber briefing de cliente novo</summary><div id="briefTools"></div></details>
+        <div id="clientCards" hidden></div>
       </section>
 
       <section class="view" data-view="analyze" hidden></section>
       <section class="view" data-view="plan" hidden></section>
 
       <section class="view" data-view="dna" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3 id="dnaTitle">Content DNA</h3><p>Estruturado por <b>Íris</b>. Nada vira fato sem sua aprovação.</p></div></div>
-        <div class="callout" style="margin-bottom:16px"><span style="font-size:15px">✳︎</span><div class="em"><b>Governança de memória.</b> Cada registro tem estado (FACT, HYPOTHESIS, INSIGHT, STRATEGIC&nbsp;DECISION, LEARNING) e proveniência. Íris <b>sugere</b>; você aprova, edita ou rejeita.</div></div>
-        <div class="grid" id="dnaSections"></div>
+        <div id="dnaSections"></div>
       </section>
 
       <section class="view" data-view="strategy" hidden></section>
@@ -63,20 +66,16 @@
         <div class="clist" id="contentList"></div>
       </section>
 
-      <section class="view" data-view="calendar" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3>Calendário editorial</h3><p>Operado por <b>Cronos</b>. Clique num conteúdo para ver o contexto estratégico.</p></div></div>
-        <div class="card pad"><div class="legend" style="margin-bottom:14px"><span class="li"><span class="dot" style="background:#5B45E6"></span>Reel</span><span class="li"><span class="dot" style="background:#2E6FB7"></span>Carrossel</span><span class="li"><span class="dot" style="background:#0E8C9B"></span>Stories</span><span style="margin-left:auto;font-size:11.5px;color:var(--faint)">Clique num conteúdo para ver o contexto estratégico →</span></div><div class="cal" id="cal"></div></div>
-      </section>
+      <section class="view" data-view="calendar" hidden><div id="cal"></div></section>
 
       <section class="view" data-view="approvals" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3>Aguardando aprovação</h3><p>Cada peça mostra <b>por que existe</b> antes de você aprovar.</p></div></div>
-        <div class="clist" id="approvalList"></div>
+        <div id="approvalList"></div>
       </section>
 
       <section class="view" data-view="performance" hidden></section>
 
       <section class="view" data-view="kb" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3>Knowledge Base</h3><p>Conhecimento metodológico — recuperado por <b>Acervo</b>. Escopo: Instagram-first, orgânico.</p></div></div>
+        <div class="section-head" style="margin-top:6px"><div><h3>Knowledge Base</h3><p>Conhecimento metodológico, recuperado por <b>Acervo</b>. Escopo: Instagram-first, orgânico.</p></div></div>
         <div class="grid cols-3" id="kbGrid"></div>
       </section>
 
@@ -84,12 +83,12 @@
 
       <section class="view" data-view="propostas" hidden></section>
 
+      <section class="view" data-view="operacao" hidden></section>
+
       <section class="view" data-view="agents" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3>Agentes</h3><p>Quando cada agente roda sozinho, o que já fez e quanto custou. Por cliente, escolha Automático ou Manual.</p></div></div>
-        <div class="agents" id="agentGrid"></div>
+        <div id="agentGrid"></div>
       </section>
 
-      <div class="foot-note">Content OS · painel de validação. O pipeline (Íris → Átlas → Bússola → Musa → Rima/Mosaico/Enredo → Cronos → Notion) é <b>funcional e testado</b>; a prosa final e a sincronização real dependem das chaves (Anthropic/Notion). Cada cliente é seu: nada de dados de exemplo.</div>
     </div>
   </div>
 </div>

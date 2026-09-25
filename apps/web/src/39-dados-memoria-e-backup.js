@@ -1,8 +1,8 @@
   // ===================================================================
-  // IA AO VIVO (sample) + PERSISTÊNCIA (db) — clientes reais criados no
+  // IA AO VIVO (sample) + PERSISTÊNCIA (db), clientes reais criados no
   // painel. Só funciona quando este painel é aberto pelo LINK PUBLICADO no
   // claude.ai: window.claude só existe ali (a cópia offline/painel.html
-  // não tem window.claude — os botões "Gerar" ficam ocultos com um aviso).
+  // não tem window.claude, os botões "Gerar" ficam ocultos com um aviso).
   // ===================================================================
   var CAP={sample:null,db:null,ready:false};
   var DB_CLIENTS={}; // clientId -> {id,name,niche,createdAt}
@@ -13,7 +13,7 @@
   function aiAvailable(){return !!(CAP.sample&&CAP.db);}
   function dbDoc(path){return CAP.db.doc(path);}
   function dbItemsCol(root,id){return dbDoc(root+"/"+id).collection("items");}
-  // ---- Armazenamento local (fallback) — quando o painel é aberto como arquivo
+  // ---- Armazenamento local (fallback), quando o painel é aberto como arquivo
   // (sem window.claude), os clientes e tudo que você preenche ficam gravados
   // NESTE navegador, com a mesma API do db publicado. A IA ao vivo continua
   // exclusiva do link do claude.ai. ----
@@ -38,14 +38,14 @@
   }
   function noAi(){toast("A IA ao vivo só funciona pelo link publicado no claude.ai. Tudo que você digitou continua salvo neste navegador.");}
 
-  // ---- Ficha do cliente — informações fixas, digitadas uma vez e salvas
+  // ---- Ficha do cliente, informações fixas, digitadas uma vez e salvas
   // automaticamente. Entram em TODOS os prompts (como fato) e na detecção do nicho. ----
   var FICHA_FIELDS=[
     ["name","Nome do cliente","Ex.: Consultório Dr. Paulo",0],
     ["niche","Nicho / segmento","Ex.: Odontologia estética",0],
     ["instagram","Instagram (@)","@perfil",0],
     ["site","Site / link","https://…",0],
-    ["regiao","Cidade / região de atuação","Ex.: São Paulo — Zona Sul, ou 100% online",0],
+    ["regiao","Cidade / região de atuação","Ex.: São Paulo, Zona Sul, ou 100% online",0],
     ["ticket","Ticket médio / faixa de preço","Ex.: R$ 1.500 a R$ 12.000",0],
     ["oferta","Produtos / serviços principais","Ex.: lentes de contato dental, clareamento",1],
     ["publico","Público-alvo","Ex.: mulheres de 30 a 50 anos que querem sorrir sem vergonha",1],
@@ -60,10 +60,8 @@
     var fld=function(f){var v=esc(fichaVal(c,f[0]));
       return '<div class="fld"'+(f[3]?' style="grid-column:1/-1"':'')+'><label for="fc_'+f[0]+'">'+esc(f[1])+'</label>'+
         (f[3]?'<textarea class="ta" id="fc_'+f[0]+'" data-ficha="'+f[0]+'" style="min-height:58px" placeholder="'+esc(f[2])+'">'+v+'</textarea>':'<input id="fc_'+f[0]+'" data-ficha="'+f[0]+'" placeholder="'+esc(f[2])+'" value="'+v+'">')+'</div>';};
-    return '<details class="card pad ficha" style="margin-bottom:16px"'+(n<4?' open':'')+'><summary><span class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)">Ficha do cliente</span>'+
-      '<span class="badge" style="margin-left:10px">'+n+'/'+FICHA_FIELDS.length+' preenchidos</span><span id="fichaMsg" style="margin-left:auto;font-size:12px;color:var(--muted)">'+(CAP.local?'Salvo neste navegador':'Salvo automaticamente')+'</span></summary>'+
-      '<div style="font-size:11.5px;color:var(--faint);margin:10px 0 12px">Digite uma vez — fica gravado e todos os agentes usam como fato (Íris, Estratégia, Ideias, Formatos, Estúdio Criativo).</div>'+
-      '<div class="grid cols-2" style="gap:0 16px">'+FICHA_FIELDS.map(fld).join('')+'</div></details>';
+    return '<details class="quadro ficha"'+(n<4?' open':'')+'><summary class="q-head"><div><h3>Ficha do cliente</h3><p>'+n+' de '+FICHA_FIELDS.length+' campos preenchidos. Todos os agentes usam como fato.</p></div><span id="fichaMsg" class="pp-m">'+(CAP.local?'Salvo neste navegador':'Salvo sozinho')+'</span></summary>'+
+      '<div class="grid cols-2 q-form">'+FICHA_FIELDS.map(fld).join('')+'</div></details>';
   }
   var fichaTimer=null;
   function wireFicha(){
@@ -84,24 +82,24 @@
     var m=I("#fichaMsg");
     try{
       await saveClientRecord(id,rec);
-      if(m){m.textContent="✓ Salvo";m.style.color="var(--good)";}
-    }catch(e){if(m){m.textContent="Não consegui salvar — tente de novo.";m.style.color="var(--warn)";}}
+      if(m){m.textContent="Salvo";m.style.color="var(--good)";}
+    }catch(e){if(m){m.textContent="Não consegui salvar, tente de novo.";m.style.color="var(--warn)";}}
   }
   async function saveClientRecord(id,rec){
     rec.updatedAt=new Date().toISOString();
     await dbDoc("cos_clients/"+id).set(rec);
     DB_CLIENTS[id]=rec;
     var c=byId(id);
-    if(c&&c.id===id){c.name=rec.name;c.niche=rec.niche||"";c.full=rec.name+(rec.niche?" — "+rec.niche:"");}
+    if(c&&c.id===id){c.name=rec.name;c.niche=rec.niche||"";c.full=rec.name+(rec.niche?", "+rec.niche:"");}
     refreshClientOptions();
-    if(state.client===id){I("#csav").textContent=rec.name.charAt(0);var t=I("#dnaTitle");if(t)t.textContent="Content DNA — "+rec.name;}
+    if(state.client===id){I("#csav").textContent=rec.name.charAt(0);var t=I("#dnaTitle");if(t)t.textContent="Content DNA, "+rec.name;}
   }
   function fichaCompact(){
     var c=DB_CLIENTS[state.client];if(!c)return "";
     var lines=FICHA_FIELDS.filter(function(f){return f[0]!=="name"}).map(function(f){var v=fichaVal(c,f[0]);return v?('- '+f[1]+': '+v):''}).filter(Boolean);
     var br=String(c.briefing||"").trim();
-    return [lines.length?('FICHA DO CLIENTE (informada pelo estrategista — trate como FACT e respeite as restrições):\n'+lines.join('\n')):'',
-      br?('BRIEFING DO CLIENTE (palavras do próprio cliente — use como fonte; não invente além disso):\n'+br.slice(0,3500)):''].filter(Boolean).join('\n\n');
+    return [lines.length?('FICHA DO CLIENTE (informada pelo estrategista, trate como FACT e respeite as restrições):\n'+lines.join('\n')):'',
+      br?('BRIEFING DO CLIENTE (palavras do próprio cliente, use como fonte; não invente além disso):\n'+br.slice(0,3500)):''].filter(Boolean).join('\n\n');
   }
   var briefTimer=null;
   function wireBriefingAutosave(){
@@ -111,14 +109,14 @@
       briefTimer=setTimeout(function(){
         if(state.client!==id||!DB_CLIENTS[id])return;
         var rec=Object.assign({},DB_CLIENTS[id],{briefing:ta.value});
-        saveClientRecord(id,rec).then(function(){var m=I("#briefSaved");if(m)m.textContent="✓ Briefing salvo";},function(){});
+        saveClientRecord(id,rec).then(function(){var m=I("#briefSaved");if(m)m.textContent="Briefing salvo";},function(){});
       },800);
     });
   }
 
-  // ---- Rascunho × IA — peça sem IA nunca se passa por texto final ----
+  // ---- Rascunho × IA, peça sem IA nunca se passa por texto final ----
   function isRascunho(c){return !!c&&(c.origem==="rascunho"||(!c.origem&&/ancorado no Content DNA do cliente/.test((c.copy||"")+" "+((c.roteiro||[]).map(function(s){return s.text}).join(" ")))));}
-  function rascunhoBadge(c){return isRascunho(c)?'<span class="badge rasc" title="Escrito sem IA — base para revisar, não publicar assim">✎ rascunho</span>':'';}
+  function rascunhoBadge(c){return isRascunho(c)?'<span class="badge rasc" title="Escrito sem IA, base para revisar, não publicar assim">rascunho</span>':'';}
 
   // ---- Memória de voz: peças que você aprova ou edita viram exemplo para as próximas ----
   async function recordExample(id,tipo,headline,texto,fonte){
@@ -132,15 +130,15 @@
   }
   function exemplosCompact(){
     var ex=(GENERATED&&GENERATED.exemplos)||[];if(!ex.length)return "";
-    return '\n\nEXEMPLOS APROVADOS PELO ESTRATEGISTA (a voz real deste cliente — imite ritmo, vocabulário e tom; NÃO copie o conteúdo nem repita as mesmas frases):\n'+
+    return '\n\nEXEMPLOS APROVADOS PELO ESTRATEGISTA (a voz real deste cliente, imite ritmo, vocabulário e tom; NÃO copie o conteúdo nem repita as mesmas frases):\n'+
       ex.map(function(x,i){return (i+1)+'. ['+x.tipo+(x.fonte?' · '+x.fonte:'')+'] '+x.headline+'\n'+x.texto.slice(0,600)}).join('\n\n');
   }
 
-  // ---- Resultados reais (colados por você) → guia de formatos ----
+  // ---- Resultados reais (colados por você), guia de formatos ----
   var MET_FIELDS=[["alcance","Alcance"],["salvamentos","Salvamentos"],["compartilhamentos","Compartilhamentos"],["comentarios","Comentários"],["seguidores","Seguidores ganhos"]];
   function metricsBlockHtml(it,idx){
     var m=it.metrics||{};
-    return '<div class="block"><div class="bt">📈 Resultado depois de publicar <span class="tag-mock">cole os números do Instagram</span></div>'+
+    return '<div class="block"><div class="bt">Resultado depois de publicar <span class="tag-mock">cole os números do Instagram</span></div>'+
       '<div class="grid cols-3" style="gap:0 12px">'+MET_FIELDS.map(function(f){return '<div class="fld"><label for="mt_'+f[0]+'">'+f[1]+'</label><input id="mt_'+f[0]+'" type="number" min="0" inputmode="numeric" value="'+(m[f[0]]!=null?esc(m[f[0]]):'')+'"></div>'}).join('')+'</div>'+
       '<button class="btn" id="saveMetBtn" data-idx="'+idx+'">Salvar resultado</button><span id="metMsg" style="margin-left:10px;font-size:12px;color:var(--muted)">'+(m.at?'Último registro: '+esc(String(m.at).slice(0,10)):'Os resultados ensinam o guia de Formatos o que funciona para este cliente.')+'</span></div>';
   }
@@ -153,10 +151,10 @@
     try{
       await dbItemsCol("cos_calendar",state.client).doc(it.id).update({metrics:m});
       it.metrics=m;
-      if(msg){msg.textContent="✓ Resultado salvo — já conta no guia de Formatos";msg.style.color="var(--good)";}
-    }catch(e){if(msg){msg.textContent="Não consegui salvar — tente de novo.";msg.style.color="var(--warn)";}}
+      if(msg){msg.textContent="Resultado salvo, já conta no guia de Formatos";msg.style.color="var(--good)";}
+    }catch(e){if(msg){msg.textContent="Não consegui salvar, tente de novo.";msg.style.color="var(--warn)";}}
   }
-  function itemFormato(it){var x=it.idea||{};return (x.formatRec&&x.formatRec.formato)||x.format||"—";}
+  function itemFormato(it){var x=it.idea||{};return (x.formatRec&&x.formatRec.formato)||x.format||"";}
   // Agrupa por formato: engajamento = (salvamentos + compartilhamentos + comentários) / alcance.
   function formatPerformance(){
     var items=((GENERATED&&GENERATED.calendar&&GENERATED.calendar.items)||[]).filter(function(it){return it.metrics&&it.metrics.alcance>0});
@@ -174,14 +172,11 @@
   }
   function perfCardHtml(){
     var p=formatPerformance();
-    if(!p.length)return '<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">📈 O que os seus dados dizem</div><div style="font-size:12.5px;color:var(--muted)">Ainda sem resultados. Depois de publicar, abra o conteúdo no Calendário e cole alcance, salvamentos e compartilhamentos — o guia passa a mostrar quais formatos funcionam <b>para este cliente</b>, não só para o nicho.</div></div>';
+    if(!p.length)return quadro("O que os resultados deste cliente dizem","Depois de publicar, registre alcance, salvamentos e compartilhamentos em cada peça (ou importe o CSV em Resultados). Aqui passa a aparecer o formato que funciona para este cliente, não só para o nicho.",'','');
     var tot=p.reduce(function(a,r){return a+r.n},0);
-    return '<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">📈 O que os seus dados dizem · '+tot+' post'+(tot>1?'s':'')+' medido'+(tot>1?'s':'')+'</div>'+
-      p.map(function(r,i){return '<div class="fnbar"><span class="fnl" style="flex:0 0 190px">'+(i===0?'🏆 ':'')+esc(r.formato)+' <span style="color:var(--faint);font-size:10.5px">· '+r.n+'</span></span><span class="fnt"><i style="width:'+Math.min(100,r.eng/p[0].eng*100)+'%"></i></span><span class="fnv tnum" style="flex:0 0 60px">'+pct(r.eng)+'</span></div>'}).join('')+
-      '<div style="font-size:11.5px;color:var(--faint);margin-top:8px">Engajamento = (salvamentos + compartilhamentos + comentários) ÷ alcance. '+(tot<6?'Com poucos posts por formato, trate como sinal inicial — não como regra.':'Use para ajustar o mix do próximo mês.')+'</div></div>';
+    return quadro("O que os resultados deste cliente dizem",tot+' post'+(tot>1?'s':'')+' medido'+(tot>1?'s':'')+'. Engajamento é salvamentos, compartilhamentos e comentários divididos pelo alcance.'+(tot<6?' Com poucos posts, é sinal inicial.':''),'',barsHtml(p.map(function(r){return {k:r.formato,n:r.n,eng:r.eng}})));
   }
-
-  // ---- Pulso (Performance) — só números reais: os que você cola em cada peça
+  // ---- Pulso (Performance), só números reais: os que você cola em cada peça
   // e os do CSV que o Instagram / Meta Business Suite exporta. Nada inventado. ----
   // Colunas do export (português e inglês). A primeira que existir no arquivo vence.
   var CSV_COLS={
@@ -256,8 +251,8 @@
   function agrupa(posts,key){var by={};posts.forEach(function(p){var k=p[key];if(!k)return;var b=by[k]=by[k]||{k:k,n:0,alc:0,inter:0};b.n++;b.alc+=p.m.alcance;b.inter+=engOf(p.m)*p.m.alcance;});
     return Object.keys(by).map(function(k){var b=by[k];return {k:k,n:b.n,alcMedio:Math.round(b.alc/b.n),eng:b.alc?b.inter/b.alc:0}}).sort(function(a,b){return b.eng-a.eng});}
   function nfmt(n){return n>=10000?(Math.round(n/100)/10).toLocaleString('pt-BR')+'k':Math.round(n).toLocaleString('pt-BR');}
-  function barsHtml(rows,lbl){if(!rows.length)return '<div style="font-size:12.5px;color:var(--faint)">Sem dados suficientes.</div>';var top=rows[0].eng||1;
-    return rows.map(function(r){return '<div class="fnbar"><span class="fnl">'+esc(lbl?lbl(r.k):r.k)+' <span style="color:var(--faint);font-size:10.5px">· '+r.n+'</span></span><span class="fnt"><i style="width:'+Math.max(3,Math.min(100,r.eng/top*100))+'%"></i></span><span class="fnv tnum" style="flex:0 0 64px">'+pct(r.eng)+'</span></div>'}).join('');}
+  function barsHtml(rows,lbl){if(!rows.length)return '<div class="vazio">Sem dados suficientes.</div>';var top=rows[0].eng||1;
+    return rows.map(function(r){return '<div class="barra-l"><span class="bl-n">'+esc(lbl?lbl(r.k):r.k)+'<small>'+r.n+' post'+(r.n>1?'s':'')+'</small></span><span class="prog-l largo"><i style="width:'+Math.max(3,Math.min(100,r.eng/top*100))+'%"></i></span><span class="bl-v tnum">'+pct(r.eng)+'</span></div>'}).join('');}
   // Leitura automática: só compara o que os números mostram, e avisa quando a amostra é pequena.
   function leituraPulso(posts,porSup,porFunil){
     var L=[];if(posts.length<3)return ['Com '+posts.length+' post'+(posts.length>1?'s':'')+' medido'+(posts.length>1?'s':'')+', ainda não dá pra tirar conclusão. Registre pelo menos 6 posts para o Pulso começar a comparar.'];
@@ -279,40 +274,38 @@
   var FUNIL_LBL={topo:"Topo (descoberta)",meio:"Meio (educação)",fundo:"Fundo (conversão)"};
   function renderPerf(){
     var el=I('.view[data-view="performance"]');if(!el)return;
-    var posts=perfPosts(),h='<div class="section-head" style="margin-top:6px"><div><h3>Performance — '+esc(clientName(state.client))+'</h3><p><b>Pulso</b> lê só números reais deste cliente: os que você registra em cada peça e os do CSV exportado do Instagram.</p></div></div>';
-    var imp='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">Importar resultados do Instagram</div>'+
-      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">No Meta Business Suite: <b>Insights → Conteúdo → Exportar dados</b> (CSV). Cada post é ligado à peça do calendário do mesmo dia; os que não baterem entram como posts avulsos.</div>'+
-      '<label class="btn'+(posts.length?'':' pri')+'" style="display:inline-block">⬆ Importar CSV<input type="file" id="perfCsv" accept=".csv,text/csv" hidden></label><span id="perfMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
+    var posts=perfPosts();
+    var barra='<div class="toolbar"><span class="pp-m">O Pulso lê só números reais: os que você registra em cada peça e o CSV do Instagram.</span><span class="spacer"></span><span id="perfMsg" class="pp-m"></span>'+
+      '<label class="btn'+(posts.length?'':' pri')+'"><span class="bi">'+iconeUI("upload")+'</span>Importar CSV do Instagram<input type="file" id="perfCsv" accept=".csv,text/csv" hidden></label></div>';
     if(!posts.length){
-      el.innerHTML=h+'<div class="card empty-hero"><div class="eh-t"><b>Ainda não há resultados medidos.</b><br><span style="font-size:12.5px;color:var(--muted)">Importe o CSV do Instagram abaixo ou abra uma peça no Calendário e cole alcance, salvamentos e compartilhamentos.</span></div></div>'+imp;
+      el.innerHTML=barra+vazioQuadro("Ainda não há resultados medidos.","No Meta Business Suite, abra Insights, Conteúdo e Exportar dados, e importe o CSV aqui. Cada post é ligado à peça do calendário do mesmo dia. Ou abra uma peça no Calendário e cole os números dela.");
       wirePerf();return;}
     var tot=function(k){return posts.reduce(function(a,p){return a+(p.m[k]||0)},0)};
     var alc=tot("alcance"),inter=tot("salvamentos")+tot("compartilhamentos")+tot("comentarios");
-    // Comparação: 30 dias até o post mais recente × os 30 anteriores (só quando os dois lados têm posts).
     var ult=new Date(posts[0].data+"T12:00:00"),corte=fmtD(new Date(ult.getTime()-30*864e5)),corte2=fmtD(new Date(ult.getTime()-60*864e5));
     var rec=posts.filter(function(p){return p.data>corte}),ant=posts.filter(function(p){return p.data<=corte&&p.data>corte2});
     var media=function(a,k){return a.length?a.reduce(function(s,p){return s+(p.m[k]||0)},0)/a.length:0};
-    var delta=function(a,b){if(rec.length<2||ant.length<2||!b)return '';var d=Math.round((a-b)/b*100);return '<span style="color:'+(d>=0?'var(--good)':'var(--warn)')+'">'+(d>=0?'+':'')+d+'%</span> vs. 30 dias anteriores';};
+    var delta=function(a,b){if(rec.length<2||ant.length<2||!b)return '';var d=Math.round((a-b)/b*100);return '<span class="chip '+(d>=0?'act':'warn')+'">'+(d>=0?'+':'')+d+'%</span> contra os 30 dias anteriores';};
     var engRec=rec.length?rec.reduce(function(s,p){return s+engOf(p.m)*p.m.alcance},0)/Math.max(1,rec.reduce(function(s,p){return s+p.m.alcance},0)):0;
     var engAnt=ant.length?ant.reduce(function(s,p){return s+engOf(p.m)*p.m.alcance},0)/Math.max(1,ant.reduce(function(s,p){return s+p.m.alcance},0)):0;
-    h+='<div class="grid cols-4" style="margin-bottom:16px">'+
+    var h=barra+'<div class="stat-cards quatro">'+
       kpiCard("Posts medidos",String(posts.length),posts.filter(function(p){return p.funil}).length+" ligados ao calendário")+
       kpiCard("Alcance médio",nfmt(alc/posts.length),delta(media(rec,"alcance"),media(ant,"alcance"))||("alcance total "+nfmt(alc)))+
-      kpiCard("Engajamento",pct(alc?inter/alc:0),delta(engRec,engAnt)||"salv. + compart. + coment. ÷ alcance")+
+      kpiCard("Engajamento",pct(alc?inter/alc:0),delta(engRec,engAnt)||"salvamentos, compartilhamentos e comentários sobre o alcance")+
       kpiCard("Seguidores ganhos",nfmt(tot("seguidores")),"soma dos posts medidos")+'</div>';
     var porSup=agrupa(posts,"superficie"),porFmt=agrupa(posts.filter(function(p){return p.funil}),"formato"),porFunil=agrupa(posts,"funil");
-    h+='<div class="grid cols-2" style="gap:14px"><div class="card pad"><div class="eyebrow" style="margin-bottom:10px">Engajamento por tipo de post</div>'+barsHtml(porSup)+'</div>'+
-      '<div class="card pad"><div class="eyebrow" style="margin-bottom:10px">Engajamento por etapa do funil</div>'+barsHtml(porFunil,function(k){return FUNIL_LBL[k]||k})+'</div></div>';
-    if(porFmt.length)h+='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">Engajamento por formato criativo (peças do calendário)</div>'+barsHtml(porFmt)+'</div>';
+    h+='<div class="grid cols-2 q-par">'+quadro("Engajamento por tipo de post",'','',barsHtml(porSup))+quadro("Engajamento por etapa do funil",'','',barsHtml(porFunil,function(k){return FUNIL_LBL[k]||k}))+'</div>';
+    if(porFmt.length)h+=quadro("Engajamento por formato criativo","Só as peças do calendário.",'',barsHtml(porFmt));
+    h+=quadro("Leitura do Pulso","Feita só com os números desta tela.",'','<ul class="lista-t">'+leituraPulso(posts,porSup,porFunil).map(function(l){return '<li>'+l+'</li>'}).join('')+'</ul>');
     var top=posts.slice().sort(function(a,b){return engOf(b.m)-engOf(a.m)}).slice(0,5);
-    h+='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">Posts que mais engajaram</div>'+top.map(function(p){return '<div class="fnbar"><span class="fnl" style="flex:1;color:var(--ink)">'+(p.link?'<a href="'+esc(p.link)+'" target="_blank" rel="noopener">'+esc(String(p.titulo).slice(0,80))+'</a>':esc(String(p.titulo).slice(0,80)))+' <span style="color:var(--faint);font-size:10.5px">· '+esc(p.superficie)+' · '+esc(p.data.split("-").reverse().join("/"))+'</span></span><span class="fnv tnum" style="flex:0 0 70px">'+nfmt(p.m.alcance)+'</span><span class="fnv tnum" style="flex:0 0 64px">'+pct(engOf(p.m))+'</span></div>'}).join('')+'</div>';
-    h+='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:8px">Leitura do Pulso</div><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6">'+leituraPulso(posts,porSup,porFunil).map(function(l){return '<li>'+l+'</li>'}).join('')+'</ul><div style="font-size:11.5px;color:var(--faint);margin-top:8px">Leitura automática feita só com os números acima. Engajamento = (salvamentos + compartilhamentos + comentários) ÷ alcance.</div></div>';
-    el.innerHTML=h+imp;wirePerf();
+    h+=quadro("Posts que mais engajaram",'','','<div class="tabela"><table><thead><tr><th>Post</th><th>Tipo</th><th>Data</th><th class="num">Alcance</th><th class="num">Engajamento</th></tr></thead><tbody>'+top.map(function(p){
+      return '<tr class="sem-clique"><td class="e-reg">'+(p.link?'<a class="lnk" href="'+esc(p.link)+'" target="_blank" rel="noopener">'+esc(String(p.titulo).slice(0,80))+'</a>':esc(String(p.titulo).slice(0,80)))+'</td><td>'+esc(p.superficie)+'</td><td class="nowrap">'+esc(p.data.split("-").reverse().join("/"))+'</td><td class="num tnum">'+nfmt(p.m.alcance)+'</td><td class="num tnum">'+pct(engOf(p.m))+'</td></tr>'}).join('')+'</tbody></table></div>');
+    el.innerHTML=h;wirePerf();
   }
   function wirePerf(){
     var inp=I("#perfCsv");if(!inp)return;
     inp.addEventListener('change',function(){var f=inp.files&&inp.files[0],m=I("#perfMsg");if(!f)return;if(m){m.textContent="Importando…";m.style.color="var(--muted)";}
-      f.text().then(importarCsvPerf).then(function(r){renderPerf();var m2=I("#perfMsg");if(m2){m2.textContent="✓ "+r.total+" posts importados · "+r.casados+" ligados a peças do calendário"+(r.soltos?" · "+r.soltos+" avulsos":"");m2.style.color="var(--good)";}},
+      f.text().then(importarCsvPerf).then(function(r){renderPerf();var m2=I("#perfMsg");if(m2){m2.textContent=""+r.total+" posts importados · "+r.casados+" ligados a peças do calendário"+(r.soltos?" · "+r.soltos+" avulsos":"");m2.style.color="var(--good)";}},
         function(e){if(m){m.textContent=e&&e.message==="colunas"?"Não achei as colunas de data e alcance. Use o CSV exportado pelo Meta Business Suite.":"Não consegui ler esse arquivo.";m.style.color="var(--warn)";}});});
   }
 
@@ -322,22 +315,21 @@
     var g=GENERATED||{},c=DB_CLIENTS[state.client]||{};
     var items=(g.calendar&&g.calendar.items)||[];
     var steps=[
-      ["dna","Preencher a Ficha do cliente",fichaFilled(c)>=5],
-      ["dna","Montar o Content DNA (Íris ou manual)",(g.dna||[]).length>=5],
-      ["strategy","Gerar a Estratégia",!!g.strategy],
-      ["editorial","Gerar a Linha Editorial",(g.editorial||[]).length>0],
-      ["ideas","Gerar as Ideias",(g.ideas||[]).length>0],
-      ["formats","Conferir o guia de Formatos do nicho",!!(g.formats&&(g.formats.perfil||g.formats.ia))],
-      ["calendar","Montar o Calendário",items.length>0],
-      ["calendar","Produzir a primeira peça com IA",items.some(function(it){return it.content&&!isRascunho(it.content)})],
-      ["calendar","Registrar resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
+      ["dna","Preencher a ficha do cliente",fichaFilled(c)>=5],
+      ["dna","Montar o Content DNA",(g.dna||[]).length>=5],
+      ["strategy","Gerar a estratégia",!!g.strategy],
+      ["editorial","Gerar a linha editorial",(g.editorial||[]).length>0],
+      ["ideas","Gerar as ideias",(g.ideas||[]).length>0],
+      ["formats","Conferir os formatos do nicho",!!(g.formats&&(g.formats.perfil||g.formats.ia))],
+      ["calendar","Montar o calendário",items.length>0],
+      ["calendar","Escrever a primeira peça com IA",items.some(function(it){return it.content&&!isRascunho(it.content)})],
+      ["performance","Registrar os resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
     ];
     var done=steps.filter(function(s){return s[2]}).length,next=steps.filter(function(s){return !s[2]})[0];
     var falta=(g.dna||[]).length>=3&&!state.clientView&&AUTO_STEPS.some(function(st){return st[0]!=="dna"&&!autoFeito(st[0],g)});
-    return '<div class="card pad" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><div class="eyebrow">Próximos passos — '+esc(clientName(state.client))+'</div><span class="badge">'+done+'/'+steps.length+'</span>'+
-      (falta?'<button class="btn pri genbtn" id="autoBuildBtn" style="margin-left:auto">✦ Montar o restante automaticamente</button>':'')+
-      (next?'<button class="btn '+(falta?'':'pri ')+'genbtn" data-goto-step="'+next[0]+'" style="'+(falta?'':'margin-left:auto')+'">Continuar: '+esc(next[1])+' →</button>':'<span class="badge act" style="margin-left:auto">✓ Cliente completo</span>')+'</div>'+
-      '<div class="steplist">'+steps.map(function(s){return '<a class="stepi'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="dot">'+(s[2]?'✓':'')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div></div>';
+    var acoes=(falta?'<button class="btn pri genbtn" id="autoBuildBtn">Montar o restante</button>':'')+(next?'<button class="btn'+(falta?'':' pri')+'" data-goto-step="'+next[0]+'">Continuar</button>':'<span class="chip act">Cliente completo</span>');
+    return quadro("Próximos passos de "+esc(clientName(state.client)),done+' de '+steps.length+' etapas feitas.',acoes,
+      '<div class="passos">'+steps.map(function(s){return '<a class="passo'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="pc">'+(s[2]?iconeUI("checkbox-on"):'<i class="cb-vazio"></i>')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div>');
   }
   function wireSteps(root){var ab=(root||document).querySelector('#autoBuildBtn');if(ab)ab.addEventListener('click',function(){montarTudo(state.client,state.period||30)});Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
 
@@ -367,9 +359,8 @@
     return data.clients.length;
   }
   function backupHtml(){
-    return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:8px">Backup dos clientes</div>'+
-      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">'+(CAP.local?'Você está na <b>cópia offline</b>: os clientes ficam salvos neste navegador. ':'Os clientes ficam salvos no painel publicado. ')+'Exporte um arquivo para ter uma cópia de segurança ou para levar tudo entre o link publicado e a cópia offline.</div>'+
-      '<button class="btn" id="bkExport">⬇ Exportar backup (.json)</button> <label class="btn" style="display:inline-block">⬆ Importar backup<input type="file" id="bkImport" accept="application/json,.json" hidden></label><span id="bkMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
+    return quadro("Backup dos clientes",(CAP.local?'Você está na cópia offline: os clientes ficam neste navegador. ':'Os clientes ficam no servidor. ')+'Exporte um arquivo para ter uma cópia de segurança ou levar tudo entre o painel e a cópia offline.',
+      '<button class="btn" id="bkExport">Exportar backup</button><label class="btn">Importar backup<input type="file" id="bkImport" accept="application/json,.json" hidden></label>','<span id="bkMsg" class="pp-m"></span>');
   }
   function wireBackup(){
     var msg=function(t,c){var m=I("#bkMsg");if(m){m.textContent=t;m.style.color=c||"var(--muted)";}};
@@ -378,13 +369,13 @@
       try{
         var bkData=await exportBackup();try{bkData.settings=await adminCfg();await salvarAdminCfg({lastBackup:new Date().toISOString()});}catch(e){}
         var json=JSON.stringify(bkData,null,1),name="content-os-backup-"+new Date().toISOString().slice(0,10)+".json";
-        var localDL=function(){var b=new Blob([json],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ Backup baixado","var(--good)");};
-        if(window.claude&&claude.use){claude.use("downloads").then(function(dl){if(!dl){localDL();return;}dl.save({filename:name,data:json}).then(function(){msg("✓ Backup baixado","var(--good)")},function(){msg("Download recusado.","var(--warn)")});},localDL);}else{localDL();}
-      }catch(e){msg("Não consegui exportar — tente de novo.","var(--warn)");}
+        var localDL=function(){var b=new Blob([json],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);msg("Backup baixado","var(--good)");};
+        if(window.claude&&claude.use){claude.use("downloads").then(function(dl){if(!dl){localDL();return;}dl.save({filename:name,data:json}).then(function(){msg("Backup baixado","var(--good)")},function(){msg("Download recusado.","var(--warn)")});},localDL);}else{localDL();}
+      }catch(e){msg("Não consegui exportar, tente de novo.","var(--warn)");}
     });
     var im=I("#bkImport");if(im)im.addEventListener('change',function(){
       var f=im.files&&im.files[0];if(!f)return;msg("Importando…");
-      f.text().then(function(t){return importBackup(JSON.parse(t));}).then(function(n){msg("✓ "+n+" cliente(s) importado(s)","var(--good)");renderClients();},function(){msg("Arquivo inválido — use um backup exportado por este painel.","var(--warn)");});
+      f.text().then(function(t){return importBackup(JSON.parse(t));}).then(function(n){msg(""+n+" cliente(s) importado(s)","var(--good)");renderClients();},function(){msg("Arquivo inválido, use um backup exportado por este painel.","var(--warn)");});
     });
   }
 
@@ -415,9 +406,9 @@
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
     var on=aiAvailable();
-    el.textContent=CAP.remote?"● servidor":on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
+    el.textContent=CAP.remote?"servidor":on?"ativa":(CAP.local?"offline · salvo aqui":"indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
-    el.title=on?"Gerar com IA real e cadastrar clientes está disponível neste painel.":"Abra pelo link do painel publicado no claude.ai para gerar com IA real e cadastrar clientes — a cópia offline não tem essa capacidade.";
+    el.title=on?"Gerar com IA real e cadastrar clientes está disponível neste painel.":"Abra pelo link do painel publicado no claude.ai para gerar com IA real e cadastrar clientes, a cópia offline não tem essa capacidade.";
   }
   async function loadDbClients(){
     var snap=await CAP.db.collection("cos_clients").get();
@@ -427,7 +418,7 @@
     Object.keys(DB_CLIENTS).forEach(function(id){
       if(!CLIENTS.some(function(c){return c.id===id})){
         var v=DB_CLIENTS[id];
-        CLIENTS.push({id:id,name:v.name,full:v.name+(v.niche?" — "+v.niche:""),niche:v.niche||"",av:(CLIENTS.length%9)});
+        CLIENTS.push({id:id,name:v.name,full:v.name+(v.niche?", "+v.niche:""),niche:v.niche||"",av:(CLIENTS.length%9)});
         added=true;
       }
     });
@@ -445,7 +436,7 @@
     var rec={id:id,name:name,niche:niche||"",createdAt:new Date().toISOString()};
     await dbDoc("cos_clients/"+id).set(rec);
     DB_CLIENTS[id]=rec;
-    CLIENTS.push({id:id,name:name,full:name+(niche?" — "+niche:""),niche:niche||"",av:(CLIENTS.length%9)});
+    CLIENTS.push({id:id,name:name,full:name+(niche?", "+niche:""),niche:niche||"",av:(CLIENTS.length%9)});
     refreshClientOptions();
     return id;
   }

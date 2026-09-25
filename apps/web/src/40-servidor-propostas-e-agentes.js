@@ -1,5 +1,5 @@
   // ===================================================================
-  // MODO SERVIDOR (Supabase) — liga quando o painel é publicado com
+  // MODO SERVIDOR (Supabase), liga quando o painel é publicado com
   // window.COS_CONFIG (npm run build:web). Login da equipe, os mesmos docs do
   // painel guardados no banco, a IA dos botões pela função do servidor e as
   // telas Propostas e Agentes. Sem COS_CONFIG, nada disto roda: o painel segue
@@ -105,7 +105,7 @@
   }
 
   // ---------------------------------------------------------------- Propostas
-  var AG_INFO={radar:["Radar","Pesquisa"],iris:["Íris","Content DNA"],atlas:["Átlas","Estratégia"],bussola:["Bússola","Linha editorial"],musa:["Musa","Ideias"],cronos:["Cronos","Calendário"],estudio:["Estúdio","Peças"],pulso:["Pulso","Performance"],painel:["Painel","Botões Gerar"],acervo:["Acervo","Knowledge Base"]};
+  var AG_INFO={radar:["Radar","Pesquisa"],iris:["Íris","Content DNA"],atlas:["Átlas","Estratégia"],bussola:["Bússola","Linha editorial"],musa:["Musa","Ideias"],cronos:["Cronos","Calendário"],estudio:["Estúdio","Peças"],pulso:["Pulso","Performance"],painel:["Painel","Botões Gerar"],acervo:["Acervo","Knowledge Base"],maestro:["Maestro","Chat"]};
   var TIPO_LBL={pesquisa:"Pesquisa",estrategia:"Estratégia",editorial:"Linha editorial",ideias:"Ideias",aviso:"Aviso"};
   var PROPOSTAS=[];
   async function carregarPropostas(){
@@ -114,8 +114,8 @@
     PROPOSTAS=r.data||[];atualizarContadorPropostas();return PROPOSTAS;
   }
   function atualizarContadorPropostas(){
-    var n=PROPOSTAS.filter(function(p){return p.status==="pendente"}).length,a=I('#nav a[data-view="propostas"] span');
-    if(a)a.innerHTML='Propostas'+(n?' <b class="nav-n">'+n+'</b>':'');
+    var n=PROPOSTAS.filter(function(p){return p.status==="pendente"}).length,b=I('.side .nav a[data-view="overview"] .nav-n');
+    if(b){b.textContent=n;b.hidden=!n;}
   }
   function previaProposta(p){
     var d=p.payload||{};
@@ -146,9 +146,12 @@
     var pend=PROPOSTAS.filter(function(p){return p.status==="pendente"}),feitas=PROPOSTAS.filter(function(p){return p.status!=="pendente"}).slice(0,15);
     el.innerHTML=head+(pend.length?'<div class="props">'+pend.map(cardProposta).join('')+'</div>':'<div class="card empty-hero"><div class="eh-t"><b>Nada esperando você.</b><br>Quando um agente terminar um trabalho, ele aparece aqui.</div></div>')+
       (feitas.length?'<div class="eyebrow" style="margin:26px 0 10px">Decididas recentemente</div><div class="props">'+feitas.map(cardProposta).join('')+'</div>':'');
+    ligarCartoesProposta(el,function(){renderPropostas();});
+  }
+  function ligarCartoesProposta(el,depois){
     Array.prototype.forEach.call(el.querySelectorAll('[data-prop]'),function(card){
       var p=PROPOSTAS.filter(function(x){return x.id===card.getAttribute('data-prop')})[0],msg=card.querySelector('.prop-msg');
-      var fim=async function(aprovar){await chamarServidor("decidir",{id:p.id,aprovar:aprovar});renderPropostas();};
+      var fim=async function(aprovar){await chamarServidor("decidir",{id:p.id,aprovar:aprovar});await carregarPropostas();depois();};
       var bAprovar=card.querySelector('[data-prop-aprovar]'),bRejeitar=card.querySelector('[data-prop-rejeitar]'),bOk=card.querySelector('[data-prop-ok]'),bIr=card.querySelector('[data-prop-ir]');
       if(bAprovar)bAprovar.addEventListener('click',async function(){
         bAprovar.disabled=true;setBusy(msg,"Aplicando…");
@@ -158,6 +161,17 @@
       if(bOk)bOk.addEventListener('click',function(){fim(true).catch(function(e){msg.textContent=e.message;});});
       if(bIr)bIr.addEventListener('click',function(){if(p.client_id&&isDbClient(p.client_id))setClient(p.client_id);go(bIr.getAttribute('data-prop-ir'));});
     });
+  }
+  // Hoje: as propostas pendentes, com os mesmos cartões (aprovar ali mesmo).
+  async function renderPropostasResumo(){
+    var el=I("#ovPropostas");if(!el)return;
+    if(!SB){el.innerHTML="";return;}
+    await carregarPropostas();renderKpis();
+    var pend=PROPOSTAS.filter(function(p){return p.status==="pendente"});
+    el.innerHTML='<div class="bloco"><div class="bloco-head"><h3>Propostas dos agentes</h3><button class="lnk" data-ir-props>Ver histórico</button></div>'+
+      (pend.length?'<div class="props">'+pend.slice(0,5).map(cardProposta).join('')+'</div>':'<div class="vazio">Nada esperando você. Quando um agente terminar um trabalho, ele aparece aqui.</div>')+'</div>';
+    var b=el.querySelector('[data-ir-props]');if(b)b.addEventListener('click',function(){go("propostas")});
+    ligarCartoesProposta(el,function(){renderPropostasResumo();});
   }
   // Aprovar = gravar com a MESMA rotina do botão "Gerar" daquela tela.
   async function aplicarProposta(p){
@@ -181,35 +195,48 @@
   async function salvarOp(id,patch){var c=DB_CLIENTS[id];if(!c)return;var op=Object.assign(opDo(id),patch);await saveClientRecord(id,Object.assign({},c,{operacao:op}));}
   function quandoTs(ts){return ts?new Date(ts).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";}
   var ST_RUN={ok:["act","ok"],erro:["","erro"],sem_saida:["","sem resultado"],pulado:["","pulado"],rodando:["prog","rodando"]};
-  async function renderAgentesServidor(){
-    var el=I("#agentGrid");if(!el||!SB)return false;
-    var id=state.client,temCli=isDbClient(id),op=temCli?opDo(id):OP_PADRAO;
+  // Duas telas, uma rotina: a tela Agentes (servidor, gasto, execuções de todos)
+  // e a aba Operação do cliente (configurações e Automático/Manual por agente).
+  async function renderAgentesServidor(doCliente){
+    var el=doCliente?I('.view[data-view="operacao"]'):I("#agentGrid");if(!el||!SB)return false;
+    var id=state.client,temCli=!!doCliente&&isDbClient(id),op=temCli?opDo(id):OP_PADRAO;
     var est={};try{est=await chamarServidor("estado");}catch(e){est={erro:e.message};}
     var runs=((await SB.c.from("agent_runs").select("id,agente,client_id,gatilho,status,custo_usd,erro,started_at,passos").order("started_at",{ascending:false}).limit(40)).data)||[];
     var ultima={};runs.forEach(function(r){if(r.client_id===id&&!ultima[r.agente])ultima[r.agente]=r;});
     var gasto=Number(est.gasto||0),teto=Number(est.orcamento||0);
-    var h='<div class="card pad ag-estado"><div><div class="eyebrow">Servidor dos agentes</div><div class="ag-num">'+(est.chave?'<span class="badge act">● ligado</span>':'<span class="badge">○ sem chave da IA</span>')+' <span class="pp-m">modelo '+esc(est.modelo||"")+'</span></div></div>'+
-      '<div><div class="eyebrow">Gasto do mês</div><div class="ag-num tnum">US$ '+gasto.toFixed(2)+' <span class="pp-m">de '+teto.toFixed(0)+'</span></div><div class="ag-barra"><i style="width:'+(teto?Math.min(100,gasto/teto*100):0)+'%"></i></div></div></div>';
-    if(temCli){
-      h+='<div class="card pad"><div class="eyebrow" style="margin-bottom:12px">Operação de '+esc(clientName(id))+'</div><div class="grid cols-3 op-grid">'+
-        '<div class="fld"><label for="opDia">Dia de planejar o próximo mês</label><select id="opDia">'+Array.from({length:28},function(_,i){return '<option'+(op.diaPlanejamento===i+1?' selected':'')+'>'+(i+1)+'</option>'}).join('')+'</select></div>'+
-        '<div class="fld"><label for="opAprova">O cliente aprova</label><select id="opAprova">'+[["calendario_e_pecas","o calendário e as peças"],["calendario","só o calendário"],["nada","nada (vocês aprovam)"]].map(function(o){return '<option value="'+o[0]+'"'+(op.clienteAprova===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
-        '<div class="fld"><label for="opPrazo">Prazo do cliente (dias)</label><input id="opPrazo" type="number" min="1" max="15" value="'+esc(op.prazoCliente)+'"></div>'+
-        '<div class="fld"><label for="opSem">Se passar do prazo</label><select id="opSem"><option value="nao"'+(op.semRespostaPublica?'':' selected')+'>espera a resposta</option><option value="sim"'+(op.semRespostaPublica?' selected':'')+'>publica como está</option></select></div>'+
-        '<div class="fld"><label for="opPauta">Pauta quente do Radar</label><select id="opPauta"><option value="sugestao"'+(op.pautaQuente==="sugestao"?' selected':'')+'>só sugestão para o próximo mês</option><option value="troca"'+(op.pautaQuente==="troca"?' selected':'')+'>pode virar gancho de peça da semana</option></select></div>'+
-        '<div class="fld"><label>&nbsp;</label><span id="opMsg" class="pp-m"></span></div></div></div>';
+    var mes=new Date().toISOString().slice(0,7),doMes=runs.filter(function(r){return String(r.started_at).slice(0,7)===mes});
+    var linhaRun=function(r,comCli){var st=ST_RUN[r.status]||["",r.status];
+      return '<tr class="sem-clique"><td class="nowrap">'+esc(quandoTs(r.started_at))+'</td><td>'+esc((AG_INFO[r.agente]||[r.agente])[0])+'</td>'+(comCli?'<td>'+esc(r.client_id?clientName(r.client_id):"")+'</td>':'')+'<td>'+esc(r.gatilho)+'</td>'+
+        '<td><span class="chip '+st[0]+'">'+esc(st[1])+'</span>'+(r.erro?'<small>'+esc(r.erro)+'</small>':'')+'</td><td class="num tnum">'+(Number(r.custo_usd)?'US$ '+Number(r.custo_usd).toFixed(2):'')+'</td></tr>'};
+    var h='';
+    if(!doCliente){
+      h+='<div class="stat-cards">'+
+        kpiCard("Servidor dos agentes",est.chave?'Ligado':'Sem chave','modelo '+esc(est.modelo||""))+
+        kpiCard("Gasto do mês",'US$ '+gasto.toFixed(2),'de US$ '+teto.toFixed(0)+' de teto<div class="prog-l largo" style="margin-top:10px"><i style="width:'+(teto?Math.min(100,gasto/teto*100):0)+'%"></i></div>')+
+        kpiCard("Execuções no mês",String(doMes.length),doMes.filter(function(r){return r.status==="erro"}).length+' com erro')+'</div>';
     }
-    h+='<div class="ag-lista">'+AG_ORDEM.map(function(k){var inf=AG_INFO[k],modo=(op.agentes||{})[k]==="manual"?"manual":"auto",u=ultima[k],st=u?ST_RUN[u.status]||["",u.status]:null;
-      return '<div class="card pad ag-card"><div class="ag-top"><b>'+esc(inf[0])+'</b><span class="pp-m">'+esc(inf[1])+'</span>'+
-        (temCli?'<div class="seg" role="group" aria-label="Modo do '+esc(inf[0])+'"><button class="'+(modo==="auto"?"on":"")+'" data-modo="auto" data-ag="'+k+'">Automático</button><button class="'+(modo==="manual"?"on":"")+'" data-modo="manual" data-ag="'+k+'">Manual</button></div>':'')+'</div>'+
-        '<div class="pp-m">Roda sozinho: '+esc(AG_QUANDO[k])+'</div>'+
-        '<div class="ag-ult">'+(u?'<span class="badge '+st[0]+'">'+esc(st[1])+'</span> '+esc(quandoTs(u.started_at))+(u.erro?' · '+esc(u.erro):''):'<span class="pp-m">ainda não rodou para este cliente</span>')+'</div>'+
-        (temCli?'<button class="btn" data-rodar="'+k+'">Rodar agora</button>':'')+'<span class="ag-msg pp-m" data-agmsg="'+k+'"></span></div>';}).join('')+'</div>';
-    h+='<div class="eyebrow" style="margin:26px 0 10px">Execuções recentes (todos os clientes)</div><div class="card tbl-wrap"><table class="runs"><thead><tr><th>Quando</th><th>Agente</th><th>Cliente</th><th>Gatilho</th><th>Resultado</th><th class="num">Custo</th></tr></thead><tbody>'+
-      (runs.length?runs.map(function(r){var st=ST_RUN[r.status]||["",r.status];return '<tr><td>'+esc(quandoTs(r.started_at))+'</td><td>'+esc((AG_INFO[r.agente]||[r.agente])[0])+'</td><td>'+esc(r.client_id?clientName(r.client_id):"—")+'</td><td>'+esc(r.gatilho)+'</td><td><span class="badge '+st[0]+'">'+esc(st[1])+'</span>'+(r.erro?' <span class="pp-m">'+esc(r.erro)+'</span>':'')+'</td><td class="num tnum">'+(Number(r.custo_usd)?'US$ '+Number(r.custo_usd).toFixed(2):'')+'</td></tr>'}).join(''):'<tr><td colspan="6" class="pp-m">Nenhuma execução ainda.</td></tr>')+'</tbody></table></div>';
+    if(temCli){
+      h+=quadro("Como a operação funciona para este cliente","Vale para todos os agentes deste cliente.",'<span id="opMsg" class="pp-m"></span>',
+        '<div class="grid cols-3 q-form">'+
+        '<div class="fld"><label for="opDia">Dia de planejar o próximo mês</label><select id="opDia">'+Array.from({length:28},function(_,i){return '<option'+(op.diaPlanejamento===i+1?' selected':'')+'>'+(i+1)+'</option>'}).join('')+'</select></div>'+
+        '<div class="fld"><label for="opAprova">O cliente aprova</label><select id="opAprova">'+[["calendario_e_pecas","O calendário e as peças"],["calendario","Só o calendário"],["nada","Nada, vocês aprovam"]].map(function(o){return '<option value="'+o[0]+'"'+(op.clienteAprova===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
+        '<div class="fld"><label for="opPrazo">Prazo do cliente, em dias</label><input id="opPrazo" type="number" min="1" max="15" value="'+esc(op.prazoCliente)+'"></div>'+
+        '<div class="fld"><label for="opSem">Se passar do prazo</label><select id="opSem"><option value="nao"'+(op.semRespostaPublica?'':' selected')+'>Espera a resposta</option><option value="sim"'+(op.semRespostaPublica?' selected':'')+'>Publica como está</option></select></div>'+
+        '<div class="fld"><label for="opPauta">Pauta quente do Radar</label><select id="opPauta"><option value="sugestao"'+(op.pautaQuente==="sugestao"?' selected':'')+'>Só sugestão para o próximo mês</option><option value="troca"'+(op.pautaQuente==="troca"?' selected':'')+'>Pode virar gancho de peça da semana</option></select></div>'+
+        '</div>');
+    }
+    h+=quadro(temCli?"Agentes deste cliente":"Os agentes",temCli?"Automático roda pela agenda e pela cadeia do planejamento. Manual só roda quando você pede.":"Para ligar ou desligar um agente num cliente, abra o cliente e vá em Operação.",'',
+      '<div class="tabela"><table><thead><tr><th>Agente</th><th>Quando roda sozinho</th>'+(temCli?'<th>Modo</th>':'')+'<th>Última execução'+(temCli?'':' (cliente em foco)')+'</th>'+(temCli?'<th></th>':'')+'</tr></thead><tbody>'+
+      AG_ORDEM.map(function(k){var inf=AG_INFO[k],modo=(op.agentes||{})[k]==="manual"?"manual":"auto",u=ultima[k],st=u?ST_RUN[u.status]||["",u.status]:null;
+        return '<tr class="sem-clique"><td><b class="cel-t">'+esc(inf[0])+'</b><small>'+esc(inf[1])+'</small></td><td class="e-reg">'+esc(AG_QUANDO[k])+'</td>'+
+          (temCli?'<td><div class="seg" role="group" aria-label="Modo do '+esc(inf[0])+'"><button class="'+(modo==="auto"?"on":"")+'" data-modo="auto" data-ag="'+k+'">Automático</button><button class="'+(modo==="manual"?"on":"")+'" data-modo="manual" data-ag="'+k+'">Manual</button></div></td>':'')+
+          '<td>'+(u?'<span class="chip '+st[0]+'">'+esc(st[1])+'</span><small>'+esc(quandoTs(u.started_at))+(u.erro?' · '+esc(u.erro):'')+'</small>':'<small>ainda não rodou</small>')+'</td>'+
+          (temCli?'<td class="acao"><button class="btn" data-rodar="'+k+'">Rodar agora</button><small class="ag-msg" data-agmsg="'+k+'"></small></td>':'')+'</tr>';}).join('')+'</tbody></table></div>');
+    var lista=doCliente?runs.filter(function(r){return r.client_id===id}).slice(0,12):runs;
+    h+=quadro(doCliente?"Execuções deste cliente":"Execuções recentes",'','',lista.length?'<div class="tabela"><table><thead><tr><th>Quando</th><th>Agente</th>'+(doCliente?'':'<th>Cliente</th>')+'<th>Gatilho</th><th>Resultado</th><th class="num">Custo</th></tr></thead><tbody>'+lista.map(function(r){return linhaRun(r,!doCliente)}).join('')+'</tbody></table></div>':'<div class="vazio">Nenhuma execução ainda.</div>');
     el.className="";el.innerHTML=h;
     var om=function(t,bom){var m=I("#opMsg");if(m){m.textContent=t;m.style.color=bom?"var(--good)":"var(--warn)";}};
-    var salvaCampo=function(sel,fn){var x=I(sel);if(x)x.addEventListener('change',function(){salvarOp(id,fn(x.value)).then(function(){om("✓ Salvo",true)},function(){om("Não consegui salvar")});});};
+    var salvaCampo=function(sel,fn){var x=I(sel);if(x)x.addEventListener('change',function(){salvarOp(id,fn(x.value)).then(function(){om("Salvo",true)},function(){om("Não consegui salvar")});});};
     salvaCampo("#opDia",function(v){return {diaPlanejamento:+v}});
     salvaCampo("#opAprova",function(v){return {clienteAprova:v}});
     salvaCampo("#opPrazo",function(v){return {prazoCliente:Math.max(1,+v||2)}});
@@ -217,7 +244,7 @@
     salvaCampo("#opPauta",function(v){return {pautaQuente:v}});
     Array.prototype.forEach.call(el.querySelectorAll('[data-modo]'),function(b){b.addEventListener('click',function(){
       var ags=Object.assign({},opDo(id).agentes);ags[b.getAttribute('data-ag')]=b.getAttribute('data-modo');
-      salvarOp(id,{agentes:ags}).then(renderAgentesServidor);});});
+      salvarOp(id,{agentes:ags}).then(function(){renderAgentesServidor(doCliente)});});});
     Array.prototype.forEach.call(el.querySelectorAll('[data-rodar]'),function(b){b.addEventListener('click',async function(){
       var k=b.getAttribute('data-rodar'),m=el.querySelector('[data-agmsg="'+k+'"]');b.disabled=true;setBusy(m,"Pedindo…");
       try{await chamarServidor("rodar",{cliente:id,agente:k});clearBusy(m);m.textContent="Rodando no servidor. O resultado chega em Propostas.";}
@@ -225,17 +252,22 @@
     return true;
   }
 
+  function renderOperacao(){
+    var el=I('.view[data-view="operacao"]');if(!el)return;
+    if(!SB){el.innerHTML=vazioQuadro("A operação automática funciona no painel publicado.","Agenda, cadeia do planejamento e Automático ou Manual por agente precisam do servidor, que liga com o login da equipe.");return;}
+    el.innerHTML='<div class="card pad"><span class="spinner"></span>Carregando…</div>';
+    renderAgentesServidor(true);
+  }
+
   // ---------------------------------------------------------------- Equipe
   function equipeHtml(){
     if(!SB)return '';
-    return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:8px">Equipe</div>'+
-      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Você entrou como <b>'+esc(SB.user.email||"")+'</b>'+(SB.papel==="dono"?' (dono)':'')+'. Convide quem trabalha com você: a pessoa cria a conta com o mesmo e-mail e entra direto na equipe.</div>'+
-      (SB.papel==="dono"?'<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="eqEmail" type="email" placeholder="email@exemplo.com" class="inp"><button class="btn pri" id="eqConvidar">Convidar</button></div>':'')+
-      '<div id="eqMsg" class="pp-m" style="margin-top:8px"></div><div style="margin-top:12px"><button class="btn" id="eqSair">Sair</button></div></div>';
+    return quadro("Equipe","Você entrou como "+esc(SB.user.email||"")+(SB.papel==="dono"?", dono da equipe":"")+". Quem você convidar cria a conta com o mesmo e-mail e entra direto.",'<button class="btn" id="eqSair">Sair</button>',
+      (SB.papel==="dono"?'<div class="q-rodape" style="margin-top:0"><label class="sr" for="eqEmail">E-mail</label><input id="eqEmail" type="email" placeholder="email@exemplo.com" style="max-width:320px"><button class="btn pri" id="eqConvidar">Convidar</button><span id="eqMsg" class="pp-m"></span></div>':'<span id="eqMsg" class="pp-m"></span>'));
   }
   function wireEquipe(){
     var b=I("#eqConvidar");if(b)b.addEventListener('click',async function(){var e=(I("#eqEmail").value||"").trim().toLowerCase(),m=I("#eqMsg");
       if(!/^\S+@\S+\.\S+$/.test(e)){m.textContent="Digite um e-mail válido.";return;}
-      var r=await SB.c.from("convites").upsert({workspace_id:SB.ws,email:e});m.textContent=r.error?"Não consegui convidar: "+r.error.message:"✓ Convite registrado. Mande o link do painel para "+e+" criar a conta.";});
+      var r=await SB.c.from("convites").upsert({workspace_id:SB.ws,email:e});m.textContent=r.error?"Não consegui convidar: "+r.error.message:"Convite registrado. Mande o link do painel para "+e+" criar a conta.";});
     var s=I("#eqSair");if(s)s.addEventListener('click',function(){SB.c.auth.signOut();});
   }

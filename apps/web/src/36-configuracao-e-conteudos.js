@@ -11,14 +11,14 @@
   function cfgSave(o){try{localStorage.setItem(CFG_KEY,JSON.stringify(o));return true}catch(e){return false}}
   function cfgVals(){var o={};CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)o[f.k]=el.value.trim()});return o}
   function buildEnvText(v){
-    var lines=["# Content OS — gerado pela aba Configuração do painel","# Salve este arquivo como .env na RAIZ do projeto. NUNCA comite (já está no .gitignore).",""];
+    var lines=["# Content OS, gerado pela aba Configuração do painel","# Salve este arquivo como .env na RAIZ do projeto. NUNCA comite (já está no .gitignore).",""];
     lines.push("CONTENT_OS_LLM_PROVIDER="+(v.ANTHROPIC_API_KEY?"anthropic":"mock"));
     ["ANTHROPIC_API_KEY","ANTHROPIC_MODEL","NOTION_API_KEY","NOTION_DATABASE_ID","PIXABAY_API_KEY"].forEach(function(k){lines.push(k+"="+(v[k]||""))});
     return lines.join("\n")+"\n";
   }
   function cfgStatus(v){
     var anthropic=!!v.ANTHROPIC_API_KEY, notion=!!(v.NOTION_API_KEY&&v.NOTION_DATABASE_ID), pix=!!v.PIXABAY_API_KEY;
-    function pill(ok,txt){return '<span class="statuspill '+(ok?"lvl-func":"lvl-nao")+'">'+(ok?"● ":"○ ")+txt+'</span>'}
+    function pill(ok,txt){return '<span class="chip '+(ok?"act":"")+'">'+txt+(ok?' ligado':'')+'</span>'}
     return pill(anthropic,"Anthropic")+" "+pill(notion,"Notion")+" "+pill(pix,"Pixabay");
   }
   function renderConfig(){
@@ -28,34 +28,36 @@
       var rows=groups[g].map(function(f){
         return '<div class="fld"><label>'+esc(f.l)+'</label><input id="cfg_'+f.k+'" type="'+(f.secret?"password":"text")+'" placeholder="'+esc(f.ph)+'" value="'+esc(saved[f.k]||"")+'" autocomplete="off" spellcheck="false"></div>';
       }).join('');
-      return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:12px">'+esc(g)+'</div>'+rows+'</div>';
+      return '<div class="bt" style="margin-top:8px">'+esc(g)+'</div><div class="grid cols-2 q-form">'+rows+'</div>';
     }).join('');
-    var h='';
-    h+='<div class="section-head" style="margin-top:6px"><div><h3>Configuração — chaves & integrações</h3><p>Preencha <b>uma vez</b>. As chaves ficam salvas <b>no seu navegador</b> e você gera o arquivo <code>.env</code> para conectar tudo de forma permanente.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></div>';
-    h+='<div class="callout" style="margin-bottom:16px"><span style="font-size:15px">🔒</span><div class="em"><b>Como funciona a permanência.</b> Os comandos (<code>pipeline</code>, <code>notion:sync</code>, <code>doctor</code>) leem as chaves de um arquivo <code>.env</code> na raiz do projeto — carregado automaticamente. Preencha aqui, clique em <b>Baixar .env</b>, salve na raiz e pronto: fica sempre conectado, sem redigitar. <br>No Claude Code na web, prefira cadastrar as mesmas chaves em <b>Credenciais de API do ambiente</b> (persistem entre sessões) e liberar os hosts <code>api.anthropic.com</code> e <code>api.notion.com</code> na rede.</div></div>';
-    h+=equipeHtml()+backupHtml()+forms;
-    h+='<div class="card pad"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">⬇︎ Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" style="align-self:center;font-size:12px;color:var(--good)"></span></div><div class="fld"><label>Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></div>';
+    var h=equipeHtml()+backupHtml();
+    h+=quadro("Knowledge Base","O método que os agentes consultam antes de decidir: estratégia de marca, jornada, criação, distribuição e planejamento.",'<button class="btn" id="cfgKb">Ver os pilares</button>','');
+    // Chaves do motor de linha de comando (CLI). No painel publicado, as chaves ficam no servidor.
+    h+='<details class="quadro dobra-q"'+(SB?'':' open')+'><summary class="q-head"><div><h3>Motor de linha de comando</h3><p>Só para quem roda os comandos do projeto no computador (pipeline, notion:sync, doctor). As chaves ficam neste navegador e viram um arquivo .env.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></summary>'+forms+
+      '<div class="q-rodape"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" class="pp-m"></span></div>'+
+      '<div class="fld" style="margin-top:16px"><label for="cfgEnv">Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></details>';
     I('.view[data-view="config"]').innerHTML=h;
     function refresh(){var v=cfgVals();I("#cfgEnv").value=buildEnvText(v);I("#cfgStatus").innerHTML=cfgStatus(v);}
     CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.addEventListener('input',refresh)});
     refresh();
     wireBackup();wireEquipe();
+    var kb=I("#cfgKb");if(kb)kb.addEventListener('click',function(){go("kb")});
     function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
-    I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
+    I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
     I("#cfgDownload").addEventListener('click',function(){
       cfgSave(cfgVals());
       var env=buildEnvText(cfgVals());
-      function localDL(){try{var b=new Blob([env],{type:"text/plain"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=".env";document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ .env baixado — salve na raiz do projeto");}catch(e){msg("Use Copiar .env e cole num arquivo .env");}}
+      function localDL(){try{var b=new Blob([env],{type:"text/plain"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=".env";document.body.appendChild(a);a.click();document.body.removeChild(a);msg(".env baixado, salve na raiz do projeto");}catch(e){msg("Use Copiar .env e cole num arquivo .env");}}
       function viaCap(dl){
         if(!dl){localDL();return;}
         dl.save({filename:"env.txt",data:env}).then(
-          function(){msg("✓ Baixado como env.txt — renomeie para .env na raiz do projeto");},
-          function(){msg("Download recusado — use Copiar .env");}
+          function(){msg("Baixado como env.txt, renomeie para .env na raiz do projeto");},
+          function(){msg("Download recusado, use Copiar .env");}
         );
       }
       if(window.claude&&claude.use){claude.use("downloads").then(viaCap,localDL);}else{localDL();}
     });
-    I("#cfgCopy").addEventListener('click',function(){var ta=I("#cfgEnv");ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}if(!ok&&navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){msg("✓ Copiado")},function(){msg("Selecione e copie manualmente")});}else{msg(ok?"✓ Copiado":"Selecione e copie manualmente")}});
+    I("#cfgCopy").addEventListener('click',function(){var ta=I("#cfgEnv");ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}if(!ok&&navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){msg("Copiado")},function(){msg("Selecione e copie manualmente")});}else{msg(ok?"Copiado":"Selecione e copie manualmente")}});
     I("#cfgClear").addEventListener('click',function(){CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.value=""});cfgSave({});refresh();msg("Limpo")});
   }
 
@@ -84,7 +86,7 @@
       '</div></div>';
     if(x.roteiro)body+='<div class="block"><div class="bt">Roteiro</div>'+stepsHtml(x.roteiro)+'</div>';
     if(x.carrossel)body+='<div class="block"><div class="bt">Estrutura do carrossel</div>'+stepsHtml(x.carrossel)+'</div>';
-    if(x.copy&&x.copy!=="—")body+='<div class="block"><div class="bt">Copy / Legenda</div><div class="copybox">'+esc(x.copy)+'</div></div>';
+    if(x.copy&&x.copy!=="")body+='<div class="block"><div class="bt">Copy / Legenda</div><div class="copybox">'+esc(x.copy)+'</div></div>';
     body+='<div class="block"><div class="bt">CTA</div><div style="font-size:14px;font-weight:600">'+esc(x.cta)+'</div></div>';
     body+='<div class="block"><div class="bt">Gatilhos & princípios persuasivos</div>'+chipsHtml(x.gatilhos,'badge')+'<div class="bt" style="margin:14px 0 10px">Elementos literários / narrativos</div>'+chipsHtml(x.recursos,'pill st-INSIGHT')+'</div>';
     body+='<div class="block"><div class="bt">Direção visual</div><div style="font-size:13px;color:var(--muted)">'+esc(x.visual)+'</div></div>';
