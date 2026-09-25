@@ -24,6 +24,7 @@ export function createLlmProvider(env: NodeJS.ProcessEnv = process.env): LlmProv
       apiKey,
       ...(env.ANTHROPIC_MODEL ? { model: env.ANTHROPIC_MODEL } : {}),
       ...(env.ANTHROPIC_BASE_URL ? { baseUrl: env.ANTHROPIC_BASE_URL } : {}),
+      ...(env.ANTHROPIC_WORKSPACE_ID ? { workspaceId: env.ANTHROPIC_WORKSPACE_ID } : {}),
     });
   }
   return new MockLlmProvider();

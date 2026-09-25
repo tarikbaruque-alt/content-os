@@ -97,7 +97,7 @@
     if(state.ativosBrief&&!brief){state.ativosBrief=false;var bx=I("#cpBriefEdit");if(bx)bx.scrollIntoView({block:"center"});}
   }
   // ---- Organização: apagar cliente e juntar cadastros duplicados ----
-  var DOCS_CLIENTE=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta"],COLS_CLIENTE=["cos_ideas","cos_calendar"];
+  var DOCS_CLIENTE=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta","cos_perf"],COLS_CLIENTE=["cos_ideas","cos_calendar"];
   async function apagarCliente(id){
     for(var i=0;i<COLS_CLIENTE.length;i++){var sn=await dbItemsCol(COLS_CLIENTE[i],id).get();for(var j=0;j<sn.docs.length;j++)await dbItemsCol(COLS_CLIENTE[i],id).doc(sn.docs[j].id).delete();}
     for(var k=0;k<DOCS_CLIENTE.length;k++){try{await dbDoc(DOCS_CLIENTE[k]+"/"+id).delete();}catch(e){}}

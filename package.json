@@ -17,13 +17,20 @@
     "doctor": "tsx src/demo/doctor.ts",
     "smoke": "tsx src/demo/smoke.ts",
     "panel:sync": "tsx src/demo/sync-panel.ts",
-    "preview": "echo \"Abra apps/web/index.html no navegador (ou rode: npx --yes serve apps/web)\""
+    "preview": "echo \"Abra apps/web/index.html no navegador (ou rode: npx --yes serve apps/web)\"",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "supabase:setup": "tsx scripts/supabase-setup.ts",
+    "build:web": "tsx scripts/build-web.ts",
+    "deploy:web": "npm run build:web && cd dist/content-os-painel && vercel deploy --prod --yes > ../.deploy-url && vercel alias set $(cat ../.deploy-url) painel-content-os.vercel.app"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@types/node": "^22.7.4",
+    "playwright-core": "^1.63.0",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
     "vitest": "^2.1.1"

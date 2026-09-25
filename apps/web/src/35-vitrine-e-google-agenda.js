@@ -215,7 +215,7 @@
     var col={Reel:"#5B45E6",Carrossel:"#2E6FB7",Stories:"#0E8C9B"};
     return '<div class="clist">'+items.map(function(it,idx){
       var bc=col[it.idea.surface]||"#575663",headline=pecaTitulo(it),produced=pecaPronta(it);
-      return '<div class="card content-card" data-gen="'+idx+'" style="border-left:3px solid '+bc+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+(STCOL[it.status]||"badge")+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
+      return '<div class="card content-card" data-gen="'+idx+'" style="border-left:3px solid '+bc+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+(STCOL[it.status]||"badge")+'" style="margin-left:auto">'+esc(stLabel(it.status))+'</span></div>'+
         '<div class="cc-h">'+esc(headline)+'</div>'+(isRascunho(it.content)?'<div style="margin-top:6px">'+rascunhoBadge(it.content)+'</div>':'')+'<div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
         '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="badge">'+esc(it.idea.funil)+'</span>'+(produced?'':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
     }).join('')+'</div>';
@@ -276,11 +276,6 @@
     I("#cal").innerHTML=days.map(function(d,i){return '<div class="day"><div class="dn">'+d+'</div>'+map[i].map(function(x){return '<div class="ev" data-content="'+x.id+'" style="background:'+(col[x.surface]||"#575663")+'">'+esc(x.surface)+' · '+esc(x.format)+'</div>'}).join('')+'</div>'}).join('');
     wireContent('#cal [data-content]');
   }
-  function renderPerf(){
-    I("#perfKpis").innerHTML=[["Alcance","48,2k","+12%"],["Salvamentos","1,9k","+34%"],["Retenção 3s","61%","+5pp"],["Novos seguidores","740","+8%"]].map(function(k){return '<div class="card kpi"><span class="k-lbl">'+k[0]+'</span><div class="k-val tnum">'+k[1]+'</div><div class="k-sub" style="color:var(--good)">'+k[2]+' vs. ciclo anterior</div></div>'}).join('');
-    var bars=[["Reels",78],["Carrossel",64],["Stories",71],["Imagem",42]];
-    I("#perfBars").innerHTML=bars.map(function(b){return '<div class="b"><div class="bv tnum">'+b[1]+'%</div><div class="bar" style="height:'+(b[1]/90*100)+'%"></div><div class="bl">'+b[0]+'</div></div>'}).join('');
-  }
   function renderKB(){I("#kbGrid").innerHTML=PILLARS.map(function(p){return '<div class="card kb-card"><div class="kb-t">'+esc(p.t)+'</div><div class="kb-d">'+esc(p.d)+'</div><div class="kb-m">'+p.m.map(function(m){return '<span class="badge">'+esc(m)+'</span>'}).join('')+'</div></div>'}).join('')}
-  function renderAgents(){I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
+  function renderAgents(){if(SB){renderAgentesServidor();return;}I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
 

@@ -24,3 +24,6 @@ npm-debug.log*
 
 # Plano gerado pelo pipeline (build)
 apps/web/generated-plan.json
+.qa/
+.mcp.json
+.env.*.local

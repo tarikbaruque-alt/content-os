@@ -23,14 +23,15 @@
     performance:svg('<path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/>'),
     kb:svg('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'),
     formats:svg('<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><path d="M13 16.5h8M17 13v7"/>'),
+    propostas:svg('<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'),
     agents:svg('<rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M12 8V4M9 4h6M8.5 13v2M15.5 13v2"/>')
   };
   var NAV=[
-    {g:"Trabalho",items:[["overview","Dashboard"],["ativos","Clientes ativos"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"],["plan","Plano do Mês"]]},
+    {g:"Trabalho",items:[["overview","Dashboard"],["propostas","Propostas"],["ativos","Clientes ativos"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"],["plan","Plano do Mês"]]},
     {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["formats","Formatos"],["distribution","Distribuição"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
     {g:"Sistema",items:[["kb","Knowledge Base"],["agents","Agentes"],["config","🔑 Configuração"]]}
   ];
-  var TITLES={overview:["Trabalho","Dashboard"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
+  var TITLES={overview:["Trabalho","Dashboard"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -44,7 +45,7 @@
     {n:"Mosaico",r:"Estúdio Criativo · Carrossel",s:"active",d:"Carrossel premium pronto para produção: capa, hook, narrativa slide a slide, copy, CTA, gatilhos, elementos literários, direção visual e referências (Pinterest/Pixabay)."},
     {n:"Enredo",r:"Estúdio Criativo · Stories",s:"active",d:"Sequências de Stories com progressão Relacionamento → Familiaridade → Confiança → Autoridade → Desejo → Conversão. 16 tipos (bastidores, rotina, prova, aquecimento…), cada Story com fala, visual e interação."},
     {n:"Cronos",r:"Planejamento",s:"active",d:"Calendário, frequência e mix por funil (topo/meio/fundo) — do IDEA ao PUBLISHED, com distribuição real (maior resto)."},
-    {n:"Pulso",r:"Performance",s:"planned",d:"Métrica → interpretação → insight → recomendação → próximo teste (dados reais dependem de API da rede social)."},
+    {n:"Pulso",r:"Performance",s:"active",d:"Lê os números reais de cada cliente (registrados na peça ou importados do CSV do Instagram) e devolve comparação por tipo de post, funil e formato, com recomendação e próximo teste. Nunca inventa métrica."},
     {n:"Acervo",r:"Conhecimento",s:"prog",d:"Recupera apenas o conhecimento metodológico relevante da Knowledge Base para cada tarefa."},
     {n:"Maestro",r:"Orquestrador",s:"active",d:"Coordena o sistema ponta a ponta: qual agente usar, o que recuperar, o que passar no handoff e quando pedir o humano."}
   ];
@@ -69,11 +70,14 @@
   var CONTENT=[];
   function clientName(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i].name;return id||"Nenhum cliente"}
   function clientAv(id){for(var i=0;i<CLIENTS.length;i++)if(CLIENTS[i].id===id)return CLIENTS[i].av;return 0}
-  var STCOL={"WAITING APPROVAL":"prog","REVIEW":"prog","IN PRODUCTION":"badge","PLANNED":"plan","SCHEDULED":"badge","PUBLISHED":"act"};
+  var STCOL={"WAITING APPROVAL":"prog","REVIEW":"prog","IN PRODUCTION":"badge","PLANNED":"plan","SCHEDULED":"badge","APPROVED":"act","PUBLISHED":"act"};
+  // O status fica gravado em inglês (é o que o Notion e o motor usam); a tela mostra em português.
+  var STLBL_PT={"PLANNED":"Planejado","IN PRODUCTION":"Em produção","REVIEW":"Pediu ajuste","WAITING APPROVAL":"Aguardando aprovação","APPROVED":"Aprovado","SCHEDULED":"Agendado","PUBLISHED":"Publicado"};
+  function stLabel(s){return STLBL_PT[s]||s||"";}
 
   // Estado de maturidade por área
   var STATUS={
-    overview:["func","Próximos passos e publicações do cliente selecionado"],ativos:["func","Administrativo — só você vê: clientes, contatos, valores e cobranças"],clients:["func","Seus clientes — cada um com Ficha, Content DNA e plano próprios, gravados"],
+    overview:["func","Próximos passos e publicações do cliente selecionado"],propostas:["func","O que os agentes fizeram sozinhos e espera a sua decisão"],ativos:["func","Administrativo — só você vê: clientes, contatos, valores e cobranças"],clients:["func","Seus clientes — cada um com Ficha, Content DNA e plano próprios, gravados"],
     analyze:["func","Roda a mesma lógica testada da Íris, ao vivo no navegador"],
     plan:["func","Gerado pelo pipeline real ponta a ponta · prosa final via Rima/Anthropic (basta configurar ANTHROPIC_API_KEY)"],
     dna:["func","Ficha do cliente + Content DNA gravados (link publicado: no painel; cópia offline: neste navegador) · Íris ao vivo pelo link publicado"],
@@ -81,8 +85,8 @@
     editorial:["func","Bússola: linha editorial real (Pilar → Tema → Subtemas/Tópicos) gerada a partir da estratégia"],ideas:["func","Musa: 15+ ideias reais (com formato/objetivo/propósito) por cliente"],formats:["func","Musa: guia de formatos por nicho (16 perfis, detecção pelo cadastro/Content DNA) + personalização com IA"],
     distribution:["func","Cálculo real (método do maior resto) — coberto por 6 testes"],
     content:["func","Estúdio Criativo: Rima (copy), Mosaico (carrossel) e Enredo (Stories) — clique num conteúdo p/ o esqueleto estratégico + 🎠/📱"],calendar:["func","Cronos: calendário editorial por período (mix por funil). Clique num dia p/ abrir o conteúdo completo"],
-    approvals:["parcial","Notion Sync REAL, schema-aware e com trava de autorização (dry-run por padrão) · npm run notion:sync"],performance:["mock","Aguarda o agente Pulso"],
-    kb:["dev","Acervo recupera pilares de verdade"],agents:["dev","Íris FUNCIONAL · Acervo em progresso · demais planejados"]
+    approvals:["parcial","Notion Sync REAL, schema-aware e com trava de autorização (dry-run por padrão) · npm run notion:sync"],performance:["func","Pulso: números reais (peça a peça ou CSV do Instagram) · leitura automática sem inventar dado"],
+    kb:["dev","Acervo recupera pilares de verdade"],agents:["func","Agentes no servidor: agenda, cadeia do planejamento, modo manual e custo de cada execução"]
   };
   var LVL={func:"FUNCIONAL",dev:"PARCIAL",parcial:"PARCIAL",mock:"MOCK",nao:"NÃO IMPL."};
 
@@ -184,7 +188,7 @@
   function genOn(){return !!(GENERATED&&GENERATED.calendar&&GENERATED.calendar.items&&GENERATED.calendar.items.length);}
   function genCard(it,idx){
     var x=it.idea,c=it.content,stc=STCOL[it.status]||"badge";
-    return '<div class="card content-card" data-gen="'+idx+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+stc+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
+    return '<div class="card content-card" data-gen="'+idx+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+stc+'" style="margin-left:auto">'+esc(stLabel(it.status))+'</span></div>'+
       '<div class="cc-h">'+esc(pecaTitulo(it))+'</div>'+(isRascunho(c)?'<div style="margin-top:6px">'+rascunhoBadge(c)+'</div>':'')+
       '<div class="cc-m">'+esc(x.surface)+' + '+esc(x.format)+' · '+esc((x.pilar||"").split(":")[0])+'</div>'+
       '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="badge">'+esc(x.funil)+'</span>'+(c?'<span class="pill emo-pill">♥ '+esc(c.emocao)+'</span>':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
