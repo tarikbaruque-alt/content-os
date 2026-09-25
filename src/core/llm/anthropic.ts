@@ -20,6 +20,8 @@ export type AnthropicConfig = {
   apiKey: string;
   model?: string;
   baseUrl?: string;
+  /** Obrigatório quando a chave foi criada fora de um workspace da Anthropic. */
+  workspaceId?: string;
   /** Pensamento adaptativo (default true; o Haiku 4.5 não suporta e fica sem). */
   thinking?: boolean;
   /** Injeção para testes. */
@@ -39,7 +41,10 @@ export class AnthropicLlmProvider implements LlmProvider {
   constructor(config: AnthropicConfig) {
     this.model = config.model ?? DEFAULT_ANTHROPIC_MODEL;
     this.thinking = (config.thinking ?? true) && !/haiku/.test(this.model);
-    this.client = config.client ?? new Anthropic({ apiKey: config.apiKey, baseURL: config.baseUrl, maxRetries: 3 });
+    this.client = config.client ?? new Anthropic({
+      apiKey: config.apiKey, baseURL: config.baseUrl, maxRetries: 3,
+      defaultHeaders: config.workspaceId ? { "anthropic-workspace-id": config.workspaceId } : undefined,
+    });
   }
 
   async generate(req: LlmGenerateRequest): Promise<LlmGenerateResult> {
