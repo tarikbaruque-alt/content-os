@@ -389,6 +389,17 @@
   }
 
   async function initCapabilities(){
+    if(servidorLigado()){
+      try{
+        await iniciarServidor();
+        CAP.db=sbDb();CAP.sample=sbSample();CAP.remote=true;CAP.ready=true;
+        await loadDbClients();
+        renderAiBadge();renderClients();renderKpis();renderOverviewContent();
+        carregarPropostas().catch(function(){});
+        if(state.view)go(state.view);
+      }catch(e){toast("Não consegui conectar ao servidor: "+(e.message||e));}
+      return;
+    }
     try{
       if(window.claude&&window.claude.use){
         CAP.sample=await window.claude.use("sample");
@@ -404,7 +415,7 @@
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
     var on=aiAvailable();
-    el.textContent=on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
+    el.textContent=CAP.remote?"● servidor":on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
     el.title=on?"Gerar com IA real e cadastrar clientes está disponível neste painel.":"Abra pelo link do painel publicado no claude.ai para gerar com IA real e cadastrar clientes — a cópia offline não tem essa capacidade.";
   }
@@ -489,11 +500,3 @@
   function initTheme(){var root=document.documentElement,saved=null;try{saved=localStorage.getItem('cos-theme')}catch(e){}if(saved)root.setAttribute('data-theme',saved);
     I("#theme").addEventListener('click',function(){var cur=root.getAttribute('data-theme');var dark=cur?cur==="dark":window.matchMedia('(prefers-color-scheme: dark)').matches;var nx=dark?"light":"dark";root.setAttribute('data-theme',nx);try{localStorage.setItem('cos-theme',nx)}catch(e){}})}
 
-  buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
-  buildClientSelect();initTheme();
-  I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});
-  I("#newClientBtn").addEventListener('click',openNewClientModal);
-  I("#ncHeroBtn").addEventListener('click',openNewClientModal);
-  go("overview");
-  initCapabilities();
-})();

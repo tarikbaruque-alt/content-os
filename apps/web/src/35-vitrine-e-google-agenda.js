@@ -277,5 +277,5 @@
     wireContent('#cal [data-content]');
   }
   function renderKB(){I("#kbGrid").innerHTML=PILLARS.map(function(p){return '<div class="card kb-card"><div class="kb-t">'+esc(p.t)+'</div><div class="kb-d">'+esc(p.d)+'</div><div class="kb-m">'+p.m.map(function(m){return '<span class="badge">'+esc(m)+'</span>'}).join('')+'</div></div>'}).join('')}
-  function renderAgents(){I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
+  function renderAgents(){if(SB){renderAgentesServidor();return;}I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
 

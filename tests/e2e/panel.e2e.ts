@@ -111,9 +111,9 @@ describe("Painel no navegador (window.claude simulado)", () => {
     expect(perf).not.toMatch(/48,2k/);
   }, 30_000);
 
-  it("abre as 19 telas (e o modo cliente) sem erro de JavaScript", async () => {
+  it("abre as 20 telas (e o modo cliente) sem erro de JavaScript", async () => {
     const views = await page.$$eval("#nav a", (as) => as.map((a) => a.getAttribute("data-view")!));
-    expect(views).toHaveLength(19);
+    expect(views).toHaveLength(20);
     for (const v of views) {
       await page.click(`#nav [data-view="${v}"]`);
       expect(await page.$eval(`.view[data-view="${v}"]`, (s) => !(s as HTMLElement).hidden), v).toBe(true);

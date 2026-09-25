@@ -33,13 +33,13 @@
     var h='';
     h+='<div class="section-head" style="margin-top:6px"><div><h3>Configuração — chaves & integrações</h3><p>Preencha <b>uma vez</b>. As chaves ficam salvas <b>no seu navegador</b> e você gera o arquivo <code>.env</code> para conectar tudo de forma permanente.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></div>';
     h+='<div class="callout" style="margin-bottom:16px"><span style="font-size:15px">🔒</span><div class="em"><b>Como funciona a permanência.</b> Os comandos (<code>pipeline</code>, <code>notion:sync</code>, <code>doctor</code>) leem as chaves de um arquivo <code>.env</code> na raiz do projeto — carregado automaticamente. Preencha aqui, clique em <b>Baixar .env</b>, salve na raiz e pronto: fica sempre conectado, sem redigitar. <br>No Claude Code na web, prefira cadastrar as mesmas chaves em <b>Credenciais de API do ambiente</b> (persistem entre sessões) e liberar os hosts <code>api.anthropic.com</code> e <code>api.notion.com</code> na rede.</div></div>';
-    h+=backupHtml()+forms;
+    h+=equipeHtml()+backupHtml()+forms;
     h+='<div class="card pad"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">⬇︎ Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" style="align-self:center;font-size:12px;color:var(--good)"></span></div><div class="fld"><label>Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></div>';
     I('.view[data-view="config"]').innerHTML=h;
     function refresh(){var v=cfgVals();I("#cfgEnv").value=buildEnvText(v);I("#cfgStatus").innerHTML=cfgStatus(v);}
     CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.addEventListener('input',refresh)});
     refresh();
-    wireBackup();
+    wireBackup();wireEquipe();
     function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
     I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
     I("#cfgDownload").addEventListener('click',function(){

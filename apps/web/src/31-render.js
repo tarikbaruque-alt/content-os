@@ -10,7 +10,7 @@
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
@@ -300,15 +300,19 @@
     var msg=I("#stratMsg");setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildStrategyPrompt(byId(id).name,dnaCompact()),{modelTier:"complex",cache:false});
-      var strat={posicionamento:String(out.posicionamento||""),bigMessage:String(out.bigMessage||""),persona:String(out.persona||""),percepcao:String(out.percepcao||""),
-        pilares:Array.isArray(out.pilares)?out.pilares.map(String):[],paths:Array.isArray(out.paths)?out.paths:[],mix:Array.isArray(out.mix)?out.mix:[]};
-      await dbDoc("cos_strategy/"+id).set(strat);
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=strat;
-      if(state.client===id){GENERATED.strategy=strat;state.stratSel=null;renderStrategy();}
+      await salvarEstrategia(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
     }
+  }
+  async function salvarEstrategia(id,out){
+    var strat={posicionamento:String(out.posicionamento||""),bigMessage:String(out.bigMessage||""),persona:String(out.persona||""),percepcao:String(out.percepcao||""),
+      pilares:Array.isArray(out.pilares)?out.pilares.map(String):[],paths:Array.isArray(out.paths)?out.paths:[],mix:Array.isArray(out.mix)?out.mix:[]};
+    if(out.mudancas)strat.mudancas=String(out.mudancas);
+    await dbDoc("cos_strategy/"+id).set(strat);
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=strat;
+    if(state.client===id){GENERATED.strategy=strat;state.stratSel=null;renderStrategy();}
   }
   function renderStrategyEmpty(el){
     var hasDna=GENERATED&&GENERATED.dna&&GENERATED.dna.length;
@@ -330,7 +334,7 @@
       '<div class="card pad" style="margin-top:16px"><div class="metagrid"><div><div class="mk">Objetivos</div><div class="mv">'+s.objetivos.join(' · ')+'</div></div><div><div class="mk">Jornada</div><div class="mv">'+esc(s.jornada)+'</div></div><div style="grid-column:1/-1"><div class="mk">Percepção que queremos construir</div><div class="mv">'+esc(s.percepcao)+'</div></div><div><div class="mk">Crenças a construir</div><div class="mv chips">'+s.construir.map(function(x){return '<span class="badge act">'+esc(x)+'</span>'}).join('')+'</div></div><div><div class="mk">Crenças a desafiar</div><div class="mv chips">'+s.desafiar.map(function(x){return '<span class="badge prog">'+esc(x)+'</span>'}).join('')+'</div></div></div></div>';
   }
   function researchItemHtml(r){
-    return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r.tipo)+'</span><div><div class="ri-t">'+esc(r.insight)+'</div><div class="ri-m">↳ '+esc(r.origem)+(r.relevancia&&r.relevancia!=="—"?' · '+esc(r.relevancia):'')+'</div></div></div>';
+    return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r.tipo)+'</span><div><div class="ri-t">'+esc(r.insight)+'</div><div class="ri-m">'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.origem)+'</a>':esc(r.origem))+(r.data?' · '+esc(r.data.split("-").reverse().join("/")):'')+(r.relevancia&&r.relevancia!=="—"?' · '+esc(r.relevancia):'')+'</div></div></div>';
   }
   function buildResearchPrompt(name,dnaText){
     return ['Você é Radar, o agente de Pesquisa do Content OS. A partir do Content DNA real abaixo, aponte oportunidades de conteúdo ANCORADAS no que já se sabe sobre o cliente — dores, objeções e diferenciais reais.',
@@ -346,21 +350,29 @@
     var msg=I("#resMsg");setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildResearchPrompt(byId(id).name,dnaCompact()),{modelTier:"quick",cache:false});
-      var today=new Date().toISOString().slice(0,10);
-      var items=(Array.isArray(out.items)?out.items:[]).map(function(r){return {tipo:String(r.tipo||"Oportunidade"),insight:String(r.insight||""),origem:String(r.origem||"Derivado do Content DNA"),data:today,relevancia:String(r.relevancia||"—")};});
-      items.push({tipo:"Nota",insight:"Pesquisa externa real (tendências, concorrentes, palavras-chave) exige acesso web/API — não fabricada.",origem:"Sistema",data:today,relevancia:"—"});
-      await dbDoc("cos_research/"+id).set({items:items});
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].research=items;
-      if(state.client===id){GENERATED.research=items;renderResearch();}
+      await salvarPesquisa(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
     }
   }
+  // Pesquisa com link (a do agente Radar, que busca na web) ou sem (a do botão, que só lê o DNA).
+  async function salvarPesquisa(id,out){
+    var today=new Date().toISOString().slice(0,10);
+    var items=(Array.isArray(out.items)?out.items:[]).map(function(r){var it={tipo:String(r.tipo||"Oportunidade"),insight:String(r.insight||""),origem:String(r.origem||"Derivado do Content DNA"),data:String(r.data||today),relevancia:String(r.relevancia||"—")};if(r.url)it.url=String(r.url);return it;});
+    if(!items.some(function(i){return i.url}))items.push({tipo:"Nota",insight:"Sinais tirados do próprio Content DNA, sem pesquisa na web. Para pesquisa com fonte, rode o agente Radar.",origem:"Sistema",data:today,relevancia:"—"});
+    await dbDoc("cos_research/"+id).set({items:items});
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].research=items;
+    if(state.client===id){GENERATED.research=items;renderResearch();}
+  }
+  function pesquisaCompact(){
+    var r=((GENERATED&&GENERATED.research)||[]).filter(function(x){return x.tipo!=="Nota"});if(!r.length)return "";
+    return 'PESQUISA APROVADA (use as pautas que fizerem sentido para este cliente; cite a fonte quando usar):\n'+r.slice(0,10).map(function(x){return '- ['+x.tipo+'] '+x.insight+(x.url?' ('+x.origem+', '+x.data+')':'')}).join('\n');
+  }
   function renderResearch(){
     var el=I('.view[data-view="research"]');
     if(GENERATED&&GENERATED.research&&GENERATED.research.length){
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+esc(clientName(state.client))+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p><b>Radar</b> — sinais internos derivados do Content DNA, com fonte. Pesquisa externa (tendências, concorrentes) exige acesso web/API — nunca inventada.</p></div></div>'+
+      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+esc(clientName(state.client))+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p><b>Radar</b> — '+(GENERATED.research.some(function(r){return r.url})?'pesquisa na web, cada item com fonte e data.':'sinais internos derivados do Content DNA. Para pesquisa na web com fonte, rode o agente Radar.')+'</p></div></div>'+
         (isDbClient(state.client)?'<div style="margin:-6px 0 14px"><button class="btn" id="genResBtn">↻ Gerar de novo</button><span id="resMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>':'')+
         '<div class="card pad">'+GENERATED.research.map(researchItemHtml).join('')+'</div>';
       var btn=I("#genResBtn");if(btn)btn.addEventListener('click',runGerarPesquisa);
@@ -404,14 +416,17 @@
     var msg=I("#edMsg");setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildEditorialPrompt(byId(id).name,GENERATED.strategy),{modelTier:"default",cache:false});
-      var pilares=Array.isArray(out.pilares)?out.pilares:[];
-      await dbDoc("cos_editorial/"+id).set({pilares:pilares});
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].editorial=pilares;
-      if(state.client===id){GENERATED.editorial=pilares;renderEditorial();}
+      await salvarEditorial(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
     }
+  }
+  async function salvarEditorial(id,out){
+    var pilares=Array.isArray(out.pilares)?out.pilares:[];
+    await dbDoc("cos_editorial/"+id).set({pilares:pilares});
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].editorial=pilares;
+    if(state.client===id){GENERATED.editorial=pilares;renderEditorial();}
   }
   function renderEditorial(){
     var el=I('.view[data-view="editorial"]');
@@ -456,7 +471,7 @@
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
       refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
-      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), '',
+      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), pesquisaCompact(), '',
       'Gatilhos mentais disponíveis: '+(LIB.gatilhos||[]).map(function(g){return g.nome}).join(', '),
       'Elementos literários disponíveis: '+(LIB.elementos||[]).map(function(e){return e.nome}).join(', '),
       prefsPrompt(), capacidadePrompt(), metasPrompt(),
@@ -472,6 +487,11 @@
   async function gerarIdeiasCore(id,append,count,soSemGravacao){
     var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact(),{count:count||15,soSemGravacao:!!soSemGravacao,existentes:atuais.map(function(x){return x.titulo})}),{modelTier:"complex",cache:false});
+    return salvarIdeias(id,out,append);
+  }
+  // Grava ideias (do botão ou de uma proposta da Musa aprovada). append=true acrescenta sem apagar.
+  async function salvarIdeias(id,out,append){
+    var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var raw=Array.isArray(out.ideas)?out.ideas:[];
     var strat=GENERATED.strategy||{},pf=prefsOf(id),base=atuais.reduce(function(m,x){var n=+(String(x.id||"").split("-")[1])||0;return Math.max(m,n,(x.ord||0)+1)},0);
     function okNomes(lib,arr,ban){var ks=keysByNome(lib,arr).filter(function(k){return ban.indexOf(k)<0});return (lib||[]).filter(function(x){return ks.indexOf(x.key)>=0}).map(function(x){return x.nome});}

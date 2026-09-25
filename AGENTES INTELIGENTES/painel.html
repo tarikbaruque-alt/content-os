@@ -327,6 +327,58 @@
   select,input,textarea{font-family:inherit}
   .section-head p{line-height:1.5}
   ::selection{background:var(--brand-weak);color:var(--brand-ink)}
+
+  /* ---- modo servidor: login, propostas, agentes ---- */
+  .login{position:fixed;inset:0;z-index:90;background:var(--bg);display:grid;place-items:center;padding:20px}
+  .login-box{width:min(380px,100%);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:26px;display:grid;gap:4px}
+  .login-marca{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .login-marca b{display:block;font-family:var(--font-display);font-size:18px}
+  .login-marca span:not(.brand-mark){font-size:12.5px;color:var(--muted)}
+  .brand-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(150deg,#7A67FF,#5B45E6 60%,#3F2FB0);display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:18px;flex:0 0 auto}
+  .login-box .fld input{font-size:14px;padding:10px 12px}
+  .login-ok{padding:10px 14px;font-size:13px;margin-top:4px}
+  .login-alt{display:flex;justify-content:space-between;margin-top:10px}
+  .lnk{background:none;border:0;padding:0;color:var(--brand-ink);font-size:12.5px;font-weight:600;cursor:pointer}
+  .lnk:hover{text-decoration:underline}
+  .login-msg{min-height:18px;font-size:12.5px;margin-top:8px}
+  .nav-n{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:var(--brand);color:#fff;font-size:10.5px;font-weight:700}
+  .props{display:grid;gap:12px}
+  .prop{display:grid;gap:8px}
+  .prop.feita{opacity:.72}
+  .prop-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .prop-quando{margin-left:auto;font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .prop-t{margin:0;font-family:var(--font-display);font-size:16px;font-weight:700}
+  .prop-r{margin:0;font-size:13px;color:var(--muted);max-width:80ch}
+  .prop-prev summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--brand-ink)}
+  .prop-acoes{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .prop-msg{font-size:12px;color:var(--muted)}
+  .pp-lista{margin:10px 0 0;padding-left:18px;font-size:13px;display:grid;gap:6px}
+  .pp-lista a{color:var(--brand-ink)}
+  .pp-dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 14px;margin:10px 0 0;font-size:13px}
+  .pp-dl dt{color:var(--faint);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding-top:2px}
+  .pp-dl dd{margin:0}
+  .pp-m{font-size:12px;color:var(--muted)}
+  .ag-estado{display:flex;flex-wrap:wrap;gap:18px 40px;margin-bottom:14px}
+  .ag-estado>div{display:grid;gap:6px;min-width:200px}
+  .ag-num{font-family:var(--font-display);font-size:18px;font-weight:700}
+  .ag-barra{height:6px;border-radius:4px;background:var(--line-2);overflow:hidden;width:220px;max-width:100%}
+  .ag-barra i{display:block;height:100%;background:var(--brand)}
+  .op-grid{gap:0 16px}
+  .op-grid select,.op-grid input,.inp{border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:13px;background:var(--surface-2);color:var(--ink)}
+  .ag-lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:14px}
+  .ag-card{display:grid;gap:8px;align-content:start}
+  .ag-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .ag-top b{font-family:var(--font-display);font-size:16px}
+  .ag-ult{font-size:12px}
+  .ag-card .btn{justify-self:start}
+  .seg{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:var(--surface);color:var(--muted);font-size:11.5px;font-weight:600;padding:5px 9px;cursor:pointer}
+  .seg button.on{background:var(--brand);color:#fff}
+  .tbl-wrap{overflow-x:auto}
+  table.runs{width:100%;border-collapse:collapse;font-size:12.5px;min-width:640px}
+  table.runs th,table.runs td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line-2);vertical-align:top}
+  table.runs th{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--faint);font-weight:600}
+  table.runs .num{text-align:right}
 </style>
 
 <div class="app">
@@ -411,8 +463,10 @@
 
       <section class="view" data-view="config" hidden></section>
 
+      <section class="view" data-view="propostas" hidden></section>
+
       <section class="view" data-view="agents" hidden>
-        <div class="section-head" style="margin-top:6px"><div><h3>Agentes de IA</h3><p>Infraestrutura nos bastidores — 12 especialistas coordenados (o Estúdio Criativo tem 3: Rima, Mosaico e Enredo), não uma dúzia de chatbots.</p></div></div>
+        <div class="section-head" style="margin-top:6px"><div><h3>Agentes</h3><p>Quando cada agente roda sozinho, o que já fez e quanto custou. Por cliente, escolha Automático ou Manual.</p></div></div>
         <div class="agents" id="agentGrid"></div>
       </section>
 
@@ -448,14 +502,15 @@
     performance:svg('<path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/>'),
     kb:svg('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'),
     formats:svg('<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><path d="M13 16.5h8M17 13v7"/>'),
+    propostas:svg('<path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/>'),
     agents:svg('<rect x="4" y="8" width="16" height="12" rx="2.5"/><path d="M12 8V4M9 4h6M8.5 13v2M15.5 13v2"/>')
   };
   var NAV=[
-    {g:"Trabalho",items:[["overview","Dashboard"],["ativos","Clientes ativos"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"],["plan","Plano do Mês"]]},
+    {g:"Trabalho",items:[["overview","Dashboard"],["propostas","Propostas"],["ativos","Clientes ativos"],["clients","Clientes"],["analyze","Análise IA"],["dna","Content DNA"],["plan","Plano do Mês"]]},
     {g:"Fluxo",items:[["strategy","Estratégia"],["research","Pesquisa"],["editorial","Linha Editorial"],["ideas","Ideias"],["formats","Formatos"],["distribution","Distribuição"],["content","Conteúdos"],["calendar","Calendário"],["approvals","Aprovações"],["performance","Performance"]]},
     {g:"Sistema",items:[["kb","Knowledge Base"],["agents","Agentes"],["config","🔑 Configuração"]]}
   ];
-  var TITLES={overview:["Trabalho","Dashboard"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
+  var TITLES={overview:["Trabalho","Dashboard"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA — Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês — gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["Sistema","Configuração — chaves & integrações"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -501,7 +556,7 @@
 
   // Estado de maturidade por área
   var STATUS={
-    overview:["func","Próximos passos e publicações do cliente selecionado"],ativos:["func","Administrativo — só você vê: clientes, contatos, valores e cobranças"],clients:["func","Seus clientes — cada um com Ficha, Content DNA e plano próprios, gravados"],
+    overview:["func","Próximos passos e publicações do cliente selecionado"],propostas:["func","O que os agentes fizeram sozinhos e espera a sua decisão"],ativos:["func","Administrativo — só você vê: clientes, contatos, valores e cobranças"],clients:["func","Seus clientes — cada um com Ficha, Content DNA e plano próprios, gravados"],
     analyze:["func","Roda a mesma lógica testada da Íris, ao vivo no navegador"],
     plan:["func","Gerado pelo pipeline real ponta a ponta · prosa final via Rima/Anthropic (basta configurar ANTHROPIC_API_KEY)"],
     dna:["func","Ficha do cliente + Content DNA gravados (link publicado: no painel; cópia offline: neste navegador) · Íris ao vivo pelo link publicado"],
@@ -510,7 +565,7 @@
     distribution:["func","Cálculo real (método do maior resto) — coberto por 6 testes"],
     content:["func","Estúdio Criativo: Rima (copy), Mosaico (carrossel) e Enredo (Stories) — clique num conteúdo p/ o esqueleto estratégico + 🎠/📱"],calendar:["func","Cronos: calendário editorial por período (mix por funil). Clique num dia p/ abrir o conteúdo completo"],
     approvals:["parcial","Notion Sync REAL, schema-aware e com trava de autorização (dry-run por padrão) · npm run notion:sync"],performance:["func","Pulso: números reais (peça a peça ou CSV do Instagram) · leitura automática sem inventar dado"],
-    kb:["dev","Acervo recupera pilares de verdade"],agents:["dev","Íris FUNCIONAL · Acervo em progresso · demais planejados"]
+    kb:["dev","Acervo recupera pilares de verdade"],agents:["func","Agentes no servidor: agenda, cadeia do planejamento, modo manual e custo de cada execução"]
   };
   var LVL={func:"FUNCIONAL",dev:"PARCIAL",parcial:"PARCIAL",mock:"MOCK",nao:"NÃO IMPL."};
 
@@ -631,7 +686,7 @@
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
@@ -921,15 +976,19 @@
     var msg=I("#stratMsg");setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildStrategyPrompt(byId(id).name,dnaCompact()),{modelTier:"complex",cache:false});
-      var strat={posicionamento:String(out.posicionamento||""),bigMessage:String(out.bigMessage||""),persona:String(out.persona||""),percepcao:String(out.percepcao||""),
-        pilares:Array.isArray(out.pilares)?out.pilares.map(String):[],paths:Array.isArray(out.paths)?out.paths:[],mix:Array.isArray(out.mix)?out.mix:[]};
-      await dbDoc("cos_strategy/"+id).set(strat);
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=strat;
-      if(state.client===id){GENERATED.strategy=strat;state.stratSel=null;renderStrategy();}
+      await salvarEstrategia(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
     }
+  }
+  async function salvarEstrategia(id,out){
+    var strat={posicionamento:String(out.posicionamento||""),bigMessage:String(out.bigMessage||""),persona:String(out.persona||""),percepcao:String(out.percepcao||""),
+      pilares:Array.isArray(out.pilares)?out.pilares.map(String):[],paths:Array.isArray(out.paths)?out.paths:[],mix:Array.isArray(out.mix)?out.mix:[]};
+    if(out.mudancas)strat.mudancas=String(out.mudancas);
+    await dbDoc("cos_strategy/"+id).set(strat);
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=strat;
+    if(state.client===id){GENERATED.strategy=strat;state.stratSel=null;renderStrategy();}
   }
   function renderStrategyEmpty(el){
     var hasDna=GENERATED&&GENERATED.dna&&GENERATED.dna.length;
@@ -951,7 +1010,7 @@
       '<div class="card pad" style="margin-top:16px"><div class="metagrid"><div><div class="mk">Objetivos</div><div class="mv">'+s.objetivos.join(' · ')+'</div></div><div><div class="mk">Jornada</div><div class="mv">'+esc(s.jornada)+'</div></div><div style="grid-column:1/-1"><div class="mk">Percepção que queremos construir</div><div class="mv">'+esc(s.percepcao)+'</div></div><div><div class="mk">Crenças a construir</div><div class="mv chips">'+s.construir.map(function(x){return '<span class="badge act">'+esc(x)+'</span>'}).join('')+'</div></div><div><div class="mk">Crenças a desafiar</div><div class="mv chips">'+s.desafiar.map(function(x){return '<span class="badge prog">'+esc(x)+'</span>'}).join('')+'</div></div></div></div>';
   }
   function researchItemHtml(r){
-    return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r.tipo)+'</span><div><div class="ri-t">'+esc(r.insight)+'</div><div class="ri-m">↳ '+esc(r.origem)+(r.relevancia&&r.relevancia!=="—"?' · '+esc(r.relevancia):'')+'</div></div></div>';
+    return '<div class="ritem"><span class="pill st-STRATEGIC_DECISION" style="height:fit-content">'+esc(r.tipo)+'</span><div><div class="ri-t">'+esc(r.insight)+'</div><div class="ri-m">'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.origem)+'</a>':esc(r.origem))+(r.data?' · '+esc(r.data.split("-").reverse().join("/")):'')+(r.relevancia&&r.relevancia!=="—"?' · '+esc(r.relevancia):'')+'</div></div></div>';
   }
   function buildResearchPrompt(name,dnaText){
     return ['Você é Radar, o agente de Pesquisa do Content OS. A partir do Content DNA real abaixo, aponte oportunidades de conteúdo ANCORADAS no que já se sabe sobre o cliente — dores, objeções e diferenciais reais.',
@@ -967,21 +1026,29 @@
     var msg=I("#resMsg");setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildResearchPrompt(byId(id).name,dnaCompact()),{modelTier:"quick",cache:false});
-      var today=new Date().toISOString().slice(0,10);
-      var items=(Array.isArray(out.items)?out.items:[]).map(function(r){return {tipo:String(r.tipo||"Oportunidade"),insight:String(r.insight||""),origem:String(r.origem||"Derivado do Content DNA"),data:today,relevancia:String(r.relevancia||"—")};});
-      items.push({tipo:"Nota",insight:"Pesquisa externa real (tendências, concorrentes, palavras-chave) exige acesso web/API — não fabricada.",origem:"Sistema",data:today,relevancia:"—"});
-      await dbDoc("cos_research/"+id).set({items:items});
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].research=items;
-      if(state.client===id){GENERATED.research=items;renderResearch();}
+      await salvarPesquisa(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
     }
   }
+  // Pesquisa com link (a do agente Radar, que busca na web) ou sem (a do botão, que só lê o DNA).
+  async function salvarPesquisa(id,out){
+    var today=new Date().toISOString().slice(0,10);
+    var items=(Array.isArray(out.items)?out.items:[]).map(function(r){var it={tipo:String(r.tipo||"Oportunidade"),insight:String(r.insight||""),origem:String(r.origem||"Derivado do Content DNA"),data:String(r.data||today),relevancia:String(r.relevancia||"—")};if(r.url)it.url=String(r.url);return it;});
+    if(!items.some(function(i){return i.url}))items.push({tipo:"Nota",insight:"Sinais tirados do próprio Content DNA, sem pesquisa na web. Para pesquisa com fonte, rode o agente Radar.",origem:"Sistema",data:today,relevancia:"—"});
+    await dbDoc("cos_research/"+id).set({items:items});
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].research=items;
+    if(state.client===id){GENERATED.research=items;renderResearch();}
+  }
+  function pesquisaCompact(){
+    var r=((GENERATED&&GENERATED.research)||[]).filter(function(x){return x.tipo!=="Nota"});if(!r.length)return "";
+    return 'PESQUISA APROVADA (use as pautas que fizerem sentido para este cliente; cite a fonte quando usar):\n'+r.slice(0,10).map(function(x){return '- ['+x.tipo+'] '+x.insight+(x.url?' ('+x.origem+', '+x.data+')':'')}).join('\n');
+  }
   function renderResearch(){
     var el=I('.view[data-view="research"]');
     if(GENERATED&&GENERATED.research&&GENERATED.research.length){
-      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+esc(clientName(state.client))+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p><b>Radar</b> — sinais internos derivados do Content DNA, com fonte. Pesquisa externa (tendências, concorrentes) exige acesso web/API — nunca inventada.</p></div></div>'+
+      el.innerHTML='<div class="section-head" style="margin-top:6px"><div><h3>Pesquisa — '+esc(clientName(state.client))+' <span class="statuspill lvl-func" style="vertical-align:middle">Funcional</span></h3><p><b>Radar</b> — '+(GENERATED.research.some(function(r){return r.url})?'pesquisa na web, cada item com fonte e data.':'sinais internos derivados do Content DNA. Para pesquisa na web com fonte, rode o agente Radar.')+'</p></div></div>'+
         (isDbClient(state.client)?'<div style="margin:-6px 0 14px"><button class="btn" id="genResBtn">↻ Gerar de novo</button><span id="resMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>':'')+
         '<div class="card pad">'+GENERATED.research.map(researchItemHtml).join('')+'</div>';
       var btn=I("#genResBtn");if(btn)btn.addEventListener('click',runGerarPesquisa);
@@ -1025,14 +1092,17 @@
     var msg=I("#edMsg");setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildEditorialPrompt(byId(id).name,GENERATED.strategy),{modelTier:"default",cache:false});
-      var pilares=Array.isArray(out.pilares)?out.pilares:[];
-      await dbDoc("cos_editorial/"+id).set({pilares:pilares});
-      if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].editorial=pilares;
-      if(state.client===id){GENERATED.editorial=pilares;renderEditorial();}
+      await salvarEditorial(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
     }
+  }
+  async function salvarEditorial(id,out){
+    var pilares=Array.isArray(out.pilares)?out.pilares:[];
+    await dbDoc("cos_editorial/"+id).set({pilares:pilares});
+    if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].editorial=pilares;
+    if(state.client===id){GENERATED.editorial=pilares;renderEditorial();}
   }
   function renderEditorial(){
     var el=I('.view[data-view="editorial"]');
@@ -1077,7 +1147,7 @@
       'Big Message: '+((strategy&&strategy.bigMessage)||''), 'Persona: '+((strategy&&strategy.persona)||''), 'Pilares: '+pilares,
       temas.length?('Temas editoriais disponíveis: '+temas.join(' | ')):'',
       refs?('REFERÊNCIAS E CONCORRENTES informados pelo cliente (use só como inspiração de ângulo/tom/formato — NUNCA copie, cite o nome ou mencione esses perfis no conteúdo gerado):\n'+refs):'',
-      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), '',
+      'Formatos possíveis (escolha um por ideia): '+formatos, formatGuidePrompt(), perfCompact(), pesquisaCompact(), '',
       'Gatilhos mentais disponíveis: '+(LIB.gatilhos||[]).map(function(g){return g.nome}).join(', '),
       'Elementos literários disponíveis: '+(LIB.elementos||[]).map(function(e){return e.nome}).join(', '),
       prefsPrompt(), capacidadePrompt(), metasPrompt(),
@@ -1093,6 +1163,11 @@
   async function gerarIdeiasCore(id,append,count,soSemGravacao){
     var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact(),{count:count||15,soSemGravacao:!!soSemGravacao,existentes:atuais.map(function(x){return x.titulo})}),{modelTier:"complex",cache:false});
+    return salvarIdeias(id,out,append);
+  }
+  // Grava ideias (do botão ou de uma proposta da Musa aprovada). append=true acrescenta sem apagar.
+  async function salvarIdeias(id,out,append){
+    var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var raw=Array.isArray(out.ideas)?out.ideas:[];
     var strat=GENERATED.strategy||{},pf=prefsOf(id),base=atuais.reduce(function(m,x){var n=+(String(x.id||"").split("-")[1])||0;return Math.max(m,n,(x.ord||0)+1)},0);
     function okNomes(lib,arr,ban){var ks=keysByNome(lib,arr).filter(function(k){return ban.indexOf(k)<0});return (lib||[]).filter(function(x){return ks.indexOf(x.key)>=0}).map(function(x){return x.nome});}
@@ -2299,7 +2374,7 @@
     wireContent('#cal [data-content]');
   }
   function renderKB(){I("#kbGrid").innerHTML=PILLARS.map(function(p){return '<div class="card kb-card"><div class="kb-t">'+esc(p.t)+'</div><div class="kb-d">'+esc(p.d)+'</div><div class="kb-m">'+p.m.map(function(m){return '<span class="badge">'+esc(m)+'</span>'}).join('')+'</div></div>'}).join('')}
-  function renderAgents(){I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
+  function renderAgents(){if(SB){renderAgentesServidor();return;}I("#agentGrid").innerHTML=AGENTS.map(function(a,i){return '<div class="card agent"><div class="av" style="background:'+avc(i)+'">'+a.n.charAt(0)+'</div><div style="min-width:0"><div class="an"><b>'+a.n+'</b><span class="role">· '+a.r+'</span>'+statusBadge(a.s)+'</div><div class="sum">'+esc(a.d)+'</div></div></div>'}).join('')}
 
   // ---------- Configuração (chaves & integrações) ----------
   var CFG_KEY="contentos.keys.v1";
@@ -2336,13 +2411,13 @@
     var h='';
     h+='<div class="section-head" style="margin-top:6px"><div><h3>Configuração — chaves & integrações</h3><p>Preencha <b>uma vez</b>. As chaves ficam salvas <b>no seu navegador</b> e você gera o arquivo <code>.env</code> para conectar tudo de forma permanente.</p></div><div id="cfgStatus">'+cfgStatus(saved)+'</div></div>';
     h+='<div class="callout" style="margin-bottom:16px"><span style="font-size:15px">🔒</span><div class="em"><b>Como funciona a permanência.</b> Os comandos (<code>pipeline</code>, <code>notion:sync</code>, <code>doctor</code>) leem as chaves de um arquivo <code>.env</code> na raiz do projeto — carregado automaticamente. Preencha aqui, clique em <b>Baixar .env</b>, salve na raiz e pronto: fica sempre conectado, sem redigitar. <br>No Claude Code na web, prefira cadastrar as mesmas chaves em <b>Credenciais de API do ambiente</b> (persistem entre sessões) e liberar os hosts <code>api.anthropic.com</code> e <code>api.notion.com</code> na rede.</div></div>';
-    h+=backupHtml()+forms;
+    h+=equipeHtml()+backupHtml()+forms;
     h+='<div class="card pad"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"><button class="btn pri" id="cfgSave">Salvar no navegador</button><button class="btn" id="cfgDownload">⬇︎ Baixar .env</button><button class="btn" id="cfgCopy">Copiar .env</button><button class="btn ghost" id="cfgClear">Limpar</button><span id="cfgMsg" style="align-self:center;font-size:12px;color:var(--good)"></span></div><div class="fld"><label>Prévia do .env</label><textarea id="cfgEnv" class="ta mono" style="min-height:150px" readonly></textarea></div></div>';
     I('.view[data-view="config"]').innerHTML=h;
     function refresh(){var v=cfgVals();I("#cfgEnv").value=buildEnvText(v);I("#cfgStatus").innerHTML=cfgStatus(v);}
     CFG_FIELDS.forEach(function(f){var el=I("#cfg_"+f.k);if(el)el.addEventListener('input',refresh)});
     refresh();
-    wireBackup();
+    wireBackup();wireEquipe();
     function msg(t){I("#cfgMsg").textContent=t;setTimeout(function(){if(I("#cfgMsg"))I("#cfgMsg").textContent=""},2600)}
     I("#cfgSave").addEventListener('click',function(){msg(cfgSave(cfgVals())?"✓ Salvo neste navegador":"Não foi possível salvar (navegação privada?)")});
     I("#cfgDownload").addEventListener('click',function(){
@@ -3331,6 +3406,17 @@
   }
 
   async function initCapabilities(){
+    if(servidorLigado()){
+      try{
+        await iniciarServidor();
+        CAP.db=sbDb();CAP.sample=sbSample();CAP.remote=true;CAP.ready=true;
+        await loadDbClients();
+        renderAiBadge();renderClients();renderKpis();renderOverviewContent();
+        carregarPropostas().catch(function(){});
+        if(state.view)go(state.view);
+      }catch(e){toast("Não consegui conectar ao servidor: "+(e.message||e));}
+      return;
+    }
     try{
       if(window.claude&&window.claude.use){
         CAP.sample=await window.claude.use("sample");
@@ -3346,7 +3432,7 @@
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
     var on=aiAvailable();
-    el.textContent=on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
+    el.textContent=CAP.remote?"● servidor":on?"● ativa":(CAP.local?"○ offline · salvo aqui":"○ indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
     el.title=on?"Gerar com IA real e cadastrar clientes está disponível neste painel.":"Abra pelo link do painel publicado no claude.ai para gerar com IA real e cadastrar clientes — a cópia offline não tem essa capacidade.";
   }
@@ -3431,6 +3517,248 @@
   function initTheme(){var root=document.documentElement,saved=null;try{saved=localStorage.getItem('cos-theme')}catch(e){}if(saved)root.setAttribute('data-theme',saved);
     I("#theme").addEventListener('click',function(){var cur=root.getAttribute('data-theme');var dark=cur?cur==="dark":window.matchMedia('(prefers-color-scheme: dark)').matches;var nx=dark?"light":"dark";root.setAttribute('data-theme',nx);try{localStorage.setItem('cos-theme',nx)}catch(e){}})}
 
+  // ===================================================================
+  // MODO SERVIDOR (Supabase) — liga quando o painel é publicado com
+  // window.COS_CONFIG (npm run build:web). Login da equipe, os mesmos docs do
+  // painel guardados no banco, a IA dos botões pela função do servidor e as
+  // telas Propostas e Agentes. Sem COS_CONFIG, nada disto roda: o painel segue
+  // como Artifact (window.claude) ou cópia offline (navegador).
+  // ===================================================================
+  var SB=null; // {c: cliente supabase, ws: workspace, user}
+  function servidorLigado(){return !!(window.COS_CONFIG&&window.supabase&&window.supabase.createClient);}
+
+  function telaLogin(c){
+    return new Promise(function(resolve){
+      var el=document.createElement("div");el.id="loginTela";el.className="login";
+      el.innerHTML='<form class="login-box" id="loginForm" novalidate><div class="login-marca"><span class="brand-mark">C</span><div><b>Content OS</b><span>Entre com a conta da equipe</span></div></div>'+
+        '<div class="fld"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="email" required></div>'+
+        '<div class="fld"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="current-password" required minlength="6"></div>'+
+        '<button class="btn pri login-ok" id="lgEntrar" type="submit">Entrar</button>'+
+        '<div class="login-alt"><button class="lnk" type="button" id="lgCriar">Criar conta</button><button class="lnk" type="button" id="lgEsqueci">Esqueci a senha</button></div>'+
+        '<div class="login-msg" id="lgMsg" role="status"></div></form>';
+      document.body.appendChild(el);
+      var msg=function(t,bom){var m=I("#lgMsg");m.textContent=t;m.style.color=bom?"var(--good)":"var(--warn)";};
+      var traduz=function(e){var t=String(e&&e.message||e||"");
+        if(/invalid login/i.test(t))return "E-mail ou senha errados.";
+        if(/not confirmed/i.test(t))return "Confirme o e-mail pelo link que enviamos e tente de novo.";
+        if(/already registered|already been registered/i.test(t))return "Esse e-mail já tem conta. Use Entrar.";
+        if(/password/i.test(t))return "A senha precisa ter pelo menos 6 caracteres.";
+        if(/rate|too many/i.test(t))return "Muitas tentativas. Espere um minuto.";
+        return "Não deu certo: "+t;};
+      var dados=function(){return {email:I("#lgEmail").value.trim(),password:I("#lgSenha").value};};
+      I("#loginForm").addEventListener("submit",async function(ev){ev.preventDefault();var d=dados();if(!d.email||!d.password){msg("Preencha e-mail e senha.");return;}
+        var b=I("#lgEntrar");b.disabled=true;b.textContent="Entrando…";
+        var r=await c.auth.signInWithPassword(d);b.disabled=false;b.textContent="Entrar";
+        if(r.error){msg(traduz(r.error));return;}
+        el.remove();resolve(r.data.user);});
+      I("#lgCriar").addEventListener("click",async function(){var d=dados();if(!d.email||d.password.length<6){msg("Digite o e-mail e uma senha com 6 caracteres ou mais, e clique em Criar conta.");return;}
+        var r=await c.auth.signUp({email:d.email,password:d.password,options:{emailRedirectTo:location.origin}});
+        if(r.error){msg(traduz(r.error));return;}
+        if(r.data.session){el.remove();resolve(r.data.user);return;}
+        msg("Conta criada. Confirme pelo link que enviamos para "+d.email+" e depois entre.",true);});
+      I("#lgEsqueci").addEventListener("click",async function(){var d=dados();if(!d.email){msg("Digite seu e-mail e clique em Esqueci a senha.");return;}
+        var r=await c.auth.resetPasswordForEmail(d.email,{redirectTo:location.origin});
+        msg(r.error?traduz(r.error):"Enviamos um link para "+d.email+" criar uma senha nova.",!r.error);});
+      setTimeout(function(){var e=I("#lgEmail");if(e)e.focus();},50);
+    });
+  }
+
+  function telaNovaSenha(c){
+    return new Promise(function(resolve){
+      var el=document.createElement("div");el.className="login";
+      el.innerHTML='<form class="login-box" id="nsForm" novalidate><div class="login-marca"><span class="brand-mark">C</span><div><b>Senha nova</b><span>Escolha a senha que vai usar daqui pra frente</span></div></div>'+
+        '<div class="fld"><label for="nsSenha">Senha nova</label><input id="nsSenha" type="password" autocomplete="new-password" minlength="6" required></div>'+
+        '<button class="btn pri login-ok" type="submit">Salvar e entrar</button><div class="login-msg" id="nsMsg" role="status"></div></form>';
+      document.body.appendChild(el);
+      I("#nsForm").addEventListener("submit",async function(ev){ev.preventDefault();var v=I("#nsSenha").value;
+        if(v.length<6){I("#nsMsg").textContent="A senha precisa ter pelo menos 6 caracteres.";return;}
+        var r=await c.auth.updateUser({password:v});
+        if(r.error){I("#nsMsg").textContent="Não deu certo: "+r.error.message;return;}
+        history.replaceState(null,"",location.pathname);el.remove();resolve();});
+    });
+  }
+
+  async function iniciarServidor(){
+    var cfg=window.COS_CONFIG,c=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true}});
+    var s=(await c.auth.getSession()).data.session,user=s&&s.user;
+    // Voltou pelo link de "esqueci a senha": já tem sessão; pede a senha nova antes de seguir.
+    if(user&&/type=recovery/.test(location.hash))await telaNovaSenha(c);
+    if(!user)user=await telaLogin(c);
+    await c.rpc("aceitar_convites");
+    var m=await c.from("membros").select("workspace_id,papel").eq("user_id",user.id).limit(1);
+    var ws=m.data&&m.data[0]&&m.data[0].workspace_id,papel=m.data&&m.data[0]&&m.data[0].papel;
+    if(!ws){var r=await c.rpc("criar_workspace",{nome:"Content OS"});if(r.error)throw r.error;ws=r.data;papel="dono";}
+    SB={c:c,ws:ws,user:user,papel:papel};
+    c.auth.onAuthStateChange(function(ev){if(ev==="SIGNED_OUT")location.reload();});
+    return SB;
+  }
+
+  // Mesma interface do db do Artifact (doc/collection, get/set/update/delete), sobre a tabela docs.
+  function sbDb(){
+    var c=SB.c,ws=SB.ws;
+    function snap(path,row){return {id:path.split('/').pop(),exists:!!row,data:function(){return row?row.data:undefined}};}
+    function falha(r){if(r.error)throw r.error;return r;}
+    function doc(path){return {id:path.split('/').pop(),
+      get:async function(){var r=falha(await c.from("docs").select("data").eq("workspace_id",ws).eq("path",path).maybeSingle());return snap(path,r.data);},
+      set:async function(v){falha(await c.from("docs").upsert({workspace_id:ws,path:path,data:JSON.parse(JSON.stringify(v))},{onConflict:"workspace_id,path"}));},
+      update:async function(v){var atual=(await doc(path).get()).data()||{};await doc(path).set(Object.assign({},atual,JSON.parse(JSON.stringify(v))));},
+      delete:async function(){falha(await c.from("docs").delete().eq("workspace_id",ws).eq("path",path));},
+      collection:function(n){return col(path+"/"+n)}};}
+    function col(prefix){return {doc:function(id){return doc(prefix+"/"+id)},
+      get:async function(){var r=falha(await c.from("docs").select("path,data").eq("workspace_id",ws).eq("parent",prefix));return {docs:(r.data||[]).map(function(x){return snap(x.path,x)})};}};}
+    return {doc:doc,collection:col};
+  }
+
+  async function chamarServidor(op,corpo){
+    var r=await SB.c.functions.invoke("agentes",{body:Object.assign({op:op,ws:SB.ws},corpo||{})});
+    if(r.error){var det=null;try{det=await r.error.context.json();}catch(e){}
+      var er=new Error((det&&det.error&&det.error.message)||r.error.message);er.code=(det&&det.error&&det.error.code)||"erro";throw er;}
+    return r.data;
+  }
+  // Mesma interface do "sample" do Artifact: sample(input) -> {text}; sample.json(input) -> objeto.
+  function sbSample(){
+    var f=async function(input){var d=await chamarServidor("ia",{input:input});return {text:d.text,truncated:!!d.truncated};};
+    f.json=async function(input){var t=(await f(input)).text||"",i=t.indexOf("{"),j=t.lastIndexOf("}");
+      try{return JSON.parse(i>=0&&j>i?t.slice(i,j+1):t);}catch(e){var er=new Error("json");er.code="invalid_json";throw er;}};
+    return f;
+  }
+
+  // ---------------------------------------------------------------- Propostas
+  var AG_INFO={radar:["Radar","Pesquisa"],iris:["Íris","Content DNA"],atlas:["Átlas","Estratégia"],bussola:["Bússola","Linha editorial"],musa:["Musa","Ideias"],cronos:["Cronos","Calendário"],estudio:["Estúdio","Peças"],pulso:["Pulso","Performance"],painel:["Painel","Botões Gerar"],acervo:["Acervo","Knowledge Base"]};
+  var TIPO_LBL={pesquisa:"Pesquisa",estrategia:"Estratégia",editorial:"Linha editorial",ideias:"Ideias",aviso:"Aviso"};
+  var PROPOSTAS=[];
+  async function carregarPropostas(){
+    if(!SB)return [];
+    var r=await SB.c.from("proposals").select("*").order("created_at",{ascending:false}).limit(60);
+    PROPOSTAS=r.data||[];atualizarContadorPropostas();return PROPOSTAS;
+  }
+  function atualizarContadorPropostas(){
+    var n=PROPOSTAS.filter(function(p){return p.status==="pendente"}).length,a=I('#nav a[data-view="propostas"] span');
+    if(a)a.innerHTML='Propostas'+(n?' <b class="nav-n">'+n+'</b>':'');
+  }
+  function previaProposta(p){
+    var d=p.payload||{};
+    if(p.tipo==="pesquisa")return '<ul class="pp-lista">'+(d.items||[]).map(function(i){return '<li><b>'+esc(i.tipo)+'</b> '+esc(i.insight)+(i.url?' <a href="'+esc(i.url)+'" target="_blank" rel="noopener">'+esc(i.origem||"fonte")+(i.data?' · '+esc(i.data):'')+'</a>':'')+'</li>'}).join('')+'</ul>';
+    if(p.tipo==="estrategia")return '<dl class="pp-dl"><dt>Posicionamento</dt><dd>'+esc(d.posicionamento||"")+'</dd><dt>Big Message</dt><dd>'+esc(d.bigMessage||"")+'</dd><dt>Mix do mês</dt><dd>'+esc((d.mix||[]).map(function(x){return x.nome+" "+x.pct+"%"}).join(" · "))+'</dd></dl>';
+    if(p.tipo==="editorial")return '<ul class="pp-lista">'+(d.pilares||[]).map(function(x){return '<li><b>'+esc(x.pilar)+'</b> '+esc((x.temas||[]).map(function(t){return t.tema}).join(", "))+'</li>'}).join('')+'</ul>';
+    if(p.tipo==="ideias")return '<ol class="pp-lista">'+(d.ideas||[]).map(function(x){return '<li>'+esc(x.titulo)+' <span class="pp-m">'+esc(x.formato||"")+' · '+esc(x.funil||"")+'</span></li>'}).join('')+'</ol>';
+    return '';
+  }
+  function cardProposta(p){
+    var ag=AG_INFO[p.agente]||[p.agente,""],pend=p.status==="pendente",aviso=p.tipo==="aviso";
+    return '<article class="card pad prop'+(pend?'':' feita')+'" data-prop="'+esc(p.id)+'"><div class="prop-top"><span class="badge">'+esc(ag[0])+'</span><span class="badge">'+esc(clientName(p.client_id))+'</span><span class="badge '+(aviso?'':'prog')+'">'+esc(TIPO_LBL[p.tipo]||p.tipo)+'</span>'+
+      '<span class="prop-quando">'+esc(new Date(p.created_at).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}))+'</span></div>'+
+      '<h4 class="prop-t">'+esc(p.titulo)+'</h4>'+(p.resumo?'<p class="prop-r">'+esc(p.resumo)+'</p>':'')+
+      (aviso?'':'<details class="prop-prev"'+(pend?' open':'')+'><summary>Ver o que o agente propõe</summary>'+previaProposta(p)+'</details>')+
+      '<div class="prop-acoes">'+(pend?(aviso?
+        '<button class="btn pri" data-prop-ir="'+esc((p.payload||{}).ir||"overview")+'">Ver</button><button class="btn" data-prop-ok>Ok, visto</button>':
+        '<button class="btn pri" data-prop-aprovar>Aprovar e aplicar</button><button class="btn" data-prop-rejeitar>Rejeitar</button>'):
+        '<span class="badge '+(p.status==="aplicada"?'act':'')+'">'+(p.status==="aplicada"?(aviso?'visto':'aplicada'):'rejeitada')+'</span>')+
+      '<span class="prop-msg"></span></div></article>';
+  }
+  async function renderPropostas(){
+    var el=I('.view[data-view="propostas"]');if(!el)return;
+    var head='<div class="section-head" style="margin-top:6px"><div><h3>Propostas dos agentes</h3><p>O que os agentes fizeram sozinhos e espera a sua decisão. Aprovar grava no cliente e, no planejamento, chama o próximo agente.</p></div></div>';
+    if(!SB){el.innerHTML=head+'<div class="card empty-hero"><div class="eh-t">As propostas aparecem no painel publicado, com login da equipe.</div></div>';return;}
+    el.innerHTML=head+'<div class="card pad"><span class="spinner"></span>Carregando…</div>';
+    await carregarPropostas();
+    var pend=PROPOSTAS.filter(function(p){return p.status==="pendente"}),feitas=PROPOSTAS.filter(function(p){return p.status!=="pendente"}).slice(0,15);
+    el.innerHTML=head+(pend.length?'<div class="props">'+pend.map(cardProposta).join('')+'</div>':'<div class="card empty-hero"><div class="eh-t"><b>Nada esperando você.</b><br>Quando um agente terminar um trabalho, ele aparece aqui.</div></div>')+
+      (feitas.length?'<div class="eyebrow" style="margin:26px 0 10px">Decididas recentemente</div><div class="props">'+feitas.map(cardProposta).join('')+'</div>':'');
+    Array.prototype.forEach.call(el.querySelectorAll('[data-prop]'),function(card){
+      var p=PROPOSTAS.filter(function(x){return x.id===card.getAttribute('data-prop')})[0],msg=card.querySelector('.prop-msg');
+      var fim=async function(aprovar){await chamarServidor("decidir",{id:p.id,aprovar:aprovar});renderPropostas();};
+      var bAprovar=card.querySelector('[data-prop-aprovar]'),bRejeitar=card.querySelector('[data-prop-rejeitar]'),bOk=card.querySelector('[data-prop-ok]'),bIr=card.querySelector('[data-prop-ir]');
+      if(bAprovar)bAprovar.addEventListener('click',async function(){
+        bAprovar.disabled=true;setBusy(msg,"Aplicando…");
+        try{await aplicarProposta(p);await fim(true);toast("Aplicado em "+clientName(p.client_id)+".");}
+        catch(e){clearBusy(msg);msg.textContent="Não consegui aplicar: "+(e.message||e);bAprovar.disabled=false;}});
+      if(bRejeitar)bRejeitar.addEventListener('click',function(){fim(false).catch(function(e){msg.textContent=e.message;});});
+      if(bOk)bOk.addEventListener('click',function(){fim(true).catch(function(e){msg.textContent=e.message;});});
+      if(bIr)bIr.addEventListener('click',function(){if(p.client_id&&isDbClient(p.client_id))setClient(p.client_id);go(bIr.getAttribute('data-prop-ir'));});
+    });
+  }
+  // Aprovar = gravar com a MESMA rotina do botão "Gerar" daquela tela.
+  async function aplicarProposta(p){
+    var id=p.client_id,d=p.payload||{};
+    if(!isDbClient(id))throw new Error("cliente não encontrado");
+    var g=await loadDbClientState(id);
+    if(state.client!==id){var v=state.view;setClient(id);state.view=v;}
+    GENERATED=g;
+    if(p.tipo==="estrategia")await salvarEstrategia(id,d);
+    else if(p.tipo==="pesquisa")await salvarPesquisa(id,d);
+    else if(p.tipo==="editorial")await salvarEditorial(id,d);
+    else if(p.tipo==="ideias")await salvarIdeias(id,d,d.append!==false);
+    renderKpis();
+  }
+
+  // ---------------------------------------------------------------- Agentes ao vivo
+  var AG_ORDEM=["radar","iris","atlas","bussola","musa","cronos","estudio","pulso"];
+  var AG_QUANDO={radar:"toda segunda, 7h",iris:"briefing novo",atlas:"depois do Pulso no dia de planejar, ou da Íris no cliente novo",bussola:"estratégia aprovada",musa:"linha editorial aprovada",cronos:"ideias aprovadas (sem IA)",estudio:"todo dia, 6h",pulso:"resultado novo e no dia de planejar"};
+  var OP_PADRAO={diaPlanejamento:20,clienteAprova:"calendario_e_pecas",prazoCliente:2,semRespostaPublica:false,pautaQuente:"sugestao",agentes:{}};
+  function opDo(id){var c=DB_CLIENTS[id]||{};return Object.assign({},OP_PADRAO,c.operacao||{},{agentes:Object.assign({},(c.operacao||{}).agentes||{})});}
+  async function salvarOp(id,patch){var c=DB_CLIENTS[id];if(!c)return;var op=Object.assign(opDo(id),patch);await saveClientRecord(id,Object.assign({},c,{operacao:op}));}
+  function quandoTs(ts){return ts?new Date(ts).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";}
+  var ST_RUN={ok:["act","ok"],erro:["","erro"],sem_saida:["","sem resultado"],pulado:["","pulado"],rodando:["prog","rodando"]};
+  async function renderAgentesServidor(){
+    var el=I("#agentGrid");if(!el||!SB)return false;
+    var id=state.client,temCli=isDbClient(id),op=temCli?opDo(id):OP_PADRAO;
+    var est={};try{est=await chamarServidor("estado");}catch(e){est={erro:e.message};}
+    var runs=((await SB.c.from("agent_runs").select("id,agente,client_id,gatilho,status,custo_usd,erro,started_at,passos").order("started_at",{ascending:false}).limit(40)).data)||[];
+    var ultima={};runs.forEach(function(r){if(r.client_id===id&&!ultima[r.agente])ultima[r.agente]=r;});
+    var gasto=Number(est.gasto||0),teto=Number(est.orcamento||0);
+    var h='<div class="card pad ag-estado"><div><div class="eyebrow">Servidor dos agentes</div><div class="ag-num">'+(est.chave?'<span class="badge act">● ligado</span>':'<span class="badge">○ sem chave da IA</span>')+' <span class="pp-m">modelo '+esc(est.modelo||"")+'</span></div></div>'+
+      '<div><div class="eyebrow">Gasto do mês</div><div class="ag-num tnum">US$ '+gasto.toFixed(2)+' <span class="pp-m">de '+teto.toFixed(0)+'</span></div><div class="ag-barra"><i style="width:'+(teto?Math.min(100,gasto/teto*100):0)+'%"></i></div></div></div>';
+    if(temCli){
+      h+='<div class="card pad"><div class="eyebrow" style="margin-bottom:12px">Operação de '+esc(clientName(id))+'</div><div class="grid cols-3 op-grid">'+
+        '<div class="fld"><label for="opDia">Dia de planejar o próximo mês</label><select id="opDia">'+Array.from({length:28},function(_,i){return '<option'+(op.diaPlanejamento===i+1?' selected':'')+'>'+(i+1)+'</option>'}).join('')+'</select></div>'+
+        '<div class="fld"><label for="opAprova">O cliente aprova</label><select id="opAprova">'+[["calendario_e_pecas","o calendário e as peças"],["calendario","só o calendário"],["nada","nada (vocês aprovam)"]].map(function(o){return '<option value="'+o[0]+'"'+(op.clienteAprova===o[0]?' selected':'')+'>'+o[1]+'</option>'}).join('')+'</select></div>'+
+        '<div class="fld"><label for="opPrazo">Prazo do cliente (dias)</label><input id="opPrazo" type="number" min="1" max="15" value="'+esc(op.prazoCliente)+'"></div>'+
+        '<div class="fld"><label for="opSem">Se passar do prazo</label><select id="opSem"><option value="nao"'+(op.semRespostaPublica?'':' selected')+'>espera a resposta</option><option value="sim"'+(op.semRespostaPublica?' selected':'')+'>publica como está</option></select></div>'+
+        '<div class="fld"><label for="opPauta">Pauta quente do Radar</label><select id="opPauta"><option value="sugestao"'+(op.pautaQuente==="sugestao"?' selected':'')+'>só sugestão para o próximo mês</option><option value="troca"'+(op.pautaQuente==="troca"?' selected':'')+'>pode virar gancho de peça da semana</option></select></div>'+
+        '<div class="fld"><label>&nbsp;</label><span id="opMsg" class="pp-m"></span></div></div></div>';
+    }
+    h+='<div class="ag-lista">'+AG_ORDEM.map(function(k){var inf=AG_INFO[k],modo=(op.agentes||{})[k]==="manual"?"manual":"auto",u=ultima[k],st=u?ST_RUN[u.status]||["",u.status]:null;
+      return '<div class="card pad ag-card"><div class="ag-top"><b>'+esc(inf[0])+'</b><span class="pp-m">'+esc(inf[1])+'</span>'+
+        (temCli?'<div class="seg" role="group" aria-label="Modo do '+esc(inf[0])+'"><button class="'+(modo==="auto"?"on":"")+'" data-modo="auto" data-ag="'+k+'">Automático</button><button class="'+(modo==="manual"?"on":"")+'" data-modo="manual" data-ag="'+k+'">Manual</button></div>':'')+'</div>'+
+        '<div class="pp-m">Roda sozinho: '+esc(AG_QUANDO[k])+'</div>'+
+        '<div class="ag-ult">'+(u?'<span class="badge '+st[0]+'">'+esc(st[1])+'</span> '+esc(quandoTs(u.started_at))+(u.erro?' · '+esc(u.erro):''):'<span class="pp-m">ainda não rodou para este cliente</span>')+'</div>'+
+        (temCli?'<button class="btn" data-rodar="'+k+'">Rodar agora</button>':'')+'<span class="ag-msg pp-m" data-agmsg="'+k+'"></span></div>';}).join('')+'</div>';
+    h+='<div class="eyebrow" style="margin:26px 0 10px">Execuções recentes (todos os clientes)</div><div class="card tbl-wrap"><table class="runs"><thead><tr><th>Quando</th><th>Agente</th><th>Cliente</th><th>Gatilho</th><th>Resultado</th><th class="num">Custo</th></tr></thead><tbody>'+
+      (runs.length?runs.map(function(r){var st=ST_RUN[r.status]||["",r.status];return '<tr><td>'+esc(quandoTs(r.started_at))+'</td><td>'+esc((AG_INFO[r.agente]||[r.agente])[0])+'</td><td>'+esc(r.client_id?clientName(r.client_id):"—")+'</td><td>'+esc(r.gatilho)+'</td><td><span class="badge '+st[0]+'">'+esc(st[1])+'</span>'+(r.erro?' <span class="pp-m">'+esc(r.erro)+'</span>':'')+'</td><td class="num tnum">'+(Number(r.custo_usd)?'US$ '+Number(r.custo_usd).toFixed(2):'')+'</td></tr>'}).join(''):'<tr><td colspan="6" class="pp-m">Nenhuma execução ainda.</td></tr>')+'</tbody></table></div>';
+    el.className="";el.innerHTML=h;
+    var om=function(t,bom){var m=I("#opMsg");if(m){m.textContent=t;m.style.color=bom?"var(--good)":"var(--warn)";}};
+    var salvaCampo=function(sel,fn){var x=I(sel);if(x)x.addEventListener('change',function(){salvarOp(id,fn(x.value)).then(function(){om("✓ Salvo",true)},function(){om("Não consegui salvar")});});};
+    salvaCampo("#opDia",function(v){return {diaPlanejamento:+v}});
+    salvaCampo("#opAprova",function(v){return {clienteAprova:v}});
+    salvaCampo("#opPrazo",function(v){return {prazoCliente:Math.max(1,+v||2)}});
+    salvaCampo("#opSem",function(v){return {semRespostaPublica:v==="sim"}});
+    salvaCampo("#opPauta",function(v){return {pautaQuente:v}});
+    Array.prototype.forEach.call(el.querySelectorAll('[data-modo]'),function(b){b.addEventListener('click',function(){
+      var ags=Object.assign({},opDo(id).agentes);ags[b.getAttribute('data-ag')]=b.getAttribute('data-modo');
+      salvarOp(id,{agentes:ags}).then(renderAgentesServidor);});});
+    Array.prototype.forEach.call(el.querySelectorAll('[data-rodar]'),function(b){b.addEventListener('click',async function(){
+      var k=b.getAttribute('data-rodar'),m=el.querySelector('[data-agmsg="'+k+'"]');b.disabled=true;setBusy(m,"Pedindo…");
+      try{await chamarServidor("rodar",{cliente:id,agente:k});clearBusy(m);m.textContent="Rodando no servidor. O resultado chega em Propostas.";}
+      catch(e){clearBusy(m);m.textContent=e.code==="sem_chave"?"Falta a chave da IA no servidor.":(e.message||"Não consegui pedir.");b.disabled=false;}});});
+    return true;
+  }
+
+  // ---------------------------------------------------------------- Equipe
+  function equipeHtml(){
+    if(!SB)return '';
+    return '<div class="card pad" style="margin-bottom:14px"><div class="eyebrow" style="margin-bottom:8px">Equipe</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Você entrou como <b>'+esc(SB.user.email||"")+'</b>'+(SB.papel==="dono"?' (dono)':'')+'. Convide quem trabalha com você: a pessoa cria a conta com o mesmo e-mail e entra direto na equipe.</div>'+
+      (SB.papel==="dono"?'<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="eqEmail" type="email" placeholder="email@exemplo.com" class="inp"><button class="btn pri" id="eqConvidar">Convidar</button></div>':'')+
+      '<div id="eqMsg" class="pp-m" style="margin-top:8px"></div><div style="margin-top:12px"><button class="btn" id="eqSair">Sair</button></div></div>';
+  }
+  function wireEquipe(){
+    var b=I("#eqConvidar");if(b)b.addEventListener('click',async function(){var e=(I("#eqEmail").value||"").trim().toLowerCase(),m=I("#eqMsg");
+      if(!/^\S+@\S+\.\S+$/.test(e)){m.textContent="Digite um e-mail válido.";return;}
+      var r=await SB.c.from("convites").upsert({workspace_id:SB.ws,email:e});m.textContent=r.error?"Não consegui convidar: "+r.error.message:"✓ Convite registrado. Mande o link do painel para "+e+" criar a conta.";});
+    var s=I("#eqSair");if(s)s.addEventListener('click',function(){SB.c.auth.signOut();});
+  }
+  // ---------- início do painel ----------
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});
