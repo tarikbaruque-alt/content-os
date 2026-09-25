@@ -375,7 +375,7 @@
     });
     var im=I("#bkImport");if(im)im.addEventListener('change',function(){
       var f=im.files&&im.files[0];if(!f)return;msg("Importando…");
-      f.text().then(function(t){return importBackup(JSON.parse(t));}).then(function(n){msg(""+n+" cliente(s) importado(s)","var(--good)");renderClients();},function(){msg("Arquivo inválido, use um backup exportado por este painel.","var(--warn)");});
+      f.text().then(function(t){var d=JSON.parse(t);return SB?comContexto({restaurar:true,motivo:"restauração de backup"},function(){return importBackup(d)}):importBackup(d);}).then(function(n){msg(""+n+" cliente(s) importado(s)","var(--good)");renderClients();},function(){msg("Arquivo inválido, use um backup exportado por este painel.","var(--warn)");});
     });
   }
 

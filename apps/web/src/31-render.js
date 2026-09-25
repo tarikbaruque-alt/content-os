@@ -557,7 +557,8 @@
       });
     var col=dbItemsCol("cos_ideas",id);
     if(!append)await clearCollection(col);
-    await Promise.all(novas.map(function(idea){return col.doc(idea.id).set(idea);}));
+    if(SB&&novas.length)await gravarTravado(novas.map(function(idea){return {path:"cos_ideas/"+id+"/items/"+idea.id,data:idea}}));
+    else await Promise.all(novas.map(function(idea){return col.doc(idea.id).set(idea);}));
     var ideas=atuais.concat(novas);
     if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].ideas=ideas;
     if(state.client===id)GENERATED.ideas=ideas;

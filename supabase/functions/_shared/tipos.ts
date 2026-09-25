@@ -29,6 +29,10 @@ export type Execucao = {
   erro?: string | null;
 };
 
+export type Aprovacao = {
+  workspace_id: string; client_id: string; objeto: string; decisao: "aprovado" | "rejeitado" | "reaberto" | "restaurado";
+  ref?: string | null; motivo?: string | null; versao_anterior?: unknown; versao?: unknown; por?: string | null;
+};
 export type Tarefa = { id: string; workspace_id: string; client_id: string | null; agente: string; gatilho: string; tentativas: number };
 
 export type TrechoKB = { fonte: string; titulo: string; secao: string | null; texto: string };
@@ -55,6 +59,10 @@ export interface Backend {
   /** Pega até `n` tarefas vencidas e marca como "rodando" (atômico no Postgres). */
   pegarTarefas(n: number): Promise<Tarefa[]>;
   terminarTarefa(id: string, ok: boolean): Promise<void>;
+  /** Propostas dos agentes ainda sem decisão para este cliente. */
+  propostasPendentes(ws: string, cliente: string): Promise<number>;
+  /** Registro de aprovação (tabela aprovacoes, só inclusão). */
+  registrarAprovacao(a: Aprovacao): Promise<void>;
 }
 
 // ---- Mensagens da API da Anthropic: só o que o executor usa. O cliente real é

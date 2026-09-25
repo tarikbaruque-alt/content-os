@@ -80,8 +80,9 @@ describe("migrations do Supabase", () => {
       await db.query("update public.docs set data = data || '{\"briefing\":\"Atendo mulheres de 30 a 45\"}' where path = 'cos_clients/cli-1'");
       await db.query("update public.docs set data = data || '{\"briefing\":\"Atendo mulheres de 30 a 50\"}' where path = 'cos_clients/cli-1'");
       await db.query("update public.docs set data = data || '{\"metrics\":{\"alcance\":100}}' where path = 'cos_calendar/cli-1/items/cal-1'");
-      await db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_strategy/cli-1', '{\"bigMessage\":\"x\"}')", [wsA]);
     });
+    // Estratégia aprovada entra pelo servidor (a trava do plano barra o navegador).
+    await db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_strategy/cli-1', '{\"bigMessage\":\"x\"}')", [wsA]);
     const t = await db.query<any>("select agente, client_id, gatilho from public.agent_tasks where status = 'pendente' order by agente");
     expect(t.rows).toEqual([
       { agente: "bussola", client_id: "cli-1", gatilho: "estratégia nova" },
@@ -134,5 +135,35 @@ describe("migrations do Supabase", () => {
     expect((await como(B, () => db.query("select * from public.briefings"))).rows).toHaveLength(0);
     const upd = await como(A, () => db.query("update public.briefings set status = 'importado', client_id = 'ana' where workspace_id = $1", [wsA]));
     expect(upd.affectedRows).toBe(1);
+  });
+  it("trava do plano: o navegador não grava estratégia, linha nem ideias; o servidor grava", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    for (const path of ["cos_strategy/cli-1", "cos_editorial/cli-1", "cos_ideas/cli-1/items/idea-1"])
+      await expect(como(A, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, $2, '{}')", [wsA, path]))).rejects.toThrow(/row-level security/);
+    // O servidor (chave de serviço) grava; o navegador lê, não edita, mas pode apagar (apagar cliente).
+    await db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_strategy/cli-9', '{\"bigMessage\":\"v1\"}')", [wsA]);
+    expect((await como(A, () => db.query("select path from public.docs where path = 'cos_strategy/cli-9'"))).rows).toHaveLength(1);
+    const upd = await como(A, () => db.query("update public.docs set data = '{}' where path = 'cos_strategy/cli-9'"));
+    expect(upd.affectedRows).toBe(0);
+    // O resto continua livre para a equipe (ficha, calendário).
+    await como(A, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_calendar/cli-1/items/cal-9', '{}')", [wsA]));
+    // Ninguém do navegador escreve no registro de aprovações.
+    await expect(como(A, () => db.query("insert into public.aprovacoes (workspace_id, client_id, objeto, decisao) values ($1, 'cli-1', 'estrategia', 'aprovado')", [wsA]))).rejects.toThrow(/permission denied/);
+  });
+
+  it("aprovar o DNA registra quem aprovou e, ao chegar em 5, põe o Átlas na fila", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    const dna = (n: number, total = 6) => JSON.stringify({ entries: Array.from({ length: total }, (_, i) => ({ field: `f${i}`, value: "v", status: i < n ? "approved" : "pending" })) });
+    await como(A, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_dna/cli-2', $2)", [wsA, dna(0)]));
+    await como(A, () => db.query("update public.docs set data = $2 where workspace_id = $1 and path = 'cos_dna/cli-2'", [wsA, dna(3)]));
+    expect((await um("select count(*)::int as n from public.agent_tasks where client_id = 'cli-2' and agente = 'atlas'"))!.n).toBe(0);
+    await como(A, () => db.query("update public.docs set data = $2 where workspace_id = $1 and path = 'cos_dna/cli-2'", [wsA, dna(5)]));
+    expect((await um("select count(*)::int as n from public.agent_tasks where client_id = 'cli-2' and agente = 'atlas' and gatilho = 'DNA aprovado'"))!.n).toBe(1);
+    const reg = await db.query<any>("select por, versao->>'aprovados' as n from public.aprovacoes where client_id = 'cli-2' and objeto = 'dna' order by em, (versao->>'aprovados')::int");
+    expect(reg.rows.map((r) => [r.por, r.n])).toEqual([[A, "3"], [A, "5"]]);
+    // Com estratégia já existente, aprovar mais DNA não chama o Átlas de novo.
+    await db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_strategy/cli-3', '{}')", [wsA]);
+    await como(A, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_dna/cli-3', $2)", [wsA, dna(6)]));
+    expect((await um("select count(*)::int as n from public.agent_tasks where client_id = 'cli-3' and agente = 'atlas'"))!.n).toBe(0);
   });
 });

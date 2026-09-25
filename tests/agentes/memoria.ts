@@ -1,4 +1,4 @@
-import type { Backend, ClienteLlm, Execucao, Proposta, RespostaLlm, Tarefa } from "../../supabase/functions/_shared/tipos.ts";
+import type { Aprovacao, Backend, ClienteLlm, Execucao, Proposta, RespostaLlm, Tarefa } from "../../supabase/functions/_shared/tipos.ts";
 
 /** Backend em memória com o mesmo comportamento do Supabase (fila sem duplicar, gasto do mês…). */
 export function backendMemoria(agora: () => Date) {
@@ -8,6 +8,7 @@ export function backendMemoria(agora: () => Date) {
   const propostas: (Proposta & { id: string })[] = [];
   const tarefas: (Tarefa & { status: string; created: Date })[] = [];
   const config: Record<string, Record<string, { ativo: boolean; agenda: string | null }>> = {};
+  const aprovacoes: Aprovacao[] = [];
   const kb: { ws: string | null; fonte: string; titulo: string; secao: string | null; texto: string }[] = [];
   let seq = 0;
   const k = (ws: string, p: string) => `${ws}::${p}`;
@@ -40,8 +41,10 @@ export function backendMemoria(agora: () => Date) {
     },
     async pegarTarefas(n) { const out = tarefas.filter((t) => t.status === "pendente").slice(0, n); out.forEach((t) => (t.status = "rodando")); return out; },
     async terminarTarefa(id, ok) { tarefas.find((t) => t.id === id)!.status = ok ? "feito" : "erro"; },
+    async propostasPendentes(ws, cli) { return propostas.filter((p) => p.workspace_id === ws && p.client_id === cli && (p as any).status !== "aplicada" && (p as any).status !== "rejeitada").length; },
+    async registrarAprovacao(a) { aprovacoes.push(structuredClone(a)); },
   };
-  return { b, docs, runs, propostas, tarefas, config, kb };
+  return { b, docs, runs, propostas, tarefas, config, kb, aprovacoes };
 }
 
 type Chamada = Record<string, any>;

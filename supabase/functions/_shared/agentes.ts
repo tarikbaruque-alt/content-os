@@ -3,6 +3,7 @@ import type { Ferramenta } from "./executor.ts";
 import { REGRAS, VOZ, ferramentasDeLeitura, postsMedidos, textoDoCliente } from "./contexto.ts";
 import type { Operacao } from "./operacao.ts";
 import { diasDePostagem, periodoVazio, slotsDoPeriodo } from "./cronos.ts";
+import { DNA_MINIMO } from "./processo.ts";
 
 /**
  * Os agentes do Content OS. Cada um tem:
@@ -148,7 +149,8 @@ export const AGENTES: Agente[] = [
       return { propostas: n ? [{ tipo: "aviso", titulo: `${n} sugestão(ões) no Content DNA`, resumo: "Estão pendentes na tela Content DNA para você aprovar ou rejeitar.", payload: { ir: "dna", n } }] : [] };
     },
     // Cliente novo (ainda sem estratégia): a Íris abre a cadeia do planejamento.
-    depois: async (c) => ((await temDoc(c, `cos_strategy/${c.cli}`)) ? [] : [{ agente: "atlas", gatilho: "cliente novo" }]),
+    // Não chama o Átlas: o DNA sugerido espera a equipe. Quem põe o Átlas na fila é o
+    // banco, quando o DNA chega a DNA_MINIMO registros aprovados (migration das travas).
   },
   {
     id: "atlas",
@@ -165,7 +167,10 @@ export const AGENTES: Agente[] = [
       "- Caminhos possíveis: Autoridade, Posicionamento, Rapport / Relacionamento, Educação, Diferenciação, Construção de Categoria, Comunidade, Geração de Demanda, Quebra de Objeções, Prova, Desejo, Conversão / Vendas, Lançamento, Crescimento de Audiência, Marca Pessoal.",
       "- 'mix' é um subconjunto de 2 a 4 caminhos cujos pct somam 100.",
     ].join("\n"),
-    bloqueio: async (c) => ((await dnaDe(c)).length >= 3 ? null : "Content DNA com menos de 3 registros"),
+    bloqueio: async (c) => {
+      const aprov = (await dnaDe(c)).filter((e) => e?.status === "approved").length;
+      return aprov >= DNA_MINIMO ? null : `Content DNA com ${aprov} de ${DNA_MINIMO} registros aprovados`;
+    },
     pedido: async (c) => `Cliente: ${await nomeCli(c)}. Motivo: ${c.gatilho}. ${(await temDoc(c, `cos_strategy/${c.cli}`)) ? "Revise a estratégia atual para o próximo mês." : "É a primeira estratégia deste cliente."} Hoje é ${hoje(c.agora)}.`,
     saida: obj({
       mudancas: { type: "string", description: "O que muda em relação à estratégia atual e por quê (ou por que manter)." },
@@ -224,6 +229,7 @@ export const AGENTES: Agente[] = [
     ].join("\n"),
     bloqueio: async (c) => {
       if (!(await temDoc(c, `cos_strategy/${c.cli}`))) return "sem estratégia";
+      if (!(await temDoc(c, `cos_editorial/${c.cli}`))) return "sem linha editorial aprovada";
       const ult = await ultimaIdeia(c), ed = await c.b.quando(c.ws, `cos_editorial/${c.cli}`);
       if (c.gatilho !== "rodado no painel" && ult && ed && ult >= ed) return "as ideias já foram feitas depois desta linha editorial";
       const v = await vagasDoPeriodo(c);

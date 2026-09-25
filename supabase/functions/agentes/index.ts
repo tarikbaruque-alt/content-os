@@ -7,6 +7,8 @@
 //   {op:"acervo", ws, nome, texto|pdf}   Acervo: material novo vira Knowledge Base
 //   {op:"estado", ws}                    chave configurada? gasto do mês? teto?
 //   {op:"conversar", ws, mensagem, historico, cliente}  chat do Maestro: responde e aciona agentes
+//   {op:"gravar", ws, cliente, docs:[{path,data}], proposta?, restaurar?}  plano (estratégia, linha, ideias) com trava e registro
+//   {op:"etapas", ws, cliente?}          etapa de cada cliente (processo de 6 etapas)
 // Briefing por link (sem login; o token do link é a credencial):
 //   {op:"briefing_ver", token}           nome do cliente e da agência para o formulário
 //   {op:"briefing_enviar", token, respostas}  grava a resposta para a equipe importar
@@ -22,6 +24,7 @@ import { custoUsd } from "../_shared/executor.ts";
 import { trechosDoMarkdown } from "../_shared/kb.ts";
 import { conversar } from "../_shared/conversa.ts";
 import { limparRespostas, tokenValido, MAX_POR_DIA } from "../_shared/briefing.ts";
+import { etapasDoCliente, objetoDoPath, pathDoCliente, travaDaGravacao, type Objeto } from "../_shared/processo.ts";
 import type { ClienteLlm } from "../_shared/tipos.ts";
 
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void };
@@ -136,6 +139,48 @@ async function conversa(ws: string, body: any): Promise<Response> {
   }
 }
 
+const OBJETO_PROPOSTA: Record<string, string> = { estrategia: "estrategia", editorial: "editorial", ideias: "ideias" };
+
+/**
+ * Plano do cliente (estratégia, linha editorial, ideias): o navegador não grava
+ * direto (RLS). Passa por aqui, que confere a trava da etapa, grava, registra
+ * quem aprovou com a versão anterior e fecha a proposta, se houver.
+ * restaurar=true (backup, juntar clientes) grava sem a trava, mas registra.
+ */
+async function gravarPlano(ws: string, uid: string, body: any): Promise<Response> {
+  const cli = String(body.cliente ?? "");
+  const docs = Array.isArray(body.docs) ? body.docs : [];
+  if (!cli || !docs.length || docs.length > 60) return erro("gravar", "Nada para gravar.");
+  if (!(await b.getDoc(ws, `cos_clients/${cli}`))) return erro("cliente", "Cliente não encontrado.", 404);
+  const objetos = new Set<Objeto>();
+  for (const d of docs) {
+    if (typeof d?.path !== "string" || !pathDoCliente(d.path, cli) || !d.data || typeof d.data !== "object" || Array.isArray(d.data))
+      return erro("gravar", `Caminho fora do plano deste cliente: ${String(d?.path).slice(0, 80)}`);
+    objetos.add(objetoDoPath(d.path)!);
+  }
+  const restaurar = !!body.restaurar;
+  if (!restaurar) {
+    const t = await travaDaGravacao(b, ws, cli, objetos);
+    if (t) return erro("trava", t, 409);
+  }
+  const anteriores: Record<string, unknown> = {};
+  for (const o of objetos) {
+    if (o === "ideias") anteriores.ideias = (await b.listDocs(ws, `cos_ideas/${cli}/items`)).length;
+    else anteriores[o] = await b.getDoc(ws, o === "estrategia" ? `cos_strategy/${cli}` : `cos_editorial/${cli}`);
+  }
+  for (const d of docs) await b.setDoc(ws, d.path, d.data);
+  const proposta = typeof body.proposta === "string" && /^[0-9a-f-]{36}$/.test(body.proposta) ? body.proposta : null;
+  for (const o of objetos) {
+    const versao = o === "ideias" ? { ideias: docs.filter((d: any) => objetoDoPath(d.path) === "ideias").length } : docs.find((d: any) => objetoDoPath(d.path) === o)?.data;
+    await b.registrarAprovacao({ workspace_id: ws, client_id: cli, objeto: o, decisao: restaurar ? "restaurado" : "aprovado",
+      ref: proposta ?? "painel", motivo: typeof body.motivo === "string" ? body.motivo.slice(0, 200) : null,
+      versao_anterior: o === "ideias" ? { ideias: anteriores.ideias } : anteriores[o] ?? null, versao, por: uid });
+  }
+  if (proposta) await b.rest(`/proposals?id=eq.${proposta}&workspace_id=eq.${encodeURIComponent(ws)}&status=eq.pendente`, {
+    method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ status: "aplicada", decided_at: new Date().toISOString(), decided_by: uid }) });
+  return json({ ok: true, gravados: docs.length });
+}
+
 /** Formulário de briefing aberto pelo cliente, sem login. */
 async function briefingPublico(body: any): Promise<Response> {
   if (!tokenValido(body.token)) return erro("link", "Link de briefing inválido.", 404);
@@ -189,12 +234,28 @@ Deno.serve(async (req) => {
       const r = await b.rest(`/proposals?id=eq.${encodeURIComponent(body.id)}&workspace_id=eq.${encodeURIComponent(ws)}&status=eq.pendente&select=id`, {
         method: "PATCH", headers: { Prefer: "return=representation" }, body: JSON.stringify({ status: st, decided_at: new Date().toISOString(), decided_by: uid }),
       });
-      return r?.length ? json({ ok: true, status: st }) : erro("proposta", "Proposta não encontrada ou já decidida.", 404);
+      if (r?.length) {
+        if (!body.aprovar) {
+          const p = (await b.rest(`/proposals?select=client_id,tipo&id=eq.${encodeURIComponent(body.id)}`))?.[0];
+          if (p?.client_id) await b.registrarAprovacao({ workspace_id: ws, client_id: p.client_id, objeto: OBJETO_PROPOSTA[p.tipo] ?? "estrategia", decisao: "rejeitado", ref: String(body.id), por: uid });
+        }
+        return json({ ok: true, status: st });
+      }
+      const ja = (await b.rest(`/proposals?select=status&id=eq.${encodeURIComponent(body.id)}&workspace_id=eq.${encodeURIComponent(ws)}`))?.[0];
+      return ja?.status === st ? json({ ok: true, status: st }) : erro("proposta", "Proposta não encontrada ou já decidida.", 404);
     }
     case "acervo":
       return acervo(ws, String(body.nome ?? "material"), body.texto, body.pdf);
     case "conversar":
       return conversa(ws, body);
+    case "gravar":
+      return gravarPlano(ws, uid, body);
+    case "etapas": {
+      const clis = body.cliente ? [String(body.cliente)] : (await b.listDocs(ws, "cos_clients")).map((d) => d.path.split("/")[1]!);
+      const out: Record<string, unknown> = {};
+      for (const c of clis) out[c] = await etapasDoCliente(b, ws, c, new Date());
+      return json({ etapas: out });
+    }
     default:
       return erro("op", "Operação desconhecida.");
   }

@@ -74,6 +74,12 @@ export function backendSupabase(url: string, chaveServico: string, f: typeof fet
     async terminarTarefa(id, ok) {
       await rest(`/agent_tasks?id=eq.${q(id)}`, { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ status: ok ? "feito" : "erro", finished_at: new Date().toISOString() }) });
     },
+    async propostasPendentes(ws, cliente) {
+      return ((await rest(`/proposals?select=id&workspace_id=eq.${q(ws)}&client_id=eq.${q(cliente)}&status=eq.pendente`)) ?? []).length;
+    },
+    async registrarAprovacao(a) {
+      await rest(`/aprovacoes`, { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(a) });
+    },
     async inserirKB(ws, trechos) {
       if (!trechos.length) return;
       await rest(`/knowledge_chunks`, { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(trechos.map((t) => ({ ...t, workspace_id: ws }))) });

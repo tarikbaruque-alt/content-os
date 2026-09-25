@@ -74,6 +74,16 @@
     return SB;
   }
 
+  // Plano do cliente (estratégia, linha editorial, ideias): o banco não aceita
+  // gravação direta do navegador. Vai pela op "gravar", que confere a trava da
+  // etapa e registra quem aprovou. SB_CTX diz o motivo (proposta, restauração).
+  var SB_CTX={};
+  function eTravado(path){return /^cos_(strategy|editorial|ideas)\//.test(path);}
+  async function gravarTravado(docs){
+    var cli=docs[0].path.split("/")[1];
+    await chamarServidor("gravar",{cliente:cli,docs:docs.map(function(d){return {path:d.path,data:JSON.parse(JSON.stringify(d.data))}}),proposta:SB_CTX.proposta||null,restaurar:!!SB_CTX.restaurar,motivo:SB_CTX.motivo||null});
+  }
+  async function comContexto(ctx,fn){var antes=SB_CTX;SB_CTX=ctx;try{return await fn();}finally{SB_CTX=antes;}}
   // Mesma interface do db do Artifact (doc/collection, get/set/update/delete), sobre a tabela docs.
   function sbDb(){
     var c=SB.c,ws=SB.ws;
@@ -81,7 +91,7 @@
     function falha(r){if(r.error)throw r.error;return r;}
     function doc(path){return {id:path.split('/').pop(),
       get:async function(){var r=falha(await c.from("docs").select("data").eq("workspace_id",ws).eq("path",path).maybeSingle());return snap(path,r.data);},
-      set:async function(v){falha(await c.from("docs").upsert({workspace_id:ws,path:path,data:JSON.parse(JSON.stringify(v))},{onConflict:"workspace_id,path"}));},
+      set:async function(v){if(eTravado(path))return gravarTravado([{path:path,data:v}]);falha(await c.from("docs").upsert({workspace_id:ws,path:path,data:JSON.parse(JSON.stringify(v))},{onConflict:"workspace_id,path"}));},
       update:async function(v){var atual=(await doc(path).get()).data()||{};await doc(path).set(Object.assign({},atual,JSON.parse(JSON.stringify(v))));},
       delete:async function(){falha(await c.from("docs").delete().eq("workspace_id",ws).eq("path",path));},
       collection:function(n){return col(path+"/"+n)}};}
@@ -180,10 +190,10 @@
     var g=await loadDbClientState(id);
     if(state.client!==id){var v=state.view;setClient(id);state.view=v;}
     GENERATED=g;
-    if(p.tipo==="estrategia")await salvarEstrategia(id,d);
+    if(p.tipo==="estrategia")await comContexto({proposta:p.id},function(){return salvarEstrategia(id,d)});
     else if(p.tipo==="pesquisa")await salvarPesquisa(id,d);
-    else if(p.tipo==="editorial")await salvarEditorial(id,d);
-    else if(p.tipo==="ideias")await salvarIdeias(id,d,d.append!==false);
+    else if(p.tipo==="editorial")await comContexto({proposta:p.id},function(){return salvarEditorial(id,d)});
+    else if(p.tipo==="ideias")await comContexto({proposta:p.id},function(){return salvarIdeias(id,d,d.append!==false)});
     renderKpis();
   }
 

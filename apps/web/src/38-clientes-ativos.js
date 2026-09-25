@@ -147,7 +147,7 @@
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
     var mg=I("#ecMerge");if(mg)mg.addEventListener('click',async function(){var orig=I("#ecMergeSel").value,on=DB_CLIENTS[orig]&&DB_CLIENTS[orig].name;
       if(!orig||!confirm("Juntar “"+on+"” em “"+c.name+"”? O cadastro “"+on+"” deixa de existir depois de juntar."))return;
-      mg.disabled=true;mg.textContent="Juntando…";try{await juntarClientes(id,orig);closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="🔀 Juntar neste cadastro";toast("Não consegui juntar agora.");}});
+      mg.disabled=true;mg.textContent="Juntando…";try{await (SB?comContexto({restaurar:true,motivo:"juntar cadastros"},function(){return juntarClientes(id,orig)}):juntarClientes(id,orig));closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="🔀 Juntar neste cadastro";toast("Não consegui juntar agora.");}});
     I("#ecApagar").addEventListener('click',async function(){var t=prompt("Isso apaga "+c.name+" e todo o histórico, sem volta.\nPara confirmar, digite o nome do cliente:");
       if(t===null)return;if(normalizeTextPanel(t).trim()!==normalizeTextPanel(c.name).trim()){toast("Nome não confere, nada foi apagado.");return;}
       try{await apagarCliente(id);closeDrawer();toast(c.name+" foi apagado.");renderAtivos();renderCobrancaBanner();}catch(e){toast("Não consegui apagar agora.");}});

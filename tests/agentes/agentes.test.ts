@@ -143,7 +143,7 @@ describe("agentes", () => {
     const m = backendMemoria(() => AGORA);
     await clienteBase(m.b);
     const llm = { create: async () => { throw new Error("529 overloaded"); } };
-    const r = await executarAgente(deps(m, llm), WS, CLI, "atlas", "agenda");
+    const r = await executarAgente(deps(m, llm), WS, CLI, "iris", "agenda");
     expect(r.status).toBe("erro");
     expect(m.runs[0]).toMatchObject({ status: "erro", erro: "529 overloaded" });
   });
