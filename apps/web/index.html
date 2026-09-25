@@ -2186,7 +2186,7 @@
   function formCfg(){try{return JSON.parse(localStorage.getItem("cos_form_cfg")||"{}")||{}}catch(e){return {}}}
   function saveFormCfg(o){try{localStorage.setItem("cos_form_cfg",JSON.stringify(o))}catch(e){}}
   function buildBriefingFormHtml(cfg){
-    var de=cfg.nome?String(cfg.nome):"",wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
+    var para=cfg.cliente?String(cfg.cliente).trim():"",de=cfg.nome?String(cfg.nome):"",wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
     var data=JSON.stringify({mark:BRIEF_MARK,de:de,wa:wa,fields:BRIEF_FIELDS}).replace(/</g,"\\u003c");
     var css='*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f4fb;color:#1b1a22}main{max-width:640px;margin:0 auto;padding:22px 16px 60px}h1{font-size:22px;margin:0 0 6px}.sub{color:#5f5d6e;font-size:14px;margin:0 0 18px}.card{background:#fff;border:1px solid #e6e4ef;border-radius:14px;padding:16px;margin-bottom:14px}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5B45E6;margin:22px 0 10px}label.q{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px}.req{color:#c0392b}input[type=text],textarea{width:100%;border:1px solid #d9d6e6;border-radius:10px;padding:11px 12px;font:inherit;background:#fbfbfe}textarea{min-height:84px;resize:vertical}.opts{display:flex;flex-wrap:wrap;gap:8px}.opts label{display:flex;align-items:center;gap:7px;border:1px solid #d9d6e6;border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer;background:#fbfbfe}.opts input{accent-color:#5B45E6}.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font:600 16px system-ui,sans-serif;cursor:pointer;margin-top:10px}.pri{background:#5B45E6;color:#fff}.wa{background:#1fa855;color:#fff}.sec{background:#eeebff;color:#4634b6}.msg{font-size:13.5px;color:#5f5d6e;text-align:center;margin-top:10px;min-height:20px}.err{color:#c0392b}#out{display:none}';
     var js='(function(){var D='+data+';var F=D.fields,box=document.getElementById("form"),KEY="cos_briefing_rascunho";'+
@@ -2207,8 +2207,9 @@
       'document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt");t.select();var done=function(){document.getElementById("cpm").textContent="✓ Copiado — agora cole na conversa e envie."};if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(done,function(){document.execCommand("copy");done()});else{document.execCommand("copy");done()}});'+
       '})();';
     var S='scr'+'ipt';
-    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo'+(de?' — '+esc(de):'')+'</title><style>'+css+'</style></head><body><main>'+
-      '<h1>Briefing de conteúdo</h1><p class="sub">'+(de?'<b>'+esc(de)+'</b> vai usar'+'':'Vamos usar')+' estas respostas para montar a sua estratégia, a linha editorial e o calendário de conteúdo. Leva uns 10 minutos. Suas respostas ficam salvas neste aparelho enquanto você preenche. Campos com <span class="req">*</span> são obrigatórios.</p>'+
+    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo'+(para?' — '+esc(para):de?' — '+esc(de):'')+'</title><style>'+css+'</style></head><body><main>'+
+      '<h1>'+(para?'Olá, '+esc(para)+'! ':'')+'Briefing de conteúdo</h1><p class="sub">'+(de?'<b>'+esc(de)+'</b> vai usar'+'':'Vamos usar')+' estas respostas para montar a sua estratégia, a linha editorial e o calendário de conteúdo. Leva uns 10 minutos. Suas respostas ficam salvas neste aparelho enquanto você preenche. Campos com <span class="req">*</span> são obrigatórios.</p>'+
+      '<p class="sub" style="background:#eeebff;color:#4634b6;border-radius:12px;padding:12px 14px"><b>Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo.</b> Responda com calma — exemplos reais, palavras que seus clientes usam e histórias ajudam muito.</p>'+
       '<div id="form"></div><button class="btn pri" id="go">Concluir briefing</button><div class="msg" id="msg"></div>'+
       '<div id="out"><h2>Pronto! Agora é só enviar</h2><div class="card"><button class="btn wa" id="wa">Enviar pelo WhatsApp'+(de?' para '+esc(de):'')+'</button><button class="btn sec" id="cp">Copiar respostas</button><div class="msg" id="cpm">Se preferir, copie e cole num e-mail ou mensagem.</div><textarea id="txt" readonly style="min-height:160px;margin-top:10px"></textarea></div></div>'+
       '</main><'+S+'>'+js+'</'+S+'></body></html>';
@@ -2267,17 +2268,30 @@
       '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">1) Baixe o formulário e envie ao cliente (WhatsApp/e-mail) · 2) ele preenche no celular e toca em <b>Enviar pelo WhatsApp</b> · 3) você cola a mensagem em <b>Importar briefing</b> — o cliente é criado com ficha, frequência, tempo de gravação e o Content DNA sugerido pela Íris.</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="bfForm">📨 Formulário de briefing para enviar</button><button class="btn" id="bfImport">📥 Importar briefing recebido</button></div></div>';
   }
+  var MSG_PADRAO="Oi, [nome]! Tudo bem? Preparei um briefing rápido para montar a sua estratégia e o seu calendário de conteúdo. Abra o arquivo, responda com calma e, no final, toque em \"Enviar pelo WhatsApp\". Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo. Qualquer dúvida, me chama!";
+  function msgConvite(tpl,nome){var t=String(tpl||MSG_PADRAO);return nome?t.replace(/\[nome\]/gi,nome):t.replace(/,\s*\[nome\]/gi,"").replace(/\s*\[nome\]/gi,"");}
   function openBriefFormModal(){
     var c=formCfg();
     I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(460px,100%)"><div class="dh"><div class="d-title">Formulário de briefing</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
       '<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">Gera um arquivo que abre no celular do cliente. Ele responde (frequência desejada, tempo para gravar, público, dores, diferencial…) e as respostas chegam no seu WhatsApp, prontas para importar.</div>'+
       '<div class="fld"><label for="bfNome">Seu nome ou agência (aparece no formulário)</label><input id="bfNome" value="'+esc(c.nome||"")+'" placeholder="Ex.: Tarik Estratégia de Conteúdo"></div>'+
       '<div class="fld"><label for="bfWhats">Seu WhatsApp com DDD (para receber as respostas)</label><input id="bfWhats" value="'+esc(c.whats||"")+'" placeholder="Ex.: 11 99999-9999"></div>'+
-      '<button class="btn pri genbtn" id="bfBaixar">⬇ Baixar formulário</button><span id="bfMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span>'+
+      '<div class="fld"><label for="bfCliente">Nome do cliente (aparece no formulário e na mensagem)</label><input id="bfCliente" placeholder="Ex.: Ana"></div>'+
+      '<div class="fld"><label for="bfTpl">Mensagem para enviar junto — edite à vontade ([nome] vira o nome do cliente)</label><textarea class="ta" id="bfTpl" style="min-height:120px">'+esc(c.msg||MSG_PADRAO)+'</textarea></div>'+
+      '<div class="fld"><label>Como vai ficar</label><div class="copybox" id="bfPrevMsg"></div></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn pri genbtn" id="bfBaixar">⬇ Baixar formulário</button><button class="btn" id="bfCopyMsg">📋 Copiar mensagem</button><button class="btn ghost" id="bfResetMsg">Voltar ao texto padrão</button><span id="bfMsg" style="font-size:12px;color:var(--muted)"></span></div>'+
       '<div style="font-size:11.5px;color:var(--faint);margin-top:12px">Envie o arquivo <b>briefing-de-conteudo.html</b> ao cliente. No celular ele toca no arquivo e abre no navegador. Não precisa de login nem de conta.</div></div></div></aside>';
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
-    I("#bfBaixar").addEventListener('click',function(){var cfg={nome:I("#bfNome").value.trim(),whats:I("#bfWhats").value.trim()};saveFormCfg(cfg);
-      downloadText("briefing-de-conteudo.html",buildBriefingFormHtml(cfg),"text/html",function(ok){var m=I("#bfMsg");if(m){m.textContent=ok?"✓ Baixado — envie ao cliente":"Não consegui baixar agora";m.style.color=ok?"var(--good)":"var(--warn)";}});});
+    function prevMsg(){I("#bfPrevMsg").textContent=msgConvite(I("#bfTpl").value,I("#bfCliente").value.trim());}
+    prevMsg();I("#bfTpl").addEventListener('input',prevMsg);I("#bfCliente").addEventListener('input',prevMsg);
+    function lerCfg(){var cfg={nome:I("#bfNome").value.trim(),whats:I("#bfWhats").value.trim(),msg:I("#bfTpl").value};saveFormCfg(cfg);return cfg;}
+    I("#bfResetMsg").addEventListener('click',function(){I("#bfTpl").value=MSG_PADRAO;prevMsg();lerCfg();});
+    I("#bfCopyMsg").addEventListener('click',function(){lerCfg();var t=msgConvite(I("#bfTpl").value,I("#bfCliente").value.trim()),m=I("#bfMsg");
+      function ok(){if(m){m.textContent="✓ Mensagem copiada — cole no WhatsApp junto com o arquivo";m.style.color="var(--good)";}}
+      if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,function(){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);ok();});
+      else{var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);ok();}});
+    I("#bfBaixar").addEventListener('click',function(){var cfg=lerCfg(),cli=I("#bfCliente").value.trim();cfg=Object.assign({},cfg,{cliente:cli});
+      downloadText("briefing-de-conteudo"+(cli?"-"+slugify(cli):"")+".html",buildBriefingFormHtml(cfg),"text/html",function(ok){var m=I("#bfMsg");if(m){m.textContent=ok?"✓ Baixado — envie ao cliente":"Não consegui baixar agora";m.style.color=ok?"var(--good)":"var(--warn)";}});});
   }
   // ---------- Montar tudo automaticamente: DNA (Íris) → Estratégia → Linha Editorial → Ideias → Calendário ----------
   var AUTO_STEPS=[["dna","Content DNA (Íris lê o briefing)"],["strategy","Estratégia (Átlas)"],["editorial","Linha Editorial (Bússola)"],["ideas","Ideias (Musa)"],["calendar","Calendário editorial (Cronos)"]];
