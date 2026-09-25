@@ -116,4 +116,23 @@ describe("migrations do Supabase", () => {
     expect(f.rows[0].secao).toBe("F7 — Frequência de impacto");
     expect(f.rows[0].rank).toBeGreaterThan(0);
   });
+  it("briefing por link: a equipe cria o link e lê as respostas; resposta só entra pelo servidor", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    const link = await como(A, () => um("insert into public.briefing_links (workspace_id, cliente_nome, criado_por) values ($1, 'Ana', $2) returning token", [wsA, A]));
+    expect(link!.token).toMatch(/^[0-9a-f]{32}$/);
+    // Outra equipe não vê o link, não cria link no workspace alheio.
+    expect((await como(B, () => db.query("select * from public.briefing_links"))).rows).toHaveLength(0);
+    await expect(como(B, () => db.query("insert into public.briefing_links (workspace_id, criado_por) values ($1, $2)", [wsA, B]))).rejects.toThrow(/row-level security/);
+    // Ninguém do navegador insere resposta: nem a equipe, nem o visitante anônimo.
+    await expect(como(A, () => db.query("insert into public.briefings (workspace_id, token, respostas) values ($1, $2, '{}')", [wsA, link!.token]))).rejects.toThrow(/permission denied/);
+    await expect(como(null, () => db.query("insert into public.briefings (workspace_id, token, respostas) values ($1, $2, '{}')", [wsA, link!.token]))).rejects.toThrow(/permission denied/);
+    await expect(como(null, () => db.query("select * from public.briefing_links"))).rejects.toThrow(/permission denied/);
+    // O servidor grava; a equipe dona lê e marca como importado; a outra não enxerga.
+    await db.query("insert into public.briefings (workspace_id, token, respostas) values ($1, $2, '{\"name\":\"Ana Doces\"}')", [wsA, link!.token]);
+    const lidos = await como(A, () => db.query<any>("select respostas->>'name' as n from public.briefings"));
+    expect(lidos.rows.map((r) => r.n)).toEqual(["Ana Doces"]);
+    expect((await como(B, () => db.query("select * from public.briefings"))).rows).toHaveLength(0);
+    const upd = await como(A, () => db.query("update public.briefings set status = 'importado', client_id = 'ana' where workspace_id = $1", [wsA]));
+    expect(upd.affectedRows).toBe(1);
+  });
 });

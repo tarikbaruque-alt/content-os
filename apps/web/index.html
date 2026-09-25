@@ -769,6 +769,13 @@
     .ag-dia.sel{background:var(--brand-weak)}
   }
 
+  /* Briefing por link */
+  .dobra-l{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+  .dobra-l>summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}
+  .dobra-l>summary::-webkit-details-marker{display:none}
+  .dobra-l[open]>summary{margin-bottom:4px}
+  #ovBriefings .aviso-l{margin-bottom:24px}
+
   /* Esconder vale para tudo. */
   *[hidden]{display:none!important}
 </style>
@@ -804,6 +811,7 @@
       <div id="noClientHero" class="card empty-hero" hidden><div class="eh-t" style="margin-bottom:14px">Escolha um cliente na lista ou cadastre o primeiro.</div><button class="btn pri" id="ncHeroBtn">Novo cliente</button></div>
       <section class="view" data-view="overview">
         <div class="stat-cards" id="kpis"></div>
+        <div id="ovBriefings"></div>
         <div id="maestroChat"></div>
         <div id="ovPropostas"></div>
         <div id="ovSteps"></div>
@@ -819,6 +827,7 @@
       </section>
 
       <section class="view" data-view="clients" hidden>
+        <div id="bfLink"></div>
         <div id="clientTable"></div>
         <details class="bloco dobra"><summary>Receber briefing de cliente novo</summary><div id="briefTools"></div></details>
         <div id="clientCards" hidden></div>
@@ -1156,6 +1165,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       wireSteps(ov);
     }
     if(typeof renderMaestroChat==="function")renderMaestroChat();
+    if(typeof renderBriefingAviso==="function")renderBriefingAviso();
     if(typeof renderPropostasResumo==="function")renderPropostasResumo();
     var oc=I("#ovContent");if(!oc)return;
     var hoje=new Date().toISOString().slice(0,10),prox=genOn()?GENERATED.calendar.items.map(function(it,i){return {it:it,i:i}}).filter(function(o){return !o.it.data||o.it.data>=hoje}).slice(0,4):[];
@@ -1187,6 +1197,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     // carrega o estado de quem ainda não foi aberto, para a etapa aparecer certa
     var faltam=CLIENTS.filter(function(c){return isDbClient(c.id)&&!DB_STATE_CACHE[c.id]});
     if(faltam.length&&!state.carregandoTabela){state.carregandoTabela=true;Promise.all(faltam.map(function(c){return loadDbClientState(c.id)})).then(function(){state.carregandoTabela=false;if(state.view==="clients")renderClients();},function(){state.carregandoTabela=false;});}
+    if(typeof renderBriefingLink==="function")renderBriefingLink();
     var bt=I("#briefTools");if(bt){bt.innerHTML=briefToolsHtml();var b1=I("#bfForm");if(b1)b1.addEventListener('click',openBriefFormModal);var b2=I("#bfImport");if(b2)b2.addEventListener('click',openBriefImportModal);var b3=I("#inboxRefresh");if(b3)b3.addEventListener('click',renderInbox);}
   }
   function busyHtml(text){return '<span class="spinner"></span>'+esc(text);}
@@ -2980,8 +2991,8 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   function buildBriefingFormHtml(cfg){
     var para=cfg.cliente?String(cfg.cliente).trim():"",de=cfg.nome?String(cfg.nome):"",wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
     var mail=String(cfg.email||"").trim();
-    var data=JSON.stringify({mark:BRIEF_MARK,de:de,wa:wa,mail:mail,fields:BRIEF_FIELDS}).replace(/</g,"\\u003c");
-    var css='*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f4fb;color:#1b1a22}main{max-width:640px;margin:0 auto;padding:22px 16px 60px}h1{font-size:22px;margin:0 0 6px}.sub{color:#5f5d6e;font-size:14px;margin:0 0 18px}.card{background:#fff;border:1px solid #e6e4ef;border-radius:14px;padding:16px;margin-bottom:14px}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5B45E6;margin:22px 0 10px}label.q{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px}.req{color:#c0392b}input[type=text],textarea{width:100%;border:1px solid #d9d6e6;border-radius:10px;padding:11px 12px;font:inherit;background:#fbfbfe}textarea{min-height:84px;resize:vertical}.opts{display:flex;flex-wrap:wrap;gap:8px}.opts label{display:flex;align-items:center;gap:7px;border:1px solid #d9d6e6;border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer;background:#fbfbfe}.opts input{accent-color:#5B45E6}.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font:600 16px system-ui,sans-serif;cursor:pointer;margin-top:10px}.pri{background:#5B45E6;color:#fff}.wa{background:#1fa855;color:#fff}.sec{background:#eeebff;color:#4634b6}.msg{font-size:13.5px;color:#5f5d6e;text-align:center;margin-top:10px;min-height:20px}.err{color:#c0392b}#out{display:none}';
+    var data=JSON.stringify({mark:BRIEF_MARK,de:de,wa:wa,mail:mail,fields:BRIEF_FIELDS,envio:cfg.envio||null}).replace(/</g,"\\u003c");
+    var css='*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#F9F9FD;color:#2A2A2A}main{max-width:640px;margin:0 auto;padding:22px 16px 60px}h1{font-size:22px;margin:0 0 6px}.sub{color:#5f5d6e;font-size:14px;margin:0 0 18px}.card{background:#fff;border:1px solid #e6e4ef;border-radius:14px;padding:16px;margin-bottom:14px}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#4D4AEA;margin:22px 0 10px}label.q{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px}.req{color:#c0392b}input[type=text],textarea{width:100%;border:1px solid #d9d6e6;border-radius:10px;padding:11px 12px;font:inherit;background:#fbfbfe}textarea{min-height:84px;resize:vertical}.opts{display:flex;flex-wrap:wrap;gap:8px}.opts label{display:flex;align-items:center;gap:7px;border:1px solid #d9d6e6;border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer;background:#fbfbfe}.opts input{accent-color:#4D4AEA}.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font:600 16px system-ui,sans-serif;cursor:pointer;margin-top:10px}.pri{background:#4D4AEA;color:#fff}.wa{background:#1fa855;color:#fff}.sec{background:#F4F3FF;color:#3E3BC4}.msg{font-size:13.5px;color:#5f5d6e;text-align:center;margin-top:10px;min-height:20px}.err{color:#c0392b}#out{display:none}.fim{text-align:center;padding:64px 8px}.fim h1{font-size:26px}';
     var js='(function(){var D='+data+';var F=D.fields,box=document.getElementById("form"),KEY="cos_briefing_rascunho";'+
       'function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[c]})}'+
       'var h="";F.forEach(function(f,i){if(f.g)h+="<h2>"+esc(f.g)+"</h2>";h+="<div class=card><label class=q for=f"+i+">"+esc(f.l)+(f.req?" <span class=req>*</span>":"")+"</label>";'+
@@ -2995,17 +3006,24 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       'box.addEventListener("input",function(){var o={};F.forEach(function(f){o[f.k]=val(f)});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}});'+
       'function texto(){var t=D.mark+"\\n";F.forEach(function(f){var v=val(f);if(v)t+="\\n▸ "+f.l+"\\n"+v+"\\n"});return t}'+
       'function ok(){var m=document.getElementById("msg");var faltam=F.filter(function(f){return f.req&&!val(f)}).map(function(f){return f.l});if(faltam.length){m.className="msg err";m.textContent="Falta responder: "+faltam.join(" · ");return false}m.className="msg";m.textContent="";return true}'+
-      'document.getElementById("go").addEventListener("click",function(){if(!ok())return;document.getElementById("out").style.display="block";document.getElementById("txt").value=texto();document.getElementById("out").scrollIntoView({behavior:"smooth"})});'+
-      'var em=document.getElementById("em");if(em){if(!D.mail)em.style.display="none";em.addEventListener("click",function(){var nm=(box.querySelector("[data-k=name]")||{}).value||"";var u="mailto:"+D.mail+"?subject="+encodeURIComponent("📋 Briefing de conteúdo, "+nm.trim())+"&body="+encodeURIComponent(texto());window.location.href=u})}'+
-      'var wa=document.getElementById("wa");if(!D.wa)wa.textContent="Enviar pelo WhatsApp";wa.addEventListener("click",function(){var u="https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(texto());window.open(u,"_blank")});'+
+      'function mostrarOut(){document.getElementById("out").style.display="block";document.getElementById("txt").value=texto();document.getElementById("out").scrollIntoView({behavior:"smooth"})}'+
+      // Link do painel: as respostas vão direto para a equipe. Se a rede falhar, cai no envio manual.
+      'function enviar(){var bt=document.getElementById("go"),m=document.getElementById("msg"),o={};F.forEach(function(f){var v=val(f);if(v)o[f.k]=v});bt.disabled=true;bt.textContent="Enviando";'+
+      'fetch(D.envio.url,{method:"POST",headers:{"Content-Type":"application/json",apikey:D.envio.anon,Authorization:"Bearer "+D.envio.anon},body:JSON.stringify({op:"briefing_enviar",token:D.envio.token,respostas:o})})'+
+      '.then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||"Não consegui enviar.");})})'+
+      '.then(function(){try{localStorage.removeItem(KEY)}catch(e){}document.querySelector("main").innerHTML="<div class=fim><h1>Recebemos o seu briefing</h1><p class=sub>Obrigado! "+(D.de?esc(D.de)+" já pode ver":"A equipe já pode ver")+" as suas respostas e começa a montar a sua estratégia de conteúdo. Pode fechar esta página.</p></div>";window.scrollTo(0,0)})'+
+      '.catch(function(e){bt.disabled=false;bt.textContent="Concluir briefing";m.className="msg err";m.textContent=e.message+" Suas respostas continuam salvas neste aparelho. Tente de novo ou use Copiar respostas abaixo.";mostrarOut()})}'+
+      'document.getElementById("go").addEventListener("click",function(){if(!ok())return;if(D.envio)enviar();else mostrarOut()});'+
+      'var em=document.getElementById("em");if(em){if(!D.mail||D.envio)em.style.display="none";em.addEventListener("click",function(){var nm=(box.querySelector("[data-k=name]")||{}).value||"";var u="mailto:"+D.mail+"?subject="+encodeURIComponent("📋 Briefing de conteúdo, "+nm.trim())+"&body="+encodeURIComponent(texto());window.location.href=u})}'+
+      'var wa=document.getElementById("wa");if(D.envio&&!D.wa)wa.style.display="none";if(!D.wa)wa.textContent="Enviar pelo WhatsApp";wa.addEventListener("click",function(){var u="https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(texto());window.open(u,"_blank")});'+
       'document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt");t.select();var done=function(){document.getElementById("cpm").textContent="Copiado, agora cole na conversa e envie."};if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(done,function(){document.execCommand("copy");done()});else{document.execCommand("copy");done()}});'+
       '})();';
     var S='scr'+'ipt';
     return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo'+(para?', '+esc(para):de?', '+esc(de):'')+'</title><style>'+css+'</style></head><body><main>'+
       '<h1>'+(para?'Olá, '+esc(para)+'! ':'')+'Briefing de conteúdo</h1><p class="sub">'+(de?'<b>'+esc(de)+'</b> vai usar'+'':'Vamos usar')+' estas respostas para montar a sua estratégia, a linha editorial e o calendário de conteúdo. Leva uns 10 minutos. Suas respostas ficam salvas neste aparelho enquanto você preenche. Campos com <span class="req">*</span> são obrigatórios.</p>'+
-      '<p class="sub" style="background:#eeebff;color:#4634b6;border-radius:12px;padding:12px 14px"><b>Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo.</b> Responda com calma, exemplos reais, palavras que seus clientes usam e histórias ajudam muito.</p>'+
+      '<p class="sub" style="background:#F4F3FF;color:#3E3BC4;border-radius:12px;padding:12px 14px"><b>Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo.</b> Responda com calma, exemplos reais, palavras que seus clientes usam e histórias ajudam muito.</p>'+
       '<div id="form"></div><button class="btn pri" id="go">Concluir briefing</button><div class="msg" id="msg"></div>'+
-      '<div id="out"><h2>Pronto! Agora é só enviar</h2><div class="card"><button class="btn pri" id="em">📧 Enviar por e-mail'+(de?' para '+esc(de):'')+' (recomendado)</button><button class="btn wa" id="wa">Enviar pelo WhatsApp'+(de?' para '+esc(de):'')+'</button><button class="btn sec" id="cp">Copiar respostas</button><div class="msg" id="cpm">Se o e-mail abrir incompleto, toque em Copiar respostas e cole no corpo do e-mail.</div><textarea id="txt" readonly style="min-height:160px;margin-top:10px"></textarea></div></div>'+
+      '<div id="out"><h2>Pronto! Agora é só enviar</h2><div class="card"><button class="btn pri" id="em">Enviar por e-mail'+(de?' para '+esc(de):'')+' (recomendado)</button><button class="btn wa" id="wa">Enviar pelo WhatsApp'+(de?' para '+esc(de):'')+'</button><button class="btn sec" id="cp">Copiar respostas</button><div class="msg" id="cpm">Se o e-mail abrir incompleto, toque em Copiar respostas e cole no corpo do e-mail.</div><textarea id="txt" readonly style="min-height:160px;margin-top:10px"></textarea></div></div>'+
       '</main><'+S+'>'+js+'</'+S+'></body></html>';
   }
   function parseBriefing(txt){
@@ -4417,7 +4435,115 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     var doCache=agDoCache(),comCache={};doCache.forEach(function(o){comCache[o.cid]=1});
     return doCache.concat((AG_ITENS||[]).filter(function(o){return !comCache[o.cid]}));
   }
+  // ---- Briefing por link ----
+  // A equipe cria um link; o cliente abre no celular, responde sem login e as
+  // respostas chegam aqui (tabela briefings, gravada pela Edge Function). Um
+  // clique cria o cliente com ficha, rotina, referências e o DNA sugerido.
+  var BF_RECEBIDOS=[],BF_LINKS=[];
+  var MSG_LINK="Oi, [nome]! Tudo bem? Preparei um briefing rápido para montar a sua estratégia e o seu calendário de conteúdo. É só abrir o link, responder com calma e tocar em Concluir no final:\n\n[link]\n\nQuanto mais detalhes você colocar, mais personalizadas ficam a estratégia e as ideias. Qualquer dúvida, me chama!";
+  function bfUrl(token){return location.origin+location.pathname+"?briefing="+token;}
+  function bfMsg(tpl,nome,link){return msgConvite(tpl,nome).replace(/\[link\]/gi,link);}
+  // Página pública: a mesma do painel, aberta com ?briefing=<token>. Troca tudo pelo formulário.
+  function briefingPublicoNaUrl(){
+    var token=null;try{token=new URLSearchParams(location.search).get("briefing");}catch(e){}
+    if(!token)return false;
+    var cfg=window.COS_CONFIG;
+    function escrever(html){document.open();document.write(html);document.close();}
+    if(!cfg||!/^[0-9a-f]{32}$/.test(token)){escrever(bfPaginaAviso("Link de briefing inválido","Confira o link que você recebeu ou peça um novo para quem enviou."));return true;}
+    var url=cfg.url.replace(/\/$/,"")+"/functions/v1/agentes";
+    fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:cfg.anonKey,Authorization:"Bearer "+cfg.anonKey},body:JSON.stringify({op:"briefing_ver",token:token})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||"Link indisponível.");return j;})})
+      .then(function(j){escrever(buildBriefingFormHtml({cliente:j.cliente||"",nome:j.agencia||"",envio:{url:url,anon:cfg.anonKey,token:token}}));})
+      .catch(function(e){escrever(bfPaginaAviso("Não foi possível abrir o briefing",e.message));});
+    return true;
+  }
+  function bfPaginaAviso(t,m){return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo</title></head><body style="margin:0;font:16px/1.5 system-ui,sans-serif;background:#F9F9FD;color:#2A2A2A"><main style="max-width:520px;margin:0 auto;padding:80px 20px;text-align:center"><h1 style="font-size:22px">'+esc(t)+'</h1><p style="color:#57595B">'+esc(m)+'</p></main></body></html>';}
+
+  async function bfCarregar(){
+    if(!SB)return;
+    var r=await SB.c.from("briefings").select("id,respostas,status,client_id,recebido_em").eq("status","novo").order("recebido_em",{ascending:false}).limit(50);
+    BF_RECEBIDOS=r.data||[];
+    var l=await SB.c.from("briefing_links").select("token,cliente_nome,ativo,created_at").eq("ativo",true).order("created_at",{ascending:false}).limit(10);
+    BF_LINKS=l.data||[];
+  }
+  function bfDataCurta(iso){var d=new Date(iso);return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+" às "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+  async function renderBriefingLink(){
+    var el=I("#bfLink");if(!el)return;
+    if(!SB||state.clientView){el.innerHTML="";return;}
+    try{await bfCarregar();}catch(e){}
+    var corpo=BF_RECEBIDOS.length?'<div class="tabela"><table><thead><tr><th>Empresa</th><th>Quem respondeu</th><th>Recebido</th><th></th></tr></thead><tbody>'+BF_RECEBIDOS.map(function(b){var r=b.respostas||{};
+        return '<tr class="sem-clique"><td><b class="cel-t">'+esc(r.name||"Sem nome")+'</b><small>'+esc(r.niche||"")+'</small></td><td>'+esc(r.responsavel||"")+(r.whats?'<small>'+esc(r.whats)+'</small>':'')+'</td><td class="nowrap">'+esc(bfDataCurta(b.recebido_em))+'</td>'+
+          '<td class="acao nowrap"><button class="btn ghost" data-bf-ver="'+b.id+'">Ver respostas</button><button class="btn ghost" data-bf-arq="'+b.id+'">Arquivar</button><button class="btn pri" data-bf-criar="'+b.id+'">Criar cliente</button></td></tr>';}).join('')+'</tbody></table></div>'
+      :'<p class="pp-m" style="margin:0">Nenhum briefing esperando. Quando um cliente responder, ele aparece aqui para você criar o cliente com um clique.</p>';
+    var links=BF_LINKS.length?'<details class="dobra-l"><summary>Links ativos ('+BF_LINKS.length+')</summary>'+BF_LINKS.map(function(l){return '<div class="linha"><div class="l-main"><b>'+esc(l.cliente_nome||"Sem nome")+'</b><small>criado em '+esc(bfDataCurta(l.created_at))+'</small></div><button class="btn ghost" data-bf-copiar="'+l.token+'">Copiar link</button><button class="btn ghost" data-bf-off="'+l.token+'">Desativar</button></div>'}).join('')+'</details>':'';
+    el.innerHTML=quadro("Briefing do cliente"+(BF_RECEBIDOS.length?' <span class="chip prog">'+BF_RECEBIDOS.length+' novo'+(BF_RECEBIDOS.length>1?'s':'')+'</span>':''),"Mande o link: o cliente responde no celular, sem login, e as respostas chegam aqui.",'<button class="btn pri" id="bfNovoLink">Criar link de briefing</button>',corpo+links);
+    I("#bfNovoLink").addEventListener('click',function(){abrirNovoLink()});
+    el.querySelectorAll('[data-bf-ver]').forEach(function(b){b.addEventListener('click',function(){bfVer(b.getAttribute('data-bf-ver'))})});
+    el.querySelectorAll('[data-bf-criar]').forEach(function(b){b.addEventListener('click',function(){bfCriar(b.getAttribute('data-bf-criar'),b)})});
+    el.querySelectorAll('[data-bf-arq]').forEach(function(b){b.addEventListener('click',async function(){b.disabled=true;await SB.c.from("briefings").update({status:"arquivado"}).eq("id",b.getAttribute('data-bf-arq'));toast("Briefing arquivado.");renderBriefingLink();renderBriefingAviso();})});
+    el.querySelectorAll('[data-bf-copiar]').forEach(function(b){b.addEventListener('click',function(){copiarTexto(bfUrl(b.getAttribute('data-bf-copiar')),"Link copiado.")})});
+    el.querySelectorAll('[data-bf-off]').forEach(function(b){b.addEventListener('click',async function(){b.disabled=true;await SB.c.from("briefing_links").update({ativo:false}).eq("token",b.getAttribute('data-bf-off'));toast("Link desativado. Quem tiver o link não consegue mais responder.");renderBriefingLink();})});
+  }
+  function copiarTexto(t,aviso){
+    function ok(){toast(aviso||"Copiado.");}
+    function velho(){var ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);ok();}
+    if(navigator.clipboard)navigator.clipboard.writeText(t).then(ok,velho);else velho();
+  }
+  function abrirNovoLink(){
+    var c=formCfg();
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="Link de briefing" style="width:min(480px,100%)"><div class="dh"><div style="flex:1;min-width:0"><div class="d-title">Link de briefing</div><div class="d-sub">O cliente responde no celular, sem login.</div></div><button class="icon-btn" id="dclose" aria-label="Fechar">'+iconeUI("x-fechar")+'</button></div><div class="db"><div class="block">'+
+      '<div class="fld"><label for="blCliente">Nome do cliente (aparece no formulário)</label><input id="blCliente" placeholder="Ex.: Ana"></div>'+
+      '<div class="fld"><label for="blAgencia">Seu nome ou agência</label><input id="blAgencia" value="'+esc(c.nome||"")+'" placeholder="Ex.: Tarik Estratégia de Conteúdo"></div>'+
+      '<div class="fld"><label for="blTpl">Mensagem para mandar junto ([nome] e [link] são trocados sozinhos)</label><textarea class="ta" id="blTpl" style="min-height:150px">'+esc(c.msgLink||MSG_LINK)+'</textarea></div>'+
+      '<div class="q-rodape"><button class="btn pri" id="blCriar">Criar link</button><span id="blMsg" class="pp-m"></span></div>'+
+      '<div id="blPronto" hidden><div class="fld" style="margin-top:16px"><label for="blUrl">Link</label><input id="blUrl" readonly></div><div class="fld"><label>Mensagem</label><div class="copybox" id="blPrev"></div></div>'+
+      '<div class="q-rodape"><button class="btn pri" id="blCopiarMsg">Copiar mensagem com o link</button><button class="btn" id="blCopiarUrl">Copiar só o link</button><a class="btn" id="blWa" target="_blank" rel="noopener">Abrir no WhatsApp</a></div></div>'+
+      '</div></div></aside>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    I("#blCriar").addEventListener('click',async function(){
+      var bt=this,m=I("#blMsg"),nome=I("#blCliente").value.trim(),ag=I("#blAgencia").value.trim(),tpl=I("#blTpl").value;
+      saveFormCfg(Object.assign({},formCfg(),{nome:ag,msgLink:tpl}));
+      bt.disabled=true;m.textContent="Criando";
+      var r=await SB.c.from("briefing_links").insert({workspace_id:SB.ws,cliente_nome:nome,agencia:ag,criado_por:SB.user.id}).select("token").single();
+      if(r.error){bt.disabled=false;m.textContent="Não consegui criar o link: "+r.error.message;m.style.color="var(--warn)";return;}
+      var link=bfUrl(r.data.token),msg=bfMsg(tpl,nome,link);
+      m.textContent="";bt.hidden=true;I("#blPronto").hidden=false;I("#blUrl").value=link;I("#blPrev").textContent=msg;
+      I("#blWa").href="https://wa.me/?text="+encodeURIComponent(msg);
+      I("#blCopiarMsg").addEventListener('click',function(){copiarTexto(msg,"Mensagem copiada. Cole na conversa com o cliente.")});
+      I("#blCopiarUrl").addEventListener('click',function(){copiarTexto(link,"Link copiado.")});
+      renderBriefingLink();
+    });
+  }
+  function bfVer(id){
+    var b=BF_RECEBIDOS.filter(function(x){return x.id===id})[0];if(!b)return;var r=b.respostas||{};
+    var linhas=BRIEF_FIELDS.filter(function(f){return r[f.k]}).map(function(f){return (f.g?'<div class="bt" style="margin-top:16px">'+esc(f.g)+'</div>':'')+'<div class="fld"><label>'+esc(f.l)+'</label><div class="copybox">'+esc(r[f.k])+'</div></div>'}).join('');
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="Briefing recebido"><div class="dh"><div style="flex:1;min-width:0"><div class="d-title">'+esc(r.name||"Briefing")+'</div><div class="d-sub">Recebido em '+esc(bfDataCurta(b.recebido_em))+'</div></div><button class="icon-btn" id="dclose" aria-label="Fechar">'+iconeUI("x-fechar")+'</button></div>'+
+      '<div class="db"><div class="block">'+linhas+'</div></div><div class="df"><button class="btn" id="bvFechar">Fechar</button><button class="btn pri" id="bvCriar">Criar cliente</button></div></aside>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);I("#bvFechar").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    I("#bvCriar").addEventListener('click',function(){closeDrawer();bfCriar(id);});
+  }
+  async function bfCriar(id,bt){
+    var b=BF_RECEBIDOS.filter(function(x){return x.id===id})[0];if(!b)return;
+    if(bt){bt.disabled=true;bt.textContent="Criando";}
+    try{
+      var r=await importarBriefing(b.respostas||{});
+      await SB.c.from("briefings").update({status:"importado",client_id:r.id}).eq("id",id);
+      toast((r.atualizado?"Ficha atualizada":"Cliente criado")+": "+clientName(r.id)+". A Íris já leu o briefing.");
+      renderBriefingAviso();setClient(r.id);go("dna");
+    }catch(e){if(bt){bt.disabled=false;bt.textContent="Criar cliente";}toast("Não consegui criar o cliente: "+e.message);}
+  }
+  // Aviso na tela Hoje quando chega briefing novo.
+  async function renderBriefingAviso(){
+    var el=I("#ovBriefings");if(!el)return;
+    if(!SB||state.clientView){el.innerHTML="";return;}
+    try{await bfCarregar();}catch(e){el.innerHTML="";return;}
+    var n=BF_RECEBIDOS.length;
+    el.innerHTML=n?'<div class="aviso-l"><div class="l-main"><b>'+(n>1?n+' briefings novos':'Briefing novo')+'</b><small>'+esc(BF_RECEBIDOS.slice(0,3).map(function(b){return (b.respostas||{}).name||"Sem nome"}).join(", "))+(n>1?' responderam':' respondeu')+'. Um clique cria o cliente.</small></div><button class="btn pri" data-bf-ir>Ver briefings</button></div>':'';
+    var ir=el.querySelector('[data-bf-ir]');if(ir)ir.addEventListener('click',function(){go("clients");});
+  }
   // ---------- início do painel ----------
+  // Link de briefing (?briefing=...): o cliente vê só o formulário, nada do painel.
+  if(briefingPublicoNaUrl())return;
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});

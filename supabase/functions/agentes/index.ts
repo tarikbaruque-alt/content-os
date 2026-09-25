@@ -7,6 +7,9 @@
 //   {op:"acervo", ws, nome, texto|pdf}   Acervo: material novo vira Knowledge Base
 //   {op:"estado", ws}                    chave configurada? gasto do mês? teto?
 //   {op:"conversar", ws, mensagem, historico, cliente}  chat do Maestro: responde e aciona agentes
+// Briefing por link (sem login; o token do link é a credencial):
+//   {op:"briefing_ver", token}           nome do cliente e da agência para o formulário
+//   {op:"briefing_enviar", token, respostas}  grava a resposta para a equipe importar
 // Agenda (pg_cron, com x-cron-secret):
 //   {op:"batida"}                        Maestro: enfileira pela agenda e consome a fila
 //
@@ -18,6 +21,7 @@ import { AGENTE } from "../_shared/agentes.ts";
 import { custoUsd } from "../_shared/executor.ts";
 import { trechosDoMarkdown } from "../_shared/kb.ts";
 import { conversar } from "../_shared/conversa.ts";
+import { limparRespostas, tokenValido, MAX_POR_DIA } from "../_shared/briefing.ts";
 import type { ClienteLlm } from "../_shared/tipos.ts";
 
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void };
@@ -132,6 +136,22 @@ async function conversa(ws: string, body: any): Promise<Response> {
   }
 }
 
+/** Formulário de briefing aberto pelo cliente, sem login. */
+async function briefingPublico(body: any): Promise<Response> {
+  if (!tokenValido(body.token)) return erro("link", "Link de briefing inválido.", 404);
+  const t = encodeURIComponent(body.token);
+  const link = (await b.rest(`/briefing_links?select=workspace_id,cliente_nome,agencia&token=eq.${t}&ativo=eq.true`))?.[0];
+  if (!link) return erro("link", "Este link de briefing não está mais ativo. Peça um novo para quem enviou.", 404);
+  if (body.op === "briefing_ver") return json({ cliente: link.cliente_nome, agencia: link.agencia });
+  const respostas = limparRespostas(body.respostas);
+  if (!respostas) return erro("vazio", "Faltou o nome da empresa ou marca.");
+  const desde = new Date(Date.now() - 864e5).toISOString();
+  const hoje = await b.rest(`/briefings?select=id&token=eq.${t}&recebido_em=gte.${encodeURIComponent(desde)}`);
+  if ((hoje?.length ?? 0) >= MAX_POR_DIA) return erro("rate_limited", "Recebemos muitas respostas por este link hoje. Tente amanhã ou fale com quem enviou.", 429);
+  await b.rest("/briefings", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ workspace_id: link.workspace_id, token: body.token, respostas }) });
+  return json({ ok: true });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return erro("metodo", "Use POST.", 405);
@@ -144,6 +164,8 @@ Deno.serve(async (req) => {
     EdgeRuntime.waitUntil(batida(deps).then((r) => console.log(JSON.stringify(r)), (e) => console.error(e)));
     return json({ ok: true });
   }
+
+  if (body.op === "briefing_ver" || body.op === "briefing_enviar") return briefingPublico(body);
 
   const ws = String(body.ws ?? "");
   const uid = await membro(req, ws);

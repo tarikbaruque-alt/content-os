@@ -76,6 +76,7 @@
       wireSteps(ov);
     }
     if(typeof renderMaestroChat==="function")renderMaestroChat();
+    if(typeof renderBriefingAviso==="function")renderBriefingAviso();
     if(typeof renderPropostasResumo==="function")renderPropostasResumo();
     var oc=I("#ovContent");if(!oc)return;
     var hoje=new Date().toISOString().slice(0,10),prox=genOn()?GENERATED.calendar.items.map(function(it,i){return {it:it,i:i}}).filter(function(o){return !o.it.data||o.it.data>=hoje}).slice(0,4):[];
@@ -107,6 +108,7 @@
     // carrega o estado de quem ainda não foi aberto, para a etapa aparecer certa
     var faltam=CLIENTS.filter(function(c){return isDbClient(c.id)&&!DB_STATE_CACHE[c.id]});
     if(faltam.length&&!state.carregandoTabela){state.carregandoTabela=true;Promise.all(faltam.map(function(c){return loadDbClientState(c.id)})).then(function(){state.carregandoTabela=false;if(state.view==="clients")renderClients();},function(){state.carregandoTabela=false;});}
+    if(typeof renderBriefingLink==="function")renderBriefingLink();
     var bt=I("#briefTools");if(bt){bt.innerHTML=briefToolsHtml();var b1=I("#bfForm");if(b1)b1.addEventListener('click',openBriefFormModal);var b2=I("#bfImport");if(b2)b2.addEventListener('click',openBriefImportModal);var b3=I("#inboxRefresh");if(b3)b3.addEventListener('click',renderInbox);}
   }
   function busyHtml(text){return '<span class="spinner"></span>'+esc(text);}

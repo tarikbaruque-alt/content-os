@@ -764,5 +764,12 @@
     .ag-dia.sel{background:var(--brand-weak)}
   }
 
+  /* Briefing por link */
+  .dobra-l{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+  .dobra-l>summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}
+  .dobra-l>summary::-webkit-details-marker{display:none}
+  .dobra-l[open]>summary{margin-bottom:4px}
+  #ovBriefings .aviso-l{margin-bottom:24px}
+
   /* Esconder vale para tudo. */
   *[hidden]{display:none!important}
