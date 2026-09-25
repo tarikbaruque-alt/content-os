@@ -54,6 +54,13 @@ eles mostram um aviso pedindo para abrir pelo link.
 3. O cliente toca em **📧 Enviar por e-mail** (vai para o seu Gmail). No painel: **Clientes → 📬 Caixa de entrada de briefings → ↻ Verificar novos briefings → ✦ Criar cliente e montar tudo**. (Se ele mandar pelo WhatsApp: **📥 Importar briefing (colar)** e cole a mensagem.) O cliente é criado com ficha, rotina (frequência, dias, limite de gravações) e referências.
 4. Clique em **✦ Montar tudo automaticamente** (30, 45, 60 ou 90 dias): Content DNA → Estratégia → Linha Editorial → Ideias → Calendário, já na frequência que o cliente pediu. Depois, revise e aprove o Content DNA.
 
+## 💼 Clientes ativos (administrativo — só você vê)
+
+- **Trabalho → Clientes ativos**: total de clientes ativos, receita mensal e cobranças do mês. Um card por cliente com área, @, WhatsApp e valor mensal (✏️ Editar), e **Marcar inativo** sem apagar o histórico.
+- Clique no card para abrir a página do cliente: **briefing** (ou o botão para adicionar), **estratégia**, **linha editorial** e **calendário**. O briefing salvo alimenta todas as gerações daquele cliente.
+- **Cobrança**: defina o dia do pagamento (ex.: 10 ou 15). A partir do vencimento aparece o lembrete no Dashboard e em Clientes ativos, com a mensagem pronta (💬 Cobrar no WhatsApp) e o botão ✓ Recebido. Dá para editar a mensagem e criar um lembrete mensal na Google Agenda.
+- Nada disto aparece em "Ver como cliente" nem nos arquivos enviados ao cliente.
+
 ## ⚙️ Integrações finais (Anthropic + Notion)
 
 Jeito mais fácil: no painel → aba **🔑 Configuração** → cole as chaves →
