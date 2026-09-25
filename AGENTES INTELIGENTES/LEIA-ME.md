@@ -59,6 +59,8 @@ eles mostram um aviso pedindo para abrir pelo link.
 - **Trabalho → Clientes ativos**: total de clientes ativos, receita mensal e cobranças do mês. Um card por cliente com área, @, WhatsApp e valor mensal (✏️ Editar), e **Marcar inativo** sem apagar o histórico.
 - Clique no card para abrir a página do cliente: **briefing** (ou o botão para adicionar), **estratégia**, **linha editorial** e **calendário**. O briefing salvo alimenta todas as gerações daquele cliente.
 - **Cobrança**: defina o dia do pagamento (ex.: 10 ou 15). A partir do vencimento aparece o lembrete no Dashboard e em Clientes ativos, com a mensagem pronta (💬 Cobrar no WhatsApp) e o botão ✓ Recebido. Dá para editar a mensagem e criar um lembrete mensal na Google Agenda.
+- **Retornos do cliente**: quando o cliente aprova ou pede ajuste no calendário que você enviou, a resposta vai para o seu e-mail (ou WhatsApp). Em **Clientes → 📬 Verificar briefings e retornos**, o painel aplica sozinho as aprovações e ajustes nas pautas certas. Se chegou pelo WhatsApp, cole em **📥 Importar briefing (colar)**.
+- **Organização**: em ✏️ Editar, **🔀 Juntar** cadastros duplicados e **🗑 Apagar cliente** (pede o nome para confirmar). O Dashboard lembra do **backup do mês** (Configuração → Backup).
 - Nada disto aparece em "Ver como cliente" nem nos arquivos enviados ao cliente.
 
 ## ⚙️ Integrações finais (Anthropic + Notion)

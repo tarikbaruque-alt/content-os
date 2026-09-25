@@ -355,6 +355,7 @@
         <p class="lead">Uma equipe de agentes de IA que entende cada cliente, decide com fundamento, pesquisa, cria, planeja e aprende — para melhores decisões de conteúdo, não apenas mais conteúdo.</p>
         <div class="card pad" style="margin-top:16px"><div class="legend"><b style="color:var(--ink);font-size:12px">Estado de cada área:</b><span class="li"><span class="statuspill lvl-func">Funcional</span> roda de verdade</span><span class="li"><span class="statuspill lvl-parcial">Parcial</span> motor real, painel em progresso</span><span class="li"><span class="statuspill lvl-mock">Mock</span> só visual</span><span class="li"><span class="statuspill lvl-nao">Não impl.</span> depende de API</span></div><div style="font-size:11.5px;color:var(--faint);margin-top:9px">Tudo o que aparece aqui vem dos clientes que você cadastra. O selo no topo de cada tela indica o estado da <b>inteligência por trás</b> dela.</div></div>
         <div id="ovCobranca"></div>
+        <div id="ovBackup"></div>
         <div id="ovSteps"></div>
         <div class="card pad" style="margin-top:16px"><div class="eyebrow" style="margin-bottom:12px">Como o sistema pensa</div><div class="pipe" id="pipe"></div></div>
         <div class="grid cols-4" style="margin-top:16px" id="kpis"></div>
@@ -631,7 +632,7 @@
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();} if(v==="ativos")renderAtivos();
+    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
@@ -2096,7 +2097,9 @@
     var KEY="vt_status_"+D.cliente;
     function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){return {}}}
     function save(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
-    function send(txt){if(D.wa){window.open("https://wa.me/"+D.wa+"?text="+encodeURIComponent(txt),"_blank");return true}if(D.mail){window.location.href="mailto:"+D.mail+"?subject="+encodeURIComponent("Calendário de conteúdo — "+D.cliente)+"&body="+encodeURIComponent(txt);return true}return false}
+    function send(txt,item,st){txt=txt+"\n\nref: CAL|"+D.cid+"|"+item+"|"+st;
+      if(D.mail){window.location.href="mailto:"+D.mail+"?subject="+encodeURIComponent("📌 Retorno de pauta — "+D.cliente)+"&body="+encodeURIComponent(txt);return true}
+      if(D.wa){window.open("https://wa.me/"+D.wa+"?text="+encodeURIComponent(txt),"_blank");return true}return false}
     function mark(p,st,note){var o=load();o[p.getAttribute("data-vt-item")]={st:st,note:note||""};save(o);paint()}
     function paint(){var o=load(),n=0,tot=0;[].forEach.call(document.querySelectorAll(".vt-p"),function(p){tot++;var s=o[p.getAttribute("data-vt-item")]||(p.getAttribute("data-vt-status")?{st:p.getAttribute("data-vt-status")}:null),ch=p.querySelector(".vt-chips"),old=ch.querySelector(".vt-st");if(old)old.remove();
       if(s){if(s.st==="aprovado")n++;var b=document.createElement("span");b.className="vt-st "+(s.st==="aprovado"?"ok":"adj");b.textContent=s.st==="aprovado"?"✓ Aprovada":"✏️ Ajuste pedido";ch.appendChild(b)}});
@@ -2104,15 +2107,15 @@
     document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-vt-copy],[data-vt-ok],[data-vt-adj],[data-vt-send]");if(!t)return;var p=t.closest(".vt-p");
       if(t.hasAttribute("data-vt-copy")){var el=document.getElementById(t.getAttribute("data-vt-copy")),txt=el?el.innerText:"";var done=function(){t.textContent="✓ Copiado";setTimeout(function(){t.textContent="📋 Copiar texto"},1600)};
         if(navigator.clipboard)navigator.clipboard.writeText(txt).then(done,function(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");done()});else{var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");done()}return}
-      if(t.hasAttribute("data-vt-ok")){mark(p,"aprovado");send("✅ Aprovado — pauta de "+p.getAttribute("data-vt-label"));return}
+      if(t.hasAttribute("data-vt-ok")){mark(p,"aprovado");send("✅ Aprovado — pauta de "+p.getAttribute("data-vt-label"),p.getAttribute("data-vt-item"),"aprovado");return}
       if(t.hasAttribute("data-vt-adj")){var bx=p.querySelector(".vt-adjbox");bx.hidden=!bx.hidden;if(!bx.hidden)bx.querySelector("textarea").focus();return}
       if(t.hasAttribute("data-vt-send")){var tx=p.querySelector(".vt-adjbox textarea").value.trim();if(!tx){p.querySelector(".vt-adjbox textarea").focus();return}mark(p,"ajuste",tx);p.querySelector(".vt-adjbox").hidden=true;
-        if(!send("✏️ Ajuste na pauta de "+p.getAttribute("data-vt-label")+":\n"+tx))alert("Ajuste registrado. Envie este texto ao seu estrategista:\n\n"+tx)}});
+        if(!send("✏️ Ajuste na pauta de "+p.getAttribute("data-vt-label")+":\n"+tx,p.getAttribute("data-vt-item"),"ajuste"))alert("Ajuste registrado. Envie este texto ao seu estrategista:\n\n"+tx)}});
     paint();
   }
   function buildVitrineDoc(items,r,cliente){
     var cfg=formCfg(),wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
-    var D=JSON.stringify({cliente:cliente,wa:wa,mail:String(cfg.email||"").trim()}).replace(/</g,"\\u003c");
+    var D=JSON.stringify({cliente:cliente,cid:state.client,wa:wa,mail:String(cfg.email||"").trim()}).replace(/</g,"\\u003c");
     var estr=planoClienteHtml(items,r),S='scr'+'ipt';
     var root=':root{--bg:#F5F5FA;--surface:#fff;--surface-2:#FBFBFE;--ink:#191826;--muted:#6A6A7E;--line:#E8E8F1;--brand:#5B45E6;--brand-ink:#4634B6;--brand-weak:#EEEBFF}@media (prefers-color-scheme:dark){:root{--bg:#0E0D16;--surface:#16141F;--surface-2:#1B1927;--ink:#ECEBF5;--muted:#A3A1B7;--line:#2A2838;--brand:#8B7BFF;--brand-ink:#A99CFF;--brand-weak:#241F3B}}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px 14px 50px}.vt-strat h2{font-size:15px;margin:12px 0 6px}.vt-strat section{margin-top:6px}.vt-strat .m{color:var(--muted);font-size:13px}.vt-strat .big{font-weight:700;color:var(--brand-ink)}';
     return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc((vitrineOf(state.client).titulo||"Calendário de conteúdo")+" — "+cliente)+'</title><style>'+root+VT_CSS+'</style></head><body>'+
@@ -2508,13 +2511,42 @@
   function corpoOf(m){var c=m.plaintextBody||m.plaintext_body||m.plainTextBody||m.textBody||m.body;if(c)return String(c);
     for(var k in m){if(typeof m[k]==="string"&&m[k].indexOf("▸")>=0)return m[k];}return String(m.snippet||"");}
   async function inboxStatus(){var st={};try{var sn=await CAP.db.collection("cos_inbox").get();sn.docs.forEach(function(d){var v=d.data();if(v)st[d.id]=v;});}catch(e){}return st;}
+  // ---- Retornos de pauta (aprovação / ajuste) vindos do arquivo do cliente → aplicados no painel ----
+  var RET_Q='subject:"Retorno de pauta" newer_than:120d';
+  function parseRetornos(txt){var out=[],re=/ref:\s*CAL\|([^|\s]+)\|([^|\s]+)\|(aprovado|ajuste)/g,m,ini=0;txt=String(txt||"").replace(/\r/g,"");
+    while((m=re.exec(txt))){var bloco=txt.slice(ini,m.index),linhas=bloco.split("\n").map(function(l){return l.trim()}).filter(Boolean);
+      var i0=-1;for(var k=linhas.length-1;k>=0;k--){if(/^(✅|✏️)/.test(linhas[k])){i0=k;break;}}
+      var nota=m[3]==="ajuste"&&i0>=0?linhas.slice(i0+1).join("\n").trim():"";
+      out.push({cid:m[1],iid:m[2],status:m[3],note:nota});ini=re.lastIndex;}
+    return out;}
+  async function aplicarRetornos(lista,quando){var ok=0,res={aprovado:0,ajuste:0};
+    for(var i=0;i<lista.length;i++){var r=lista[i];if(!DB_CLIENTS[r.cid])continue;
+      try{var ref=dbItemsCol("cos_calendar",r.cid).doc(r.iid),d=await ref.get();if(!d.exists)continue;
+        var patch={clientStatus:r.status,clientAt:quando||new Date().toISOString()};if(r.status==="ajuste")patch.clientNote=r.note||"(sem detalhes)";
+        await ref.update(patch);ok++;res[r.status]++;
+        var cache=DB_STATE_CACHE[r.cid];if(cache&&cache.calendar){(cache.calendar.items||[]).forEach(function(it){if(it.id===r.iid)Object.assign(it,patch);});}
+      }catch(e){}}
+    return {total:ok,aprovado:res.aprovado,ajuste:res.ajuste};}
+  async function sincronizarRetornosGmail(){
+    var res=await gmail("search_threads",{query:RET_Q,pageSize:25,view:"THREAD_VIEW_METADATA_ONLY"}),th=(res&&res.threads)||[],st=await inboxStatus(),soma={total:0,aprovado:0,ajuste:0};
+    for(var i=0;i<th.length;i++){
+      var t=await gmail("get_thread",{threadId:th[i].id,messageFormat:"PLAIN_TEXT"}),ms=msgsOf(t).slice().sort(function(a,b){return String(a.date||"")<String(b.date||"")?-1:1});
+      for(var j=0;j<ms.length;j++){var m=ms[j],chave="msg_"+(m.id||(th[i].id+"_"+j));if(st[chave])continue;
+        var r=await aplicarRetornos(parseRetornos(corpoOf(m)),m.date?new Date(m.date).toISOString():null);
+        soma.total+=r.total;soma.aprovado+=r.aprovado;soma.ajuste+=r.ajuste;
+        await CAP.db.doc("cos_inbox/"+chave).set({status:"aplicado",tipo:"retorno",n:r.total,at:new Date().toISOString()});}
+    }
+    return soma;}
   async function renderInbox(){
-    var box=I("#inboxList");if(!box)return;setBusy(box,"Procurando briefings no Gmail…");
+    var box=I("#inboxList");if(!box)return;setBusy(box,"Procurando briefings e retornos de pauta no Gmail…");
+    var retHtml="";
+    try{var sr=await sincronizarRetornosGmail();retHtml='<div style="font-size:12.5px;margin-bottom:10px;padding:8px 10px;border-radius:9px;background:var(--surface-2)">📌 Retornos de pauta: '+(sr.total?'<b>'+sr.total+' novo(s) aplicado(s)</b> — ✓ '+sr.aprovado+' aprovação(ões), ✏️ '+sr.ajuste+' ajuste(s). Veja em Calendário ou Clientes ativos.':'nenhum novo.')+'</div>';}
+    catch(e){retHtml='<div style="font-size:12px;color:var(--warn);margin-bottom:8px">Retornos de pauta: '+esc(gmailErr(e))+'</div>';}
     try{
       var res=await gmail("search_threads",{query:INBOX_Q,pageSize:25,view:"THREAD_VIEW_MINIMAL"});
       var th=(res&&res.threads)||[],st=await inboxStatus();clearBusy(box);
-      if(!th.length){box.innerHTML='<div style="font-size:12.5px;color:var(--muted)">Nenhum briefing recebido ainda. Quando o cliente tocar em <b>Enviar por e-mail</b> no formulário, ele aparece aqui.</div>';return;}
-      box.innerHTML=th.map(function(t){var m=msgsOf(t)[0]||{},sub=String(m.subject||"Briefing").replace(/^.*Briefing de conteúdo\s*[—-]?\s*/i,"")||"(sem nome)",s0=st[t.id],dt=m.date?new Date(m.date).toLocaleDateString("pt-BR"):"";
+      if(!th.length){box.innerHTML=retHtml+'<div style="font-size:12.5px;color:var(--muted)">Nenhum briefing recebido ainda. Quando o cliente tocar em <b>Enviar por e-mail</b> no formulário, ele aparece aqui.</div>';return;}
+      box.innerHTML=retHtml+th.map(function(t){var m=msgsOf(t)[0]||{},sub=String(m.subject||"Briefing").replace(/^.*Briefing de conteúdo\s*[—-]?\s*/i,"")||"(sem nome)",s0=st[t.id],dt=m.date?new Date(m.date).toLocaleDateString("pt-BR"):"";
         return '<div class="ag-row" style="cursor:default;align-items:center"><div style="flex:1;min-width:0"><b>'+esc(sub)+'</b><div class="ag-sub">'+esc(m.sender||"")+(dt?' · '+esc(dt):'')+'</div></div>'+
           (s0&&s0.status==="importado"?'<span class="badge act">✓ importado</span>'+(s0.clientId&&DB_CLIENTS[s0.clientId]?'<button class="btn" data-inbox-open="'+esc(s0.clientId)+'">Abrir</button>':''):
            s0&&s0.status==="ignorado"?'<span class="badge">ignorado</span><button class="btn ghost" data-inbox-go="'+esc(t.id)+'">Importar mesmo assim</button>':
@@ -2543,8 +2575,8 @@
       '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">1) Baixe o formulário e envie ao cliente (WhatsApp/e-mail) · 2) ele preenche no celular e toca em <b>Enviar pelo WhatsApp</b> · 3) você cola a mensagem em <b>Importar briefing</b> — o cliente é criado com ficha, frequência, tempo de gravação e o Content DNA sugerido pela Íris.</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="bfForm">📨 Formulário de briefing para enviar</button><button class="btn" id="bfImport">📥 Importar briefing (colar)</button></div></div>'+
       '<div class="card pad" style="margin-bottom:16px"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)">📬 Caixa de entrada de briefings (Gmail)</div>'+
-      '<span style="margin-left:auto;font-size:12px;color:var(--muted)">Calendário de</span><select id="inboxDias" style="font:inherit;font-size:12px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:var(--surface)">'+[30,45,60,90].map(function(d){return '<option value="'+d+'">'+d+' dias</option>'}).join('')+'</select><button class="btn" id="inboxRefresh">↻ Verificar novos briefings</button></div>'+
-      '<div id="inboxList" style="font-size:12.5px;color:var(--muted)">Clique em <b>Verificar novos briefings</b> — o painel procura no seu Gmail os briefings enviados pelo formulário. Na primeira vez o Claude pede permissão para o painel ler o Gmail.</div><div id="inboxMsg" style="font-size:12px;margin-top:8px"></div></div>';
+      '<span style="margin-left:auto;font-size:12px;color:var(--muted)">Calendário de</span><select id="inboxDias" style="font:inherit;font-size:12px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:var(--surface)">'+[30,45,60,90].map(function(d){return '<option value="'+d+'">'+d+' dias</option>'}).join('')+'</select><button class="btn" id="inboxRefresh">↻ Verificar briefings e retornos</button></div>'+
+      '<div id="inboxList" style="font-size:12.5px;color:var(--muted)">Clique em <b>Verificar novos briefings</b> — o painel procura no seu Gmail os briefings enviados pelo formulário e as aprovações/ajustes que os clientes mandam pelo calendário. Na primeira vez o Claude pede permissão para o painel ler o Gmail.</div><div id="inboxMsg" style="font-size:12px;margin-top:8px"></div></div>';
   }
   var MSG_PADRAO="Oi, [nome]! Tudo bem? Preparei um briefing rápido para montar a sua estratégia e o seu calendário de conteúdo. Abra o arquivo, responda com calma e, no final, toque em \"Enviar por e-mail\". Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo. Qualquer dúvida, me chama!";
   function msgConvite(tpl,nome){var t=String(tpl||MSG_PADRAO);return nome?t.replace(/\[nome\]/gi,nome):t.replace(/,\s*\[nome\]/gi,"").replace(/\s*\[nome\]/gi,"");}
@@ -2614,16 +2646,21 @@
   }
   function openBriefImportModal(destino){destino=typeof destino==="string"?destino:null;
     I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(560px,100%)"><div class="dh"><div class="d-title">Importar briefing recebido</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
-      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Cole aqui a mensagem que o cliente enviou (começa com “'+esc(BRIEF_MARK)+'”).</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Cole aqui a mensagem que o cliente enviou: o <b>briefing</b> (começa com “'+esc(BRIEF_MARK)+'”) ou um <b>retorno de pauta</b> (aprovação/ajuste vindo do calendário).</div>'+
       '<textarea class="ta" id="bfTxt" style="min-height:220px" placeholder="'+esc(BRIEF_MARK)+'&#10;&#10;▸ Nome da empresa ou marca&#10;…"></textarea>'+
       '<div id="bfPrev" style="font-size:12.5px;color:var(--muted);margin:10px 0"></div>'+
       '<button class="btn pri genbtn" id="bfGo" disabled>Criar cliente com este briefing</button><span id="bfIMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div></div></aside>';
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
     var parsed=null;
-    I("#bfTxt").addEventListener('input',function(){parsed=parseBriefing(this.value);var p=I("#bfPrev");
+    var rets=[];
+    I("#bfTxt").addEventListener('input',function(){parsed=parseBriefing(this.value);var p=I("#bfPrev");rets=parsed?[]:parseRetornos(this.value);
+      if(rets.length){p.innerHTML='✓ <b>'+rets.length+' retorno(s) de pauta</b> do cliente (aprovação/ajuste).';I("#bfGo").disabled=false;I("#bfGo").textContent="Aplicar retornos no calendário";return;}
+      I("#bfGo").textContent="Criar cliente com este briefing";
       if(!parsed){p.innerHTML=this.value.trim()?'<span style="color:var(--warn)">Não reconheci o briefing — cole a mensagem inteira, do jeito que chegou.</span>':'';I("#bfGo").disabled=true;return;}
       var n=Object.keys(parsed).length;p.innerHTML='✓ <b>'+esc(parsed.name)+'</b>'+(parsed.niche?' — '+esc(parsed.niche):'')+' · '+n+' respostas'+(parsed.frequencia?' · '+esc(parsed.frequencia):'')+(parsed.tempo?' · gravação: '+esc(parsed.tempo):'');I("#bfGo").disabled=false;});
-    I("#bfGo").addEventListener('click',async function(){if(!parsed)return;if(!CAP.db){noAi();return;}
+    I("#bfGo").addEventListener('click',async function(){
+      if(!parsed&&rets.length){var rr=await aplicarRetornos(rets);closeDrawer();toast(rr.total?"✓ "+rr.total+" retorno(s) aplicados: "+rr.aprovado+" aprovação(ões), "+rr.ajuste+" ajuste(s).":"Não encontrei essas pautas no painel.");renderView(state.view);return;}
+      if(!parsed)return;if(!CAP.db){noAi();return;}
       I("#bfGo").disabled=true;setBusy(I("#bfIMsg"),"Importando…");
       try{var r=await importarBriefing(parsed,destino);setClient(r.id);if(!destino)go("dna");
         I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(480px,100%)"><div class="dh"><div class="d-title">'+(r.atualizado?'Cliente atualizado':'Cliente criado')+' ✓</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
@@ -2734,6 +2771,38 @@
       catch(e){clearBusy(m);m.textContent="Não consegui salvar agora.";}});
     if(state.ativosBrief&&!brief){state.ativosBrief=false;var bx=I("#cpBriefEdit");if(bx)bx.scrollIntoView({block:"center"});}
   }
+  // ---- Organização: apagar cliente e juntar cadastros duplicados ----
+  var DOCS_CLIENTE=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta"],COLS_CLIENTE=["cos_ideas","cos_calendar"];
+  async function apagarCliente(id){
+    for(var i=0;i<COLS_CLIENTE.length;i++){var sn=await dbItemsCol(COLS_CLIENTE[i],id).get();for(var j=0;j<sn.docs.length;j++)await dbItemsCol(COLS_CLIENTE[i],id).doc(sn.docs[j].id).delete();}
+    for(var k=0;k<DOCS_CLIENTE.length;k++){try{await dbDoc(DOCS_CLIENTE[k]+"/"+id).delete();}catch(e){}}
+    await dbDoc("cos_clients/"+id).delete();
+    delete DB_CLIENTS[id];delete DB_STATE_CACHE[id];
+    for(var n=CLIENTS.length-1;n>=0;n--)if(CLIENTS[n].id===id)CLIENTS.splice(n,1);
+    if(state.ativosOpen===id)state.ativosOpen=null;
+    if(state.client===id){state.client="";var prox=CLIENTS[0];if(prox)setClient(prox.id);else{GENERATED=null;}}
+    refreshClientOptions();
+  }
+  async function juntarClientes(destId,origId){
+    var A=Object.assign({},DB_CLIENTS[destId]),B=DB_CLIENTS[origId];if(!A||!B)return;
+    var bA=String(A.briefing||"").trim(),bB=String(B.briefing||"").trim();A.briefing=bA&&bB&&bA!==bB?bA+"\n\n---\n"+bB:(bA||bB);
+    A.niche=A.niche||B.niche||"";A.ficha=Object.assign({},B.ficha||{},A.ficha||{});Object.keys(B.ficha||{}).forEach(function(k){if(!A.ficha[k])A.ficha[k]=B.ficha[k];});
+    var ad=Object.assign({},B.admin||{},A.admin||{});Object.keys(B.admin||{}).forEach(function(k){if(!ad[k])ad[k]=B.admin[k];});A.admin=ad;
+    ["metas","rotina","vitrine","prefs"].forEach(function(k){if(!A[k]&&B[k])A[k]=B[k];});
+    await saveClientRecord(destId,A);
+    var dA=await dbDoc("cos_dna/"+destId).get(),dB=await dbDoc("cos_dna/"+origId).get(),eA=dA.exists?((dA.data()||{}).entries||[]):[],eB=dB.exists?((dB.data()||{}).entries||[]):[];
+    var vistos={};eA.forEach(function(e){vistos[e.field+"|"+e.value]=1;});eB.forEach(function(e){if(!vistos[e.field+"|"+e.value])eA.push(e);});
+    if(eA.length)await dbDoc("cos_dna/"+destId).set({entries:eA});
+    for(var i=0;i<DOCS_CLIENTE.length;i++){var nm=DOCS_CLIENTE[i];if(nm==="cos_dna")continue;var a=await dbDoc(nm+"/"+destId).get();if(!a.exists){var b=await dbDoc(nm+"/"+origId).get();if(b.exists)await dbDoc(nm+"/"+destId).set(b.data());}}
+    for(var j=0;j<COLS_CLIENTE.length;j++){var ca=await dbItemsCol(COLS_CLIENTE[j],destId).get();if(!ca.docs.length){var cb=await dbItemsCol(COLS_CLIENTE[j],origId).get();for(var n=0;n<cb.docs.length;n++)await dbItemsCol(COLS_CLIENTE[j],destId).doc(cb.docs[n].id).set(cb.docs[n].data());}}
+    delete DB_STATE_CACHE[destId];
+    await apagarCliente(origId);
+  }
+  async function renderBackupBanner(){var el=I("#ovBackup");if(!el)return;if(state.clientView||CAP.local||!Object.keys(DB_CLIENTS).length){el.innerHTML="";return;}
+    var cfg=await adminCfg(),ult=cfg.lastBackup?new Date(cfg.lastBackup):null,dias=ult?Math.floor((Date.now()-ult.getTime())/86400000):null;
+    if(ult&&dias<30){el.innerHTML="";return;}
+    el.innerHTML='<div class="card pad" style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span style="font-size:20px">💾</span><div style="flex:1;min-width:200px"><b>Backup do mês</b><div style="font-size:12.5px;color:var(--muted)">'+(ult?'O último backup foi há '+dias+' dias.':'Você ainda não fez nenhum backup.')+' Leva 10 segundos e guarda uma cópia de todos os clientes.</div></div><button class="btn" id="bkGoCfg">Fazer backup →</button></div>';
+    I("#bkGoCfg").addEventListener('click',function(){go("config");});}
   function openEditCliente(id){
     var c=DB_CLIENTS[id],a=adminOf(c),f=c.ficha||{};
     I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(460px,100%)"><div class="dh"><div class="d-title">Dados do cliente <span class="tag-mock">só você vê</span></div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
@@ -2745,8 +2814,17 @@
       '<div class="grid cols-2" style="gap:12px"><div class="fld"><label for="ecValor">Valor mensal (R$)</label><input id="ecValor" inputmode="decimal" value="'+(a.valor?String(a.valor).replace(".",","):"")+'" placeholder="1.500,00"></div>'+
       '<div class="fld"><label for="ecVenc">Dia do pagamento</label><select id="ecVenc">'+[5,10,15,20,25,30].map(function(d){return '<option value="'+d+'"'+(a.venc===d?' selected':'')+'>Dia '+d+'</option>'}).join('')+'</select></div></div>'+
       '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:4px 0 14px"><input type="checkbox" id="ecAtivo"'+(a.ativo?' checked':'')+'> Cliente ativo (desmarcar não apaga nada — o histórico fica guardado)</label>'+
-      '<button class="btn pri" id="ecSalvar">Salvar</button><span id="ecMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div></div></aside>';
+      '<button class="btn pri" id="ecSalvar">Salvar</button><span id="ecMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>'+
+      (Object.keys(DB_CLIENTS).length>1?'<div class="block"><div class="bt">Cadastro duplicado?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Junta o outro cadastro <b>neste</b>: briefing, ficha, contatos e Content DNA são somados; estratégia, linha editorial, ideias e calendário do outro entram só onde este estiver vazio. Depois o outro cadastro é removido.</div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="ecMergeSel" style="flex:1;min-width:160px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px;background:var(--surface-2);color:var(--ink)">'+Object.keys(DB_CLIENTS).filter(function(x){return x!==id}).map(function(x){return '<option value="'+esc(x)+'">'+esc(DB_CLIENTS[x].name)+'</option>'}).join('')+'</select><button class="btn" id="ecMerge">🔀 Juntar neste cadastro</button></div></div>':'')+
+      '<div class="block" style="border-color:var(--emo-bg)"><div class="bt" style="color:var(--emo)">Zona de cuidado</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Apagar remove o cliente e todo o histórico (briefing, estratégia, calendário, aprovações). Se só parou de atender, prefira <b>marcar como inativo</b>.</div><button class="btn" id="ecApagar" style="color:var(--emo)">🗑 Apagar cliente</button></div></div></aside>';
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    var mg=I("#ecMerge");if(mg)mg.addEventListener('click',async function(){var orig=I("#ecMergeSel").value,on=DB_CLIENTS[orig]&&DB_CLIENTS[orig].name;
+      if(!orig||!confirm("Juntar “"+on+"” em “"+c.name+"”? O cadastro “"+on+"” deixa de existir depois de juntar."))return;
+      mg.disabled=true;mg.textContent="Juntando…";try{await juntarClientes(id,orig);closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="🔀 Juntar neste cadastro";toast("Não consegui juntar agora.");}});
+    I("#ecApagar").addEventListener('click',async function(){var t=prompt("Isso apaga "+c.name+" e todo o histórico, sem volta.\nPara confirmar, digite o nome do cliente:");
+      if(t===null)return;if(normalizeTextPanel(t).trim()!==normalizeTextPanel(c.name).trim()){toast("Nome não confere — nada foi apagado.");return;}
+      try{await apagarCliente(id);closeDrawer();toast(c.name+" foi apagado.");renderAtivos();renderCobrancaBanner();}catch(e){toast("Não consegui apagar agora.");}});
     I("#ecSalvar").addEventListener('click',async function(){
       var nome=I("#ecNome").value.trim();if(!nome){I("#ecMsg").textContent="O nome não pode ficar vazio.";return;}
       var v=parseFloat(I("#ecValor").value.replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."))||0;
@@ -3035,7 +3113,7 @@
 
   // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
   // (ou guarda uma cópia de segurança). ----
-  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos"],BK_COLS=["cos_ideas","cos_calendar"];
+  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta"],BK_COLS=["cos_ideas","cos_calendar"];
   async function exportBackup(){
     var out={app:"content-os",v:1,at:new Date().toISOString(),clients:[]};
     for(var id in DB_CLIENTS){
@@ -3068,7 +3146,8 @@
     var ex=I("#bkExport");if(ex)ex.addEventListener('click',async function(){
       if(!CAP.db)return;msg("Preparando…");
       try{
-        var json=JSON.stringify(await exportBackup(),null,1),name="content-os-backup-"+new Date().toISOString().slice(0,10)+".json";
+        var bkData=await exportBackup();try{bkData.settings=await adminCfg();await salvarAdminCfg({lastBackup:new Date().toISOString()});}catch(e){}
+        var json=JSON.stringify(bkData,null,1),name="content-os-backup-"+new Date().toISOString().slice(0,10)+".json";
         var localDL=function(){var b=new Blob([json],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);msg("✓ Backup baixado","var(--good)");};
         if(window.claude&&claude.use){claude.use("downloads").then(function(dl){if(!dl){localDL();return;}dl.save({filename:name,data:json}).then(function(){msg("✓ Backup baixado","var(--good)")},function(){msg("Download recusado.","var(--warn)")});},localDL);}else{localDL();}
       }catch(e){msg("Não consegui exportar — tente de novo.","var(--warn)");}
