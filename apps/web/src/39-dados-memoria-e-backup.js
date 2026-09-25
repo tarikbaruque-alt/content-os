@@ -181,6 +181,141 @@
       '<div style="font-size:11.5px;color:var(--faint);margin-top:8px">Engajamento = (salvamentos + compartilhamentos + comentários) ÷ alcance. '+(tot<6?'Com poucos posts por formato, trate como sinal inicial — não como regra.':'Use para ajustar o mix do próximo mês.')+'</div></div>';
   }
 
+  // ---- Pulso (Performance) — só números reais: os que você cola em cada peça
+  // e os do CSV que o Instagram / Meta Business Suite exporta. Nada inventado. ----
+  // Colunas do export (português e inglês). A primeira que existir no arquivo vence.
+  var CSV_COLS={
+    data:["horário de publicação","horario de publicacao","data de publicação","publish time","date"],
+    tipo:["tipo de publicação","tipo de publicacao","post type","type"],
+    link:["link permanente","permalink","link"],
+    legenda:["descrição","descricao","description","legenda","caption"],
+    alcance:["alcance","reach","contas alcançadas","accounts reached"],
+    salvamentos:["salvamentos","saves"],
+    compartilhamentos:["compartilhamentos","shares"],
+    comentarios:["comentários","comentarios","comments"],
+    curtidas:["curtidas","likes"],
+    seguidores:["seguimentos","follows","seguidores"]
+  };
+  function parseCsv(text){
+    text=String(text||"").replace(/^﻿/,"");
+    var first=text.split(/\r?\n/)[0]||"",sep=(first.split(";").length>first.split(",").length)?";":",";
+    var rows=[],row=[],cell="",q=false;
+    for(var i=0;i<text.length;i++){var ch=text[i];
+      if(q){if(ch==='"'){if(text[i+1]==='"'){cell+='"';i++;}else q=false;}else cell+=ch;continue;}
+      if(ch==='"')q=true;else if(ch===sep){row.push(cell);cell="";}
+      else if(ch==="\n"||ch==="\r"){if(ch==="\r"&&text[i+1]==="\n")i++;row.push(cell);cell="";if(row.some(function(c){return c.trim()}))rows.push(row);row=[];}
+      else cell+=ch;}
+    row.push(cell);if(row.some(function(c){return c.trim()}))rows.push(row);
+    return rows;
+  }
+  function csvNum(v){v=String(v==null?"":v).trim();if(!v)return null;v=v.replace(/\s/g,"");
+    if(/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(v))v=v.replace(/\./g,"").replace(",",".");else v=v.replace(",",".");
+    var n=parseFloat(v);return isNaN(n)?null:Math.round(n);}
+  // "25/09/2026 18:30" (pt), "09/25/2026 18:30" (en), "2026-09-25T18:30".
+  function csvDate(v,pt){v=String(v||"").trim();var m=v.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[1]+"-"+m[2]+"-"+m[3];
+    m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(!m)return "";var a=+m[1],b=+m[2],d,mo;
+    if(a>12){d=a;mo=b;}else if(b>12){mo=a;d=b;}else if(pt){d=a;mo=b;}else{mo=a;d=b;}
+    return m[3]+"-"+("0"+mo).slice(-2)+"-"+("0"+d).slice(-2);}
+  function csvSurface(t){t=String(t||"").toLowerCase();return /reel|vídeo|video/.test(t)?"Reel":/carrossel|carousel|álbum|album/.test(t)?"Carrossel":/stor/.test(t)?"Stories":/imagem|image|foto|photo/.test(t)?"Imagem":(t?t.charAt(0).toUpperCase()+t.slice(1):"Post");}
+  function lerCsvInstagram(text){
+    var rows=parseCsv(text);if(rows.length<2)throw new Error("vazio");
+    var head=rows[0].map(function(h){return h.trim().toLowerCase()}),col={};
+    Object.keys(CSV_COLS).forEach(function(k){for(var i=0;i<CSV_COLS[k].length;i++){var j=head.indexOf(CSV_COLS[k][i]);if(j>=0){col[k]=j;return;}}});
+    if(col.alcance==null||col.data==null)throw new Error("colunas");
+    var pt=head.some(function(h){return /alcance|publicação|publicacao/.test(h)});
+    return rows.slice(1).map(function(r){var g=function(k){return col[k]!=null?r[col[k]]:""};
+      var p={data:csvDate(g("data"),pt),superficie:csvSurface(g("tipo")),link:String(g("link")||"").trim(),legenda:String(g("legenda")||"").trim().slice(0,140),fonte:"csv"};
+      ["alcance","salvamentos","compartilhamentos","comentarios","curtidas","seguidores"].forEach(function(k){var n=csvNum(g(k));if(n!=null)p[k]=n;});
+      return p;}).filter(function(p){return p.data&&p.alcance>0});
+  }
+  // Casa cada post com a peça do calendário do mesmo dia (e da mesma superfície, se houver).
+  async function importarCsvPerf(text){
+    var id=state.client,posts=lerCsvInstagram(text),items=(GENERATED.calendar&&GENERATED.calendar.items)||[],usados={},soltos=[],casados=0;
+    for(var i=0;i<posts.length;i++){var p=posts[i];
+      var cand=items.filter(function(it){return !usados[it.id]&&it.data===p.data});
+      var it=cand.filter(function(x){return x.idea&&x.idea.surface===p.superficie})[0]||(cand.length===1?cand[0]:null);
+      if(it){usados[it.id]=1;casados++;
+        var m={at:new Date().toISOString(),fonte:"csv",tipo:p.superficie};MET_KEYS.forEach(function(k){if(p[k]!=null)m[k]=p[k];});if(p.link)m.link=p.link;
+        await dbItemsCol("cos_calendar",id).doc(it.id).update({metrics:m});it.metrics=m;}
+      else soltos.push(p);}
+    var atual=(GENERATED.perf&&GENERATED.perf.posts)||[],chave=function(p){return p.link||(p.data+"|"+p.superficie+"|"+p.legenda)},vistos={};
+    var todos=soltos.concat(atual).filter(function(p){var k=chave(p);if(vistos[k])return false;vistos[k]=1;return true;});
+    var perf={posts:todos,importedAt:new Date().toISOString()};
+    await dbDoc("cos_perf/"+id).set(perf);GENERATED.perf=perf;if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].perf=perf;
+    return {total:posts.length,casados:casados,soltos:soltos.length};
+  }
+  var MET_KEYS=["alcance","salvamentos","compartilhamentos","comentarios","curtidas","seguidores"];
+  function perfPosts(){
+    var g=GENERATED||{},out=[];
+    ((g.calendar&&g.calendar.items)||[]).forEach(function(it){var m=it.metrics;if(!m||!(m.alcance>0))return;var x=it.idea||{};
+      out.push({data:it.data,superficie:m.tipo||x.surface||"Post",formato:itemFormato(it),funil:x.funil||"",titulo:pecaTitulo(it),link:m.link||"",m:m});});
+    ((g.perf&&g.perf.posts)||[]).forEach(function(p){out.push({data:p.data,superficie:p.superficie,formato:p.superficie,funil:"",titulo:p.legenda||"(post fora do calendário)",link:p.link,m:p});});
+    return out.sort(function(a,b){return a.data<b.data?1:-1});
+  }
+  function engOf(m){return m.alcance>0?((m.salvamentos||0)+(m.compartilhamentos||0)+(m.comentarios||0))/m.alcance:0;}
+  function agrupa(posts,key){var by={};posts.forEach(function(p){var k=p[key];if(!k)return;var b=by[k]=by[k]||{k:k,n:0,alc:0,inter:0};b.n++;b.alc+=p.m.alcance;b.inter+=engOf(p.m)*p.m.alcance;});
+    return Object.keys(by).map(function(k){var b=by[k];return {k:k,n:b.n,alcMedio:Math.round(b.alc/b.n),eng:b.alc?b.inter/b.alc:0}}).sort(function(a,b){return b.eng-a.eng});}
+  function nfmt(n){return n>=10000?(Math.round(n/100)/10).toLocaleString('pt-BR')+'k':Math.round(n).toLocaleString('pt-BR');}
+  function barsHtml(rows,lbl){if(!rows.length)return '<div style="font-size:12.5px;color:var(--faint)">Sem dados suficientes.</div>';var top=rows[0].eng||1;
+    return rows.map(function(r){return '<div class="fnbar"><span class="fnl">'+esc(lbl?lbl(r.k):r.k)+' <span style="color:var(--faint);font-size:10.5px">· '+r.n+'</span></span><span class="fnt"><i style="width:'+Math.max(3,Math.min(100,r.eng/top*100))+'%"></i></span><span class="fnv tnum" style="flex:0 0 64px">'+pct(r.eng)+'</span></div>'}).join('');}
+  // Leitura automática: só compara o que os números mostram, e avisa quando a amostra é pequena.
+  function leituraPulso(posts,porSup,porFunil){
+    var L=[];if(posts.length<3)return ['Com '+posts.length+' post'+(posts.length>1?'s':'')+' medido'+(posts.length>1?'s':'')+', ainda não dá pra tirar conclusão. Registre pelo menos 6 posts para o Pulso começar a comparar.'];
+    var ok=porSup.filter(function(r){return r.n>=2});
+    // Só aponta vencedor com diferença de 20% ou mais; abaixo disso é ruído de amostra.
+    var claro=function(x,y){return y.eng>0?x.eng/y.eng>=1.2:x.eng>0;};
+    if(ok.length>=2){var a=ok[0],z=ok[ok.length-1];
+      if(claro(a,z)){L.push('<b>'+esc(a.k)+'</b> engaja '+(z.eng>0?(Math.round(a.eng/z.eng*10)/10).toLocaleString('pt-BR')+'x':'mais')+' o que <b>'+esc(z.k)+'</b> engaja ('+pct(a.eng)+' contra '+pct(z.eng)+').');
+        L.push('Recomendação: aumente a participação de '+esc(a.k)+' no mix do próximo mês e teste um ângulo novo em '+esc(z.k)+' antes de cortar.');}
+      else L.push('Os tipos de post estão empatados ('+ok.map(function(r){return esc(r.k)+' '+pct(r.eng)}).join(', ')+'): a diferença é pequena demais para mudar o mix. Mantenha e continue medindo.');}
+    else L.push('Ainda não há 2 posts de cada tipo para comparar com segurança.');
+    var fok=porFunil.filter(function(r){return r.n>=2});
+    if(fok.length>=2&&claro(fok[0],fok[fok.length-1]))L.push('No funil, <b>'+esc(FUNIL_LBL[fok[0].k]||fok[0].k)+'</b> está entregando o melhor engajamento ('+pct(fok[0].eng)+' contra '+pct(fok[fok.length-1].eng)+' em '+esc(FUNIL_LBL[fok[fok.length-1].k]||fok[fok.length-1].k)+').');
+    var best=posts.slice().sort(function(a,b){return engOf(b.m)-engOf(a.m)})[0];
+    if(best)L.push('Próximo teste: repita o ângulo de "'+esc(String(best.titulo).slice(0,70))+'" em outro formato e compare.');
+    if(posts.length<6)L.push('Amostra pequena ('+posts.length+' posts): trate como sinal inicial, não como regra.');
+    return L;
+  }
+  var FUNIL_LBL={topo:"Topo (descoberta)",meio:"Meio (educação)",fundo:"Fundo (conversão)"};
+  function renderPerf(){
+    var el=I('.view[data-view="performance"]');if(!el)return;
+    var posts=perfPosts(),h='<div class="section-head" style="margin-top:6px"><div><h3>Performance — '+esc(clientName(state.client))+'</h3><p><b>Pulso</b> lê só números reais deste cliente: os que você registra em cada peça e os do CSV exportado do Instagram.</p></div></div>';
+    var imp='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:6px">Importar resultados do Instagram</div>'+
+      '<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">No Meta Business Suite: <b>Insights → Conteúdo → Exportar dados</b> (CSV). Cada post é ligado à peça do calendário do mesmo dia; os que não baterem entram como posts avulsos.</div>'+
+      '<label class="btn'+(posts.length?'':' pri')+'" style="display:inline-block">⬆ Importar CSV<input type="file" id="perfCsv" accept=".csv,text/csv" hidden></label><span id="perfMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>';
+    if(!posts.length){
+      el.innerHTML=h+'<div class="card empty-hero"><div class="eh-t"><b>Ainda não há resultados medidos.</b><br><span style="font-size:12.5px;color:var(--muted)">Importe o CSV do Instagram abaixo ou abra uma peça no Calendário e cole alcance, salvamentos e compartilhamentos.</span></div></div>'+imp;
+      wirePerf();return;}
+    var tot=function(k){return posts.reduce(function(a,p){return a+(p.m[k]||0)},0)};
+    var alc=tot("alcance"),inter=tot("salvamentos")+tot("compartilhamentos")+tot("comentarios");
+    // Comparação: 30 dias até o post mais recente × os 30 anteriores (só quando os dois lados têm posts).
+    var ult=new Date(posts[0].data+"T12:00:00"),corte=fmtD(new Date(ult.getTime()-30*864e5)),corte2=fmtD(new Date(ult.getTime()-60*864e5));
+    var rec=posts.filter(function(p){return p.data>corte}),ant=posts.filter(function(p){return p.data<=corte&&p.data>corte2});
+    var media=function(a,k){return a.length?a.reduce(function(s,p){return s+(p.m[k]||0)},0)/a.length:0};
+    var delta=function(a,b){if(rec.length<2||ant.length<2||!b)return '';var d=Math.round((a-b)/b*100);return '<span style="color:'+(d>=0?'var(--good)':'var(--warn)')+'">'+(d>=0?'+':'')+d+'%</span> vs. 30 dias anteriores';};
+    var engRec=rec.length?rec.reduce(function(s,p){return s+engOf(p.m)*p.m.alcance},0)/Math.max(1,rec.reduce(function(s,p){return s+p.m.alcance},0)):0;
+    var engAnt=ant.length?ant.reduce(function(s,p){return s+engOf(p.m)*p.m.alcance},0)/Math.max(1,ant.reduce(function(s,p){return s+p.m.alcance},0)):0;
+    h+='<div class="grid cols-4" style="margin-bottom:16px">'+
+      kpiCard("Posts medidos",String(posts.length),posts.filter(function(p){return p.funil}).length+" ligados ao calendário")+
+      kpiCard("Alcance médio",nfmt(alc/posts.length),delta(media(rec,"alcance"),media(ant,"alcance"))||("alcance total "+nfmt(alc)))+
+      kpiCard("Engajamento",pct(alc?inter/alc:0),delta(engRec,engAnt)||"salv. + compart. + coment. ÷ alcance")+
+      kpiCard("Seguidores ganhos",nfmt(tot("seguidores")),"soma dos posts medidos")+'</div>';
+    var porSup=agrupa(posts,"superficie"),porFmt=agrupa(posts.filter(function(p){return p.funil}),"formato"),porFunil=agrupa(posts,"funil");
+    h+='<div class="grid cols-2" style="gap:14px"><div class="card pad"><div class="eyebrow" style="margin-bottom:10px">Engajamento por tipo de post</div>'+barsHtml(porSup)+'</div>'+
+      '<div class="card pad"><div class="eyebrow" style="margin-bottom:10px">Engajamento por etapa do funil</div>'+barsHtml(porFunil,function(k){return FUNIL_LBL[k]||k})+'</div></div>';
+    if(porFmt.length)h+='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">Engajamento por formato criativo (peças do calendário)</div>'+barsHtml(porFmt)+'</div>';
+    var top=posts.slice().sort(function(a,b){return engOf(b.m)-engOf(a.m)}).slice(0,5);
+    h+='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:10px">Posts que mais engajaram</div>'+top.map(function(p){return '<div class="fnbar"><span class="fnl" style="flex:1;color:var(--ink)">'+(p.link?'<a href="'+esc(p.link)+'" target="_blank" rel="noopener">'+esc(String(p.titulo).slice(0,80))+'</a>':esc(String(p.titulo).slice(0,80)))+' <span style="color:var(--faint);font-size:10.5px">· '+esc(p.superficie)+' · '+esc(p.data.split("-").reverse().join("/"))+'</span></span><span class="fnv tnum" style="flex:0 0 70px">'+nfmt(p.m.alcance)+'</span><span class="fnv tnum" style="flex:0 0 64px">'+pct(engOf(p.m))+'</span></div>'}).join('')+'</div>';
+    h+='<div class="card pad" style="margin-top:14px"><div class="eyebrow" style="margin-bottom:8px">Leitura do Pulso</div><ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6">'+leituraPulso(posts,porSup,porFunil).map(function(l){return '<li>'+l+'</li>'}).join('')+'</ul><div style="font-size:11.5px;color:var(--faint);margin-top:8px">Leitura automática feita só com os números acima. Engajamento = (salvamentos + compartilhamentos + comentários) ÷ alcance.</div></div>';
+    el.innerHTML=h+imp;wirePerf();
+  }
+  function wirePerf(){
+    var inp=I("#perfCsv");if(!inp)return;
+    inp.addEventListener('change',function(){var f=inp.files&&inp.files[0],m=I("#perfMsg");if(!f)return;if(m){m.textContent="Importando…";m.style.color="var(--muted)";}
+      f.text().then(importarCsvPerf).then(function(r){renderPerf();var m2=I("#perfMsg");if(m2){m2.textContent="✓ "+r.total+" posts importados · "+r.casados+" ligados a peças do calendário"+(r.soltos?" · "+r.soltos+" avulsos":"");m2.style.color="var(--good)";}},
+        function(e){if(m){m.textContent=e&&e.message==="colunas"?"Não achei as colunas de data e alcance. Use o CSV exportado pelo Meta Business Suite.":"Não consegui ler esse arquivo.";m.style.color="var(--warn)";}});});
+  }
+
   // ---- Próximos passos: o painel guia o que falta para cada cliente ----
   function nextStepsHtml(){
     if(!state.client||!isDbClient(state.client))return '';
@@ -208,7 +343,7 @@
 
   // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
   // (ou guarda uma cópia de segurança). ----
-  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta"],BK_COLS=["cos_ideas","cos_calendar"];
+  var BK_DOCS=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta","cos_perf"],BK_COLS=["cos_ideas","cos_calendar"];
   async function exportBackup(){
     var out={app:"content-os",v:1,at:new Date().toISOString(),clients:[]};
     for(var id in DB_CLIENTS){
@@ -305,7 +440,7 @@
   }
   function blankClientState(id,name){
     return {clientId:id,clientName:name,generatedAt:null,provider:"sample",
-      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],formats:null,exemplos:[],
+      dna:[],strategy:null,research:[],editorial:[],ideas:[],refs:[],formats:null,exemplos:[],perf:null,
       calendar:{total:0,mix:{topo:0,meio:0,fundo:0},items:[]},notion:[],performance:[],
       libraries:LIB,warnings:[]};
   }
@@ -321,6 +456,7 @@
       var refsDoc=await dbDoc("cos_refs/"+id).get();if(refsDoc.exists)g.refs=(refsDoc.data()||{}).items||[];
       var fmtDoc=await dbDoc("cos_formats/"+id).get();if(fmtDoc.exists)g.formats=fmtDoc.data();
       var exDoc=await dbDoc("cos_exemplos/"+id).get();if(exDoc.exists)g.exemplos=(exDoc.data()||{}).items||[];
+      var perfDoc=await dbDoc("cos_perf/"+id).get();if(perfDoc.exists)g.perf=perfDoc.data();
       var ideasSnap=await dbItemsCol("cos_ideas",id).get();g.ideas=ideasSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       var calSnap=await dbItemsCol("cos_calendar",id).get();g.calendar.items=calSnap.docs.map(function(d){return d.data()}).sort(function(a,b){return (a.ord||0)-(b.ord||0)});
       g.calendar.total=g.calendar.items.length;

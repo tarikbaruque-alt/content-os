@@ -144,6 +144,7 @@
         patch.stories={origem:"ia",tipo:String(out3.tipo||"Sequência"),objetivo:cfg.objetivo,contexto:"",emocao:String(out3.emocao||cfg.emocao),emocaoPor:String(out3.emocaoPor||""),
           percepcaoDesejada:"",narrativa:"",publico:cfg.persona,progressao:storiesSteps.map(function(s){return s.papel}),stories:storiesSteps,cta:String(out3.cta||cfg.cta),gatilhos:cfg.gatilhos};
       }
+      if(!it.status||it.status==="PLANNED"||it.status==="IN PRODUCTION")patch.status="WAITING APPROVAL";
       await dbItemsCol("cos_calendar",id).doc(it.id).update(patch);
       Object.assign(it,patch);
       if(DB_STATE_CACHE[id]&&DB_STATE_CACHE[id].calendar){var cached=DB_STATE_CACHE[id].calendar.items.filter(function(x){return x.id===it.id})[0];if(cached)Object.assign(cached,patch);}
@@ -157,6 +158,8 @@
     var patch={};patch[path]=value;
     await dbItemsCol("cos_calendar",state.client).doc(itemId).update(patch);
   }
+  // Falha ao gravar: devolve o botão e avisa — o texto editado continua na tela.
+  function saveFail(btn){btn.disabled=false;btn.textContent="💾 Salvar edições";toast("Não consegui salvar — suas edições continuam na tela. Tente de novo.");}
   function openGenerated(idx){
     var g=GENERATED,it=g.calendar.items[idx];if(!it)return;var x=it.idea,c=it.content,np=(g.notion||[])[idx];
     var db=isDbClient(state.client);
@@ -164,16 +167,17 @@
     var activeCv="media";
     var body='';
     var stOpts=["PLANNED","REVIEW","WAITING APPROVAL","IN PRODUCTION","APPROVED","PUBLISHED"];
-    function efld(l,v){return '<div><div class="ql">'+esc(l)+'</div><div class="editable" contenteditable="true">'+esc(v)+'</div></div>';}
+    // Só é editável o que de fato salva (data-idea-fld); o resto é leitura.
+    function efld(l,v,k){return '<div><div class="ql">'+esc(l)+'</div>'+(k&&db?'<div class="editable" contenteditable="true" data-idea-fld="'+k+'">'+esc(v)+'</div>':'<div style="font-size:13px">'+esc(v)+'</div>')+'</div>';}
     var cli=state.clientView;
     if(!cli){
       body+='<div class="block"><div class="bt">Ficha do conteúdo <span class="tag-mock">editável</span></div><div class="metagrid">'
-        +(db?'<div><div class="ql">Publicação — dia e horário</div><div style="display:flex;gap:6px"><input type="date" id="pubData" class="editable" value="'+esc(it.data)+'" style="flex:1;min-width:0"><input type="time" id="pubHora" class="editable" value="'+esc(itemHora(it))+'" style="width:96px"></div><div id="pubMsg" style="font-size:11px;color:var(--faint);margin-top:3px">'+(it.hora?'Horário próprio':'Horário da rotina ('+esc(surfLbl(x.surface))+')')+'</div></div>':efld("Data",it.data))+efld("Tema",x.tema)+efld("Pilar",(x.pilar||"").split(":")[0])+efld("Formato",x.surface+" + "+x.format)
-        +'<div style="grid-column:1/-1">'+efld("Público/Persona",x.persona)+'</div>'
-        +'<div><div class="ql">Status / Aprovação</div><select class="editable" style="width:100%">'+stOpts.map(function(s){return '<option'+(s===it.status?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'
+        +(db?'<div><div class="ql">Publicação — dia e horário</div><div style="display:flex;gap:6px"><input type="date" id="pubData" class="editable" value="'+esc(it.data)+'" style="flex:1;min-width:0"><input type="time" id="pubHora" class="editable" value="'+esc(itemHora(it))+'" style="width:96px"></div><div id="pubMsg" style="font-size:11px;color:var(--faint);margin-top:3px">'+(it.hora?'Horário próprio':'Horário da rotina ('+esc(surfLbl(x.surface))+')')+'</div></div>':efld("Data",it.data))+efld("Tema",x.tema,"tema")+efld("Pilar",(x.pilar||"").split(":")[0])+efld("Formato",x.surface+" + "+x.format)
+        +'<div style="grid-column:1/-1">'+efld("Público/Persona",x.persona,"persona")+'</div>'
+        +'<div><div class="ql">Status / Aprovação</div>'+(db?'<select class="editable" id="pubStatus" style="width:100%">'+stOpts.map(function(s){return '<option value="'+s+'"'+(s===it.status?' selected':'')+'>'+esc(stLabel(s))+'</option>'}).join('')+'</select><div id="stMsg" style="font-size:11px;color:var(--faint);margin-top:3px"></div>':'<div style="font-size:13px">'+esc(stLabel(it.status))+'</div>')+'</div>'
         +'</div></div>';
     }else{
-      body+='<div class="block"><div class="bt">Ficha</div><div class="metagrid">'+meta("Quando",quando(it))+meta("Tema",x.tema)+meta("Formato",x.surface+" + "+x.format)+meta("Status",it.status)+'</div></div>';
+      body+='<div class="block"><div class="bt">Ficha</div><div class="metagrid">'+meta("Quando",quando(it))+meta("Tema",x.tema)+meta("Formato",x.surface+" + "+x.format)+meta("Status",stLabel(it.status))+'</div></div>';
     }
     if(!c&&db){
       // Ainda não produzido: painel de configuração + botão de gerar, em vez do conteúdo.
@@ -199,6 +203,8 @@
       if(db)body+='<div style="text-align:right"><button class="btn pri" id="saveReelBtn" data-idx="'+idx+'">💾 Salvar edições</button></div>';
       if(db&&!cli)body+=metricsBlockHtml(it,idx);
     }
+    // Peça só com carrossel/Stories também registra resultado.
+    if(!c&&db&&!cli&&temTexto(it))body+=metricsBlockHtml(it,idx);
     var VIEWS={estrategia:body,carrossel:carouselHtml(it.carousel,x,idx),stories:storyHtml(it.stories,x,idx)};
     var tabsDef=[["estrategia","Estratégia"],["carrossel","🎠 Criar Carrossel"],["stories","📱 Criar Sequência de Stories"]];
     var tabs='<div class="crtabs" style="display:flex;gap:6px;padding:12px 20px 0;flex-wrap:wrap">'+tabsDef.map(function(t){return '<button class="preset crtab" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join('')+'</div>';
@@ -228,9 +234,9 @@
         var roteiroEls=document.querySelectorAll('#drawerBody .sv[data-step]');
         var roteiro=(it.content.roteiro||[]).map(function(s,i){var el=roteiroEls[i];return {label:s.label,text:el?el.textContent:s.text};});
         var ctaEl=I('#reelCta');
-        var patch={content:Object.assign({},it.content,{copyVariants:cvData,copy:cvData.media,roteiro:it.content.roteiro?roteiro:it.content.roteiro,cta:ctaEl?ctaEl.textContent:it.content.cta})};
+        var patch={content:Object.assign({},it.content,{origem:isRascunho(it.content)?"editado":(it.content.origem||"ia"),copyVariants:cvData,copy:cvData.media,roteiro:it.content.roteiro?roteiro:it.content.roteiro,cta:ctaEl?ctaEl.textContent:it.content.cta})};
         sr.disabled=true;sr.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it.content,patch.content,{origem:"ia"});recordExample(state.client,"Reel/copy",it.content.headline,it.content.copy,"editado por você");sr.textContent="✓ Salvo";setTimeout(function(){sr.textContent="💾 Salvar edições";sr.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it.content,patch.content);recordExample(state.client,"Reel/copy",it.content.headline,it.content.copy,"editado por você");sr.textContent="✓ Salvo";setTimeout(function(){sr.textContent="💾 Salvar edições";sr.disabled=false;},1200);},function(){saveFail(sr);});
         return;
       }
       var sc=e.target.closest&&e.target.closest('#saveCarrBtn');
@@ -239,7 +245,7 @@
         var slides=(cr.slides||[]).map(function(s,i){var t=document.querySelector('[data-slide-t="'+i+'"]'),tx=document.querySelector('[data-slide-x="'+i+'"]');return Object.assign({},s,{titulo:t?t.textContent:s.titulo,texto:tx?tx.textContent:s.texto});});
         var patch2={carousel:Object.assign({},cr,{capaHeadline:capaEl?capaEl.textContent:cr.capaHeadline,copy:copyEl?copyEl.textContent:cr.copy,cta:ctaEl2?ctaEl2.textContent:cr.cta,slides:slides})};
         sc.disabled=true;sc.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch2).then(function(){Object.assign(it.carousel,patch2.carousel);recordExample(state.client,"Carrossel",it.carousel.capaHeadline,it.carousel.copy,"editado por você");sc.textContent="✓ Salvo";setTimeout(function(){sc.textContent="💾 Salvar edições";sc.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch2).then(function(){Object.assign(it.carousel,patch2.carousel);recordExample(state.client,"Carrossel",it.carousel.capaHeadline,it.carousel.copy,"editado por você");sc.textContent="✓ Salvo";setTimeout(function(){sc.textContent="💾 Salvar edições";sc.disabled=false;},1200);},function(){saveFail(sc);});
         return;
       }
       var ss=e.target.closest&&e.target.closest('#saveStoBtn');
@@ -248,21 +254,31 @@
         var stories=(sq.stories||[]).map(function(s,i){var f=document.querySelector('[data-story-fala="'+i+'"]');return Object.assign({},s,{fala:f?f.textContent:s.fala});});
         var patch3={stories:Object.assign({},sq,{cta:ctaEl3?ctaEl3.textContent:sq.cta,stories:stories})};
         ss.disabled=true;ss.textContent="Salvando…";
-        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch3).then(function(){Object.assign(it.stories,patch3.stories);recordExample(state.client,"Stories",it.stories.cta,(it.stories.stories||[]).map(function(s){return s.fala}).join(" / "),"editado por você");ss.textContent="✓ Salvo";setTimeout(function(){ss.textContent="💾 Salvar edições";ss.disabled=false;},1200);});
+        dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch3).then(function(){Object.assign(it.stories,patch3.stories);recordExample(state.client,"Stories",it.stories.cta,(it.stories.stories||[]).map(function(s){return s.fala}).join(" / "),"editado por você");ss.textContent="✓ Salvo";setTimeout(function(){ss.textContent="💾 Salvar edições";ss.disabled=false;},1200);},function(){saveFail(ss);});
         return;
       }
     });
     selTab('estrategia');
     function savePub(){var dd=I("#pubData"),hh=I("#pubHora");if(!dd||!hh||!isIsoDate(dd.value))return;var patch={data:dd.value,hora:padT(hh.value||itemHora(it))};
       dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it,patch);var m=I("#pubMsg");if(m)m.textContent="✓ Salvo — "+quando(it);renderCal();},function(){var m=I("#pubMsg");if(m)m.textContent="Não consegui salvar";});}
-    if(db&&I("#pubData")){I("#pubData").addEventListener('change',savePub);I("#pubHora").addEventListener('change',savePub);}
+    // Delegado no corpo do drawer: as abas recriam o HTML, então ouvintes
+    // presos no elemento se perdiam ao voltar para a aba Estratégia.
+    function saveStatus(sel){var st=sel.value,m=I("#stMsg");
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st}).then(function(){it.status=st;if(m){m.textContent="✓ Salvo";m.style.color="var(--good)";}renderCal();renderApprovals();renderContentList();},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}sel.value=it.status;});}
+    function saveIdeaFld(el){var k=el.getAttribute('data-idea-fld'),v=el.textContent.trim();if(v===String(it.idea[k]||""))return;
+      var idea=Object.assign({},it.idea);idea[k]=v;
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update({idea:idea}).then(function(){it.idea[k]=v;el.style.outline="1px solid var(--good)";setTimeout(function(){el.style.outline="";},900);},function(){el.textContent=it.idea[k]||"";toast("Não consegui salvar a alteração — tente de novo.");});}
+    if(db){
+      I("#drawerBody").addEventListener('change',function(e){var t=e.target;if(t.id==="pubData"||t.id==="pubHora")savePub();else if(t.id==="pubStatus")saveStatus(t);});
+      I("#drawerBody").addEventListener('focusout',function(e){var t=e.target;if(t.getAttribute&&t.getAttribute('data-idea-fld'))saveIdeaFld(t);});
+    }
     Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',async function(){
       var span=b.parentNode.querySelector('span');
       if(!db){span.textContent="Ação registrada (prévia)";return;}
       var aprovar=b.classList.contains('pri'),st=aprovar?"APPROVED":"REVIEW";
       try{
         await dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st});
-        it.status=st;span.textContent=st;span.className="badge "+(aprovar?"act":"prog");
+        it.status=st;span.textContent=stLabel(st);renderApprovals();renderContentList();span.className="badge "+(aprovar?"act":"prog");
         if(aprovar){
           var cc=it.content,cr=it.carousel;
           if(cc&&!isRascunho(cc))await recordExample(state.client,"Reel/copy",cc.headline,cc.copy,"aprovado");
@@ -273,12 +289,20 @@
       }catch(e){span.textContent="Não consegui salvar";}
     })});
   }
+  function temTexto(it){return !!(it&&(it.content||it.carousel||it.stories));}
+  function emptyList(t,d){return '<div class="card empty-hero"><div class="eh-t"><b>'+esc(t)+'</b><br><span style="font-size:12.5px;color:var(--muted)">'+esc(d)+'</span></div></div>';}
   function renderContentList(){
     if(genOn()){I("#contentList").innerHTML=GENERATED.calendar.items.map(genCard).join('');wireGen('#contentList [data-gen]');return;}
+    if(state.client){I("#contentList").innerHTML=emptyList("Nenhum conteúdo ainda.","Os conteúdos nascem do Calendário: gere as Ideias e monte o calendário do cliente.");return;}
     I("#contentList").innerHTML=CONTENT.map(contentCard).join('');wireContent('#contentList [data-content]');
   }
   function renderApprovals(){
-    if(genOn()){var g=GENERATED.calendar.items.map(function(it,i){return {it:it,i:i}}).filter(function(o){return o.it.status==="WAITING APPROVAL"||o.it.status==="REVIEW"});I("#approvalList").innerHTML=g.map(function(o){return genCard(o.it,o.i)}).join('');wireGen('#approvalList [data-gen]');return;}
+    if(genOn()){
+      // Só entra peça com texto produzido: não há o que aprovar numa ideia ainda sem roteiro.
+      var g=GENERATED.calendar.items.map(function(it,i){return {it:it,i:i}}).filter(function(o){return (o.it.status==="WAITING APPROVAL"||o.it.status==="REVIEW")&&temTexto(o.it)});
+      I("#approvalList").innerHTML=g.length?g.map(function(o){return genCard(o.it,o.i)}).join(''):emptyList("Nada aguardando aprovação.","Quando a IA produzir o roteiro, o carrossel ou os Stories de uma peça, ela aparece aqui para você aprovar ou pedir ajuste.");
+      wireGen('#approvalList [data-gen]');return;}
+    if(state.client){I("#approvalList").innerHTML=emptyList("Nada aguardando aprovação.","Monte o calendário e produza as peças com a IA: elas chegam aqui para você aprovar.");return;}
     var items=CONTENT.filter(function(x){return x.status==="WAITING APPROVAL"||x.status==="REVIEW"});I("#approvalList").innerHTML=items.map(contentCard).join('');wireContent('#approvalList [data-content]');
   }
   var DIAS_PADRAO={1:[3],2:[2,4],3:[2,3,5],4:[2,3,4,5],5:[1,2,3,4,5],6:[1,2,3,4,5,6],7:[0,1,2,3,4,5,6]};
@@ -329,7 +353,7 @@
       order=ord2;
       var items=order.map(function(idea,i){
         return {ord:i,id:"cal-"+(i+1),data:slots[i],idea:idea,content:null,carousel:null,stories:null,
-          status:i===0?"WAITING APPROVAL":i<3?"REVIEW":"PLANNED"};
+          status:"PLANNED"};
       });
       var col2=dbItemsCol("cos_calendar",id);
       await clearCollection(col2);

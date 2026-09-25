@@ -10,7 +10,7 @@
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
