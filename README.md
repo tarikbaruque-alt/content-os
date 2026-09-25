@@ -25,6 +25,8 @@ npm run pipeline  # gera o plano do cliente-exemplo → apps/web/generated-plan.
 ```
 
 **Ver o painel:** abra `apps/web/index.html` no navegador (ou `npx --yes serve apps/web`).
+
+**Editar o painel:** o código fica dividido por assunto em `apps/web/src/` (estilos, estrutura, render, formatos, criação, calendário, vitrine do cliente, configuração, briefing/caixa de entrada, clientes ativos, dados). Edite as partes e rode `npm run panel:sync`, que monta `apps/web/index.html` (e as cópias `app.html` e `AGENTES INTELIGENTES/painel.html`). Um teste garante que o painel é exatamente a junção das partes.
 No painel → **Plano do Mês → clique num conteúdo** para ver o esqueleto estratégico,
 o carrossel (🎠) e a sequência de Stories (📱) prontos.
 

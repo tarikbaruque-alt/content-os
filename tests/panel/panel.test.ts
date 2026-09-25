@@ -5,6 +5,7 @@ import { FORMATOS, FN_ALTERNATIVAS } from "../../src/pipeline/formats.js";
 import { GENERIC_PROFILE, NICHE_PROFILES } from "../../src/pipeline/niche-formats.js";
 import { GATILHOS } from "../../src/agents/creative/triggers.js";
 import { ELEMENTOS } from "../../src/agents/creative/devices.js";
+import { joinParts, partNames } from "../../src/demo/sync-panel.js";
 
 /**
  * Rede de segurança do painel (arquivo único grande, em 3 cópias): pega as
@@ -16,6 +17,11 @@ const html = readFileSync(COPIES[0]!, "utf8");
 describe("Painel (apps/web)", () => {
   it("as três cópias são idênticas (rode `npm run panel:sync` após editar)", () => {
     for (const f of COPIES.slice(1)) expect(readFileSync(f, "utf8") === html, f).toBe(true);
+  });
+
+  it("o painel é exatamente a junção das partes em apps/web/src (edite as partes e rode `npm run panel:sync`)", () => {
+    expect(partNames().length).toBeGreaterThan(5);
+    expect(joinParts() === html).toBe(true);
   });
 
   it("as bibliotecas (formatos, nichos, gatilhos, elementos) embutidas está em dia com o código", () => {
