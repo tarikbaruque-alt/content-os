@@ -122,6 +122,10 @@
     if(!briefing){I("#dnaMsg").textContent="Cole um briefing primeiro.";I("#dnaMsg").style.color="var(--warn)";return;}
     if(!CAP.sample){noAi();return;}
     I("#dnaRun").disabled=true;setBusy(I("#dnaMsg"),"Analisando…");
+    // Briefing do formulário colado aqui: aplica ficha, metas e rotina (frequência,
+    // dias, gravação) como no "Importar briefing" — senão o calendário sai no padrão.
+    var pb=parseBriefing(briefing);
+    if(pb&&isDbClient(id)){try{await saveClientRecord(id,Object.assign(fichaDoBriefing(id,pb),{briefing:briefing}));}catch(e){}}
     try{
       var out=await CAP.sample.json(buildIrisPrompt(byId(id).name,briefing),{modelTier:"default",cache:false});
       var sugs=(out&&out.suggestions)||[];
