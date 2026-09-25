@@ -33,7 +33,7 @@ describe("Painel (apps/web)", () => {
 
   it("toda view do menu tem sua seção e seu título", () => {
     const nav = [...html.matchAll(/\["([a-z]+)","[^"]+"\]/g)].map((x) => x[1]!);
-    const views = new Set(nav.filter((v) => ["overview", "clients", "analyze", "dna", "plan", "strategy", "research", "editorial", "ideas", "formats", "distribution", "content", "calendar", "approvals", "performance", "kb", "agents", "config"].includes(v)));
+    const views = new Set(nav.filter((v) => ["overview", "ativos", "clients", "analyze", "dna", "plan", "strategy", "research", "editorial", "ideas", "formats", "distribution", "content", "calendar", "approvals", "performance", "kb", "agents", "config"].includes(v)));
     for (const v of views) {
       expect(html.includes(`data-view="${v}"`), `seção ${v}`).toBe(true);
       expect(new RegExp(`[{,]${v}:\\["`).test(html), `título ${v}`).toBe(true);
