@@ -21,7 +21,7 @@
     "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "supabase:setup": "tsx scripts/supabase-setup.ts",
     "build:web": "tsx scripts/build-web.ts",
-    "deploy:web": "npm run build:web && cd dist/content-os-painel && vercel deploy --prod --yes > ../.deploy-url && vercel alias set $(cat ../.deploy-url) painel-content-os.vercel.app"
+    "deploy:web": "npm run build:web && cd dist/content-os-painel && vercel deploy --prod --yes"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
