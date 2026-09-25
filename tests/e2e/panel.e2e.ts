@@ -121,9 +121,37 @@ describe("Painel no navegador (window.claude simulado)", () => {
     expect(perf).not.toMatch(/48,2k/);
   }, 30_000);
 
-  it("menu por processo: 4 itens; cliente com abas e sub-abas; nenhuma tela quebra", async () => {
+  it("Calendário geral mostra as peças de todos os clientes e mover de dia salva", async () => {
+    await ir("agenda");
+    await page.waitForSelector(".ag-grade");
+    // As peças podem cair no mês seguinte: avança até achar.
+    for (let i = 0; i < 3 && !(await page.$(".ag-ev")); i++) { await page.click('[data-ag-passo="1"]'); await page.waitForTimeout(150); }
+    const antes = await page.$$eval(".ag-ev", (e) => e.length);
+    expect(antes).toBeGreaterThan(0);
+    // Mover a primeira peça para o dia seguinte (os mesmos eventos que o navegador dispara ao arrastar).
+    const [id, alvo] = await page.evaluate(() => {
+      const ev = document.querySelector(".ag-ev") as HTMLElement, dia = ev.closest(".ag-dia")!.getAttribute("data-ag-dia")!;
+      const p = dia.split("-").map(Number), d = new Date(p[0]!, p[1]! - 1, p[2]! + 1);
+      const alvo = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      const dt = new DataTransfer(), t = document.querySelector(`.ag-dia[data-ag-dia="${alvo}"]`)!;
+      ev.dispatchEvent(new DragEvent("dragstart", { bubbles: true, dataTransfer: dt }));
+      t.dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: dt }));
+      return [ev.getAttribute("data-ag-id")!, alvo];
+    });
+    await page.waitForTimeout(400);
+    // Sai e volta: a peça continua no dia novo (veio do banco, não da tela).
+    await ir("overview"); await ir("agenda"); await page.waitForSelector(".ag-grade");
+    for (let i = 0; i < 3 && !(await page.$(`.ag-ev[data-ag-id="${id}"]`)); i++) { await page.click('[data-ag-passo="1"]'); await page.waitForTimeout(150); }
+    expect(await page.$eval(`.ag-ev[data-ag-id="${id}"]`, (e) => e.closest(".ag-dia")!.getAttribute("data-ag-dia"))).toBe(alvo);
+    // Clicar abre a mesma gaveta da peça.
+    await page.click(`.ag-ev[data-ag-id="${id}"]`);
+    await page.waitForSelector("#overlay .drawer");
+    await page.click("#dclose");
+  }, 30_000);
+
+  it("menu por processo: 5 itens; cliente com abas e sub-abas; nenhuma tela quebra", async () => {
     const menu = await page.$$eval(".side .nav a", (as) => as.map((a) => a.getAttribute("data-view")!));
-    expect(menu).toEqual(["overview", "clients", "agents", "config"]);
+    expect(menu).toEqual(["overview", "clients", "agenda", "agents", "config"]);
     for (const v of menu) {
       await ir(v);
       expect(await page.$eval(`.view[data-view="${v}"]`, (s) => !(s as HTMLElement).hidden), v).toBe(true);

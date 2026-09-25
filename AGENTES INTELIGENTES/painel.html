@@ -710,6 +710,65 @@
   .mc-form .ta{flex:1;min-height:44px;resize:vertical}
   @media (max-width:640px){.mc-msg{max-width:92%}.mc-form{flex-direction:column;align-items:stretch}}
 
+  /* Calendário geral (estilo Notion) */
+  .ag-topo{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .ag-nav{display:flex;align-items:center;gap:8px}
+  .ag-mes{font-size:24px;line-height:32px;font-weight:600;color:var(--ink);margin:0 8px 0 0;min-width:220px;letter-spacing:-.01em}
+  .ag-nav .ag-seta{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);transition:background .15s,color .15s}
+  .ag-nav .ag-seta:hover{background:var(--surface-2);color:var(--ink)}
+  .ag-seta svg{width:9px!important;height:11px!important}
+  .ag-seta.ant svg{transform:rotate(-90deg)} .ag-seta.prox svg{transform:rotate(90deg)}
+  .ag-filtro{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .ag-cli{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:1px solid var(--line);border-radius:200px;background:var(--surface);color:var(--muted);font:inherit;font-size:13px;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+  .ag-cli i{width:8px;height:8px;border-radius:50%;background:var(--c);opacity:.35;transition:opacity .15s}
+  .ag-cli.on{color:var(--ink);border-color:color-mix(in srgb,var(--c) 40%,var(--line))} .ag-cli.on i{opacity:1}
+  .ag-cli:hover{background:var(--surface-2)}
+  .ag-grade{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+  .ag-anim-d .ag-dias{animation:agDe .32s cubic-bezier(.2,.7,.2,1)} .ag-anim-e .ag-dias{animation:agEs .32s cubic-bezier(.2,.7,.2,1)}
+  @keyframes agDe{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+  @keyframes agEs{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
+  .ag-cab,.ag-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+  .ag-cab div{padding:10px 12px;font-size:12px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--line)}
+  .ag-dia{min-height:128px;padding:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px;cursor:default;transition:background .15s;min-width:0}
+  .ag-dias .ag-dia:nth-child(7n){border-right:0}
+  .ag-grade.semana .ag-dia{min-height:300px}
+  .ag-dia.fds{background:color-mix(in srgb,var(--surface-2) 55%,var(--surface))}
+  .ag-dia.fora{background:var(--surface-2)} .ag-dia.fora .ag-num span{color:var(--faint)}
+  .ag-dia:hover{background:color-mix(in srgb,var(--brand-weak) 35%,var(--surface))}
+  .ag-dia.alvo{background:var(--brand-weak);box-shadow:inset 0 0 0 2px var(--brand)}
+  .ag-num{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 4px}
+  .ag-num span{font-size:13px;line-height:24px;min-width:24px;height:24px;padding:0 6px;border-radius:200px;color:var(--ink);text-align:center}
+  .ag-dia.hoje .ag-num span{background:var(--brand);color:#fff;font-weight:600}
+  .ag-conta{display:none;font-style:normal;font-size:11px;color:var(--muted)}
+  .ag-evs{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .ag-ev{position:relative;display:flex;flex-direction:column;gap:1px;padding:5px 8px 5px 11px;border-radius:6px;background:color-mix(in srgb,var(--c) 10%,var(--surface));cursor:pointer;min-width:0;transition:transform .15s,box-shadow .15s,opacity .15s}
+  .ag-ev::before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:3px;border-radius:3px;background:var(--c)}
+  .ag-ev:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(16,24,40,.08),0 0 0 1px color-mix(in srgb,var(--c) 30%,transparent)}
+  .ag-ev.arrastando{opacity:.35}
+  .arrastando-algo .ag-ev:not(.arrastando){pointer-events:none}
+  .ag-ev.pub{opacity:.55}
+  .ag-ev-t{font-size:12.5px;line-height:17px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ag-ev-m{font-size:11px;line-height:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ag-ev.cheio{padding:8px 10px 8px 13px;gap:3px}
+  .ag-ev.cheio .ag-ev-t{white-space:normal;font-size:13px}
+  .ag-ev.cheio .chip{align-self:flex-start;margin-top:3px;font-size:11px;padding:2px 7px}
+  .ag-mais{align-self:flex-start;border:0;background:none;font:inherit;font-size:12px;color:var(--muted);padding:2px 8px;border-radius:6px;cursor:pointer}
+  .ag-mais:hover{background:var(--surface-2);color:var(--ink)}
+  .ag-pontos{display:none}
+  .ag-lista-dia{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .ag-lista-dia .bt{text-transform:capitalize}
+  .ag-carregando{padding:48px;text-align:center;color:var(--muted)}
+  @media (min-width:641px){.ag-lista-dia{display:none}}
+  @media (max-width:640px){
+    .ag-mes{font-size:20px;min-width:0}
+    .ag-dia{min-height:56px;padding:4px 2px;align-items:center}
+    .ag-cab div{padding:8px 0;text-align:center}
+    .ag-num{justify-content:center;padding:0}
+    .ag-evs{display:none} .ag-grade.semana .ag-dia{min-height:72px}
+    .ag-pontos{display:flex;gap:3px;justify-content:center} .ag-pontos i{width:5px;height:5px;border-radius:50%}
+    .ag-dia.sel{background:var(--brand-weak)}
+  }
+
   /* Esconder vale para tudo. */
   *[hidden]{display:none!important}
 </style>
@@ -754,6 +813,10 @@
       </section>
 
       <section class="view" data-view="ativos" hidden></section>
+
+      <section class="view" data-view="agenda" hidden>
+        <div id="agendaGeral"></div>
+      </section>
 
       <section class="view" data-view="clients" hidden>
         <div id="clientTable"></div>
@@ -841,9 +904,9 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   };
   // Menu por processo: o dia (Hoje), os clientes (cada um com as etapas do
   // trabalho em abas) e a operação dos agentes. Configuração fica no rodapé.
-  var NAV=[{g:"",items:[["overview","Hoje"],["clients","Clientes"],["agents","Agentes"]]}];
+  var NAV=[{g:"",items:[["overview","Hoje"],["clients","Clientes"],["agenda","Calendário"],["agents","Agentes"]]}];
   var NAV2=[["config","Configuração"]];
-  var NAV_ICONE={overview:"nav-home",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
+  var NAV_ICONE={overview:"nav-home",agenda:"nav-grid-ativo",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
   function iconeUI(nome){return (window.ICONES_UI&&ICONES_UI[nome])||"";}
   // Abas da página do cliente, na ordem do trabalho. Cada aba agrupa telas que já existem.
   var CLI_TABS=[["entender","Entender",["dna"]],["planejar","Planejar",["strategy","research","editorial","ideas","formats"]],["calendario","Calendário",["calendar","approvals"]],["resultados","Resultados",["performance"]],["operacao","Operação",["operacao"]]];
@@ -851,7 +914,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   // A lista de clientes tem duas abas: a operação e o administrativo (contatos, valores, cobranças).
   var CLIENTES_TABS=[["clients","Clientes"],["ativos","Administrativo"]];
   function abaDoCliente(v){for(var i=0;i<CLI_TABS.length;i++)if(CLI_TABS[i][2].indexOf(v)>=0)return CLI_TABS[i];return null;}
-  var TITLES={operacao:["Clientes","Operação"],overview:["","Hoje"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA, Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês, gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["","Configuração"]};
+  var TITLES={agenda:["","Calendário"],operacao:["Clientes","Operação"],overview:["","Hoje"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA, Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês, gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["","Configuração"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -1050,11 +1113,12 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="agenda")renderAgendaGeral(); if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
     if(state.clientView&&["overview","strategy","editorial","formats","content","calendar"].indexOf(v)<0)v="overview";
+    if(v==="agenda"&&state.view!=="agenda")AG_ITENS=null;
     state.view=v;
     marcarNav(v);
     var aba=abaDoCliente(v),needs=!!aba||["plan","content","analyze","distribution"].indexOf(v)>=0,noCli=needs&&!state.client;
@@ -4225,6 +4289,133 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     mcOcupado=false;mcGravar(h);renderMaestroChat();
     var fim=h[h.length-1];
     if(fim.acoes&&fim.acoes.length&&typeof renderAgentesServidor==="function"&&state.view==="agents")renderAgentesServidor();
+  }
+  // ---- Calendário geral (aba própria na coluna esquerda) ----
+  // Todas as peças de todos os clientes num mês, como no Notion: grade do mês
+  // ou semana, cor por cliente, arrastar a peça para outro dia e clicar para
+  // abrir. As peças vêm do mesmo banco do calendário de cada cliente.
+  var AG_ITENS=null,AG_CARREGANDO=false,AG_DIAS=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+  var AG_ST={"PLANNED":"planejada","IN PRODUCTION":"produzindo","REVIEW":"revisão","WAITING APPROVAL":"aprovar","APPROVED":"aprovada","SCHEDULED":"agendada","PUBLISHED":"publicada"};
+  function agInicioMes(d){return new Date(d.getFullYear(),d.getMonth(),1);}
+  function agSegunda(d){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
+  function agCor(cid){var c=CLIENTS.filter(function(x){return x.id===cid})[0];return avc(c?c.av:0);}
+  function agEditavel(){return !!CAP.db&&!state.clientView;}
+  function agClientes(){return Object.keys(DB_CLIENTS).map(function(id){return {id:id,nome:clientName(id)}}).sort(function(a,b){return a.nome.localeCompare(b.nome)});}
+  function agDoCache(){
+    var out=[];
+    agClientes().forEach(function(c){var g=DB_STATE_CACHE[c.id];if(g)(g.calendar.items||[]).forEach(function(it){if(isIsoDate(it.data))out.push({cid:c.id,it:it});});});
+    return out;
+  }
+  async function agCarregar(){
+    if(AG_CARREGANDO)return;AG_CARREGANDO=true;
+    var out=[];
+    for(var c of agClientes()){
+      var g=DB_STATE_CACHE[c.id];
+      if(g){(g.calendar.items||[]).forEach(function(it){if(isIsoDate(it.data))out.push({cid:c.id,it:it});});continue;}
+      try{var snap=await dbItemsCol("cos_calendar",c.id).get();snap.docs.forEach(function(d){var it=d.data();if(it&&isIsoDate(it.data))out.push({cid:c.id,it:it});});}catch(e){}
+    }
+    AG_ITENS=out;AG_CARREGANDO=false;
+    if(state.view==="agenda")renderAgendaGeral();
+  }
+  function agVisiveis(){
+    var f=state.agFiltro;
+    return (AG_ITENS||[]).filter(function(o){return !f||f.indexOf(o.cid)>=0}).sort(function(a,b){return (a.it.data+itemHora(a.it)).localeCompare(b.it.data+itemHora(b.it))});
+  }
+  function agPorDia(){var m={};agVisiveis().forEach(function(o){(m[o.it.data]=m[o.it.data]||[]).push(o)});return m;}
+  function agEvHtml(o,cheio){
+    var it=o.it,x=it.idea||{},pub=it.status==="PUBLISHED";
+    return '<div class="ag-ev'+(pub?' pub':'')+(cheio?' cheio':'')+'" data-ag-cli="'+esc(o.cid)+'" data-ag-id="'+esc(it.id)+'"'+(agEditavel()?' draggable="true"':'')+' style="--c:'+agCor(o.cid)+'" title="'+esc(pecaTitulo(it)+", "+clientName(o.cid))+'">'+
+      '<span class="ag-ev-t">'+esc(pecaTitulo(it))+'</span>'+
+      '<span class="ag-ev-m">'+(cheio?esc(itemHora(it))+' · ':'')+esc(clientName(o.cid))+(cheio?' · '+esc(surfLbl(x.surface)):'')+'</span>'+
+      (cheio?'<span class="chip '+(ST_CHIP[it.status]||"")+'">'+esc(AG_ST[it.status]||stLabel(it.status))+'</span>':'')+'</div>';
+  }
+  function agTitulo(ref,modo){
+    if(modo==="semana"){var ini=agSegunda(ref),fim=new Date(ini);fim.setDate(ini.getDate()+6);
+      return ini.getDate()+(ini.getMonth()!==fim.getMonth()?' de '+MESES_LONGOS[ini.getMonth()]:'')+' a '+fim.getDate()+' de '+MESES_LONGOS[fim.getMonth()]+' '+fim.getFullYear();}
+    var n=MESES_LONGOS[ref.getMonth()];return n.charAt(0).toUpperCase()+n.slice(1)+' '+ref.getFullYear();
+  }
+  function renderAgendaGeral(dir){
+    var el=I("#agendaGeral");if(!el)return;
+    // A peça arrastada some no redesenho e o dragend pode não chegar: o estado de arrasto zera aqui.
+    el.classList.remove("arrastando-algo");
+    if(!Object.keys(DB_CLIENTS).length){el.innerHTML=vazioQuadro("Nenhum cliente ainda.","Cadastre um cliente e monte o calendário dele. As peças de todos os clientes aparecem juntas aqui.",'<button class="btn pri" data-ag-ir="clients">Ir para Clientes</button>');agLigar(el);return;}
+    if(!AG_ITENS){el.innerHTML='<div class="ag-carregando">Carregando as peças dos clientes</div>';agCarregar();return;}
+    var modo=state.agModo||"mes",ref=state.agRef?new Date(state.agRef):new Date(),hoje=fmtD(new Date()),porDia=agPorDia();
+    var h='<div class="ag-topo"><div class="ag-nav"><h2 class="ag-mes">'+esc(agTitulo(ref,modo))+'</h2>'+
+      '<button class="icon-btn sm ag-seta ant" data-ag-passo="-1" aria-label="Anterior">'+iconeUI("seta-cima")+'</button><button class="icon-btn sm ag-seta prox" data-ag-passo="1" aria-label="Próximo">'+iconeUI("seta-cima")+'</button>'+
+      '<button class="btn" data-ag-hoje>Hoje</button></div>'+
+      '<div class="subtabs"><button class="sub'+(modo==="mes"?' on':'')+'" data-ag-modo="mes">Mês</button><button class="sub'+(modo==="semana"?' on':'')+'" data-ag-modo="semana">Semana</button></div></div>';
+    var clis=agClientes();
+    if(clis.length>1)h+='<div class="ag-filtro">'+clis.map(function(c){var on=!state.agFiltro||state.agFiltro.indexOf(c.id)>=0;return '<button class="ag-cli'+(on?' on':'')+'" data-ag-cli-f="'+esc(c.id)+'" style="--c:'+agCor(c.id)+'"><i></i>'+esc(c.nome)+'</button>'}).join('')+'</div>';
+    var anim=dir?' ag-anim'+(dir>0?'-d':'-e'):'';
+    h+='<div class="ag-grade '+(modo==="semana"?'semana':'mes')+anim+'"><div class="ag-cab">'+AG_DIAS.map(function(d,i){return '<div'+(i>4?' class="fds"':'')+'>'+d+'</div>'}).join('')+'</div><div class="ag-dias">';
+    var ini=modo==="semana"?agSegunda(ref):agSegunda(agInicioMes(ref)),n=modo==="semana"?7:42,mes=ref.getMonth();
+    if(modo==="mes"){var ult=new Date(ref.getFullYear(),mes+1,0);var fimGrade=new Date(ini);fimGrade.setDate(ini.getDate()+35);if(fimGrade>ult)n=35;}
+    for(var i=0;i<n;i++){
+      var d=new Date(ini);d.setDate(ini.getDate()+i);var iso=fmtD(d),evs=porDia[iso]||[],fora=modo==="mes"&&d.getMonth()!==mes,sel=state.agDia===iso;
+      var lim=modo==="semana"?99:3;
+      h+='<div class="ag-dia'+(fora?' fora':'')+(iso===hoje?' hoje':'')+(i%7>4?' fds':'')+(sel?' sel':'')+'" data-ag-dia="'+iso+'">'+
+        '<div class="ag-num"><span>'+(d.getDate()===1&&modo==="mes"?d.getDate()+' '+MESES_LONGOS[d.getMonth()].slice(0,3):d.getDate())+'</span>'+(evs.length?'<i class="ag-conta">'+evs.length+'</i>':'')+'</div>'+
+        '<div class="ag-evs">'+evs.slice(0,lim).map(function(o){return agEvHtml(o,modo==="semana")}).join('')+
+        (evs.length>lim?'<button class="ag-mais" data-ag-mais="'+iso+'">mais '+(evs.length-lim)+'</button>':'')+'</div>'+
+        '<div class="ag-pontos">'+evs.slice(0,4).map(function(o){return '<i style="background:'+agCor(o.cid)+'"></i>'}).join('')+'</div></div>';
+    }
+    h+='</div></div>';
+    // Lista do dia escolhido: no celular a grade só mostra pontos, e é aqui que se lê.
+    var diaSel=state.agDia&&porDia[state.agDia]?state.agDia:null;
+    h+='<div class="ag-lista-dia"'+(diaSel?'':' hidden')+'>'+(diaSel?'<div class="bt">'+esc(dataBR(diaSel))+'</div>'+porDia[diaSel].map(function(o){return agEvHtml(o,true)}).join(''):'')+'</div>';
+    if(!(AG_ITENS||[]).length)h+='<p class="pp-m" style="margin-top:16px">Nenhuma peça com data ainda. Quando o Cronos distribuir as ideias de um cliente, elas aparecem aqui.</p>';
+    el.innerHTML=h;agLigar(el);
+  }
+  function agLigar(el){
+    el.querySelectorAll('[data-ag-ir]').forEach(function(b){b.addEventListener('click',function(){go(b.getAttribute('data-ag-ir'))})});
+    el.querySelectorAll('[data-ag-passo]').forEach(function(b){b.addEventListener('click',function(){
+      var p=+b.getAttribute('data-ag-passo'),ref=state.agRef?new Date(state.agRef):new Date();
+      if((state.agModo||"mes")==="semana")ref.setDate(ref.getDate()+7*p);else ref=new Date(ref.getFullYear(),ref.getMonth()+p,1);
+      state.agRef=ref.getTime();state.agDia=null;renderAgendaGeral(p);})});
+    var hj=el.querySelector('[data-ag-hoje]');if(hj)hj.addEventListener('click',function(){var velho=state.agRef;state.agRef=null;state.agDia=fmtD(new Date());renderAgendaGeral(velho&&velho<Date.now()?1:velho?-1:0);});
+    el.querySelectorAll('[data-ag-modo]').forEach(function(b){b.addEventListener('click',function(){state.agModo=b.getAttribute('data-ag-modo');renderAgendaGeral();})});
+    el.querySelectorAll('[data-ag-cli-f]').forEach(function(b){b.addEventListener('click',function(){
+      var id=b.getAttribute('data-ag-cli-f'),todos=agClientes().map(function(c){return c.id}),f=state.agFiltro?state.agFiltro.slice():todos.slice(),i=f.indexOf(id);
+      if(i>=0)f.splice(i,1);else f.push(id);
+      state.agFiltro=f.length===todos.length||!f.length?null:f;renderAgendaGeral();})});
+    el.querySelectorAll('.ag-ev').forEach(function(ev){
+      ev.addEventListener('click',function(e){e.stopPropagation();agAbrir(ev.getAttribute('data-ag-cli'),ev.getAttribute('data-ag-id'));});
+      ev.addEventListener('dragstart',function(e){e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",ev.getAttribute('data-ag-cli')+"|"+ev.getAttribute('data-ag-id'));ev.classList.add('arrastando');el.classList.add('arrastando-algo');});
+      ev.addEventListener('dragend',function(){ev.classList.remove('arrastando');el.classList.remove('arrastando-algo');el.querySelectorAll('.ag-dia.alvo').forEach(function(d){d.classList.remove('alvo')});});
+    });
+    el.querySelectorAll('.ag-dia').forEach(function(dia){
+      dia.addEventListener('click',function(){state.agDia=state.agDia===dia.getAttribute('data-ag-dia')?null:dia.getAttribute('data-ag-dia');renderAgendaGeral();});
+      if(!agEditavel())return;
+      dia.addEventListener('dragover',function(e){e.preventDefault();e.dataTransfer.dropEffect="move";dia.classList.add('alvo');});
+      dia.addEventListener('dragleave',function(e){if(!dia.contains(e.relatedTarget))dia.classList.remove('alvo');});
+      dia.addEventListener('drop',function(e){e.preventDefault();dia.classList.remove('alvo');var v=(e.dataTransfer.getData("text/plain")||"").split("|");if(v.length===2)agMover(v[0],v[1],dia.getAttribute('data-ag-dia'));});
+    });
+    el.querySelectorAll('[data-ag-mais]').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();state.agDia=b.getAttribute('data-ag-mais');renderAgendaGeral();var l=el.querySelector('.ag-lista-dia');if(l)l.scrollIntoView({behavior:"smooth",block:"nearest"});})});
+  }
+  async function agMover(cid,id,novaData){
+    var o=(AG_ITENS||[]).filter(function(x){return x.cid===cid&&x.it.id===id})[0];if(!o||o.it.data===novaData)return;
+    var antiga=o.it.data;o.it.data=novaData;
+    var g=DB_STATE_CACHE[cid];if(g)(g.calendar.items||[]).forEach(function(it){if(it.id===id)it.data=novaData;});
+    renderAgendaGeral();
+    try{await dbItemsCol("cos_calendar",cid).doc(id).update({data:novaData});toast(pecaTitulo(o.it)+" foi para "+dataBR(novaData)+".");}
+    catch(e){o.it.data=antiga;if(g)(g.calendar.items||[]).forEach(function(it){if(it.id===id)it.data=antiga;});renderAgendaGeral();toast("Não consegui mover a peça. Tente de novo.");}
+  }
+  // Abrir uma peça de qualquer cliente: carrega o cliente, abre a mesma gaveta do calendário dele.
+  async function agAbrir(cid,id){
+    if(state.client!==cid){state.client=cid;GENERATED=await loadDbClientState(cid);setClient(cid);}
+    var itens=(GENERATED&&GENERATED.calendar&&GENERATED.calendar.items)||[],idx=-1;
+    itens.forEach(function(it,i){if(it.id===id)idx=i;});
+    if(idx<0)return;
+    openGenerated(idx);
+    var ov=I("#overlay");if(!ov||ov._agObs)return;
+    ov._agObs=new MutationObserver(function(){if(!ov.children.length&&state.view==="agenda"){AG_ITENS=agDoCache().length||!AG_ITENS?agMesclar():AG_ITENS;renderAgendaGeral();}});
+    ov._agObs.observe(ov,{childList:true});
+  }
+  // Depois de editar na gaveta, o cache do cliente tem a versão nova: troca só as peças dele.
+  function agMesclar(){
+    var doCache=agDoCache(),comCache={};doCache.forEach(function(o){comCache[o.cid]=1});
+    return doCache.concat((AG_ITENS||[]).filter(function(o){return !comCache[o.cid]}));
   }
   // ---------- início do painel ----------
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
