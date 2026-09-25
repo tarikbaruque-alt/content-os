@@ -83,11 +83,9 @@
     add("aparece","Sobre aparecer nos vídeos: %.");add("datas","Datas importantes: %.");add("obs","Observações: %.");
     return s.join("\n");
   }
-  async function importarBriefing(b,destino){
-    var nome=b.name.trim(),alvo=destino&&DB_CLIENTS[destino]?destino:null,norm=function(x){return normalizeTextPanel(x).replace(/[^a-z0-9]+/g,"")};
-    if(!alvo)Object.keys(DB_CLIENTS).forEach(function(id){if(norm(DB_CLIENTS[id].name||"")===norm(nome))alvo=id;});
-    if(alvo&&!destino&&!confirm("Já existe um cliente chamado \""+nome+"\". Atualizar a ficha dele com este briefing?"))alvo=null;
-    var id=alvo||await createClient(nome,b.niche||"");
+  // Ficha, metas e rotina a partir de um briefing de formulário (sem mexer no
+  // Content DNA). Usado ao importar e também quando o briefing é colado no DNA.
+  function fichaDoBriefing(id,b){
     var rec=Object.assign({},DB_CLIENTS[id]);
     rec.niche=b.niche||rec.niche||"";
     var fic=Object.assign({},rec.ficha||{});["instagram","site","regiao","ticket","oferta","publico","tom","restricoes"].forEach(function(k){if(b[k])fic[k]=b[k];});
@@ -97,15 +95,24 @@
     rec.ficha=fic;
     if(b.whats&&!(rec.admin&&rec.admin.whats))rec.admin=Object.assign({},rec.admin||{},{whats:b.whats});
     if(b.responsavel&&!(rec.admin&&rec.admin.contato))rec.admin=Object.assign({},rec.admin||{},{contato:b.responsavel.split(" ")[0]});
-    var narr=briefingNarrativa(b);rec.briefing=(rec.briefing?rec.briefing+"\n\n":"")+narr;
     var r=Object.assign({},rotinaOf(id));
     var ti=TEMPO_OPC.map(function(o){return o[1]}).indexOf(b.tempo);if(ti>=0){r.tempoGrav=TEMPO_OPC[ti][0];r.maxGrav=CAPACIDADE[r.tempoGrav].grav;}
     var fi=BRIEF_FREQ.indexOf(b.frequencia),n=fi>=0?[3,4,5,7][fi]:0;
     if(n){var map={"Dom":0,"Seg":1,"Ter":2,"Qua":3,"Qui":4,"Sex":5,"Sáb":6},esc2=(b.dias||"").split(/,\s*/).map(function(d){return map[d]}).filter(function(x){return x!=null});
-      var dias=esc2.slice(0,n);DIAS_PADRAO[n].forEach(function(d){if(dias.length<n&&dias.indexOf(d)<0)dias.push(d);});r.diasPost=dias.sort();}
+      // Mais dias marcados que postagens: espalha pela semana (Seg–Sex, 3 → Seg, Qua, Sex).
+      var dias=esc2.length>n?(n===1?[esc2[0]]:Array.apply(null,Array(n)).map(function(_,i){return esc2[Math.round(i*(esc2.length-1)/(n-1))]})):esc2.slice();DIAS_PADRAO[n].forEach(function(d){if(dias.length<n&&dias.indexOf(d)<0)dias.push(d);});r.diasPost=dias.sort();}
     var gi=DIAS_SEM_LONGO.indexOf(b.gravdia);if(gi>=0)r.gravDia=gi;
     if(b.funil){var fz=/\(topo\)/.test(b.funil)?"topo":/\(meio\)/.test(b.funil)?"meio":/\(fundo\)/.test(b.funil)?"fundo":"equilibrio";r.foco=fz;}
     rec.rotina=r;
+    return rec;
+  }
+  async function importarBriefing(b,destino){
+    var nome=b.name.trim(),alvo=destino&&DB_CLIENTS[destino]?destino:null,norm=function(x){return normalizeTextPanel(x).replace(/[^a-z0-9]+/g,"")};
+    if(!alvo)Object.keys(DB_CLIENTS).forEach(function(id){if(norm(DB_CLIENTS[id].name||"")===norm(nome))alvo=id;});
+    if(alvo&&!destino&&!confirm("Já existe um cliente chamado \""+nome+"\". Atualizar a ficha dele com este briefing?"))alvo=null;
+    var id=alvo||await createClient(nome,b.niche||"");
+    var rec=fichaDoBriefing(id,b),fi=BRIEF_FREQ.indexOf(b.frequencia),n=fi>=0?[3,4,5,7][fi]:0;
+    var narr=briefingNarrativa(b);rec.briefing=(rec.briefing?rec.briefing+"\n\n":"")+narr;
     await saveClientRecord(id,rec);
     var cli=byId(id);if(cli){cli.niche=rec.niche;cli.full=rec.name+(rec.niche?" — "+rec.niche:"");refreshClientOptions();}
     var refs=[];function addRefs(txt,tipo){String(txt||"").split(/\n|;|,(?=\s*@)/).map(function(x){return x.trim()}).filter(Boolean).forEach(function(l){var m=l.match(/^(@?[\w.]+)\s*[-—–:]?\s*(.*)$/);refs.push({nome:m?m[1]:l.slice(0,40),tipo:tipo,descricao:m?m[2]:l});});}
@@ -247,9 +254,9 @@
     if(state.client!==id)setClient(id);
     state.autoRunning=id;
     try{GENERATED=await loadDbClientState(id);}catch(e){state.autoRunning=null;throw e;}
-    var done=[],atual="",erro="";
+    var done=[],atual="",erro="",lastErr=null;
     function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days);I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
-      var r=I("#autoRetry");if(r)r.addEventListener('click',function(){montarTudo(id,days)});
+      var r=I("#autoRetry");if(r){r.addEventListener('click',function(){montarTudo(id,days)});cooldownBtn(r,lastErr,60);}
       var gc=I("#autoGoCal");if(gc)gc.addEventListener('click',function(){closeDrawer();go("calendar")});var ge=I("#autoGoEd");if(ge)ge.addEventListener('click',function(){closeDrawer();go("editorial")});}
     AUTO_STEPS.forEach(function(st){if(autoFeito(st[0],GENERATED))done.push(st[0]);});
     for(var i=0;i<AUTO_STEPS.length;i++){var k=AUTO_STEPS[i][0];if(done.indexOf(k)>=0)continue;
@@ -265,7 +272,7 @@
         else if(k==="ideas"){await gerarIdeiasCore(id,false,15);if(!(GENERATED.ideas||[]).length)throw new Error("falhou");}
         else{state.period=days;await runGerarPlanejamento(days);if(!((GENERATED.calendar&&GENERATED.calendar.items)||[]).length)throw new Error("falhou");}
         done.push(k);
-      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";state.autoRunning=null;draw();return;}
+      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
     }
     try{if(!(vitrineOf(id).mensagem)&&DB_CLIENTS[id]){var mv=await gerarMensagemVitrine();await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{vitrine:Object.assign({},vitrineOf(id),{mensagem:mv})}));}}catch(e){}
     state.autoRunning=null;atual="";draw();renderKpis();
