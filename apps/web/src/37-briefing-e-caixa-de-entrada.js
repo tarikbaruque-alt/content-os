@@ -247,9 +247,9 @@
     if(state.client!==id)setClient(id);
     state.autoRunning=id;
     try{GENERATED=await loadDbClientState(id);}catch(e){state.autoRunning=null;throw e;}
-    var done=[],atual="",erro="";
+    var done=[],atual="",erro="",lastErr=null;
     function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days);I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
-      var r=I("#autoRetry");if(r)r.addEventListener('click',function(){montarTudo(id,days)});
+      var r=I("#autoRetry");if(r){r.addEventListener('click',function(){montarTudo(id,days)});cooldownBtn(r,lastErr,60);}
       var gc=I("#autoGoCal");if(gc)gc.addEventListener('click',function(){closeDrawer();go("calendar")});var ge=I("#autoGoEd");if(ge)ge.addEventListener('click',function(){closeDrawer();go("editorial")});}
     AUTO_STEPS.forEach(function(st){if(autoFeito(st[0],GENERATED))done.push(st[0]);});
     for(var i=0;i<AUTO_STEPS.length;i++){var k=AUTO_STEPS[i][0];if(done.indexOf(k)>=0)continue;
@@ -265,7 +265,7 @@
         else if(k==="ideas"){await gerarIdeiasCore(id,false,15);if(!(GENERATED.ideas||[]).length)throw new Error("falhou");}
         else{state.period=days;await runGerarPlanejamento(days);if(!((GENERATED.calendar&&GENERATED.calendar.items)||[]).length)throw new Error("falhou");}
         done.push(k);
-      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";state.autoRunning=null;draw();return;}
+      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
     }
     try{if(!(vitrineOf(id).mensagem)&&DB_CLIENTS[id]){var mv=await gerarMensagemVitrine();await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{vitrine:Object.assign({},vitrineOf(id),{mensagem:mv})}));}}catch(e){}
     state.autoRunning=null;atual="";draw();renderKpis();

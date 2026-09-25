@@ -68,13 +68,21 @@
   function sampleErrCopy(e){
     var code=e&&e.code;
     if(code==="not_granted")return "Você precisa permitir que este painel use IA — aparece um aviso do Claude na primeira chamada.";
-    if(code==="rate_limited")return "Muitas chamadas agora — espera um pouco e tenta de novo.";
+    if(code==="rate_limited")return "O Claude pediu uma pausa (limite de uso da sua conta ou outra aba do painel usando a IA). Seu texto está salvo — feche outras abas do painel e tente de novo em 1 minuto.";
     if(code==="cancelled")return "Cancelado.";
     if(code==="prompt_too_large")return "Muita informação de uma vez — tenta com um texto mais curto.";
     if(code==="invalid_json")return "A IA não respondeu num formato que eu consegui ler — tenta de novo.";
     if(code==="refused"||code==="empty_completion")return "A IA não conseguiu responder a isso — tenta reformular.";
     if(code==="not_declared"||code==="sampling_disabled"||code==="capability_disabled"||code==="capability_removed")return "IA ao vivo indisponível neste painel agora.";
     return "Algo deu errado ("+(code||"erro")+") — tenta de novo.";
+  }
+  // rate_limited: a plataforma pede que a página NÃO repita sozinha — só
+  // travamos o botão por um tempo, com contagem, e a pessoa clica de novo.
+  function cooldownBtn(btn,e,secs){
+    if(!btn||!e||e.code!=="rate_limited")return false;
+    var label=btn.textContent,left=secs||60;btn.disabled=true;
+    var tick=function(){if(!btn.isConnected)return;if(left<=0){btn.disabled=false;btn.textContent=label;return;}btn.textContent="Aguarde "+left+"s";left--;setTimeout(tick,1000);};
+    tick();return true;
   }
   async function saveDna(id,entries){
     await dbDoc("cos_dna/"+id).set({entries:entries});
@@ -122,7 +130,7 @@
         entries.push({section:s.section||"business",field:String(s.field),value:String(s.value),state:s.state||"HYPOTHESIS",status:"pending",src:"Briefing informado no painel"});});
       await saveDna(id,entries);
       I("#dnaMsg").textContent=sugs.length+" sugestões — revise e aprove abaixo.";I("#dnaMsg").style.color="var(--good)";
-    }catch(e){I("#dnaMsg").textContent=sampleErrCopy(e);I("#dnaMsg").style.color="var(--warn)";}
+    }catch(e){I("#dnaMsg").textContent=sampleErrCopy(e);I("#dnaMsg").style.color="var(--warn)";if(cooldownBtn(I("#dnaRun"),e,60))return;}
     var btn=I("#dnaRun");if(btn)btn.disabled=false;
   }
   function dnaOnboardingHtml(){

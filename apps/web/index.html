@@ -690,13 +690,21 @@
   function sampleErrCopy(e){
     var code=e&&e.code;
     if(code==="not_granted")return "Você precisa permitir que este painel use IA — aparece um aviso do Claude na primeira chamada.";
-    if(code==="rate_limited")return "Muitas chamadas agora — espera um pouco e tenta de novo.";
+    if(code==="rate_limited")return "O Claude pediu uma pausa (limite de uso da sua conta ou outra aba do painel usando a IA). Seu texto está salvo — feche outras abas do painel e tente de novo em 1 minuto.";
     if(code==="cancelled")return "Cancelado.";
     if(code==="prompt_too_large")return "Muita informação de uma vez — tenta com um texto mais curto.";
     if(code==="invalid_json")return "A IA não respondeu num formato que eu consegui ler — tenta de novo.";
     if(code==="refused"||code==="empty_completion")return "A IA não conseguiu responder a isso — tenta reformular.";
     if(code==="not_declared"||code==="sampling_disabled"||code==="capability_disabled"||code==="capability_removed")return "IA ao vivo indisponível neste painel agora.";
     return "Algo deu errado ("+(code||"erro")+") — tenta de novo.";
+  }
+  // rate_limited: a plataforma pede que a página NÃO repita sozinha — só
+  // travamos o botão por um tempo, com contagem, e a pessoa clica de novo.
+  function cooldownBtn(btn,e,secs){
+    if(!btn||!e||e.code!=="rate_limited")return false;
+    var label=btn.textContent,left=secs||60;btn.disabled=true;
+    var tick=function(){if(!btn.isConnected)return;if(left<=0){btn.disabled=false;btn.textContent=label;return;}btn.textContent="Aguarde "+left+"s";left--;setTimeout(tick,1000);};
+    tick();return true;
   }
   async function saveDna(id,entries){
     await dbDoc("cos_dna/"+id).set({entries:entries});
@@ -744,7 +752,7 @@
         entries.push({section:s.section||"business",field:String(s.field),value:String(s.value),state:s.state||"HYPOTHESIS",status:"pending",src:"Briefing informado no painel"});});
       await saveDna(id,entries);
       I("#dnaMsg").textContent=sugs.length+" sugestões — revise e aprove abaixo.";I("#dnaMsg").style.color="var(--good)";
-    }catch(e){I("#dnaMsg").textContent=sampleErrCopy(e);I("#dnaMsg").style.color="var(--warn)";}
+    }catch(e){I("#dnaMsg").textContent=sampleErrCopy(e);I("#dnaMsg").style.color="var(--warn)";if(cooldownBtn(I("#dnaRun"),e,60))return;}
     var btn=I("#dnaRun");if(btn)btn.disabled=false;
   }
   function dnaOnboardingHtml(){
@@ -2621,9 +2629,9 @@
     if(state.client!==id)setClient(id);
     state.autoRunning=id;
     try{GENERATED=await loadDbClientState(id);}catch(e){state.autoRunning=null;throw e;}
-    var done=[],atual="",erro="";
+    var done=[],atual="",erro="",lastErr=null;
     function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days);I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
-      var r=I("#autoRetry");if(r)r.addEventListener('click',function(){montarTudo(id,days)});
+      var r=I("#autoRetry");if(r){r.addEventListener('click',function(){montarTudo(id,days)});cooldownBtn(r,lastErr,60);}
       var gc=I("#autoGoCal");if(gc)gc.addEventListener('click',function(){closeDrawer();go("calendar")});var ge=I("#autoGoEd");if(ge)ge.addEventListener('click',function(){closeDrawer();go("editorial")});}
     AUTO_STEPS.forEach(function(st){if(autoFeito(st[0],GENERATED))done.push(st[0]);});
     for(var i=0;i<AUTO_STEPS.length;i++){var k=AUTO_STEPS[i][0];if(done.indexOf(k)>=0)continue;
@@ -2639,7 +2647,7 @@
         else if(k==="ideas"){await gerarIdeiasCore(id,false,15);if(!(GENERATED.ideas||[]).length)throw new Error("falhou");}
         else{state.period=days;await runGerarPlanejamento(days);if(!((GENERATED.calendar&&GENERATED.calendar.items)||[]).length)throw new Error("falhou");}
         done.push(k);
-      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";state.autoRunning=null;draw();return;}
+      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora — tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
     }
     try{if(!(vitrineOf(id).mensagem)&&DB_CLIENTS[id]){var mv=await gerarMensagemVitrine();await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{vitrine:Object.assign({},vitrineOf(id),{mensagem:mv})}));}}catch(e){}
     state.autoRunning=null;atual="";draw();renderKpis();
