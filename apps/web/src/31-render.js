@@ -1,6 +1,7 @@
   // ---------- render ----------
   function buildNav(){
-    var item=function(it){return '<a data-view="'+it[0]+'"><span class="ni">'+(iconeUI(NAV_ICONE[it[0]])||IC[it[0]]||"")+'</span><span class="nl">'+esc(it[1])+'</span><b class="nav-n" hidden></b></a>'};
+    var CURTO={agenda:"Agenda",config:"Ajustes"};
+    var item=function(it){return '<a data-view="'+it[0]+'"><span class="ni">'+(iconeUI(NAV_ICONE[it[0]])||IC[it[0]]||"")+'</span><span class="nl">'+esc(it[1])+'</span>'+(CURTO[it[0]]?'<span class="nl-c">'+CURTO[it[0]]+'</span>':'')+'<b class="nav-n" hidden></b></a>'};
     if(state.clientView){I("#nav").innerHTML=CLIENT_NAV[0].items.map(item).join('');I("#nav2").innerHTML="";}
     else{I("#nav").innerHTML=NAV[0].items.map(item).join('');I("#nav2").innerHTML=NAV2.map(item).join('');}
     Array.prototype.forEach.call(document.querySelectorAll('.side .nav a'),function(a){a.addEventListener('click',function(){var v=a.getAttribute('data-view');go(v==="clients"&&!state.clientView?"clients":v)})});
@@ -39,7 +40,7 @@
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="agenda")renderAgendaGeral(); if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="agenda")renderAgendaGeral(); if(v==="dashboard")renderDashboard(); if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){

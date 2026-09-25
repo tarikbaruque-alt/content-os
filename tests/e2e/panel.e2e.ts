@@ -151,9 +151,9 @@ describe("Painel no navegador (window.claude simulado)", () => {
     await page.click("#dclose");
   }, 30_000);
 
-  it("menu por processo: 5 itens; cliente com abas e sub-abas; nenhuma tela quebra", async () => {
+  it("menu por processo: 6 itens; cliente com abas e sub-abas; nenhuma tela quebra", async () => {
     const menu = await page.$$eval(".side .nav a", (as) => as.map((a) => a.getAttribute("data-view")!));
-    expect(menu).toEqual(["overview", "clients", "agenda", "agents", "config"]);
+    expect(menu).toEqual(["overview", "dashboard", "clients", "agenda", "agents", "config"]);
     for (const v of menu) {
       await ir(v);
       expect(await page.$eval(`.view[data-view="${v}"]`, (s) => !(s as HTMLElement).hidden), v).toBe(true);

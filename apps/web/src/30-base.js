@@ -28,9 +28,9 @@
   };
   // Menu por processo: o dia (Hoje), os clientes (cada um com as etapas do
   // trabalho em abas) e a operação dos agentes. Configuração fica no rodapé.
-  var NAV=[{g:"",items:[["overview","Hoje"],["clients","Clientes"],["agenda","Calendário"],["agents","Agentes"]]}];
+  var NAV=[{g:"",items:[["overview","Hoje"],["dashboard","Dashboard"],["clients","Clientes"],["agenda","Calendário"],["agents","Agentes"]]}];
   var NAV2=[["config","Configuração"]];
-  var NAV_ICONE={overview:"nav-home",agenda:"nav-grid-ativo",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
+  var NAV_ICONE={overview:"nav-home",dashboard:"nav-pie",agenda:"nav-grid-ativo",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
   function iconeUI(nome){return (window.ICONES_UI&&ICONES_UI[nome])||"";}
   // Abas da página do cliente, na ordem do trabalho. Cada aba agrupa telas que já existem.
   // Telas que pertencem a um cliente (o trilho das 6 etapas leva a elas; ver 44-processo-do-cliente.js).
@@ -39,7 +39,7 @@
   // A lista de clientes tem duas abas: a operação e o administrativo (contatos, valores, cobranças).
   var CLIENTES_TABS=[["clients","Clientes"],["ativos","Administrativo"]];
   function abaDoCliente(v){for(var i=0;i<CLI_TABS.length;i++)if(CLI_TABS[i][2].indexOf(v)>=0)return CLI_TABS[i];return null;}
-  var TITLES={agenda:["","Calendário"],operacao:["Clientes","Operação"],overview:["","Hoje"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA, Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês, gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["","Configuração"]};
+  var TITLES={dashboard:["","Dashboard"],agenda:["","Calendário"],operacao:["Clientes","Operação"],overview:["","Hoje"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA, Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês, gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["","Configuração"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}

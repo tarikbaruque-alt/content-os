@@ -898,6 +898,44 @@
   .drawer .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
   .drawer .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 
+  /* ---- Dashboard ---- */
+  .st-de{font-size:16px;color:var(--faint);font-weight:400}
+  .tr-barra.largo{margin-top:10px;height:8px}
+  .kanban{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+  .kb-col{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:140px}
+  .kb-h{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;padding:2px 4px}
+  .kb-n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);font-size:11px;color:var(--muted)}
+  .kb-c{margin-left:auto;font-size:12px;color:var(--muted);font-weight:500;background:var(--surface);border-radius:200px;padding:1px 8px}
+  .kb-card{all:unset;box-sizing:border-box;display:grid;gap:6px;padding:10px 12px;border-radius:10px;background:var(--surface);border:1px solid var(--line);cursor:pointer;transition:box-shadow .15s,transform .15s;min-width:0}
+  .kb-card:hover{box-shadow:0 2px 8px rgba(16,24,40,.08);transform:translateY(-1px)}
+  .kb-card:focus-visible{box-shadow:0 0 0 3px var(--brand-weak);border-color:var(--brand)}
+  .kb-t{display:flex;align-items:center;gap:8px;min-width:0}
+  .kb-t b{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kb-f{font-size:12px;line-height:16px;color:var(--muted)}
+  .kb-card .chip{justify-self:start;font-size:11px;padding:2px 8px}
+  .kb-vazio{font-size:12px;color:var(--faint);padding:4px}
+  .av-cli.pequeno{width:24px;height:24px;font-size:11px;flex:0 0 auto}
+  .mini-tr{display:flex;gap:3px;margin-bottom:4px}
+  .mini-tr i{width:18px;height:6px;border-radius:3px;background:var(--line)}
+  .mini-tr i.feita{background:var(--brand)}
+  .mini-tr i.atual{background:color-mix(in srgb,var(--brand) 35%,var(--line))}
+  .mini-tr i.agora{box-shadow:0 0 0 2px var(--brand-weak);background:var(--brand)}
+  .dash-pub{cursor:pointer;gap:12px}
+  .dash-cor{width:4px;align-self:stretch;border-radius:4px;flex:0 0 auto}
+  .dash-gasto{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+  .dash-gasto span{color:var(--muted)}
+  .dash-gasto b{font-size:24px;font-weight:600}
+  .dash-gasto small{color:var(--faint)}
+  .q-par{gap:24px}
+  .q-par>.quadro,.q-par>div>.quadro{margin-bottom:0;height:100%}
+  @media (max-width:1100px){.kanban{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:640px){
+    .kanban{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+    .kanban::-webkit-scrollbar{display:none}
+    .kb-col{flex:0 0 78%;scroll-snap-align:start}
+    .q-par{grid-template-columns:minmax(0,1fr)!important}
+  }
+
   /* ---- Celular (até 640 px): menu embaixo, tabelas viram cartões ----
      Medido com a sonda da skill responsividade-mobile-medida, tela por tela. */
   @media (max-width:640px){
@@ -908,7 +946,7 @@
     .side{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;display:flex;flex-direction:row;align-items:stretch;gap:0;height:auto;
       padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line);border-right:0;border-bottom:0;overflow:visible}
     .side .brand,.side .user-card{display:none!important}
-    #nav{display:flex!important;flex:4 1 0;gap:0}
+    #nav{display:flex!important;flex:5 1 0;gap:0}
     .side-fim{display:flex!important;flex:1 1 0;margin:0!important;padding:0!important;gap:0}
     #nav2{display:flex!important;flex:1;gap:0}
     .side .nav a{flex:1 1 0;min-width:0;height:56px;padding:6px 2px;flex-direction:column;justify-content:center;gap:3px;border-radius:10px;position:relative}
@@ -937,7 +975,14 @@
     .tabela td small{display:inline;margin-left:0}
     .tabela td b+small,.tabela td .cel-t+small{display:block}
     /* números e rodapés */
-    .stat-cards{grid-template-columns:minmax(0,1fr)!important;gap:12px}
+    .stat-cards,.stat-cards.quatro{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
+    .stat{padding:14px!important}
+    .stat .st-v{font-size:28px!important;line-height:34px!important}
+    .stat .st-l{font-size:13px!important}
+    .stat .st-s{font-size:12px!important}
+    .side .nav a .nl-c+.nav-n{}
+    .side .nav a:has(.nl-c) .nl{display:none}
+    .side .nav a .nl-c{display:block;font-size:11px;line-height:13px;font-weight:500}
     .quadro{padding:18px 16px}
     .q-head{flex-direction:column;align-items:stretch;gap:12px}
     .q-head>*{min-width:0;max-width:100%}
@@ -952,6 +997,7 @@
     .lote-bar .spacer{display:none}
   }
 
+  .nl-c{display:none}
   /* Esconder vale para tudo. */
   *[hidden]{display:none!important}
 </style>
@@ -999,6 +1045,10 @@
       </section>
 
       <section class="view" data-view="ativos" hidden></section>
+
+      <section class="view" data-view="dashboard" hidden>
+        <div id="dashboard"></div>
+      </section>
 
       <section class="view" data-view="agenda" hidden>
         <div id="agendaGeral"></div>
@@ -1091,9 +1141,9 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   };
   // Menu por processo: o dia (Hoje), os clientes (cada um com as etapas do
   // trabalho em abas) e a operação dos agentes. Configuração fica no rodapé.
-  var NAV=[{g:"",items:[["overview","Hoje"],["clients","Clientes"],["agenda","Calendário"],["agents","Agentes"]]}];
+  var NAV=[{g:"",items:[["overview","Hoje"],["dashboard","Dashboard"],["clients","Clientes"],["agenda","Calendário"],["agents","Agentes"]]}];
   var NAV2=[["config","Configuração"]];
-  var NAV_ICONE={overview:"nav-home",agenda:"nav-grid-ativo",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
+  var NAV_ICONE={overview:"nav-home",dashboard:"nav-pie",agenda:"nav-grid-ativo",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
   function iconeUI(nome){return (window.ICONES_UI&&ICONES_UI[nome])||"";}
   // Abas da página do cliente, na ordem do trabalho. Cada aba agrupa telas que já existem.
   // Telas que pertencem a um cliente (o trilho das 6 etapas leva a elas; ver 44-processo-do-cliente.js).
@@ -1102,7 +1152,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   // A lista de clientes tem duas abas: a operação e o administrativo (contatos, valores, cobranças).
   var CLIENTES_TABS=[["clients","Clientes"],["ativos","Administrativo"]];
   function abaDoCliente(v){for(var i=0;i<CLI_TABS.length;i++)if(CLI_TABS[i][2].indexOf(v)>=0)return CLI_TABS[i];return null;}
-  var TITLES={agenda:["","Calendário"],operacao:["Clientes","Operação"],overview:["","Hoje"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA, Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês, gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["","Configuração"]};
+  var TITLES={dashboard:["","Dashboard"],agenda:["","Calendário"],operacao:["Clientes","Operação"],overview:["","Hoje"],propostas:["Trabalho","Propostas dos agentes"],ativos:["Trabalho","Clientes ativos"],clients:["Trabalho","Clientes"],analyze:["Trabalho","Análise IA, Íris"],dna:["Trabalho","Content DNA"],plan:["Trabalho","Plano do Mês, gerado ponta a ponta"],strategy:["Fluxo","Estratégia"],research:["Fluxo","Pesquisa"],editorial:["Fluxo","Linha Editorial"],ideas:["Fluxo","Ideias"],formats:["Fluxo","Formatos por nicho"],distribution:["Fluxo","Distribuição Editorial"],content:["Fluxo","Conteúdos"],calendar:["Fluxo","Calendário"],approvals:["Fluxo","Aprovações"],performance:["Fluxo","Performance"],kb:["Sistema","Knowledge Base"],agents:["Sistema","Agentes"],config:["","Configuração"]};
 
   var AV=["#5B45E6","#0E8C9B","#C05A2E","#2E6FB7","#1E8A5B","#8A3FB0","#A9741A","#D6455D","#3A7D44","#575663"];
   function avc(i){return AV[i%AV.length]}
@@ -1268,7 +1318,8 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
 
   // ---------- render ----------
   function buildNav(){
-    var item=function(it){return '<a data-view="'+it[0]+'"><span class="ni">'+(iconeUI(NAV_ICONE[it[0]])||IC[it[0]]||"")+'</span><span class="nl">'+esc(it[1])+'</span><b class="nav-n" hidden></b></a>'};
+    var CURTO={agenda:"Agenda",config:"Ajustes"};
+    var item=function(it){return '<a data-view="'+it[0]+'"><span class="ni">'+(iconeUI(NAV_ICONE[it[0]])||IC[it[0]]||"")+'</span><span class="nl">'+esc(it[1])+'</span>'+(CURTO[it[0]]?'<span class="nl-c">'+CURTO[it[0]]+'</span>':'')+'<b class="nav-n" hidden></b></a>'};
     if(state.clientView){I("#nav").innerHTML=CLIENT_NAV[0].items.map(item).join('');I("#nav2").innerHTML="";}
     else{I("#nav").innerHTML=NAV[0].items.map(item).join('');I("#nav2").innerHTML=NAV2.map(item).join('');}
     Array.prototype.forEach.call(document.querySelectorAll('.side .nav a'),function(a){a.addEventListener('click',function(){var v=a.getAttribute('data-view');go(v==="clients"&&!state.clientView?"clients":v)})});
@@ -1307,7 +1358,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   // (assíncrono), sem duplicar a lista de views em dois lugares.
   function renderView(v){
     if(v==="dna")renderDNA(); if(v==="strategy")renderStrategy(); if(v==="research")renderResearch(); if(v==="editorial")renderEditorial(); if(v==="ideas")renderIdeas(); if(v==="formats")renderFormats(); if(v==="analyze")renderAnalyze(); if(v==="distribution")renderDistribution(); if(v==="plan")renderPlan(); if(v==="config")renderConfig();
-    if(v==="agenda")renderAgendaGeral(); if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
+    if(v==="agenda")renderAgendaGeral(); if(v==="dashboard")renderDashboard(); if(v==="content")renderContentList(); if(v==="calendar")renderCal(); if(v==="approvals")renderApprovals(); if(v==="performance")renderPerf(); if(v==="propostas")renderPropostas(); if(v==="agents")renderAgents(); if(v==="operacao")renderOperacao(); if(v==="clients")renderClients(); if(v==="overview"){renderKpis();renderOverviewContent();renderCobrancaBanner();renderBackupBanner();} if(v==="ativos")renderAtivos();
     renderStatus(v);
   }
   function go(v){
@@ -4954,6 +5005,86 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         state.diasPost=null;closeDrawer();toast("Salvo. "+(x.pausa?"Cliente pausado.":"Os agentes seguem estas regras a partir de agora."));go(state.view);
       }catch(e){bt.disabled=false;toast("Não consegui salvar: "+(e.message||e));}
     });
+  }
+  // ---- Dashboard: a carteira inteira no mesmo desenho do processo do cliente ----
+  // Lê o estado de cada cliente (mesmo cálculo de etapa do trilho, etapasDe) e
+  // mostra: números do topo, carteira por etapa, tabela de clientes, próximas
+  // publicações e, no painel publicado, a atividade dos agentes e o gasto.
+  var DASH_CARREGANDO=false;
+  function dashClientes(){return CLIENTS.filter(function(c){return isDbClient(c.id)});}
+  function dashAdmin(id){return typeof adminOf==="function"?adminOf(DB_CLIENTS[id]||{}):{ativo:true};}
+  function miniTrilho(r){
+    return '<span class="mini-tr" aria-label="Etapa '+r.atual+' de 6">'+r.etapas.map(function(e,i){return '<i class="'+e.estado+(r.atual===i+1&&e.estado==="atual"?' agora':'')+'" title="'+esc(ETAPAS[i][1])+'"></i>'}).join('')+'</span>';
+  }
+  function proxPub(id){
+    var g=DB_STATE_CACHE[id]||{},hoje=fmtD(new Date());
+    var it=((g.calendar&&g.calendar.items)||[]).filter(function(i){return String(i.data)>=hoje&&i.status!=="PUBLISHED"}).sort(function(a,b){return String(a.data).localeCompare(b.data)})[0];
+    return it?{quando:quando(it),titulo:pecaTitulo(it)}:null;
+  }
+  function automacao(id){var op=typeof opDo==="function"?opDo(id):{agentes:{}};if(op.pausado)return ["Pausado","warn"];var man=["pulso","radar","estudio"].filter(function(a){return op.agentes&&op.agentes[a]==="manual"}).length;return man===0?["Automático","act"]:man===3?["Manual",""]:["Parcial","warn"];}
+
+  async function renderDashboard(){
+    var el=I("#dashboard");if(!el)return;
+    var clis=dashClientes();
+    if(!clis.length){el.innerHTML=vazioQuadro("Nenhum cliente ainda.","Cadastre o primeiro cliente e mande o link do briefing. O dashboard mostra a carteira inteira assim que houver clientes.",'<button class="btn pri" id="dashNovo">Novo cliente</button>');var n=I("#dashNovo");if(n)n.addEventListener('click',openNewClientModal);return;}
+    var faltam=clis.filter(function(c){return !DB_STATE_CACHE[c.id]});
+    if(faltam.length){
+      if(!el.innerHTML)el.innerHTML='<div class="ag-carregando">Carregando a carteira</div>';
+      if(!DASH_CARREGANDO){DASH_CARREGANDO=true;Promise.all(faltam.map(function(c){return loadDbClientState(c.id)})).then(function(){DASH_CARREGANDO=false;if(state.view==="dashboard")renderDashboard();});}
+      return;
+    }
+    var hoje=fmtD(new Date()),mes=hoje.slice(0,7);
+    var linhas=clis.map(function(c){var r=etapasDe(c.id),a=dashAdmin(c.id),x=proximoPasso(c.id),g=DB_STATE_CACHE[c.id]||{},it=((g.calendar&&g.calendar.items)||[]).filter(function(i){return String(i.data||"").slice(0,7)===mes});
+      return {c:c,r:r,ativo:a.ativo!==false,x:x,pecas:it.length,aprov:it.filter(function(i){return APROVADA[i.status]}).length,pub:it.filter(function(i){return i.status==="PUBLISHED"}).length,prox:proxPub(c.id),auto:automacao(c.id)};});
+    var ativos=linhas.filter(function(l){return l.ativo});
+    var comVoce=ativos.filter(function(l){return l.x.quem==="voce"}).length,comCliente=ativos.filter(function(l){return l.x.quem==="cliente"}).length;
+    var pecas=ativos.reduce(function(s,l){return s+l.pecas},0),aprov=ativos.reduce(function(s,l){return s+l.aprov},0),pub=ativos.reduce(function(s,l){return s+l.pub},0);
+    var pausados=ativos.filter(function(l){return l.auto[0]==="Pausado"}).length;
+    var pct=function(a,b){return b?Math.round(a/b*100):0};
+    var h='<div class="stat-cards quatro">'+
+      kpiCard("Clientes ativos",String(ativos.length),(pausados?pausados+' pausado'+(pausados>1?'s':'')+', ':'')+(linhas.length-ativos.length?(linhas.length-ativos.length)+' inativo'+(linhas.length-ativos.length>1?'s':''):'todos em operação'))+
+      kpiCard("Esperando vocês",String(comVoce),comCliente?comCliente+' esperando o cliente':'nada esperando o cliente')+
+      kpiCard("Peças aprovadas no mês",aprov+'<small class="st-de"> de '+pecas+'</small>','<span class="tr-barra largo"><i style="width:'+pct(aprov,pecas)+'%"></i></span>')+
+      kpiCard("Publicadas no mês",pub+'<small class="st-de"> de '+pecas+'</small>','<span class="tr-barra largo"><i style="width:'+pct(pub,pecas)+'%"></i></span>')+'</div>';
+    // carteira por etapa
+    h+=quadro("Carteira por etapa","Onde cada cliente está no processo e o que falta. Clique para abrir a etapa dele.",'',
+      '<div class="kanban">'+ETAPAS.map(function(t,i){var n=i+1,col=ativos.filter(function(l){return l.r.atual===n});
+        return '<div class="kb-col"><div class="kb-h"><span class="kb-n">'+n+'</span>'+t[1]+'<span class="kb-c">'+col.length+'</span></div>'+
+          (col.length?col.map(function(l){var q=l.x.quem&&QUEM_LBL[l.x.quem];return '<button class="kb-card" data-dash-cli="'+esc(l.c.id)+'" data-dash-ir="'+(ETAPAS[l.r.atual-1][2])+'"><span class="kb-t"><span class="av-cli pequeno" style="background:'+avc(l.c.av||0)+'">'+esc(String(l.c.name||"?").charAt(0))+'</span><b>'+esc(l.c.name)+'</b></span><span class="kb-f">'+esc(l.x.tit)+'</span>'+(q?'<span class="chip quem-'+q[1]+'">'+q[0]+'</span>':'')+'</button>'}).join(''):'<span class="kb-vazio">Ninguém aqui</span>')+'</div>';}).join('')+'</div>');
+    // tabela de clientes
+    h+=quadro("Clientes","Próximo passo de cada um, com quem está a bola e como anda o mês.",'<button class="btn" data-dash-lista>Abrir a lista de clientes</button>',
+      '<div class="tabela"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Próximo passo</th><th>Peças do mês</th><th>Próxima publicação</th><th>Automação</th></tr></thead><tbody>'+
+      linhas.map(function(l){var q=l.x.quem&&QUEM_LBL[l.x.quem];
+        return '<tr data-dash-cli="'+esc(l.c.id)+'" data-dash-ir="'+ETAPAS[l.r.atual-1][2]+'"'+(l.ativo?'':' class="apagada"')+'><td><div class="cel-cli"><span class="av-cli" style="background:'+avc(l.c.av||0)+'">'+esc(String(l.c.name||"?").charAt(0))+'</span><span><b>'+esc(l.c.name)+'</b><small>'+esc(l.c.niche||"")+'</small></span></div></td>'+
+          '<td>'+miniTrilho(l.r)+'<small>'+l.r.atual+'. '+ETAPAS[l.r.atual-1][1]+'</small></td>'+
+          '<td class="e-reg"><b class="cel-t">'+esc(l.x.tit)+'</b>'+(q?'<small><span class="chip quem-'+q[1]+'">'+q[0]+'</span></small>':'')+'</td>'+
+          '<td class="tnum">'+(l.pecas?'<span class="tr-barra largo"><i style="width:'+pct(l.aprov,l.pecas)+'%"></i></span><small>'+l.aprov+' de '+l.pecas+' aprovadas, '+l.pub+' no ar</small>':'<small>sem peças no mês</small>')+'</td>'+
+          '<td>'+(l.prox?'<b class="cel-t">'+esc(l.prox.quando)+'</b><small>'+esc(String(l.prox.titulo||"").slice(0,48))+'</small>':'<small>nada agendado</small>')+'</td>'+
+          '<td><span class="chip '+l.auto[1]+'">'+l.auto[0]+'</span></td></tr>';}).join('')+'</tbody></table></div>');
+    // próximas publicações + agentes
+    var ate=fmtD(new Date(Date.now()+14*864e5)),pubs=[];
+    ativos.forEach(function(l){var g=DB_STATE_CACHE[l.c.id]||{};((g.calendar&&g.calendar.items)||[]).forEach(function(it){if(String(it.data)>=hoje&&String(it.data)<=ate)pubs.push({l:l,it:it});});});
+    pubs.sort(function(a,b){return (a.it.data+itemHora(a.it)).localeCompare(b.it.data+itemHora(b.it))});
+    var pubsHtml=pubs.length?pubs.slice(0,12).map(function(p){return '<div class="linha dash-pub" data-dash-cli="'+esc(p.l.c.id)+'" data-dash-ir="calendar"><span class="dash-cor" style="background:'+avc(p.l.c.av||0)+'"></span><div class="l-main"><b>'+esc(pecaTitulo(p.it))+'</b><small>'+esc(quando(p.it))+', '+esc(p.l.c.name)+'</small></div><span class="chip '+(ST_CHIP[p.it.status]||"")+'">'+esc(stLabel(p.it.status))+'</span></div>'}).join('')+(pubs.length>12?'<p class="pp-m" style="margin-top:12px">E mais '+(pubs.length-12)+' no Calendário.</p>':''):'<div class="vazio">Nada nos próximos 14 dias.</div>';
+    h+='<div class="grid cols-2 q-par">'+quadro("Próximos 14 dias",pubs.length+' publicaç'+(pubs.length===1?'ão':'ões')+' de todos os clientes.','<button class="btn" data-dash-agenda>Calendário</button>',pubsHtml)+
+      '<div id="dashAgentes">'+(SB?quadro("Agentes","Carregando a atividade.",'',''):quadro("Agentes","A atividade e o gasto dos agentes aparecem no painel publicado, com login da equipe.",'',''))+'</div></div>';
+    el.innerHTML=h;
+    el.querySelectorAll('[data-dash-cli]').forEach(function(x){x.addEventListener('click',function(){var id=x.getAttribute('data-dash-cli');setClient(id);go(x.getAttribute('data-dash-ir')||"dna");});});
+    var dl=el.querySelector('[data-dash-lista]');if(dl)dl.addEventListener('click',function(){go("clients")});
+    var da=el.querySelector('[data-dash-agenda]');if(da)da.addEventListener('click',function(){go("agenda")});
+    if(SB)dashAgentes();
+  }
+  async function dashAgentes(){
+    var box=I("#dashAgentes");if(!box)return;
+    try{
+      var est=await chamarServidor("estado");
+      var runs=((await SB.c.from("agent_runs").select("agente,client_id,status,custo_usd,started_at").order("started_at",{ascending:false}).limit(8)).data)||[];
+      var gasto=Number(est.gasto||0),teto=Number(est.orcamento||0);
+      box.innerHTML=quadro("Agentes",est.chave?'Servidor ligado, modelo '+esc(est.modelo||""):'Sem chave da Anthropic no servidor.','<button class="btn" data-dash-ag>Ver tudo</button>',
+        '<div class="dash-gasto"><span>Gasto do mês</span><b class="tnum">US$ '+gasto.toFixed(2)+'</b><small>de US$ '+teto.toFixed(0)+'</small></div><span class="tr-barra largo"><i style="width:'+(teto?Math.min(100,gasto/teto*100):0)+'%"></i></span>'+
+        (runs.length?runs.map(function(r){var st=ST_RUN[r.status]||["",r.status];return '<div class="linha"><div class="l-main"><b>'+esc((AG_INFO[r.agente]||[r.agente])[0])+(r.client_id?', '+esc(clientName(r.client_id)):'')+'</b><small>'+esc(quandoTs(r.started_at))+'</small></div><span class="chip '+st[0]+'">'+esc(st[1])+'</span></div>'}).join(''):'<div class="vazio" style="margin-top:12px">Nenhuma execução ainda.</div>'));
+      var b=box.querySelector('[data-dash-ag]');if(b)b.addEventListener('click',function(){go("agents")});
+    }catch(e){box.innerHTML=quadro("Agentes","Não consegui ler a atividade agora.",'','');}
   }
   // ---------- início do painel ----------
   // Link de briefing (?briefing=...): o cliente vê só o formulário, nada do painel.
