@@ -65,6 +65,7 @@ export async function executarAgente(d: Deps, ws: string, cli: string, agenteId:
     await d.b.terminarExecucao(run, { status: "pulado", erro: motivo });
     return { status: "pulado", motivo, propostas: 0, custo_usd: 0, run_id: run };
   };
+  if (gatilho !== GATILHO_MANUAL && op.pausado) return pular("cliente pausado");
   if (gatilho !== GATILHO_MANUAL && modoDo(op, a.id) === "manual") return pular("agente em modo manual para este cliente");
   if (!a.semIA) {
     const gasto = await d.b.gastoDoMes(ws);
@@ -151,9 +152,10 @@ export async function batida(d: Deps, limite = 4): Promise<{ enfileiradas: numbe
       const op = operacaoDe(doc.data);
       for (const a of AGENTES) {
         const conf = cfg[a.id];
-        if ((conf && !conf.ativo) || modoDo(op, a.id) === "manual") continue;
+        if ((conf && !conf.ativo) || op.pausado || modoDo(op, a.id) === "manual") continue;
         const ag = agendaDo(a, op);
-        const h = ag && ultimoHorario(conf?.agenda && a.id !== "pulso" ? conf.agenda : ag.agenda, agora);
+        // O horário é o do cliente (ficha > operação > horários); a equipe só liga ou desliga o agente.
+        const h = ag && ultimoHorario(ag.agenda, agora);
         if (!ag || !h) continue;
         const ultima = await d.b.ultimaVez(ws, cli, a.id, ag.gatilho);
         if (!ultima || ultima < h) { await d.b.enfileirar(ws, cli, a.id, ag.gatilho); enfileiradas++; }

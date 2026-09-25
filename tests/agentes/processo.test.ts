@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { backendMemoria, entregar, llmRoteiro } from "./memoria.js";
 import { executarAgente, type Deps } from "../../supabase/functions/_shared/maestro.ts";
+import { agendaDo, AGENTE } from "../../supabase/functions/_shared/agentes.ts";
+import { operacaoDe } from "../../supabase/functions/_shared/operacao.ts";
+import { batida } from "../../supabase/functions/_shared/maestro.ts";
 import { etapasDoCliente, travaDaGravacao, pathDoCliente, DNA_MINIMO } from "../../supabase/functions/_shared/processo.ts";
 
 const WS = "ws-1", CLI = "ana";
@@ -93,5 +96,23 @@ describe("travas do processo", () => {
     expect(r.etapas[3]).toMatchObject({ estado: "atual", feito: 1, total: 2, quem: "equipe" });
     expect(r.etapas[4]).toMatchObject({ estado: "feita", feito: 1, total: 1 });
     expect(r.etapas[5]).toMatchObject({ estado: "feita", feito: 1, total: 1 });
+  });
+
+  it("horários são do cliente: planejamento, pesquisa e Estúdio seguem a ficha, com limites", () => {
+    const op = operacaoDe({ operacao: { diaPlanejamento: 15, horarios: { planHora: 9, radarDia: 3, radarHora: 8, estHora: 5, estDias: 99 } } });
+    expect(agendaDo(AGENTE.pulso!, op)!.agenda).toBe("mensal:15:9");
+    expect(agendaDo(AGENTE.radar!, op)!.agenda).toBe("semanal:3:8");
+    expect(agendaDo(AGENTE.estudio!, op)!.agenda).toBe("diario:5");
+    expect(op.horarios.estDias).toBe(21);
+    const padrao = operacaoDe({});
+    expect([agendaDo(AGENTE.radar!, padrao)!.agenda, agendaDo(AGENTE.estudio!, padrao)!.agenda, agendaDo(AGENTE.pulso!, padrao)!.agenda]).toEqual(["semanal:1:7", "diario:6", "mensal:20:7"]);
+  });
+
+  it("cliente pausado: a agenda não enfileira nada e agente só roda se alguém pedir", async () => {
+    const m = backendMemoria(() => AGORA);
+    await m.b.setDoc(WS, `cos_clients/${CLI}`, { id: CLI, name: "Ana", briefing: "x", operacao: { pausado: true } });
+    const r = await batida(deps(m, semIA));
+    expect(r.enfileiradas).toBe(0);
+    expect(await executarAgente(deps(m, semIA), WS, CLI, "radar", "agenda")).toMatchObject({ status: "pulado", motivo: "cliente pausado" });
   });
 });

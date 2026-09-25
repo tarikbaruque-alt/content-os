@@ -19,7 +19,22 @@ export type Operacao = {
   pautaQuente: "troca" | "sugestao";
   /** Automático: roda pela agenda e pela cadeia. Manual: só quando alguém clica "Rodar agora". */
   agentes: Record<string, Modo>;
+  /** Quando cada coisa roda sozinha, no horário de Brasília. */
+  horarios: Horarios;
+  /** Pausado: nenhum agente roda sozinho para este cliente (o que já foi aprovado continua). */
+  pausado: boolean;
 };
+export type Horarios = {
+  /** Hora do planejamento mensal (Pulso lê o mês e abre a cadeia), no dia de planejar. */
+  planHora: number;
+  /** Dia da semana da pesquisa (0 = domingo) e a hora. */
+  radarDia: number;
+  radarHora: number;
+  /** Hora em que o Estúdio escreve, e quantos dias à frente ele olha. */
+  estHora: number;
+  estDias: number;
+};
+export const HORARIOS_PADRAO: Horarios = { planHora: 7, radarDia: 1, radarHora: 7, estHora: 6, estDias: 7 };
 
 export const OPERACAO_PADRAO: Operacao = {
   diaPlanejamento: 20,
@@ -28,12 +43,24 @@ export const OPERACAO_PADRAO: Operacao = {
   semRespostaPublica: false,
   pautaQuente: "sugestao",
   agentes: {},
+  horarios: HORARIOS_PADRAO,
+  pausado: false,
 };
+const faixa = (v: unknown, min: number, max: number, padrao: number) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : padrao; };
 
 export function operacaoDe(cliente: Record<string, any> | null): Operacao {
   const o = { ...OPERACAO_PADRAO, ...((cliente?.operacao as Partial<Operacao>) ?? {}) };
   o.diaPlanejamento = Math.min(28, Math.max(1, Math.round(Number(o.diaPlanejamento) || 20)));
   o.agentes = { ...(o.agentes ?? {}) };
+  const h = { ...HORARIOS_PADRAO, ...((cliente?.operacao?.horarios as Partial<Horarios>) ?? {}) };
+  o.horarios = {
+    planHora: faixa(h.planHora, 0, 23, HORARIOS_PADRAO.planHora),
+    radarDia: faixa(h.radarDia, 0, 6, HORARIOS_PADRAO.radarDia),
+    radarHora: faixa(h.radarHora, 0, 23, HORARIOS_PADRAO.radarHora),
+    estHora: faixa(h.estHora, 0, 23, HORARIOS_PADRAO.estHora),
+    estDias: faixa(h.estDias, 1, 21, HORARIOS_PADRAO.estDias),
+  };
+  o.pausado = o.pausado === true;
   return o;
 }
 

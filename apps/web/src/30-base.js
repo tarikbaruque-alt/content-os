@@ -33,7 +33,8 @@
   var NAV_ICONE={overview:"nav-home",agenda:"nav-grid-ativo",clients:"nav-user",agents:"nav-layers",config:"nav-settings",strategy:"nav-grid-ativo",editorial:"nav-check",formats:"nav-pie",content:"nav-chat",calendar:"check-done"};
   function iconeUI(nome){return (window.ICONES_UI&&ICONES_UI[nome])||"";}
   // Abas da página do cliente, na ordem do trabalho. Cada aba agrupa telas que já existem.
-  var CLI_TABS=[["entender","Entender",["dna"]],["planejar","Planejar",["strategy","research","editorial","ideas","formats"]],["calendario","Calendário",["calendar","approvals"]],["resultados","Resultados",["performance"]],["operacao","Operação",["operacao"]]];
+  // Telas que pertencem a um cliente (o trilho das 6 etapas leva a elas; ver 44-processo-do-cliente.js).
+  var CLI_TABS=[["entender","Entender",["dna"]],["planejar","Planejar",["strategy","editorial","ideas","research","formats"]],["produzir","Produzir",["approvals"]],["publicar","Publicar",["calendar"]],["medir","Medir",["performance"]],["operacao","Operação",["operacao"]]];
   var SUB_LBL={strategy:"Estratégia",research:"Pesquisa",editorial:"Linha editorial",ideas:"Ideias",formats:"Formatos",calendar:"Calendário",approvals:"Aprovações"};
   // A lista de clientes tem duas abas: a operação e o administrativo (contatos, valores, cobranças).
   var CLIENTES_TABS=[["clients","Clientes"],["ativos","Administrativo"]];

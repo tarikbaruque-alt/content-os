@@ -20,13 +20,19 @@
     I("#clientSwitch").hidden=!aba;
     if(!mostra){return;}
     if(naLista){
-      I("#cliTabs").innerHTML=CLIENTES_TABS.map(function(t){return '<button class="tab'+(t[0]===v?' on':'')+'" data-tab-ir="'+t[0]+'">'+esc(t[1])+'</button>'}).join('');
+      I("#cliTabs").innerHTML='<nav class="tabs" aria-label="Clientes">'+CLIENTES_TABS.map(function(t){return '<button class="tab'+(t[0]===v?' on':'')+'" data-tab-ir="'+t[0]+'">'+esc(t[1])+'</button>'}).join('')+'</nav>';
       I("#cliSub").innerHTML="";
     }else{
-      I("#cliTabs").innerHTML=CLI_TABS.map(function(t){return '<button class="tab'+(t===aba?' on':'')+'" data-tab-ir="'+t[2][0]+'">'+esc(t[1])+'</button>'}).join('');
-      I("#cliSub").innerHTML=aba[2].length>1?aba[2].map(function(x){return '<button class="sub'+(x===v?' on':'')+'" data-tab-ir="'+x+'">'+esc(SUB_LBL[x]||x)+'</button>'}).join(''):'';
+      I("#cliTabs").innerHTML=trilhoHtml(state.client,v);
+      var subs=PLANEJAR_SUBS.indexOf(v)>=0?PLANEJAR_SUBS:[];
+      I("#cliSub").innerHTML=(subs.length?subs.map(function(x){return '<button class="sub'+(x===v?' on':'')+'" data-tab-ir="'+x+'">'+esc(SUB_LBL[x]||x)+'</button>'}).join(''):'')+
+        (v==="operacao"?'<span class="pp-m">O que os agentes fizeram para este cliente.</span>':'');
+      I("#cliFaixa").innerHTML=faixaHtml(state.client);
+      ligarProcesso(h);
     }
-    Array.prototype.forEach.call(h.querySelectorAll('[data-tab-ir]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-tab-ir'))})});
+    I("#cliFaixa").hidden=naLista;I("#comoRoda").hidden=naLista;
+    Array.prototype.forEach.call(h.querySelectorAll('[data-tab-ir]:not(.tr-et)'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-tab-ir'))})});
+    if(!naLista&&aba)ligarTrilho(h);
   }
   // Dispatca a renderização da view v, usado por go() e também por
   // setClient() quando o estado de um cliente real termina de carregar do db
@@ -48,6 +54,9 @@
     if(aba&&state.client&&!state.clientView){I("#crumb").textContent="Clientes";I("#ptitle").textContent=clientName(state.client);}
     else{I("#crumb").textContent=t[0]==="Trabalho"||t[0]==="Fluxo"||t[0]==="Sistema"?"":t[0];I("#ptitle").textContent=t[1];}
     renderCliHead(v);
+    // "Novo cliente" só onde se cuida da carteira: nas outras telas o botão roxo é o do processo.
+    var nb=I("#newClientBtn");if(nb)nb.hidden=!(v==="clients"||v==="ativos"||!CLIENTS.length)||state.clientView;
+    var ri=I("#comoRodaIc");if(ri&&!ri.innerHTML)ri.innerHTML=iconeUI("settings");
     if(!noCli)renderView(v);else renderStatus(v);
     window.scrollTo({top:0});
   }
@@ -240,19 +249,37 @@
   var ESTADO_PT={FACT:["Fato","act"],HYPOTHESIS:["Hipótese","warn"],INSIGHT:["Insight","prog"],STRATEGIC_DECISION:["Decisão",""],LEARNING:["Aprendizado","act"]};
   function dnaEntryHtml(x,i){
     var e=ESTADO_PT[x.state]||[x.state,""],db=isDbClient(state.client),pend=x.status!=="approved";
-    return '<tr class="entry" data-i="'+i+'"><td><b>'+esc(x.field)+'</b><small>'+esc(SECLBL[x.section]||x.section)+'</small></td>'+
+    return '<tr class="entry" data-i="'+i+'">'+(db?'<td class="sel-c">'+(pend?'<button class="cbx" data-sel="'+i+'" role="checkbox" aria-checked="false" aria-label="Selecionar '+esc(x.field)+'"></button>':'<span class="tr-marca feita pequena">'+iconeUI("check-filled")+'</span>')+'</td>':'')+'<td><b>'+esc(x.field)+'</b><small>'+esc(SECLBL[x.section]||x.section)+'</small></td>'+
       '<td class="e-reg"><div data-role="val">'+esc(x.value)+'</div><small>'+esc(x.src||"")+'</small></td>'+
       '<td><span class="chip '+e[1]+'">'+esc(e[0])+'</span></td>'+
       '<td><span class="chip '+(pend?'warn':'act')+'">'+(pend?'Pendente':'Aprovado')+'</span></td>'+
-      '<td class="acao nowrap">'+(db?(pend?'<button class="icon-btn sm ok" data-act="approve" title="Aprovar" aria-label="Aprovar">'+iconeUI("check-done")+'</button>':'')+
+      '<td class="acao nowrap">'+(db?(pend?'<button class="btn sm" data-act="approve">Aprovar</button>':'')+
         '<button class="icon-btn sm" data-act="edit" title="Editar" aria-label="Editar">'+iconeUI("edit")+'</button><button class="icon-btn sm" data-act="reject" title="Remover" aria-label="Remover">'+iconeUI("linha-trash")+'</button>':'')+'</td></tr>';
   }
   function dnaTabelaHtml(list){
     var linhas=list.map(function(x,i){return [x,i]}).sort(function(a,b){return (a[0].status==="approved")-(b[0].status==="approved")||SECORDER.indexOf(a[0].section)-SECORDER.indexOf(b[0].section)});
     var pend=list.filter(function(x){return x.status!=="approved"}).length;
-    return quadro("Content DNA",list.length?(list.length-pend)+' aprovado'+(list.length-pend===1?'':'s')+(pend?' · '+pend+' esperando você':''):'Ainda vazio. Analise o briefing com a Íris ou adicione à mão.','',
-      (list.length?'<div class="tabela"><table><thead><tr><th>Campo</th><th>Registro</th><th>Estado</th><th>Situação</th><th></th></tr></thead><tbody>'+linhas.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</tbody></table></div>':'')+
+    var db=isDbClient(state.client),aprov=list.length-pend;
+    var lote=db&&pend?'<div class="lote-bar"><button class="cbx" id="dnaSelTodos" role="checkbox" aria-checked="false" aria-label="Selecionar todos os pendentes"></button><span id="dnaSelN">Selecionar</span><span class="spacer"></span><button class="btn" id="dnaAprTodos">Aprovar todos ('+pend+')</button><button class="btn pri" id="dnaAprSel" disabled>Aprovar selecionados</button></div>':'';
+    return quadro("Content DNA",list.length?aprov+' aprovado'+(aprov===1?'':'s')+(pend?', '+pend+' esperando você':'')+(aprov<DNA_MINIMO?'. Com '+DNA_MINIMO+' aprovados, o planejamento começa.':''):'Ainda vazio. Analise o briefing com a Íris ou adicione à mão.','',
+      lote+(list.length?'<div class="tabela"><table><thead><tr>'+(db?'<th class="sel-c"></th>':'')+'<th>Campo</th><th>Registro</th><th>Estado</th><th>Situação</th><th></th></tr></thead><tbody>'+linhas.map(function(p){return dnaEntryHtml(p[0],p[1])}).join('')+'</tbody></table></div>':'')+
       (isDbClient(state.client)?dnaManualHtml():''));
+  }
+  // Aprovação em lote: seleciona os pendentes e aprova de uma vez (um único registro no banco).
+  function wireDnaLote(){
+    var q=I("#dnaSections");if(!q)return;var sel={};
+    var tbl=q.querySelector('.tabela');if(tbl&&tbl.closest('.quadro'))tbl.closest('.quadro').id="dnaQuadro";
+    function atualizar(){var ids=Object.keys(sel).filter(function(k){return sel[k]}),tot=q.querySelectorAll('[data-sel]').length;
+      q.querySelectorAll('[data-sel]').forEach(function(b){b.setAttribute('aria-checked',sel[b.getAttribute('data-sel')]?'true':'false')});
+      var t=I("#dnaSelTodos");if(t)t.setAttribute('aria-checked',ids.length===0?'false':ids.length===tot?'true':'mixed');
+      var n=I("#dnaSelN");if(n)n.textContent=ids.length?ids.length+' selecionado'+(ids.length>1?'s':''):'Selecionar';
+      var a=I("#dnaAprSel");if(a)a.disabled=!ids.length;}
+    q.querySelectorAll('[data-sel]').forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-sel');sel[k]=!sel[k];atualizar();})});
+    var t=I("#dnaSelTodos");if(t)t.addEventListener('click',function(){var todos=t.getAttribute('aria-checked')==='true';q.querySelectorAll('[data-sel]').forEach(function(b){sel[b.getAttribute('data-sel')]=!todos});atualizar();});
+    async function aprovar(idx,bt){bt.disabled=true;var entries=(GENERATED.dna||[]).slice();idx.forEach(function(i){entries[i]=Object.assign({},entries[i],{status:"approved"})});
+      try{await saveDna(state.client,entries);toast(idx.length+' registro'+(idx.length>1?'s':'')+' aprovado'+(idx.length>1?'s':'')+'.');}catch(e){bt.disabled=false;toast("Não consegui aprovar: "+(e.message||e));}}
+    var as=I("#dnaAprSel");if(as)as.addEventListener('click',function(){aprovar(Object.keys(sel).filter(function(k){return sel[k]}).map(Number),as)});
+    var at=I("#dnaAprTodos");if(at)at.addEventListener('click',function(){aprovar([].map.call(q.querySelectorAll('[data-sel]'),function(b){return +b.getAttribute('data-sel')}),at)});
   }
   function wireDnaActions(){
     if(!isDbClient(state.client)){
@@ -282,13 +309,13 @@
     var t=I("#dnaTitle");if(t)t.textContent="";
     if(isDbClient(state.client)){
       var list=GENERATED.dna||[];
-      I("#dnaSections").innerHTML=fichaHtml()+dnaOnboardingHtml()+dnaTabelaHtml(list)+refsBlockHtml();
+      I("#dnaSections").innerHTML=(list.length?dnaTabelaHtml(list)+dnaOnboardingHtml():dnaOnboardingHtml()+dnaTabelaHtml(list))+fichaHtml()+refsBlockHtml();
       I("#dnaRun").addEventListener('click',runIrisLive);
       wireFicha();wireBriefingAutosave();
       I("#dnaAddManual").addEventListener('click',addManualDna);
       var refAddBtn=I("#refAdd");if(refAddBtn)refAddBtn.addEventListener('click',addRef);
       Array.prototype.forEach.call(document.querySelectorAll('[data-refrm]'),function(b){b.addEventListener('click',function(){removeRef(+b.getAttribute('data-refrm'));})});
-      wireDnaActions();
+      wireDnaActions();wireDnaLote();
       return;
     }
     I("#dnaSections").innerHTML=dnaTabelaHtml(DNA[state.client]||[]);

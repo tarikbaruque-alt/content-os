@@ -38,6 +38,8 @@ const ABAS: Record<string, string[]> = {
 };
 async function ir(v: string) {
   if (!ABAS[v]) { await page.click(`.side .nav [data-view="${v}"]`); return; }
+  // Operação saiu das abas: fica na gaveta "Como este cliente roda".
+  if (v === "operacao") { await ir("dna"); await page.click("#comoRoda"); await page.click("#crExec"); return; }
   if (!(await page.isVisible('[data-tab-ir="dna"]'))) { await page.click('.side .nav [data-view="clients"]'); await page.click('.view[data-view="clients"] .tabela tbody tr'); }
   for (const t of ABAS[v]!) await page.click(`[data-tab-ir="${t}"]`);
 }

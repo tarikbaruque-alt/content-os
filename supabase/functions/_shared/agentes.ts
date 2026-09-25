@@ -281,7 +281,7 @@ export const AGENTES: Agente[] = [
       "- Consulte a Knowledge Base (criação de alto valor: ganchos, ressonância) antes de escrever.",
       "- Respeite o que a ficha diz que NÃO pode aparecer.",
     ].join("\n"),
-    bloqueio: async (c) => ((await pecasSemTexto(c)).length ? null : "nenhuma peça dos próximos 7 dias sem texto"),
+    bloqueio: async (c) => ((await pecasSemTexto(c)).length ? null : `nenhuma peça dos próximos ${c.op.horarios.estDias} dias sem texto`),
     // A peça da vez é escolhida em executarAgente (uma execução por peça).
     pedido: async () => "",
     saida: {},
@@ -323,13 +323,16 @@ export const AGENTE = Object.fromEntries(AGENTES.map((a) => [a.id, a])) as Recor
 
 /** Agenda deste agente para este cliente, e com que gatilho ela dispara. */
 export function agendaDo(a: Agente, op: Operacao): { agenda: string; gatilho: string } | null {
-  if (a.id === "pulso") return { agenda: `mensal:${op.diaPlanejamento}:7`, gatilho: GATILHO_PLANEJAMENTO };
+  const h = op.horarios;
+  if (a.id === "pulso") return { agenda: `mensal:${op.diaPlanejamento}:${h.planHora}`, gatilho: GATILHO_PLANEJAMENTO };
+  if (a.id === "radar") return { agenda: `semanal:${h.radarDia}:${h.radarHora}`, gatilho: "agenda" };
+  if (a.id === "estudio") return { agenda: `diario:${h.estHora}`, gatilho: "agenda" };
   return a.agenda ? { agenda: a.agenda, gatilho: "agenda" } : null;
 }
 
 // ------------------------------------------------------------------ Estúdio
 export async function pecasSemTexto(c: Ctx) {
-  const ate = new Date(c.agora.getTime() + 7 * 864e5).toISOString().slice(0, 10);
+  const ate = new Date(c.agora.getTime() + (c.op?.horarios?.estDias ?? 7) * 864e5).toISOString().slice(0, 10);
   const de = hoje(c.agora);
   return (await c.b.listDocs(c.ws, `cos_calendar/${c.cli}/items`))
     .filter((d) => d.data.data >= de && d.data.data <= ate && !d.data.content && !d.data.carousel && !d.data.stories && d.data.status !== "APPROVED" && d.data.status !== "PUBLISHED" && d.data.clientStatus !== "ajuste")
