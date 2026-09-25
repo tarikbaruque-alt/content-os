@@ -51,7 +51,7 @@ eles mostram um aviso pedindo para abrir pelo link.
 
 1. No painel: **Clientes → 📨 Formulário de briefing para enviar**. Informe seu nome/agência e seu WhatsApp e baixe o arquivo `briefing-de-conteudo.html`.
 2. Envie o arquivo ao cliente. Ele abre no celular (sem login), responde (negócio, **propósito**, **identidade**, público, dores, diferencial, tom, **objetivos**, **foco no funil (topo, meio ou fundo)**, **quantos conteúdos por semana**, **tempo para gravar**, dias de postagem, referências) e toca em **Enviar pelo WhatsApp**.
-3. No painel: **Clientes → 📥 Importar briefing recebido** e cole a mensagem. O cliente é criado com ficha, rotina (frequência, dias, limite de gravações) e referências.
+3. O cliente toca em **📧 Enviar por e-mail** (vai para o seu Gmail). No painel: **Clientes → 📬 Caixa de entrada de briefings → ↻ Verificar novos briefings → ✦ Criar cliente e montar tudo**. (Se ele mandar pelo WhatsApp: **📥 Importar briefing (colar)** e cole a mensagem.) O cliente é criado com ficha, rotina (frequência, dias, limite de gravações) e referências.
 4. Clique em **✦ Montar tudo automaticamente** (30, 45, 60 ou 90 dias): Content DNA → Estratégia → Linha Editorial → Ideias → Calendário, já na frequência que o cliente pediu. Depois, revise e aprove o Content DNA.
 
 ## ⚙️ Integrações finais (Anthropic + Notion)
