@@ -41,6 +41,7 @@
   function metasPrompt(){
     var id=state.client;if(!id)return '';var m=(DB_CLIENTS[id]||{}).metas||{},r=rotinaOf(id),L=[];
     if(m.objetivos&&m.objetivos.length)L.push('Objetivos declarados pelo cliente: '+m.objetivos.join('; '));
+    if(m.meta)L.push('Principal meta do cliente para os próximos 3 meses: '+m.meta+' — priorize caminhos, pilares e ideias que levem a ela');
     if(r.foco){var fo=FUNIL_OPC.filter(function(x){return x[0]===r.foco})[0];if(fo)L.push('Foco do funil agora: '+fo[1]+' — mix alvo topo '+fo[2].topo+'% / meio '+fo[2].meio+'% / fundo '+fo[2].fundo+'%');}
     if(m.proposito)L.push('Propósito da marca: '+m.proposito);
     if(m.identidade)L.push('Identidade / como quer ser percebida: '+m.identidade);

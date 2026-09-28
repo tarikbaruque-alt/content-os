@@ -2,84 +2,165 @@
   // ---------- Formulário de briefing para o cliente (arquivo que você envia) + importação das respostas ----------
   var BRIEF_MARK="📋 BRIEFING DE CONTEÚDO";
   var BRIEF_FREQ=["3 por semana","4 por semana","5 por semana","7 por semana (todo dia)"];
-  var BRIEF_FIELDS=[
-    {k:"name",l:"Nome da empresa ou marca",t:"text",req:1,g:"Sobre o negócio"},
-    {k:"responsavel",l:"Seu nome (quem está preenchendo)",t:"text"},
-    {k:"whats",l:"Seu WhatsApp (com DDD)",t:"text",ph:"Ex.: 11 99999-9999"},
-    {k:"niche",l:"Área de atuação / nicho",t:"text",req:1,ph:"Ex.: odontologia estética, loja de roupas femininas"},
-    {k:"instagram",l:"Instagram (@)",t:"text",ph:"@seuperfil"},
-    {k:"site",l:"Site ou link",t:"text"},
-    {k:"regiao",l:"Cidade / região de atendimento",t:"text",ph:"Ex.: São Paulo — Zona Sul, ou 100% online"},
-    {k:"oferta",l:"O que você vende? (produtos e serviços principais)",t:"area",req:1},
-    {k:"ticket",l:"Faixa de preço / ticket médio",t:"text",ph:"Ex.: R$ 300 a R$ 2.000"},
-    {k:"publico",l:"Quem é o seu cliente ideal?",t:"area",req:1,ph:"Idade, momento de vida, o que procura",g:"Sobre o seu cliente"},
-    {k:"dores",l:"Quais são as maiores dores ou problemas dele?",t:"area"},
-    {k:"desejos",l:"O que ele mais deseja conquistar?",t:"area"},
-    {k:"objecoes",l:"O que faz ele hesitar antes de comprar?",t:"area",ph:"Ex.: acha caro, tem medo do resultado, não tem tempo"},
-    {k:"proposito",l:"Qual é o propósito da sua marca? (por que ela existe, além de vender)",t:"area",g:"Sobre a sua marca"},
-    {k:"identidade",l:"Identidade: como quer ser percebido(a)? Valores, personalidade, estilo visual",t:"area",ph:"Ex.: próxima e elegante; valores: honestidade e cuidado; cores claras, visual minimalista"},
-    {k:"diferencial",l:"Por que escolher você e não outro?",t:"area"},
-    {k:"provas",l:"Provas: anos de experiência, nº de clientes, resultados, prêmios",t:"area"},
-    {k:"tom",l:"Como você gosta de falar? Palavras que usa e que evita",t:"area",ph:"Ex.: acolhedor e direto; evito “barato” e “promoção”"},
-    {k:"restricoes",l:"O que NÃO pode aparecer no conteúdo?",t:"area"},
-    {k:"objetivo",l:"Objetivos com o Instagram (marque até 3)",t:"multi",max:3,req:1,opts:["Ter mais autoridade / ser referência no assunto","Vender mais / gerar pedidos","Encher a agenda","Fortalecer marca pessoal (perfil de influenciador)","Criar proximidade e conexão (rapport)","Fortalecer a identidade da marca","Criar comunidade","Lançar algo novo"],g:"Objetivos e estratégia"},
-    {k:"funil",l:"Neste momento, qual o foco principal?",t:"choice",req:1,opts:["Atrair gente nova que ainda não me conhece (topo)","Aquecer e educar quem já me segue (meio)","Transformar seguidores em clientes (fundo)","Equilíbrio entre os três"]},
-    {k:"frequencia",l:"Quantos conteúdos por semana você quer?",t:"choice",req:1,opts:BRIEF_FREQ,g:"Sobre a rotina de conteúdo"},
-    {k:"tempo",l:"Quanto tempo por semana você consegue reservar para gravar?",t:"choice",req:1,opts:TEMPO_OPC.map(function(o){return o[1]})},
-    {k:"aparece",l:"Você aparece nos vídeos?",t:"choice",opts:["Sim, gosto de aparecer","Às vezes / ainda tenho vergonha","Prefiro não aparecer"]},
-    {k:"gravdia",l:"Melhor dia da semana para gravar",t:"choice",opts:DIAS_SEM_LONGO.slice(1).concat([DIAS_SEM_LONGO[0]])},
-    {k:"dias",l:"Dias que prefere postar (pode marcar vários)",t:"multi",opts:["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"]},
-    {k:"referencias",l:"Perfis que você admira (referência) — e por quê",t:"area",g:"Referências"},
-    {k:"concorrentes",l:"Concorrentes diretos",t:"area"},
-    {k:"datas",l:"Datas importantes, lançamentos ou campanhas",t:"area"},
-    {k:"obs",l:"Algo mais que devemos saber?",t:"area"}
+  // Respostas curtas do formulário → opções da rotina do painel (TEMPO_OPC).
+  var BRIEF_TEMPO={"Não gravo":"Não grava (só arte/carrossel)","30 min":"Até 30 min","1 hora":"1 hora","2 horas ou mais":"2 horas"};
+  var BRIEF_TOM=["Leve e descontraído","Acolhedor","Técnico e direto","Inspirador"];
+  var BRIEF_OBJ_FUNIL={"Ser mais conhecido":"Atrair gente nova que ainda não me conhece (topo)","Educar quem já me segue":"Aquecer e educar quem já me segue (meio)","Vender mais":"Transformar seguidores em clientes (fundo)"};
+  // Briefing curto: 14 perguntas essenciais (≈ 5 min) + 7 opcionais. Cada pergunta (n) tem
+  // um ou mais campos (sub); o rótulo de cada campo é o que vai na mensagem e o que a
+  // importação reconhece — mude um rótulo e a leitura das respostas muda junto.
+  var BRIEF_FORM=[
+    {g:"Sobre você",n:1,l:"Seus dados",sub:[
+      {k:"name",l:"Seu nome ou nome da marca",t:"text",req:1},
+      {k:"instagram",l:"Instagram (@)",t:"text",ph:"@seuperfil"},
+      {k:"whats",l:"WhatsApp com DDD",t:"text",ph:"Ex.: 21 99999-9999"},
+      {k:"email",l:"E-mail",t:"text",ph:"voce@email.com"}]},
+    {n:2,l:"O que você faz e qual serviço você mais quer vender?",sub:[
+      {k:"niche",l:"Sua área de atuação",t:"text",req:1,ph:"Ex.: personal trainer, dentista, loja de roupas"},
+      {k:"oferta",l:"O que você faz e qual serviço você mais quer vender",t:"area",req:1,ph:"1 ou 2 frases"}]},
+    {n:3,l:"Onde você atende?",sub:[
+      {k:"atende",l:"Tipo de atendimento",t:"choice",req:1,opts:["Presencial","Online","Os dois"]},
+      {k:"regiao",l:"Cidade / bairro",t:"text",ph:"Ex.: Tijuca, Rio de Janeiro"}]},
+    {g:"Sobre o seu cliente",n:4,l:"Quem é o seu cliente ideal?",sub:[
+      {k:"idade",l:"Idade do cliente ideal",t:"multi",req:1,hint:"Pode marcar mais de uma",opts:["Até 25","26 a 35","36 a 50","51 a 65","Mais de 65"]},
+      {k:"genero",l:"Gênero do cliente ideal",t:"choice",opts:["Mulheres","Homens","Os dois"]},
+      {k:"momento",l:"Em que momento ele está?",t:"area",req:1,ph:"Ex.: está voltando a treinar depois de anos parado; acabou de abrir o próprio negócio"}]},
+    {n:5,sub:[{k:"dores",l:"Qual a maior dificuldade de quem te procura?",t:"area",req:1,ph:"1 frase"}]},
+    {n:6,l:"O que faz a pessoa hesitar antes de fechar com você?",sub:[
+      {k:"hesita",l:"O que faz a pessoa hesitar antes de fechar com você",t:"multi",req:1,hint:"Pode marcar mais de uma",opts:["Preço","Medo de não ter resultado","Falta de tempo","Ainda não conhece meu trabalho"]},
+      {k:"hesita_outro",l:"Outro motivo",t:"text",ph:"Opcional"}]},
+    {n:7,l:"Escreva as 3 perguntas que você mais ouve dos clientes",sub:[
+      {k:"pergunta1",l:"Pergunta 1",t:"text",req:1},{k:"pergunta2",l:"Pergunta 2",t:"text"},{k:"pergunta3",l:"Pergunta 3",t:"text"}]},
+    {g:"Sobre o seu jeito",n:8,sub:[{k:"diferencial",l:"Por que escolher você? Dê uma prova disso",t:"area",req:1,ph:"Anos de experiência, formação, um resultado, uma história de cliente"}]},
+    {n:9,l:"Como você fala?",sub:[
+      {k:"tom",l:"Como você fala",t:"multi",max:2,req:1,hint:"Marque até 2",opts:BRIEF_TOM},
+      {k:"restricoes",l:"O que nunca pode aparecer no seu conteúdo?",t:"text"}]},
+    {g:"Objetivos e rotina",n:10,sub:[{k:"objetivo",l:"O que você quer com o Instagram agora?",t:"multi",req:1,hint:"Pode marcar mais de um",opts:["Ser mais conhecido","Educar quem já me segue","Vender mais"]}]},
+    {n:11,sub:[{k:"meta",l:"Qual é a sua principal meta para os próximos 3 meses?",t:"text",req:1,ph:"Ex.: fechar 5 clientes novos; chegar a 2 mil seguidores da minha região"}]},
+    {n:12,sub:[{k:"frequencia",l:"Quantos posts por semana?",t:"choice",req:1,opts:BRIEF_FREQ}]},
+    {n:13,l:"Quanto tempo você tem para gravar por semana?",sub:[
+      {k:"tempo",l:"Tempo para gravar por semana",t:"choice",req:1,opts:Object.keys(BRIEF_TEMPO)},
+      {k:"aparece",l:"Você aparece nos vídeos? (se grava)",t:"choice",opts:["À vontade","Às vezes","Prefiro não"]}]},
+    {n:14,sub:[{k:"referencias",l:"Um perfil que você admira (e por quê) e um post seu que foi bem (se tiver)",t:"area"}]},
+    {g:"Se quiser ir além",opt:1,n:15,l:"Conte a história de um cliente que te marcou",sub:[
+      {k:"historia",l:"História de um cliente que te marcou",t:"area"},
+      {k:"historia_uso",l:"Podemos usar essa história no conteúdo, sem o nome?",t:"choice",opts:["Sim","Não"]}]},
+    {opt:1,n:16,sub:[{k:"processo",l:"Como é o primeiro atendimento com você, do começo ao fim?",t:"area"}]},
+    {opt:1,n:17,sub:[{k:"formacao",l:"Qual formação ou curso mais mudou o seu jeito de trabalhar? Tem registro profissional?",t:"area",ph:"Ex.: CREF, CRN, OAB"}]},
+    {opt:1,n:18,sub:[{k:"visual",l:"Você já tem logo, cores ou fotos que gosta de usar?",t:"choice",opts:["Sim, vou enviar","Ainda não"]}]},
+    {opt:1,n:19,sub:[{k:"autoriz_imagem",l:"Tem autorização por escrito para mostrar clientes no conteúdo?",t:"choice",opts:["Sim","Não","Não sei"]}]},
+    {opt:1,n:20,sub:[{k:"aprovacao",l:"Quem aprova o conteúdo, e em quanto tempo você costuma responder?",t:"text"}]},
+    {opt:1,n:21,sub:[{k:"datas",l:"Alguma data importante nos próximos meses?",t:"text",ph:"Lançamento, aniversário do negócio, férias"}]}
   ];
+  // Rótulos do formulário antigo (28 perguntas): só para continuar lendo briefings já enviados.
+  var BRIEF_ANTIGO=[["name","Nome da empresa ou marca"],["responsavel","Seu nome (quem está preenchendo)"],["whats","Seu WhatsApp (com DDD)"],["niche","Área de atuação / nicho"],["instagram","Instagram (@)"],["site","Site ou link"],["regiao","Cidade / região de atendimento"],["oferta","O que você vende? (produtos e serviços principais)"],["ticket","Faixa de preço / ticket médio"],["publico","Quem é o seu cliente ideal?"],["dores","Quais são as maiores dores ou problemas dele?"],["desejos","O que ele mais deseja conquistar?"],["objecoes","O que faz ele hesitar antes de comprar?"],["proposito","Qual é o propósito da sua marca? (por que ela existe, além de vender)"],["identidade","Identidade: como quer ser percebido(a)? Valores, personalidade, estilo visual"],["diferencial","Por que escolher você e não outro?"],["provas","Provas: anos de experiência, nº de clientes, resultados, prêmios"],["tom","Como você gosta de falar? Palavras que usa e que evita"],["restricoes","O que NÃO pode aparecer no conteúdo?"],["objetivo","Objetivos com o Instagram (marque até 3)"],["funil","Neste momento, qual o foco principal?"],["frequencia","Quantos conteúdos por semana você quer?"],["tempo","Quanto tempo por semana você consegue reservar para gravar?"],["aparece","Você aparece nos vídeos?"],["gravdia","Melhor dia da semana para gravar"],["dias","Dias que prefere postar (pode marcar vários)"],["referencias","Perfis que você admira (referência) — e por quê"],["concorrentes","Concorrentes diretos"],["datas","Datas importantes, lançamentos ou campanhas"],["obs","Algo mais que devemos saber?"]];
   function formCfg(){try{return JSON.parse(localStorage.getItem("cos_form_cfg")||"{}")||{}}catch(e){return {}}}
   function saveFormCfg(o){try{localStorage.setItem("cos_form_cfg",JSON.stringify(o))}catch(e){}}
+  // Roda no celular do cliente (arquivo baixado): monta o formulário a partir de D.
+  // Autocontido de propósito — é serializado com toString() dentro do arquivo.
+  function briefFormApp(D){
+    var box=document.getElementById("form"),KEY="cos_briefing_v2",subs=[];
+    D.form.forEach(function(q){q.sub.forEach(function(s){subs.push(s)})});
+    function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})}
+    var h="",parte=0,partes=D.form.filter(function(q){return q.g}).length;
+    D.form.forEach(function(q){
+      if(q.g){parte++;h+=(parte>1?"</section>":"")+"<section class=\"sec"+(q.opt?" opt":"")+"\"><div class=sh><span class=step>Parte "+parte+" de "+partes+"</span><h2>"+esc(q.g)+"</h2>"+(q.opt?"<p class=oph>Opcional. Responda só o que quiser; o que ficar em branco a gente conversa numa ligação rápida.</p>":"")+"</div>";}
+      var one=q.sub.length===1,tit=q.l||q.sub[0].l,req=q.sub.some(function(s){return s.req});
+      h+="<div class=q data-n="+q.n+"><div class=qh><span class=qn>"+q.n+"</span><div class=qt>"+esc(tit)+(req?" <span class=req>*</span>":"")+"</div></div>";
+      q.sub.forEach(function(s){
+        h+="<div class=f>";
+        if(!one)h+="<label class=fl>"+esc(s.l)+(s.req?" <span class=req>*</span>":"")+"</label>";
+        if(s.hint)h+="<div class=hint>"+esc(s.hint)+"</div>";
+        if(s.t==="text")h+="<input type=text data-k="+s.k+" placeholder=\""+esc(s.ph||"")+"\">";
+        else if(s.t==="area")h+="<textarea rows=3 data-k="+s.k+" placeholder=\""+esc(s.ph||"")+"\"></textarea>";
+        else h+="<div class=opts>"+s.opts.map(function(o){return "<label class=chip><input type="+(s.t==="multi"?"checkbox":"radio")+" name="+s.k+" value=\""+esc(o)+"\"><span>"+esc(o)+"</span></label>"}).join("")+"</div>";
+        h+="</div>";});
+      h+="</div>";});
+    box.innerHTML=h+"</section>";
+    function val(s){if(s.t==="text"||s.t==="area"){var el=box.querySelector("[data-k="+s.k+"]");return el?el.value.trim():""}return [].map.call(box.querySelectorAll("input[name="+s.k+"]:checked"),function(x){return x.value}).join(", ")}
+    function setv(s,v){if(!v)return;if(s.t==="text"||s.t==="area"){var el=box.querySelector("[data-k="+s.k+"]");if(el)el.value=v;return}var vs=v.split(", ");[].forEach.call(box.querySelectorAll("input[name="+s.k+"]"),function(x){x.checked=vs.indexOf(x.value)>=0})}
+    var reqs=subs.filter(function(s){return s.req});
+    var ess=D.form.filter(function(q){return !q.opt});
+    function respondida(q){var r=q.sub.filter(function(s){return s.req});return r.length?r.every(function(s){return val(s)}):q.sub.some(function(s){return val(s)})}
+    function progresso(){var n=ess.filter(respondida).length,pronto=reqs.every(function(s){return val(s)});document.getElementById("bar").style.width=Math.round(100*n/ess.length)+"%";document.getElementById("pct").textContent=pronto?(n===ess.length?"Tudo pronto para enviar":"Pronto para enviar (as que faltam são opcionais)"):n+" de "+ess.length+" perguntas respondidas";}
+    function salvar(){var o={};subs.forEach(function(s){o[s.k]=val(s)});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}progresso();}
+    try{var r=JSON.parse(localStorage.getItem(KEY)||"{}");subs.forEach(function(s){setv(s,r[s.k])})}catch(e){}
+    box.addEventListener("change",function(e){var t=e.target;if(t.type==="checkbox"){var s=subs.filter(function(x){return x.k===t.name})[0];if(s&&s.max&&box.querySelectorAll("input[name="+s.k+"]:checked").length>s.max){t.checked=false;alert("Marque no máximo "+s.max+" opções.")}}salvar();});
+    box.addEventListener("input",salvar);progresso();
+    function texto(){var t=D.mark+"\n";subs.forEach(function(s){var v=val(s);if(v)t+="\n▸ "+s.l+"\n"+v+"\n"});return t}
+    function ok(){var m=document.getElementById("msg");[].forEach.call(box.querySelectorAll(".q.falta"),function(x){x.classList.remove("falta")});
+      var falta=D.form.filter(function(q){return q.sub.some(function(s){return s.req&&!val(s)})});
+      if(falta.length){falta.forEach(function(q){box.querySelector(".q[data-n=\""+q.n+"\"]").classList.add("falta")});m.className="msg err";m.textContent="Faltam as perguntas "+falta.map(function(q){return q.n}).join(", ")+". Elas estão marcadas em vermelho.";box.querySelector(".q.falta").scrollIntoView({behavior:"smooth",block:"center"});return false}
+      m.className="msg";m.textContent="";return true}
+    document.getElementById("go").addEventListener("click",function(){if(!ok())return;var o=document.getElementById("out");o.style.display="block";document.getElementById("txt").value=texto();o.scrollIntoView({behavior:"smooth"})});
+    var nome=function(){return ((box.querySelector("[data-k=name]")||{}).value||"").trim()};
+    var em=document.getElementById("em");if(!D.mail)em.style.display="none";
+    em.addEventListener("click",function(){window.location.href="mailto:"+D.mail+"?subject="+encodeURIComponent("📋 Briefing de conteúdo — "+nome())+"&body="+encodeURIComponent(texto())});
+    document.getElementById("wa").addEventListener("click",function(){window.open("https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(texto()),"_blank")});
+    document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt");t.select();var done=function(){document.getElementById("cpm").textContent="Copiado. Agora é só colar na conversa e enviar."};if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(done,function(){document.execCommand("copy");done()});else{document.execCommand("copy");done()}});
+  }
   function buildBriefingFormHtml(cfg){
     var para=cfg.cliente?String(cfg.cliente).trim():"",de=cfg.nome?String(cfg.nome):"",wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
     var mail=String(cfg.email||"").trim();
-    var data=JSON.stringify({mark:BRIEF_MARK,de:de,wa:wa,mail:mail,fields:BRIEF_FIELDS}).replace(/</g,"\\u003c");
-    var css='*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f5f4fb;color:#1b1a22}main{max-width:640px;margin:0 auto;padding:22px 16px 60px}h1{font-size:22px;margin:0 0 6px}.sub{color:#5f5d6e;font-size:14px;margin:0 0 18px}.card{background:#fff;border:1px solid #e6e4ef;border-radius:14px;padding:16px;margin-bottom:14px}h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5B45E6;margin:22px 0 10px}label.q{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px}.req{color:#c0392b}input[type=text],textarea{width:100%;border:1px solid #d9d6e6;border-radius:10px;padding:11px 12px;font:inherit;background:#fbfbfe}textarea{min-height:84px;resize:vertical}.opts{display:flex;flex-wrap:wrap;gap:8px}.opts label{display:flex;align-items:center;gap:7px;border:1px solid #d9d6e6;border-radius:999px;padding:8px 13px;font-size:14px;cursor:pointer;background:#fbfbfe}.opts input{accent-color:#5B45E6}.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font:600 16px system-ui,sans-serif;cursor:pointer;margin-top:10px}.pri{background:#5B45E6;color:#fff}.wa{background:#1fa855;color:#fff}.sec{background:#eeebff;color:#4634b6}.msg{font-size:13.5px;color:#5f5d6e;text-align:center;margin-top:10px;min-height:20px}.err{color:#c0392b}#out{display:none}';
-    var js='(function(){var D='+data+';var F=D.fields,box=document.getElementById("form"),KEY="cos_briefing_rascunho";'+
-      'function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[c]})}'+
-      'var h="";F.forEach(function(f,i){if(f.g)h+="<h2>"+esc(f.g)+"</h2>";h+="<div class=card><label class=q for=f"+i+">"+esc(f.l)+(f.req?" <span class=req>*</span>":"")+"</label>";'+
-      'if(f.t==="text")h+="<input type=text id=f"+i+" data-k="+f.k+" placeholder=\\""+esc(f.ph||"")+"\\">";'+
-      'else if(f.t==="area")h+="<textarea id=f"+i+" data-k="+f.k+" placeholder=\\""+esc(f.ph||"")+"\\"></textarea>";'+
-      'else h+="<div class=opts>"+f.opts.map(function(o){return "<label><input type="+(f.t==="multi"?"checkbox":"radio")+" name="+f.k+" value=\\""+esc(o)+"\\"> "+esc(o)+"</label>"}).join("")+"</div>";h+="</div>"});box.innerHTML=h;'+
-      'function val(f){if(f.t==="text"||f.t==="area"){var el=box.querySelector("[data-k="+f.k+"]");return el?el.value.trim():""}return [].map.call(box.querySelectorAll("input[name="+f.k+"]:checked"),function(x){return x.value}).join(", ")}'+
-      'function setv(f,v){if(!v)return;if(f.t==="text"||f.t==="area"){var el=box.querySelector("[data-k="+f.k+"]");if(el)el.value=v;return}var vs=v.split(", ");[].forEach.call(box.querySelectorAll("input[name="+f.k+"]"),function(x){x.checked=vs.indexOf(x.value)>=0})}'+
-      'try{var r=JSON.parse(localStorage.getItem(KEY)||"{}");F.forEach(function(f){setv(f,r[f.k])})}catch(e){}'+
-      'box.addEventListener("change",function(e){var t=e.target;if(t.type!=="checkbox")return;var f=F.filter(function(x){return x.k===t.name})[0];if(f&&f.max&&box.querySelectorAll("input[name="+f.k+"]:checked").length>f.max){t.checked=false;alert("Marque no máximo "+f.max+" opções.")}});'+
-      'box.addEventListener("input",function(){var o={};F.forEach(function(f){o[f.k]=val(f)});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}});'+
-      'function texto(){var t=D.mark+"\\n";F.forEach(function(f){var v=val(f);if(v)t+="\\n▸ "+f.l+"\\n"+v+"\\n"});return t}'+
-      'function ok(){var m=document.getElementById("msg");var faltam=F.filter(function(f){return f.req&&!val(f)}).map(function(f){return f.l});if(faltam.length){m.className="msg err";m.textContent="Falta responder: "+faltam.join(" · ");return false}m.className="msg";m.textContent="";return true}'+
-      'document.getElementById("go").addEventListener("click",function(){if(!ok())return;document.getElementById("out").style.display="block";document.getElementById("txt").value=texto();document.getElementById("out").scrollIntoView({behavior:"smooth"})});'+
-      'var em=document.getElementById("em");if(em){if(!D.mail)em.style.display="none";em.addEventListener("click",function(){var nm=(box.querySelector("[data-k=name]")||{}).value||"";var u="mailto:"+D.mail+"?subject="+encodeURIComponent("📋 Briefing de conteúdo — "+nm.trim())+"&body="+encodeURIComponent(texto());window.location.href=u})}'+
-      'var wa=document.getElementById("wa");if(!D.wa)wa.textContent="Enviar pelo WhatsApp";wa.addEventListener("click",function(){var u="https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(texto());window.open(u,"_blank")});'+
-      'document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt");t.select();var done=function(){document.getElementById("cpm").textContent="✓ Copiado — agora cole na conversa e envie."};if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(done,function(){document.execCommand("copy");done()});else{document.execCommand("copy");done()}});'+
-      '})();';
+    var data=JSON.stringify({mark:BRIEF_MARK,wa:wa,mail:mail,form:BRIEF_FORM}).replace(/</g,"\\u003c");
+    var css='*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f6f4ef;color:#23212b}'+
+      'main{max-width:620px;margin:0 auto;padding:0 16px 56px}'+
+      '.hero{background:#23212b;color:#fff;border-radius:0 0 22px 22px;padding:28px 22px 24px;margin:0 -16px 18px}.hero .de{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#f3c969}.hero h1{font-size:26px;line-height:1.2;margin:10px 0 8px;font-weight:700}.hero p{margin:0;color:#d9d6e3;font-size:15px}'+
+      '.chips-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chips-info span{background:rgba(255,255,255,.1);border-radius:20px;padding:4px 11px;font-size:13px}'+
+      '.prog{position:sticky;top:0;z-index:5;background:#f6f4ef;padding:10px 0 8px}.track{height:6px;background:#e7e2d8;border-radius:6px;overflow:hidden}#bar{height:100%;width:0;background:#e0a72e;transition:width .3s}#pct{font-size:12.5px;color:#7a7585;margin-top:5px}'+
+      '.sec{margin-top:18px}.sh{margin:8px 2px 10px}.step{font-size:12px;font-weight:600;color:#b07d12;letter-spacing:.04em}.sh h2{font-size:21px;margin:2px 0 0}.oph{margin:6px 0 0;font-size:14px;color:#6f6a7a}'+
+      '.q{background:#fff;border:1px solid #ebe6dc;border-radius:16px;padding:16px 16px 14px;margin-bottom:12px;transition:border-color .2s}.q.falta{border-color:#d9534f;box-shadow:0 0 0 3px rgba(217,83,79,.12)}'+
+      '.qh{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}.qn{flex:0 0 26px;height:26px;border-radius:50%;background:#23212b;color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:1px}.qt{font-weight:650;font-size:16.5px;line-height:1.35}.req{color:#c9483f}'+
+      '.f{margin-top:10px}.f:first-of-type{margin-top:0}.fl{display:block;font-size:14px;font-weight:600;color:#4a4655;margin-bottom:6px}.hint{font-size:12.5px;color:#8a8595;margin:-2px 0 6px}'+
+      'input[type=text],textarea{width:100%;border:1px solid #ddd7cb;border-radius:12px;padding:12px 13px;font:inherit;font-size:16px;background:#fcfbf8;color:inherit;resize:vertical}input[type=text]:focus,textarea:focus{outline:none;border-color:#e0a72e;box-shadow:0 0 0 3px rgba(224,167,46,.18);background:#fff}'+
+      '.opts{display:flex;flex-wrap:wrap;gap:8px}.chip{position:relative;cursor:pointer}.chip input{position:absolute;opacity:0;pointer-events:none}.chip span{display:inline-block;border:1px solid #ddd7cb;border-radius:22px;padding:9px 15px;font-size:15px;background:#fcfbf8;transition:all .15s}.chip input:checked+span{background:#23212b;border-color:#23212b;color:#fff}.chip input:focus-visible+span{box-shadow:0 0 0 3px rgba(224,167,46,.35)}'+
+      '.sec.opt .q{background:#fbf8f1;border-style:dashed}.sec.opt .qn{background:#b9b2a3}'+
+      '.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;font:inherit;font-weight:650;font-size:16px;cursor:pointer;margin-top:10px}.pri{background:#23212b;color:#fff}.wa{background:#25D366;color:#fff}.sec2{background:#ece7dd;color:#23212b}'+
+      '.msg{font-size:14px;margin-top:10px;color:#6f6a7a}.msg.err{color:#c9483f;font-weight:600}#out{display:none;margin-top:22px}.done{background:#fff;border:1px solid #ebe6dc;border-radius:16px;padding:18px}.done h2{margin:0 0 4px;font-size:21px}.done p{margin:0 0 6px;color:#6f6a7a;font-size:15px}'+
+      '#txt{width:100%;min-height:140px;margin-top:12px;font-size:13px}.rod{text-align:center;color:#9a95a3;font-size:12.5px;margin-top:26px}';
     var S='scr'+'ipt';
-    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo'+(para?' — '+esc(para):de?' — '+esc(de):'')+'</title><style>'+css+'</style></head><body><main>'+
-      '<h1>'+(para?'Olá, '+esc(para)+'! ':'')+'Briefing de conteúdo</h1><p class="sub">'+(de?'<b>'+esc(de)+'</b> vai usar'+'':'Vamos usar')+' estas respostas para montar a sua estratégia, a linha editorial e o calendário de conteúdo. Leva uns 10 minutos. Suas respostas ficam salvas neste aparelho enquanto você preenche. Campos com <span class="req">*</span> são obrigatórios.</p>'+
-      '<p class="sub" style="background:#eeebff;color:#4634b6;border-radius:12px;padding:12px 14px"><b>Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo.</b> Responda com calma — exemplos reais, palavras que seus clientes usam e histórias ajudam muito.</p>'+
+    return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Briefing de conteúdo'+(para?' · '+esc(para):'')+'</title><style>'+css+'</style></head><body><main>'+
+      '<header class="hero">'+(de?'<div class="de">'+esc(de)+'</div>':'')+'<h1>'+(para?'Oi, '+esc(para)+'!':'Oi!')+' Vamos montar o seu conteúdo?</h1>'+
+      '<p>Com estas respostas eu monto a sua estratégia, a linha editorial e o calendário. Responda do seu jeito, sem medo de errar: nada aqui é definitivo e a gente ajusta junto depois.</p>'+
+      '<div class="chips-info"><span>⏱ Uns 5 minutos</span><span>14 perguntas + 7 opcionais</span><span>Salva sozinho enquanto você preenche</span></div></header>'+
+      '<div class="prog"><div class="track"><div id="bar"></div></div><div id="pct"></div></div>'+
       '<div id="form"></div><button class="btn pri" id="go">Concluir briefing</button><div class="msg" id="msg"></div>'+
-      '<div id="out"><h2>Pronto! Agora é só enviar</h2><div class="card"><button class="btn pri" id="em">📧 Enviar por e-mail'+(de?' para '+esc(de):'')+' (recomendado)</button><button class="btn wa" id="wa">Enviar pelo WhatsApp'+(de?' para '+esc(de):'')+'</button><button class="btn sec" id="cp">Copiar respostas</button><div class="msg" id="cpm">Se o e-mail abrir incompleto, toque em Copiar respostas e cole no corpo do e-mail.</div><textarea id="txt" readonly style="min-height:160px;margin-top:10px"></textarea></div></div>'+
-      '</main><'+S+'>'+js+'</'+S+'></body></html>';
+      '<div id="out"><div class="done"><h2>Obrigado'+(para?', '+esc(para):'')+'!</h2><p>Agora é só enviar as respostas'+(de?' para '+esc(de):'')+'.</p>'+
+      '<button class="btn pri" id="em">Enviar por e-mail (recomendado)</button><button class="btn wa" id="wa">Enviar pelo WhatsApp</button><button class="btn sec2" id="cp">Copiar respostas</button>'+
+      '<div class="msg" id="cpm">Se o e-mail abrir incompleto, toque em Copiar respostas e cole no corpo da mensagem.</div><textarea id="txt" readonly></textarea></div></div>'+
+      '<p class="rod">'+(de?esc(de)+' · ':'')+'Suas respostas ficam só neste aparelho até você enviar.</p>'+
+      '</main><'+S+'>('+briefFormApp.toString()+')('+data+');</'+S+'></body></html>';
   }
   function parseBriefing(txt){
     txt=String(txt||"").replace(/\r/g,"");if(txt.indexOf("▸")<0)return null;
-    var byLbl={};BRIEF_FIELDS.forEach(function(f){byLbl[normalizeTextPanel(f.l).replace(/[^a-z0-9]+/g,"")]=f;});
+    var norm=function(s){return normalizeTextPanel(s).replace(/[^a-z0-9]+/g,"")},byLbl={};
+    BRIEF_ANTIGO.forEach(function(a){byLbl[norm(a[1])]=a[0];});
+    BRIEF_FORM.forEach(function(q){q.sub.forEach(function(s){byLbl[norm(s.l)]=s.k;});});
     var out={};txt.split(/\n?▸ ?/).slice(1).forEach(function(ch){var nl=ch.indexOf("\n");var lbl=(nl<0?ch:ch.slice(0,nl)).trim(),v=(nl<0?"":ch.slice(nl+1)).trim();
-      var f=byLbl[normalizeTextPanel(lbl).replace(/[^a-z0-9]+/g,"")];if(f&&v)out[f.k]=v;});
-    return out.name?out:null;
+      var k=byLbl[norm(lbl)];if(k&&v)out[k]=v;});
+    if(!out.name)return null;
+    // Formulário curto → os mesmos campos que ficha, rotina e agentes já usam.
+    if(out.atende)out.regiao=(out.atende==="Os dois"?"Presencial e online":out.atende)+(out.regiao?" · "+out.regiao:"");
+    if(out.tom&&out.tom.split(", ").every(function(t){return BRIEF_TOM.indexOf(t)>=0}))out.tom=out.tom.toLowerCase();
+    if(!out.publico&&(out.momento||out.idade||out.genero))out.publico=[out.momento,out.idade?"idade: "+out.idade:"",out.genero?"gênero: "+out.genero:""].filter(Boolean).join("; ");
+    if(!out.objecoes&&(out.hesita||out.hesita_outro))out.objecoes=[out.hesita,out.hesita_outro].filter(Boolean).join(", ");
+    var pq=[out.pergunta1,out.pergunta2,out.pergunta3].filter(Boolean);if(pq.length)out.perguntas=pq.join(" | ");
+    if(out.tempo&&BRIEF_TEMPO[out.tempo])out.tempo=BRIEF_TEMPO[out.tempo];
+    if(!out.funil&&out.objetivo)out.funil=BRIEF_OBJ_FUNIL[out.objetivo]||(out.objetivo.indexOf(", ")>0?"Equilíbrio entre os três":"");
+    if(out.formacao)out.provas=[out.provas,out.formacao].filter(Boolean).join("; ");
+    var extra=[out.aprovacao?"Aprovação: "+out.aprovacao:"",out.visual?"Identidade visual: "+out.visual:"",out.autoriz_imagem?"Autorização de imagem de clientes: "+out.autoriz_imagem:""].filter(Boolean).join("\n");
+    if(extra)out.obs=[out.obs,extra].filter(Boolean).join("\n");
+    return out;
   }
   function briefingNarrativa(b){
-    var s=[];function add(k,frase){if(b[k])s.push(frase.replace("%",b[k].replace(/\n+/g,"; ")));}
-    add("oferta","Vendemos %.");add("ticket","Nosso ticket médio / faixa de preço é %.");add("publico","Meu público são %.");add("dores","A maior dor deles é %.");
+    var s=[];function add(k,frase){if(b[k])s.push(frase.replace("%",b[k].replace(/\n+/g,"; ").replace(/[.!;]+$/,"")));}
+    add("oferta",b.atende?"O que fazemos e o que mais queremos vender: %.":"Vendemos %.");add("ticket","Nosso ticket médio / faixa de preço é %.");add("publico","Meu público são %.");add("dores","A maior dor deles é %.");
     add("desejos","Eles desejam %.");add("objecoes","Uma objeção comum é %.");add("diferencial","Nosso diferencial é %.");add("provas","Provas e experiência: %.");
     add("proposito","Nosso propósito é %.");add("identidade","Queremos ser percebidos como %.");
     add("tom","Falamos de forma %.");add("objetivo","Objetivos com o Instagram: %.");add("funil","Foco atual do conteúdo: %.");add("regiao","Atendemos em %.");add("restricoes","Não pode aparecer no conteúdo: %.");
+    add("meta","A principal meta para os próximos 3 meses é %.");add("perguntas","Perguntas que os clientes mais fazem: %.");
+    if(b.historia)s.push("História de um cliente"+(b.historia_uso==="Sim"?" (pode ser usada no conteúdo, sem o nome)":" (NÃO usar no conteúdo: só contexto)")+": "+b.historia.replace(/\n+/g,"; ")+".");
+    add("processo","Como é o primeiro atendimento: %.");
     add("aparece","Sobre aparecer nos vídeos: %.");add("datas","Datas importantes: %.");add("obs","Observações: %.");
     return s.join("\n");
   }
@@ -89,11 +170,12 @@
     var rec=Object.assign({},DB_CLIENTS[id]);
     rec.niche=b.niche||rec.niche||"";
     var fic=Object.assign({},rec.ficha||{});["instagram","site","regiao","ticket","oferta","publico","tom","restricoes"].forEach(function(k){if(b[k])fic[k]=b[k];});
-    rec.metas={objetivos:(b.objetivo||"").split(/,\s*(?=[A-ZÁÉÍÓÚ])/).filter(Boolean),proposito:b.proposito||"",identidade:b.identidade||""};
+    rec.metas={objetivos:(b.objetivo||"").split(/,\s*(?=[A-ZÁÉÍÓÚ])/).filter(Boolean),meta:b.meta||"",proposito:b.proposito||"",identidade:b.identidade||""};
     var extra=[b.objetivo?"Objetivos: "+b.objetivo:"",b.datas?"Datas: "+b.datas:"",b.obs||"",b.responsavel?"Briefing preenchido por "+b.responsavel:""].filter(Boolean).join("\n");
     if(extra)fic.obs=(fic.obs?fic.obs+"\n":"")+extra;
     rec.ficha=fic;
     if(b.whats&&!(rec.admin&&rec.admin.whats))rec.admin=Object.assign({},rec.admin||{},{whats:b.whats});
+    if(b.email&&!(rec.admin&&rec.admin.email))rec.admin=Object.assign({},rec.admin||{},{email:b.email});
     if(b.responsavel&&!(rec.admin&&rec.admin.contato))rec.admin=Object.assign({},rec.admin||{},{contato:b.responsavel.split(" ")[0]});
     var r=Object.assign({},rotinaOf(id));
     var ti=TEMPO_OPC.map(function(o){return o[1]}).indexOf(b.tempo);if(ti>=0){r.tempoGrav=TEMPO_OPC[ti][0];r.maxGrav=CAPACIDADE[r.tempoGrav].grav;}
@@ -211,7 +293,7 @@
       '<span style="margin-left:auto;font-size:12px;color:var(--muted)">Calendário de</span><select id="inboxDias" style="font:inherit;font-size:12px;border:1px solid var(--line);border-radius:8px;padding:4px 6px;background:var(--surface)">'+[30,45,60,90].map(function(d){return '<option value="'+d+'">'+d+' dias</option>'}).join('')+'</select><button class="btn" id="inboxRefresh">↻ Verificar briefings e retornos</button></div>'+
       '<div id="inboxList" style="font-size:12.5px;color:var(--muted)">Clique em <b>Verificar novos briefings</b> — o painel procura no seu Gmail os briefings enviados pelo formulário e as aprovações/ajustes que os clientes mandam pelo calendário. Na primeira vez o Claude pede permissão para o painel ler o Gmail.</div><div id="inboxMsg" style="font-size:12px;margin-top:8px"></div></div>';
   }
-  var MSG_PADRAO="Oi, [nome]! Tudo bem? Preparei um briefing rápido para montar a sua estratégia e o seu calendário de conteúdo. Abra o arquivo, responda com calma e, no final, toque em \"Enviar por e-mail\". Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo. Qualquer dúvida, me chama!";
+  var MSG_PADRAO="Oi, [nome]! Tudo bem? Preparei um briefing rápido (uns 5 minutos) para montar a sua estratégia e o seu calendário de conteúdo. Abra o arquivo, responda do seu jeito e, no final, toque em \"Enviar por e-mail\". Quanto mais detalhes você colocar, mais personalizadas ficam a sua estratégia e as ideias de conteúdo. Qualquer dúvida, me chama!";
   function msgConvite(tpl,nome){var t=String(tpl||MSG_PADRAO);return nome?t.replace(/\[nome\]/gi,nome):t.replace(/,\s*\[nome\]/gi,"").replace(/\s*\[nome\]/gi,"");}
   function openBriefFormModal(nomePre){
     var c=formCfg();
