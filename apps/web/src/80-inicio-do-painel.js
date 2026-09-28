@@ -1,6 +1,6 @@
   // ---------- início do painel ----------
-  // Link de briefing (?briefing=...): o cliente vê só o formulário, nada do painel.
-  if(briefingPublicoNaUrl())return;
+  // Link de briefing (?briefing=...) ou de aprovação (?vitrine=...): o cliente vê só a página dele, nada do painel.
+  if(briefingPublicoNaUrl()||vitrinePublicaNaUrl())return;
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});

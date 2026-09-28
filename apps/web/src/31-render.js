@@ -85,6 +85,7 @@
       var nb=I("#ovNewClient");if(nb)nb.addEventListener('click',openNewClientModal);
       wireSteps(ov);
     }
+    if(typeof renderHojeOperacao==="function")renderHojeOperacao();
     if(typeof renderMaestroChat==="function")renderMaestroChat();
     if(typeof renderBriefingAviso==="function")renderBriefingAviso();
     if(typeof renderPropostasResumo==="function")renderPropostasResumo();
@@ -105,15 +106,24 @@
   }
   function renderClients(){
     var el=I("#clientTable");if(!el)return;
-    var linhas=CLIENTS.map(function(c){var e=etapaDo(c.id),g=DB_STATE_CACHE[c.id]||{},itens=(g.calendar&&g.calendar.items)||[];
+    var nArq=CLIENTS.filter(function(c){return clienteArquivado(c.id)}).length,lista=CLIENTS.filter(function(c){return state.verArquivados||!clienteArquivado(c.id)});
+    var edita=!state.clientView&&!!CAP.db;
+    var linhas=lista.map(function(c){var e=etapaDo(c.id),g=DB_STATE_CACHE[c.id]||{},itens=(g.calendar&&g.calendar.items)||[],arq=clienteArquivado(c.id);
       var feitos=itens.filter(function(it){return it.content||it.carousel||it.stories}).length;
-      return '<tr data-client="'+esc(c.id)+'"><td><div class="cel-cli"><span class="av-cli" style="background:'+avc(c.av)+'">'+esc(c.name.charAt(0))+'</span><span><b>'+esc(c.name)+'</b><small>'+esc(c.niche||"sem nicho")+'</small></span></div></td>'+
-        '<td><span class="chip '+e[2]+'">'+esc(e[0])+'</span></td>'+
+      return '<tr data-client="'+esc(c.id)+'"'+(arq?' class="arquivado"':'')+'><td><div class="cel-cli"><span class="av-cli" style="background:'+avc(c.av)+'">'+esc(c.name.charAt(0))+'</span><span><b>'+esc(c.name)+'</b><small>'+esc(c.niche||"sem nicho")+'</small></span></div></td>'+
+        '<td>'+(arq?'<span class="chip">Arquivado</span>':'<span class="chip '+e[2]+'">'+esc(e[0])+'</span>')+'</td>'+
         '<td>'+(itens.length?'<div class="prog-l"><i style="width:'+Math.round(feitos/itens.length*100)+'%"></i></div><small>'+feitos+' de '+itens.length+' peças escritas</small>':'<small>sem calendário</small>')+'</td>'+
-        '<td class="acao"><button class="btn" data-abrir="'+esc(c.id)+'" data-etapa="'+e[1]+'">Abrir</button></td></tr>';}).join('');
-    el.innerHTML=CLIENTS.length?'<div class="tabela"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Peças do calendário</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>':
+        '<td class="acao nowrap">'+(edita&&isDbClient(c.id)?'<button class="btn ghost" data-arquivar="'+esc(c.id)+'">'+(arq?'Reativar':'Arquivar')+'</button><button class="icon-btn sm" data-apagar="'+esc(c.id)+'" title="Apagar cliente" aria-label="Apagar '+esc(c.name)+'">'+iconeUI("linha-trash")+'</button>':'')+
+        '<button class="btn" data-abrir="'+esc(c.id)+'" data-etapa="'+e[1]+'">Abrir</button></td></tr>';}).join('');
+    var verArq=nArq?'<div class="q-rodape"><button class="lnk" id="verArq">'+(state.verArquivados?'Esconder arquivados':'Mostrar arquivados ('+nArq+')')+'</button></div>':'';
+    el.innerHTML=lista.length?'<div class="tabela"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Peças do calendário</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>'+verArq:
+      CLIENTS.length?'<div class="vazio">Nenhum cliente ativo. Os '+nArq+' clientes estão arquivados.</div>'+verArq:
       '<div class="card empty-hero"><div class="eh-t" style="margin-bottom:14px">Nenhum cliente ainda. Cadastre o primeiro: a Íris lê o briefing e o planejamento começa sozinho.</div><button class="btn pri" id="clientAddCard">Novo cliente</button></div>';
     Array.prototype.forEach.call(el.querySelectorAll('tr[data-client]'),function(tr){tr.addEventListener('click',function(){var b=tr.querySelector('[data-abrir]');setClient(tr.getAttribute('data-client'));go(b.getAttribute('data-etapa'));})});
+    Array.prototype.forEach.call(el.querySelectorAll('[data-arquivar]'),function(b){b.addEventListener('click',async function(ev){ev.stopPropagation();var id=b.getAttribute('data-arquivar'),arq=!clienteArquivado(id);b.disabled=true;
+      try{await arquivarCliente(id,arq);toast(clientName(id)+(arq?" foi arquivado. Os agentes pararam para este cliente.":" foi reativado."));aposMudarCliente();}catch(e){b.disabled=false;toast("Não consegui salvar: "+(e.message||e));}})});
+    Array.prototype.forEach.call(el.querySelectorAll('[data-apagar]'),function(b){b.addEventListener('click',function(ev){ev.stopPropagation();confirmarApagar(b.getAttribute('data-apagar'));})});
+    var va=I("#verArq");if(va)va.addEventListener('click',function(){state.verArquivados=!state.verArquivados;renderClients();});
     var ad=I("#clientAddCard");if(ad)ad.addEventListener('click',openNewClientModal);
     // carrega o estado de quem ainda não foi aberto, para a etapa aparecer certa
     var faltam=CLIENTS.filter(function(c){return isDbClient(c.id)&&!DB_STATE_CACHE[c.id]});
@@ -125,7 +135,17 @@
   function setBusy(el,text){if(!el)return;el.innerHTML=busyHtml(text);el.classList.add('busy');}
   function clearBusy(el){if(!el)return;el.classList.remove('busy');}
   function sampleErrCopy(e){
-    var code=e&&e.code;
+    var code=e&&e.code,msg=e&&e.message;
+    if(code==="trava"||code==="somente_leitura"||code==="so_dono")return msg;
+    // Painel publicado: a IA é a do servidor, não a conta Claude de quem usa.
+    if(CAP.remote){
+      if(code==="sem_chave")return "A chave da IA ainda não foi configurada no servidor.";
+      if(code==="not_granted")return "Sua sessão expirou. Recarregue a página e entre de novo.";
+      if(code==="rate_limited")return msg||"Limite de uso atingido, tente de novo em alguns minutos.";
+      if(code==="invalid_json")return "A IA não respondeu num formato que eu consegui ler, tenta de novo.";
+      if(code==="refused")return "A IA não conseguiu responder a isso, tenta reformular.";
+      return msg?"Não deu certo: "+msg:"Não deu certo agora, tente de novo.";
+    }
     if(code==="not_granted")return "Você precisa permitir que este painel use IA, aparece um aviso do Claude na primeira chamada.";
     if(code==="rate_limited")return "O Claude pediu uma pausa (limite de uso da sua conta ou outra aba do painel usando a IA). Seu texto está salvo, feche outras abas do painel e tente de novo em 1 minuto.";
     if(code==="cancelled")return "Cancelado.";
@@ -292,8 +312,11 @@
       Array.prototype.forEach.call(el.querySelectorAll('[data-act]'),function(b){
         b.addEventListener('click',async function(){
           var act=b.getAttribute('data-act'),entries=(GENERATED.dna||[]).slice();
-          if(act==="approve"){entries[i]=Object.assign({},entries[i],{status:"approved"});await saveDna(state.client,entries);}
-          else if(act==="reject"){entries.splice(i,1);await saveDna(state.client,entries);}
+          if(act==="approve"||act==="reject"){
+            if(act==="approve")entries[i]=Object.assign({},entries[i],{status:"approved"});else entries.splice(i,1);
+            b.disabled=true;
+            try{await saveDna(state.client,entries);}catch(e){b.disabled=false;toast("Não consegui salvar: "+(e.message||e));}
+          }
           else if(act==="edit"){
             var valEl=el.querySelector('[data-role="val"]');valEl.contentEditable="true";valEl.focus();
             b.innerHTML="Salvar";b.classList.add("txt");b.setAttribute('data-act','save-edit');
@@ -339,9 +362,9 @@
     if(!state.stratSel.length)state.stratSel=sp.paths.slice(0,3).map(function(p){return p.key});
     var db=isDbClient(state.client);
     var linha=function(l,v){return v?'<div class="kv"><span>'+l+'</span><div>'+esc(v)+'</div></div>':''};
-    var h=quadro("Big Message",sp.mudancas?esc(sp.mudancas):'',db?'<button class="btn" id="regenStratBtn">Gerar de novo</button>':'',
+    var h=quadro("Big Message",sp.mudancas?esc(sp.mudancas):'',db?'<span id="regenStratMsg" class="pp-m"></span><button class="btn" id="regenStratBtn">Gerar de novo</button>':'',
       '<p class="bigmsg">'+esc(sp.bigMessage||"")+'</p>'+linha("Posicionamento",sp.posicionamento)+linha("Para quem falamos",sp.persona)+linha("Percepção a construir",sp.percepcao));
-    h+=quadro("Mix do mês","Quanto de cada caminho entra no calendário. Marque e desmarque na tabela para ajustar.",'','<div id="stratMix"></div>');
+    h+=quadro("Mix do mês","Quanto de cada caminho entra no calendário. Marque e desmarque na tabela para ajustar; salva sozinho.",db?'<span id="mixMsg" class="pp-m"></span>':'','<div id="stratMix"></div>');
     var ordem=sp.paths.slice().sort(function(a,b){return b.relevancia-a.relevancia});
     h+=quadro("Caminhos estratégicos","Ordenados pela aderência ao Content DNA deste cliente.",'',
       '<div class="tabela"><table><thead><tr><th></th><th>Caminho</th><th>Funil</th><th>Relevância</th><th>Funções</th><th>Métricas</th></tr></thead><tbody>'+
@@ -357,9 +380,29 @@
       var k=c.getAttribute('data-path'),i=state.stratSel.indexOf(k);
       if(i>=0)state.stratSel.splice(i,1);else state.stratSel.push(k);
       renderStrategyPaths(el);
+      if(db)salvarMixDepois(state.client);
     })});
-    var rb=I("#regenStratBtn");if(rb)rb.addEventListener('click',function(){GENERATED.strategy=null;renderStrategy();});
+    var rb=I("#regenStratBtn");if(rb)rb.addEventListener('click',function(){
+      if(!confirm("Gerar uma estratégia nova no lugar desta?"+(CAP.remote?" A atual fica guardada no histórico.":"")))return;
+      runGerarEstrategia({btn:rb,msg:I("#regenStratMsg")});});
   }
+  // O mix marcado na tabela vira o mix da estratégia (o que os agentes e o calendário usam).
+  // Antes ficava só na memória da tela e sumia ao recarregar.
+  var mixTimer=0;
+  function mixDaSelecao(sp){var sel=(sp.paths||[]).filter(function(p){return state.stratSel.indexOf(p.key)>=0});
+    var pcts=largestRemainder(sel.map(function(p){return Math.max(1,p.relevancia-25)}),100);
+    return sel.map(function(p,i){return {key:p.key,nome:p.nome,pct:pcts[i]}});}
+  function salvarMixDepois(id){clearTimeout(mixTimer);var m=I("#mixMsg");if(m){m.textContent="Salvando";m.style.color="var(--muted)";}
+    mixTimer=setTimeout(async function(){
+      var sp=GENERATED&&GENERATED.strategy;if(!sp||state.client!==id||!state.stratSel.length)return;
+      var nova=Object.assign({},sp,{mix:mixDaSelecao(sp)});
+      try{await comContextoSe({motivo:"mix do mês ajustado na tela"},function(){return dbDoc("cos_strategy/"+id).set(nova)});
+        GENERATED.strategy=nova;if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=nova;
+        var m2=I("#mixMsg");if(m2){m2.textContent="Salvo";m2.style.color="var(--good)";}}
+      catch(e){var m3=I("#mixMsg");if(m3){m3.textContent=sampleErrCopy(e);m3.style.color="var(--warn)";}}
+    },900);}
+  // Contexto da gravação (motivo) só existe no painel publicado.
+  function comContextoSe(ctx,fn){return typeof comContexto==="function"&&SB?comContexto(ctx,fn):fn();}
   function dnaCompact(){
     var d=(GENERATED.dna||[]).filter(function(x){return x.status!=="rejected"}).map(function(x){return '- ['+x.section+'/'+x.field+'] ('+x.state+') '+x.value}).join('\n');
     return [fichaCompact(),d].filter(Boolean).join('\n')||'(nenhum registro ainda)';
@@ -379,16 +422,22 @@
       'O "mix" é um subconjunto de 2-4 caminhos (chaves que aparecem em "paths") cujos pct somam 100, o combo recomendado para este mês.',
     ].join('\n');
   }
-  async function runGerarEstrategia(){
-    var id=state.client;if(!CAP.sample){noAi();return;}
-    var btn=I("#genStratBtn");if(btn)btn.disabled=true;
-    var msg=I("#stratMsg");setBusy(msg,"Pensando…");
+  // o.btn/o.msg: de onde veio o pedido (tela vazia, "Gerar de novo" ou Montar tudo).
+  // o.lancar: repassa o erro a quem chamou (o Montar tudo mostra o motivo real).
+  async function runGerarEstrategia(o){
+    o=o||{};var id=state.client;if(!CAP.sample){noAi();return;}
+    var btn=o.btn||I("#genStratBtn"),msg=o.msg||I("#stratMsg");
+    var t=travaPlano("estrategia");
+    if(t){if(msg){msg.textContent=t;msg.style.color="var(--warn)";}if(o.lancar)throw erroTrava(t);return;}
+    if(btn)btn.disabled=true;setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildStrategyPrompt(byId(id).name,dnaCompact()),{modelTier:"complex",cache:false});
       await salvarEstrategia(id,out);
+      if(o.btn)toast("Estratégia nova salva.");
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
+      if(o.lancar)throw e;
     }
   }
   async function salvarEstrategia(id,out){
@@ -496,16 +545,19 @@
       'Responda SOMENTE com JSON: {"pilares":[{"pilar":string,"territorio":string,"temas":[{"tema":string,"subtemas":[string],"topicos":[string]}]}]}',
     ].join('\n');
   }
-  async function runGerarEditorial(){
-    var id=state.client;if(!CAP.sample){noAi();return;}
-    var btn=I("#genEdBtn");if(btn)btn.disabled=true;
-    var msg=I("#edMsg");setBusy(msg,"Pensando…");
+  async function runGerarEditorial(o){
+    o=o||{};var id=state.client;if(!CAP.sample){noAi();return;}
+    var btn=I("#genEdBtn"),msg=I("#edMsg");
+    var t=travaPlano("editorial");
+    if(t){if(msg){msg.textContent=t;msg.style.color="var(--warn)";}if(o.lancar)throw erroTrava(t);return;}
+    if(btn)btn.disabled=true;setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildEditorialPrompt(byId(id).name,GENERATED.strategy),{modelTier:"default",cache:false});
       await salvarEditorial(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
+      if(o.lancar)throw e;
     }
   }
   async function salvarEditorial(id,out){
@@ -563,6 +615,7 @@
   }
   // Gera ideias. append=true acrescenta às existentes (sem repetir), usado por "Gerar mais" e pelo calendário de 45/60/90 dias.
   async function gerarIdeiasCore(id,append,count,soSemGravacao){
+    var t=travaPlano("ideias");if(t)throw erroTrava(t);
     var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact(),{count:count||15,soSemGravacao:!!soSemGravacao,existentes:atuais.map(function(x){return x.titulo})}),{modelTier:"complex",cache:false});
     return salvarIdeias(id,out,append);

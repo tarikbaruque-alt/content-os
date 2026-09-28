@@ -175,5 +175,7 @@
     var b=I("#expHtml");if(b)b.addEventListener('click',function(){downloadText("calendario-"+slug+".html",buildVitrineDoc(items,r,cli),"text/html",function(ok){msg(ok,"Envie o arquivo ao cliente (WhatsApp/e-mail)");});});
     var vw=I("#expView");if(vw)vw.addEventListener('click',function(){state.view="calendar";toggleClientView(true);});
     var gc=I("#expGcal");if(gc)gc.addEventListener('click',function(){openGcalModal(items);});
+    var lk=I("#expLink");if(lk)lk.addEventListener('click',function(){abrirLinkPublico("vitrine",state.client);});
+    var as=I("#expAssinar");if(as)as.addEventListener('click',function(){abrirLinkPublico("agenda",state.client);});
     wireRotina();
   }

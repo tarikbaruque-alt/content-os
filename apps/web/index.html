@@ -222,6 +222,22 @@
   /* Drawer (content detail) */
   .scrim{position:fixed;inset:0;background:rgba(16,15,22,.5);backdrop-filter:blur(2px);z-index:40}
   .drawer{position:fixed;top:0;right:0;height:100%;width:min(680px,100%);background:var(--bg);z-index:41;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.dialogo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:22px 22px 16px;z-index:41}
+.dialogo h3{margin:0 0 8px;font-size:17px}
+.dialogo p{margin:0 0 10px;font-size:14px;line-height:1.5}
+.dlg-acoes{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.btn.perigo{background:var(--emo);border-color:var(--emo);color:var(--bg)}
+.btn.perigo:hover{filter:brightness(.95)}
+.ag-direita{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lp-como{margin:14px 0 0;padding-left:18px;line-height:1.6}
+.lp-como li{margin-bottom:6px}
+.eq-ws{max-width:420px;margin:0 0 12px}
+.eq-convite,.eq-perfil{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.eq-convite select,.eq-perfil input{font:inherit}
+/* Só leitura: o banco já recusa a escrita; a tela não oferece o que não vai funcionar. */
+body.so-leitura .genbtn,body.so-leitura #newClientBtn,body.so-leitura [data-arquivar],body.so-leitura [data-apagar],body.so-leitura #autoBuildBtn,body.so-leitura #ecApagar,body.so-leitura [data-act]{display:none!important}
+tr.arquivado td{color:var(--faint)}
+tr.arquivado .av-cli{opacity:.5}
   .drawer .dh{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:16px 20px;display:flex;align-items:flex-start;gap:12px}
   .drawer .db{overflow:auto;padding:20px;display:flex;flex-direction:column;gap:18px;flex:1 1 auto;min-height:0}
   .drawer .df{border-top:1px solid var(--line);padding:14px 20px;display:flex;gap:8px;flex-wrap:wrap;background:var(--surface)}
@@ -680,10 +696,17 @@
   .q-acoes select{min-width:220px}
   .cb-vazio{display:block;width:20px;height:20px;margin:2px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface)}
   .passos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 24px}
-  .passo{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:14px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)}
-  .passo.ok{color:var(--faint)}
-  .passo .pc{width:24px;height:24px;flex:0 0 auto}
+  .passo{display:flex;align-items:center;gap:12px;padding:10px 8px;margin:0 -8px;font-size:14px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line);border-radius:8px}
+  .passo:hover{background:var(--surface-2)}
+  .passo .pc{width:24px;height:24px;flex:0 0 auto;display:grid;place-items:center}
   .passo .pc svg{width:24px;height:24px;display:block}
+  .passo .pn{font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;border:1px solid var(--line-strong);color:var(--muted)}
+  .passo .pt{display:flex;flex-direction:column;min-width:0}
+  .passo .pt small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .passo.feita,.passo.bloqueada{color:var(--faint)}
+  .passo.feita .pt small,.passo.bloqueada .pt small{color:var(--faint)}
+  .passo.atual .pn{border-color:var(--brand);background:var(--brand);color:#fff}
+  .passo.atual b{color:var(--brand-ink)}
   .barra-l{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
   .barra-l:last-child{border-bottom:0}
   .bl-n{flex:0 0 200px;font-size:14px;font-weight:500}
@@ -763,13 +786,38 @@
   .ag-lista-dia{margin-top:16px;display:flex;flex-direction:column;gap:8px}
   .ag-lista-dia .bt{text-transform:capitalize}
   .ag-carregando{padding:48px;text-align:center;color:var(--muted)}
-  @media (min-width:641px){.ag-lista-dia{display:none}}
+  /* Situação da peça no calendário geral: o que falta agora e se passou do prazo. */
+  .ag-sit{font-size:10.5px;line-height:14px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ag-ev.sit-pronta .ag-sit,.ag-ev.sit-publicada .ag-sit{color:var(--good)}
+  .ag-ev.sit-aprovacao .ag-sit,.ag-ev.sit-producao .ag-sit{color:var(--brand-ink)}
+  .ag-ev.atraso{background:color-mix(in srgb,var(--emo) 10%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--emo) 45%,transparent)}
+  .ag-ev.atraso .ag-sit{color:var(--emo)}
+  .ag-ev.sit-publicada{opacity:.6}
+  .ag-ev.prod{background:color-mix(in srgb,var(--c) 16%,var(--surface))}
+  .ag-sit-txt{white-space:normal}
+  .ag-dia.passado .ag-num span{color:var(--faint)}
+  .ag-data{align-self:flex-start;font-size:10.5px;line-height:15px;padding:0 6px;border-radius:4px;background:var(--surface-2);color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ag-data.feriado{background:color-mix(in srgb,var(--warn) 14%,var(--surface));color:var(--warn)}
+  .ag-camp{display:block;font-size:10.5px;line-height:15px;padding:0 6px;border-radius:3px;background:color-mix(in srgb,var(--c) 22%,var(--surface));color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:3px solid var(--c)}
+  .ag-vaga{align-self:flex-start;border:1px dashed var(--line-strong);background:none;font:inherit;font-size:11px;color:var(--muted);padding:1px 7px;border-radius:6px;cursor:pointer}
+  .ag-vaga:hover{border-color:var(--brand);color:var(--brand-ink)}
+  .ag-vaga-linha{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px;border:1px dashed var(--line-strong);border-radius:8px;font-size:13px}
+  .agc-filtros{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-4px 0 16px}
+  .agc-filtros select{font:inherit;font-size:13px;height:36px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--surface);color:var(--ink)}
+  .agc-lista .agc-sem td{background:var(--surface-2);font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .agc-lista tr[data-ag-abrir]{cursor:pointer}
+  .agc-cor{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:8px;vertical-align:middle}
+  tr.linha-atraso td:first-child{box-shadow:inset 3px 0 0 var(--emo)}
   @media (max-width:640px){
     .ag-mes{font-size:20px;min-width:0}
     .ag-dia{min-height:56px;padding:4px 2px;align-items:center}
     .ag-cab div{padding:8px 0;text-align:center}
     .ag-num{justify-content:center;padding:0}
     .ag-evs{display:none} .ag-grade.semana .ag-dia{min-height:72px}
+    /* Célula estreita: campanha vira faixa fina e data vira ponto; o nome aparece na lista do dia. */
+    .ag-camp{width:100%;height:4px;font-size:0;padding:0;border-left:0;border-radius:2px;background:var(--c)}
+    .ag-data{width:6px;height:6px;padding:0;font-size:0;border-radius:50%;align-self:center;background:var(--muted)}
+    .ag-data.feriado{background:var(--warn)}
     .ag-pontos{display:flex;gap:3px;justify-content:center} .ag-pontos i{width:5px;height:5px;border-radius:50%}
     .ag-dia.sel{background:var(--brand-weak)}
   }
@@ -1036,6 +1084,7 @@
       <section class="view" data-view="overview">
         <div class="stat-cards" id="kpis"></div>
         <div id="ovBriefings"></div>
+        <div id="ovHoje"></div>
         <div id="maestroChat"></div>
         <div id="ovPropostas"></div>
         <div id="ovSteps"></div>
@@ -1403,6 +1452,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       var nb=I("#ovNewClient");if(nb)nb.addEventListener('click',openNewClientModal);
       wireSteps(ov);
     }
+    if(typeof renderHojeOperacao==="function")renderHojeOperacao();
     if(typeof renderMaestroChat==="function")renderMaestroChat();
     if(typeof renderBriefingAviso==="function")renderBriefingAviso();
     if(typeof renderPropostasResumo==="function")renderPropostasResumo();
@@ -1423,15 +1473,24 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   }
   function renderClients(){
     var el=I("#clientTable");if(!el)return;
-    var linhas=CLIENTS.map(function(c){var e=etapaDo(c.id),g=DB_STATE_CACHE[c.id]||{},itens=(g.calendar&&g.calendar.items)||[];
+    var nArq=CLIENTS.filter(function(c){return clienteArquivado(c.id)}).length,lista=CLIENTS.filter(function(c){return state.verArquivados||!clienteArquivado(c.id)});
+    var edita=!state.clientView&&!!CAP.db;
+    var linhas=lista.map(function(c){var e=etapaDo(c.id),g=DB_STATE_CACHE[c.id]||{},itens=(g.calendar&&g.calendar.items)||[],arq=clienteArquivado(c.id);
       var feitos=itens.filter(function(it){return it.content||it.carousel||it.stories}).length;
-      return '<tr data-client="'+esc(c.id)+'"><td><div class="cel-cli"><span class="av-cli" style="background:'+avc(c.av)+'">'+esc(c.name.charAt(0))+'</span><span><b>'+esc(c.name)+'</b><small>'+esc(c.niche||"sem nicho")+'</small></span></div></td>'+
-        '<td><span class="chip '+e[2]+'">'+esc(e[0])+'</span></td>'+
+      return '<tr data-client="'+esc(c.id)+'"'+(arq?' class="arquivado"':'')+'><td><div class="cel-cli"><span class="av-cli" style="background:'+avc(c.av)+'">'+esc(c.name.charAt(0))+'</span><span><b>'+esc(c.name)+'</b><small>'+esc(c.niche||"sem nicho")+'</small></span></div></td>'+
+        '<td>'+(arq?'<span class="chip">Arquivado</span>':'<span class="chip '+e[2]+'">'+esc(e[0])+'</span>')+'</td>'+
         '<td>'+(itens.length?'<div class="prog-l"><i style="width:'+Math.round(feitos/itens.length*100)+'%"></i></div><small>'+feitos+' de '+itens.length+' peças escritas</small>':'<small>sem calendário</small>')+'</td>'+
-        '<td class="acao"><button class="btn" data-abrir="'+esc(c.id)+'" data-etapa="'+e[1]+'">Abrir</button></td></tr>';}).join('');
-    el.innerHTML=CLIENTS.length?'<div class="tabela"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Peças do calendário</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>':
+        '<td class="acao nowrap">'+(edita&&isDbClient(c.id)?'<button class="btn ghost" data-arquivar="'+esc(c.id)+'">'+(arq?'Reativar':'Arquivar')+'</button><button class="icon-btn sm" data-apagar="'+esc(c.id)+'" title="Apagar cliente" aria-label="Apagar '+esc(c.name)+'">'+iconeUI("linha-trash")+'</button>':'')+
+        '<button class="btn" data-abrir="'+esc(c.id)+'" data-etapa="'+e[1]+'">Abrir</button></td></tr>';}).join('');
+    var verArq=nArq?'<div class="q-rodape"><button class="lnk" id="verArq">'+(state.verArquivados?'Esconder arquivados':'Mostrar arquivados ('+nArq+')')+'</button></div>':'';
+    el.innerHTML=lista.length?'<div class="tabela"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Peças do calendário</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>'+verArq:
+      CLIENTS.length?'<div class="vazio">Nenhum cliente ativo. Os '+nArq+' clientes estão arquivados.</div>'+verArq:
       '<div class="card empty-hero"><div class="eh-t" style="margin-bottom:14px">Nenhum cliente ainda. Cadastre o primeiro: a Íris lê o briefing e o planejamento começa sozinho.</div><button class="btn pri" id="clientAddCard">Novo cliente</button></div>';
     Array.prototype.forEach.call(el.querySelectorAll('tr[data-client]'),function(tr){tr.addEventListener('click',function(){var b=tr.querySelector('[data-abrir]');setClient(tr.getAttribute('data-client'));go(b.getAttribute('data-etapa'));})});
+    Array.prototype.forEach.call(el.querySelectorAll('[data-arquivar]'),function(b){b.addEventListener('click',async function(ev){ev.stopPropagation();var id=b.getAttribute('data-arquivar'),arq=!clienteArquivado(id);b.disabled=true;
+      try{await arquivarCliente(id,arq);toast(clientName(id)+(arq?" foi arquivado. Os agentes pararam para este cliente.":" foi reativado."));aposMudarCliente();}catch(e){b.disabled=false;toast("Não consegui salvar: "+(e.message||e));}})});
+    Array.prototype.forEach.call(el.querySelectorAll('[data-apagar]'),function(b){b.addEventListener('click',function(ev){ev.stopPropagation();confirmarApagar(b.getAttribute('data-apagar'));})});
+    var va=I("#verArq");if(va)va.addEventListener('click',function(){state.verArquivados=!state.verArquivados;renderClients();});
     var ad=I("#clientAddCard");if(ad)ad.addEventListener('click',openNewClientModal);
     // carrega o estado de quem ainda não foi aberto, para a etapa aparecer certa
     var faltam=CLIENTS.filter(function(c){return isDbClient(c.id)&&!DB_STATE_CACHE[c.id]});
@@ -1443,7 +1502,17 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   function setBusy(el,text){if(!el)return;el.innerHTML=busyHtml(text);el.classList.add('busy');}
   function clearBusy(el){if(!el)return;el.classList.remove('busy');}
   function sampleErrCopy(e){
-    var code=e&&e.code;
+    var code=e&&e.code,msg=e&&e.message;
+    if(code==="trava"||code==="somente_leitura"||code==="so_dono")return msg;
+    // Painel publicado: a IA é a do servidor, não a conta Claude de quem usa.
+    if(CAP.remote){
+      if(code==="sem_chave")return "A chave da IA ainda não foi configurada no servidor.";
+      if(code==="not_granted")return "Sua sessão expirou. Recarregue a página e entre de novo.";
+      if(code==="rate_limited")return msg||"Limite de uso atingido, tente de novo em alguns minutos.";
+      if(code==="invalid_json")return "A IA não respondeu num formato que eu consegui ler, tenta de novo.";
+      if(code==="refused")return "A IA não conseguiu responder a isso, tenta reformular.";
+      return msg?"Não deu certo: "+msg:"Não deu certo agora, tente de novo.";
+    }
     if(code==="not_granted")return "Você precisa permitir que este painel use IA, aparece um aviso do Claude na primeira chamada.";
     if(code==="rate_limited")return "O Claude pediu uma pausa (limite de uso da sua conta ou outra aba do painel usando a IA). Seu texto está salvo, feche outras abas do painel e tente de novo em 1 minuto.";
     if(code==="cancelled")return "Cancelado.";
@@ -1610,8 +1679,11 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       Array.prototype.forEach.call(el.querySelectorAll('[data-act]'),function(b){
         b.addEventListener('click',async function(){
           var act=b.getAttribute('data-act'),entries=(GENERATED.dna||[]).slice();
-          if(act==="approve"){entries[i]=Object.assign({},entries[i],{status:"approved"});await saveDna(state.client,entries);}
-          else if(act==="reject"){entries.splice(i,1);await saveDna(state.client,entries);}
+          if(act==="approve"||act==="reject"){
+            if(act==="approve")entries[i]=Object.assign({},entries[i],{status:"approved"});else entries.splice(i,1);
+            b.disabled=true;
+            try{await saveDna(state.client,entries);}catch(e){b.disabled=false;toast("Não consegui salvar: "+(e.message||e));}
+          }
           else if(act==="edit"){
             var valEl=el.querySelector('[data-role="val"]');valEl.contentEditable="true";valEl.focus();
             b.innerHTML="Salvar";b.classList.add("txt");b.setAttribute('data-act','save-edit');
@@ -1657,9 +1729,9 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     if(!state.stratSel.length)state.stratSel=sp.paths.slice(0,3).map(function(p){return p.key});
     var db=isDbClient(state.client);
     var linha=function(l,v){return v?'<div class="kv"><span>'+l+'</span><div>'+esc(v)+'</div></div>':''};
-    var h=quadro("Big Message",sp.mudancas?esc(sp.mudancas):'',db?'<button class="btn" id="regenStratBtn">Gerar de novo</button>':'',
+    var h=quadro("Big Message",sp.mudancas?esc(sp.mudancas):'',db?'<span id="regenStratMsg" class="pp-m"></span><button class="btn" id="regenStratBtn">Gerar de novo</button>':'',
       '<p class="bigmsg">'+esc(sp.bigMessage||"")+'</p>'+linha("Posicionamento",sp.posicionamento)+linha("Para quem falamos",sp.persona)+linha("Percepção a construir",sp.percepcao));
-    h+=quadro("Mix do mês","Quanto de cada caminho entra no calendário. Marque e desmarque na tabela para ajustar.",'','<div id="stratMix"></div>');
+    h+=quadro("Mix do mês","Quanto de cada caminho entra no calendário. Marque e desmarque na tabela para ajustar; salva sozinho.",db?'<span id="mixMsg" class="pp-m"></span>':'','<div id="stratMix"></div>');
     var ordem=sp.paths.slice().sort(function(a,b){return b.relevancia-a.relevancia});
     h+=quadro("Caminhos estratégicos","Ordenados pela aderência ao Content DNA deste cliente.",'',
       '<div class="tabela"><table><thead><tr><th></th><th>Caminho</th><th>Funil</th><th>Relevância</th><th>Funções</th><th>Métricas</th></tr></thead><tbody>'+
@@ -1675,9 +1747,29 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       var k=c.getAttribute('data-path'),i=state.stratSel.indexOf(k);
       if(i>=0)state.stratSel.splice(i,1);else state.stratSel.push(k);
       renderStrategyPaths(el);
+      if(db)salvarMixDepois(state.client);
     })});
-    var rb=I("#regenStratBtn");if(rb)rb.addEventListener('click',function(){GENERATED.strategy=null;renderStrategy();});
+    var rb=I("#regenStratBtn");if(rb)rb.addEventListener('click',function(){
+      if(!confirm("Gerar uma estratégia nova no lugar desta?"+(CAP.remote?" A atual fica guardada no histórico.":"")))return;
+      runGerarEstrategia({btn:rb,msg:I("#regenStratMsg")});});
   }
+  // O mix marcado na tabela vira o mix da estratégia (o que os agentes e o calendário usam).
+  // Antes ficava só na memória da tela e sumia ao recarregar.
+  var mixTimer=0;
+  function mixDaSelecao(sp){var sel=(sp.paths||[]).filter(function(p){return state.stratSel.indexOf(p.key)>=0});
+    var pcts=largestRemainder(sel.map(function(p){return Math.max(1,p.relevancia-25)}),100);
+    return sel.map(function(p,i){return {key:p.key,nome:p.nome,pct:pcts[i]}});}
+  function salvarMixDepois(id){clearTimeout(mixTimer);var m=I("#mixMsg");if(m){m.textContent="Salvando";m.style.color="var(--muted)";}
+    mixTimer=setTimeout(async function(){
+      var sp=GENERATED&&GENERATED.strategy;if(!sp||state.client!==id||!state.stratSel.length)return;
+      var nova=Object.assign({},sp,{mix:mixDaSelecao(sp)});
+      try{await comContextoSe({motivo:"mix do mês ajustado na tela"},function(){return dbDoc("cos_strategy/"+id).set(nova)});
+        GENERATED.strategy=nova;if(DB_STATE_CACHE[id])DB_STATE_CACHE[id].strategy=nova;
+        var m2=I("#mixMsg");if(m2){m2.textContent="Salvo";m2.style.color="var(--good)";}}
+      catch(e){var m3=I("#mixMsg");if(m3){m3.textContent=sampleErrCopy(e);m3.style.color="var(--warn)";}}
+    },900);}
+  // Contexto da gravação (motivo) só existe no painel publicado.
+  function comContextoSe(ctx,fn){return typeof comContexto==="function"&&SB?comContexto(ctx,fn):fn();}
   function dnaCompact(){
     var d=(GENERATED.dna||[]).filter(function(x){return x.status!=="rejected"}).map(function(x){return '- ['+x.section+'/'+x.field+'] ('+x.state+') '+x.value}).join('\n');
     return [fichaCompact(),d].filter(Boolean).join('\n')||'(nenhum registro ainda)';
@@ -1697,16 +1789,22 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       'O "mix" é um subconjunto de 2-4 caminhos (chaves que aparecem em "paths") cujos pct somam 100, o combo recomendado para este mês.',
     ].join('\n');
   }
-  async function runGerarEstrategia(){
-    var id=state.client;if(!CAP.sample){noAi();return;}
-    var btn=I("#genStratBtn");if(btn)btn.disabled=true;
-    var msg=I("#stratMsg");setBusy(msg,"Pensando…");
+  // o.btn/o.msg: de onde veio o pedido (tela vazia, "Gerar de novo" ou Montar tudo).
+  // o.lancar: repassa o erro a quem chamou (o Montar tudo mostra o motivo real).
+  async function runGerarEstrategia(o){
+    o=o||{};var id=state.client;if(!CAP.sample){noAi();return;}
+    var btn=o.btn||I("#genStratBtn"),msg=o.msg||I("#stratMsg");
+    var t=travaPlano("estrategia");
+    if(t){if(msg){msg.textContent=t;msg.style.color="var(--warn)";}if(o.lancar)throw erroTrava(t);return;}
+    if(btn)btn.disabled=true;setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildStrategyPrompt(byId(id).name,dnaCompact()),{modelTier:"complex",cache:false});
       await salvarEstrategia(id,out);
+      if(o.btn)toast("Estratégia nova salva.");
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
+      if(o.lancar)throw e;
     }
   }
   async function salvarEstrategia(id,out){
@@ -1814,16 +1912,19 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       'Responda SOMENTE com JSON: {"pilares":[{"pilar":string,"territorio":string,"temas":[{"tema":string,"subtemas":[string],"topicos":[string]}]}]}',
     ].join('\n');
   }
-  async function runGerarEditorial(){
-    var id=state.client;if(!CAP.sample){noAi();return;}
-    var btn=I("#genEdBtn");if(btn)btn.disabled=true;
-    var msg=I("#edMsg");setBusy(msg,"Pensando…");
+  async function runGerarEditorial(o){
+    o=o||{};var id=state.client;if(!CAP.sample){noAi();return;}
+    var btn=I("#genEdBtn"),msg=I("#edMsg");
+    var t=travaPlano("editorial");
+    if(t){if(msg){msg.textContent=t;msg.style.color="var(--warn)";}if(o.lancar)throw erroTrava(t);return;}
+    if(btn)btn.disabled=true;setBusy(msg,"Pensando…");
     try{
       var out=await CAP.sample.json(buildEditorialPrompt(byId(id).name,GENERATED.strategy),{modelTier:"default",cache:false});
       await salvarEditorial(id,out);
     }catch(e){
       if(msg){msg.textContent=sampleErrCopy(e);msg.style.color="var(--warn)";}
       if(btn)btn.disabled=false;
+      if(o.lancar)throw e;
     }
   }
   async function salvarEditorial(id,out){
@@ -1881,6 +1982,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   }
   // Gera ideias. append=true acrescenta às existentes (sem repetir), usado por "Gerar mais" e pelo calendário de 45/60/90 dias.
   async function gerarIdeiasCore(id,append,count,soSemGravacao){
+    var t=travaPlano("ideias");if(t)throw erroTrava(t);
     var atuais=append?((GENERATED.ideas||[]).slice()):[];
     var out=await CAP.sample.json(buildIdeasPrompt(byId(id).name,GENERATED.strategy,GENERATED.editorial,dnaCompact(),{count:count||15,soSemGravacao:!!soSemGravacao,existentes:atuais.map(function(x){return x.titulo})}),{modelTier:"complex",cache:false});
     return salvarIdeias(id,out,append);
@@ -2413,19 +2515,21 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   function saveFail(btn){btn.disabled=false;btn.textContent="Salvar edições";toast("Não consegui salvar, suas edições continuam na tela. Tente de novo.");}
   function openGenerated(idx){
     var g=GENERATED,it=g.calendar.items[idx];if(!it)return;var x=it.idea,c=it.content,np=(g.notion||[])[idx];
-    var db=isDbClient(state.client);
+    var db=isDbClient(state.client),sit=typeof situacaoPeca==="function"?situacaoPeca(it,state.client):null;
     var cvData=c?(c.copyVariants||{curta:c.copy,media:c.copy,longa:c.copy}):{curta:"",media:"",longa:""};
     var activeCv="media";
     var body='';
     var stOpts=["PLANNED","REVIEW","WAITING APPROVAL","IN PRODUCTION","APPROVED","PUBLISHED"];
     // Só é editável o que de fato salva (data-idea-fld); o resto é leitura.
-    function efld(l,v,k){return '<div><div class="ql">'+esc(l)+'</div>'+(k&&db?'<div class="editable" contenteditable="true" data-idea-fld="'+k+'">'+esc(v)+'</div>':'<div style="font-size:13px">'+esc(v)+'</div>')+'</div>';}
+    function efld(l,v,k){v=v==null?"":v;return '<div><div class="ql">'+esc(l)+'</div>'+(k&&db?'<div class="editable" contenteditable="true" data-idea-fld="'+k+'">'+esc(v)+'</div>':'<div style="font-size:13px">'+esc(v)+'</div>')+'</div>';}
     var cli=state.clientView;
     if(!cli){
       body+='<div class="block"><div class="bt">Ficha da peça</div><div class="metagrid">'
         +(db?'<div><div class="ql">Publicação, dia e horário</div><div style="display:flex;gap:6px"><input type="date" id="pubData" class="editable" value="'+esc(it.data)+'" style="flex:1;min-width:0"><input type="time" id="pubHora" class="editable" value="'+esc(itemHora(it))+'" style="width:96px"></div><div id="pubMsg" style="font-size:11px;color:var(--faint);margin-top:3px">'+(it.hora?'Horário próprio':'Horário da rotina ('+esc(surfLbl(x.surface))+')')+'</div></div>':efld("Data",it.data))+efld("Tema",x.tema,"tema")+efld("Pilar",(x.pilar||"").split(":")[0])+efld("Formato",x.surface+" + "+x.format)
         +'<div style="grid-column:1/-1">'+efld("Público/Persona",x.persona,"persona")+'</div>'
         +'<div><div class="ql">Status</div>'+(db?'<select class="editable" id="pubStatus" style="width:100%">'+stOpts.map(function(s){return '<option value="'+s+'"'+(s===it.status?' selected':'')+'>'+esc(stLabel(s))+'</option>'}).join('')+'</select><div id="stMsg" style="font-size:11px;color:var(--faint);margin-top:3px"></div>':'<div style="font-size:13px">'+esc(stLabel(it.status))+'</div>')+'</div>'
+        +(sit?'<div style="grid-column:1/-1"><div class="ql">Prazos</div><div style="font-size:13px" id="pubPrazos">'+esc(prazosTxt(it,state.client))+'</div><div id="pubSit" style="font-size:12px;margin-top:3px;color:'+(sit.atraso?'var(--emo)':'var(--muted)')+'">Agora: '+esc((sit.atraso?"atrasada, ":"")+sit.txt)+'</div></div>':'')
+        +(db?'<div style="grid-column:1/-1"><div class="ql">Link do post publicado</div><input type="url" id="pubLink" class="editable" placeholder="https://www.instagram.com/p/..." value="'+esc(it.postUrl||"")+'" style="width:100%"><div id="linkMsg" style="font-size:11px;color:var(--faint);margin-top:3px">Cole quando for ao ar. O link liga os resultados do Instagram a esta peça.</div></div>':'')
         +'</div></div>';
     }else{
       body+='<div class="block"><div class="bt">Ficha</div><div class="metagrid">'+meta("Quando",quando(it))+meta("Tema",x.tema)+meta("Formato",x.surface+" + "+x.format)+meta("Status",stLabel(it.status))+'</div></div>';
@@ -2510,17 +2614,26 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       }
     });
     selTab('estrategia');
-    function savePub(){var dd=I("#pubData"),hh=I("#pubHora");if(!dd||!hh||!isIsoDate(dd.value))return;var patch={data:dd.value,hora:padT(hh.value||itemHora(it))};
-      dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it,patch);var m=I("#pubMsg");if(m)m.textContent="Salvo, "+quando(it);renderCal();},function(){var m=I("#pubMsg");if(m)m.textContent="Não consegui salvar";});}
+    // Mudar a data aqui segue as mesmas regras de arrastar no calendário (é o caminho no celular).
+    function savePub(){var dd=I("#pubData"),hh=I("#pubHora");if(!dd||!hh||!isIsoDate(dd.value))return;var hora=padT(hh.value||itemHora(it));
+      var mud=dd.value!==it.data?mudancaDeData(state.client,it,dd.value,hora):{patch:{data:dd.value,hora:hora},avisos:[]};
+      if(!mud){dd.value=it.data;return;}
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update(mud.patch).then(function(){Object.assign(it,mud.patch);var m=I("#pubMsg");
+        if(m){m.textContent="Salvo, "+quando(it)+(mud.patch.clientStatus===null?". A aprovação do cliente foi reaberta":"")+(mud.avisos.length?". Atenção: "+mud.avisos.join("; "):"");m.style.color=mud.avisos.length?"var(--warn)":"";}
+        var pz=I("#pubPrazos");if(pz)pz.textContent=prazosTxt(it,state.client);AG_ITENS=null;renderCal();},function(){var m=I("#pubMsg");if(m)m.textContent="Não consegui salvar";});}
+    function saveLink(inp){var v=inp.value.trim(),m=I("#linkMsg");
+      if(v&&!/^https?:\/\/\S+$/.test(v)){if(m){m.textContent="Cole o endereço completo, começando com https://";m.style.color="var(--warn)";}return;}
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update({postUrl:v||null}).then(function(){it.postUrl=v||null;if(m){m.textContent=v?"Link salvo.":"Link removido.";m.style.color="var(--good)";}},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}});}
     // Delegado no corpo do drawer: as abas recriam o HTML, então ouvintes
     // presos no elemento se perdiam ao voltar para a aba Estratégia.
     function saveStatus(sel){var st=sel.value,m=I("#stMsg");
-      dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st}).then(function(){it.status=st;if(m){m.textContent="Salvo";m.style.color="var(--good)";}renderCal();renderApprovals();renderContentList();},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}sel.value=it.status;});}
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st}).then(function(){it.status=st;if(m){m.textContent="Salvo";m.style.color="var(--good)";}AG_ITENS=null;renderCal();renderApprovals();renderContentList();
+        if(st==="PUBLISHED"&&!it.postUrl){var lk=I("#pubLink"),lm=I("#linkMsg");if(lk){lk.focus();if(lm){lm.textContent="Publicada. Cole aqui o link do post.";lm.style.color="var(--brand-ink)";}}}},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}sel.value=it.status;});}
     function saveIdeaFld(el){var k=el.getAttribute('data-idea-fld'),v=el.textContent.trim();if(v===String(it.idea[k]||""))return;
       var idea=Object.assign({},it.idea);idea[k]=v;
       dbItemsCol("cos_calendar",state.client).doc(it.id).update({idea:idea}).then(function(){it.idea[k]=v;el.style.outline="1px solid var(--good)";setTimeout(function(){el.style.outline="";},900);},function(){el.textContent=it.idea[k]||"";toast("Não consegui salvar a alteração, tente de novo.");});}
     if(db){
-      I("#drawerBody").addEventListener('change',function(e){var t=e.target;if(t.id==="pubData"||t.id==="pubHora")savePub();else if(t.id==="pubStatus")saveStatus(t);});
+      I("#drawerBody").addEventListener('change',function(e){var t=e.target;if(t.id==="pubData"||t.id==="pubHora")savePub();else if(t.id==="pubStatus")saveStatus(t);else if(t.id==="pubLink")saveLink(t);});
       I("#drawerBody").addEventListener('focusout',function(e){var t=e.target;if(t.getAttribute&&t.getAttribute('data-idea-fld'))saveIdeaFld(t);});
     }
     Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',async function(){
@@ -2599,8 +2712,12 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         var r0=take0(stage);if(precisaGravar(r0.surface)){var w=semanaDe(slot);gravSem[w]=(gravSem[w]||0)+1;}return r0;
       }
       function take0(stage){var pool=byFunnel[stage].filter(function(x){return usadas.indexOf(x)<0});if(!pool.length)pool=ideas.filter(function(x){return usadas.indexOf(x)<0});if(!pool.length){usadas=[];pool=ideas.slice();}usadas.push(pool[0]);return pool[0];}
-      var ord2=[],ct={topo:0,meio:0,fundo:0},tt={topo:wTopo,meio:wMeio,fundo:wFundo};
-      for(var z=0;z<total;z++){var best="topo",bs=-1;["topo","meio","fundo"].forEach(function(st){var sc=tt[st]?(tt[st]-ct[st])/tt[st]:-1;if(sc>bs){bs=sc;best=st;}});ct[best]++;ord2.push(take(best,slots[z]));}
+      // Campanha no período: nos dias dela vale o foco da campanha (mesma regra do Cronos no servidor).
+      var grupos={},gkey=function(ds){var cp=campanhaNoDia(id,ds);return cp?"c:"+cp.id:"base";};
+      slots.forEach(function(ds){var k=gkey(ds);if(!grupos[k]){var cp=k==="base"?null:campanhaNoDia(id,ds);grupos[k]={n:0,mix:(cp&&mixDoFoco(cp.foco))||mix,ct:{topo:0,meio:0,fundo:0}};}grupos[k].n++;});
+      Object.keys(grupos).forEach(function(k){var gp=grupos[k],t=Math.round(gp.n*gp.mix.topo/100),mm=Math.round(gp.n*gp.mix.meio/100);gp.tt={topo:t,meio:mm,fundo:gp.n-t-mm};});
+      var ord2=[];
+      for(var z=0;z<total;z++){var gz=grupos[gkey(slots[z])],best="topo",bs=-1;["topo","meio","fundo"].forEach(function(st){var sc=gz.tt[st]?(gz.tt[st]-gz.ct[st])/gz.tt[st]:-1;if(sc>bs){bs=sc;best=st;}});gz.ct[best]++;ord2.push(take(best,slots[z]));}
       order=ord2;
       var items=order.map(function(idea,i){
         return {ord:i,id:"cal-"+(i+1),data:slots[i],idea:idea,content:null,carousel:null,stories:null,
@@ -2796,6 +2913,8 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     var b=I("#expHtml");if(b)b.addEventListener('click',function(){downloadText("calendario-"+slug+".html",buildVitrineDoc(items,r,cli),"text/html",function(ok){msg(ok,"Envie o arquivo ao cliente (WhatsApp/e-mail)");});});
     var vw=I("#expView");if(vw)vw.addEventListener('click',function(){state.view="calendar";toggleClientView(true);});
     var gc=I("#expGcal");if(gc)gc.addEventListener('click',function(){openGcalModal(items);});
+    var lk=I("#expLink");if(lk)lk.addEventListener('click',function(){abrirLinkPublico("vitrine",state.client);});
+    var as=I("#expAssinar");if(as)as.addEventListener('click',function(){abrirLinkPublico("agenda",state.client);});
     wireRotina();
   }
   // ---------- Vitrine do cliente: calendário editorial bonito, objetivo e fácil de consultar no celular ----------
@@ -2870,7 +2989,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         '<div class="vt-sum"><div class="vt-chips"><span class="vt-chip">'+f.ic+' '+esc(f.sup)+'</span><span class="vt-chip f-'+esc(x.funil||"")+'">'+esc(fu[0].replace(" de funil",""))+'</span>'+vtStatusHtml(it)+'</div><div class="vt-hd">'+esc(hd)+'</div></div><span class="vt-arrow">›</span></summary>'+
         '<div class="vt-body"><nav class="vt-jump"><a href="#'+id+'-texto">Texto</a><a href="#'+id+'-roteiro">Roteiro</a><a href="#'+id+'-stories">Stories</a></nav>'+
         '<section><h4>O que publicar</h4>'+(x.tema?'<div class="vt-tag">'+esc(x.tema)+'</div>':'')+'<div class="vt-big">'+esc(hd)+'</div>'+(x.conceito&&x.conceito!==hd?'<p>'+esc(x.conceito)+'</p>':'')+'</section>'+
-        '<section id="'+id+'-texto"><h4>Texto pronto</h4>'+(tx?'<div class="vt-copy" id="'+id+'-copy">'+esc(tx)+'</div><button class="vt-btn" data-vt-copy="'+id+'-copy">📋 Copiar texto</button>':'<p class="vt-soft">O texto desta pauta está em produção, em breve aparece aqui.</p>')+'</section>'+
+        '<section id="'+id+'-texto"><h4>Texto pronto</h4>'+(tx?'<div class="vt-copy" id="'+id+'-copy">'+esc(tx)+'</div><button class="vt-btn" data-vt-copy="'+id+'-copy">Copiar texto</button>':'<p class="vt-soft">O texto desta pauta está em produção, em breve aparece aqui.</p>')+'</section>'+
         '<section id="'+id+'-roteiro"><h4>Como produzir</h4>'+(ro.passos.length?'<ol class="vt-steps">'+ro.passos.map(function(p){return '<li><b>'+esc(p.k)+'</b>'+(p.lbl&&String(p.lbl).toLowerCase().indexOf(p.k.toLowerCase())<0?' <span class="vt-soft">('+esc(p.lbl)+')</span>':'')+'<div>'+esc(p.v)+'</div></li>'}).join('')+'</ol>'+(ro.sug?'<p class="vt-soft">Roteiro-base, a versão final chega com o texto.</p>':''):'<p class="vt-soft">Roteiro em produção.</p>')+'</section>'+
         '<section><h4>Formato</h4><div class="vt-fmt"><b>'+f.ic+' '+esc(f.sup)+(f.nome?' · '+esc(f.nome):'')+'</b>'+(f.desc?'<div>'+esc(f.desc)+'</div>':'')+(f.prod&&x.surface!=="Carrossel"?'<div class="vt-soft">'+esc(f.prod)+'</div>':'')+'</div></section>'+
         '<section><h4>Papel estratégico</h4><div class="vt-role f-'+esc(x.funil||"")+'"><b>'+esc(fu[0])+'</b>, '+esc(fu[1])+'.</div>'+(x.proposito||x.objetivo?'<p>'+esc(x.proposito||x.objetivo)+'</p>':'')+'</section>'+
@@ -2905,7 +3024,9 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     '.vt-soft{font-size:12.5px;color:var(--muted,#6A6A7E)}.vt-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:6px}.vt-adjbox textarea{width:100%;min-height:80px;border:1px solid var(--line,#E8E8F1);border-radius:10px;padding:10px;font:inherit;margin-top:8px;background:var(--surface-2,#FBFBFE);color:var(--ink,#191826)}'+
     '.vt-strat{background:var(--surface,#fff);border:1px solid var(--line,#E8E8F1);border-radius:16px;padding:12px 14px;margin:14px 0}.vt-strat summary{cursor:pointer;font-weight:700}';
   (function(){try{var st=document.createElement("style");st.textContent=VT_CSS;document.head.appendChild(st);}catch(e){}})();
-  // Comportamento no ARQUIVO enviado ao cliente: copiar, aprovar e pedir ajuste (vai para o WhatsApp/e-mail do estrategista).
+  // Comportamento da vitrine fora do painel: copiar, aprovar e pedir ajuste.
+  // Pelo link (D.envio): grava direto na peça, pelo servidor. No arquivo antigo:
+  // vai para o WhatsApp/e-mail do estrategista, que cola a resposta no painel.
   function vtFileScript(D){
     var KEY="vt_status_"+D.cliente;
     function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){return {}}}
@@ -2913,27 +3034,56 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     function send(txt,item,st){txt=txt+"\n\nref: CAL|"+D.cid+"|"+item+"|"+st;
       if(D.mail){window.location.href="mailto:"+D.mail+"?subject="+encodeURIComponent("Retorno de pauta, "+D.cliente)+"&body="+encodeURIComponent(txt);return true}
       if(D.wa){window.open("https://wa.me/"+D.wa+"?text="+encodeURIComponent(txt),"_blank");return true}return false}
+    function aviso(p,t,erro){var a=p.querySelector(".vt-aviso");if(!a){a=document.createElement("p");a.className="vt-aviso vt-soft";a.setAttribute("role","status");p.querySelector(".vt-actions").after(a)}a.textContent=t;a.style.color=erro?"#B3261E":"#1E8A5B"}
+    function servidor(p,st,note){return fetch(D.envio.url,{method:"POST",headers:{"Content-Type":"application/json",apikey:D.envio.anon,Authorization:"Bearer "+D.envio.anon},
+      body:JSON.stringify({op:"vitrine_decidir",token:D.envio.token,id:p.getAttribute("data-vt-item"),decisao:st,nota:note||""})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||"Não deu certo, tente de novo.");return j})})}
+    function decidir(p,st,note,txt){
+      if(!D.envio){mark(p,st,note);return send(txt,p.getAttribute("data-vt-item"),st)}
+      var bs=p.querySelectorAll(".vt-actions .vt-btn,.vt-adjbox .vt-btn");[].forEach.call(bs,function(b){b.disabled=true});aviso(p,"Enviando");
+      servidor(p,st,note).then(function(){mark(p,st,note);aviso(p,st==="aprovado"?"Pauta aprovada. Obrigado!":"Pedido de ajuste enviado para a equipe.");[].forEach.call(bs,function(b){b.disabled=false})},
+        function(e){aviso(p,e.message,true);[].forEach.call(bs,function(b){b.disabled=false})});return true}
     function mark(p,st,note){var o=load();o[p.getAttribute("data-vt-item")]={st:st,note:note||""};save(o);paint()}
     function paint(){var o=load(),n=0,tot=0;[].forEach.call(document.querySelectorAll(".vt-p"),function(p){tot++;var s=o[p.getAttribute("data-vt-item")]||(p.getAttribute("data-vt-status")?{st:p.getAttribute("data-vt-status")}:null),ch=p.querySelector(".vt-chips"),old=ch.querySelector(".vt-st");if(old)old.remove();
       if(s){if(s.st==="aprovado")n++;var b=document.createElement("span");b.className="vt-st "+(s.st==="aprovado"?"ok":"adj");b.textContent=s.st==="aprovado"?"Aprovada":"Ajuste pedido";ch.appendChild(b)}});
       var pg=document.querySelector("[data-vt-prog]");if(pg)pg.textContent=n+" de "+tot+" pautas aprovadas";var bar=document.querySelector(".vt-bar i");if(bar)bar.style.width=(tot?Math.round(n*100/tot):0)+"%"}
     document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-vt-copy],[data-vt-ok],[data-vt-adj],[data-vt-send]");if(!t)return;var p=t.closest(".vt-p");
-      if(t.hasAttribute("data-vt-copy")){var el=document.getElementById(t.getAttribute("data-vt-copy")),txt=el?el.innerText:"";var done=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="📋 Copiar texto"},1600)};
+      if(t.hasAttribute("data-vt-copy")){var el=document.getElementById(t.getAttribute("data-vt-copy")),txt=el?el.innerText:"";var done=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="Copiar texto"},1600)};
         if(navigator.clipboard)navigator.clipboard.writeText(txt).then(done,function(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");done()});else{var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");done()}return}
-      if(t.hasAttribute("data-vt-ok")){mark(p,"aprovado");send("Aprovado, pauta de "+p.getAttribute("data-vt-label"),p.getAttribute("data-vt-item"),"aprovado");return}
+      if(t.hasAttribute("data-vt-ok")){decidir(p,"aprovado","","Aprovado, pauta de "+p.getAttribute("data-vt-label"));return}
       if(t.hasAttribute("data-vt-adj")){var bx=p.querySelector(".vt-adjbox");bx.hidden=!bx.hidden;if(!bx.hidden)bx.querySelector("textarea").focus();return}
-      if(t.hasAttribute("data-vt-send")){var tx=p.querySelector(".vt-adjbox textarea").value.trim();if(!tx){p.querySelector(".vt-adjbox textarea").focus();return}mark(p,"ajuste",tx);p.querySelector(".vt-adjbox").hidden=true;
-        if(!send("Ajuste na pauta de "+p.getAttribute("data-vt-label")+":\n"+tx,p.getAttribute("data-vt-item"),"ajuste"))alert("Ajuste registrado. Envie este texto ao seu estrategista:\n\n"+tx)}});
+      if(t.hasAttribute("data-vt-send")){var tx=p.querySelector(".vt-adjbox textarea").value.trim();if(!tx){p.querySelector(".vt-adjbox textarea").focus();return}p.querySelector(".vt-adjbox").hidden=true;
+        if(!decidir(p,"ajuste",tx,"Ajuste na pauta de "+p.getAttribute("data-vt-label")+":\n"+tx))aviso(p,"Ajuste registrado. Envie este texto ao seu estrategista: "+tx)}});
     paint();
   }
-  function buildVitrineDoc(items,r,cliente){
-    var cfg=formCfg(),wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
-    var D=JSON.stringify({cliente:cliente,cid:state.client,wa:wa,mail:String(cfg.email||"").trim()}).replace(/</g,"\\u003c");
+  // envio: {url, anon, token} quando a vitrine é aberta pelo link (grava pelo servidor).
+  function buildVitrineDoc(items,r,cliente,envio){
+    var cfg=envio?{}:formCfg(),wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
+    var D=JSON.stringify({cliente:cliente,cid:state.client,wa:wa,mail:String(cfg.email||"").trim(),envio:envio||null}).replace(/</g,"\\u003c");
     var estr=planoClienteHtml(items,r),S='scr'+'ipt';
     var root=':root{--bg:#F5F5FA;--surface:#fff;--surface-2:#FBFBFE;--ink:#191826;--muted:#6A6A7E;--line:#E8E8F1;--brand:#5B45E6;--brand-ink:#4634B6;--brand-weak:#EEEBFF}@media (prefers-color-scheme:dark){:root{--bg:#0E0D16;--surface:#16141F;--surface-2:#1B1927;--ink:#ECEBF5;--muted:#A3A1B7;--line:#2A2838;--brand:#8B7BFF;--brand-ink:#A99CFF;--brand-weak:#241F3B}}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px 14px 50px}.vt-strat h2{font-size:15px;margin:12px 0 6px}.vt-strat section{margin-top:6px}.vt-strat .m{color:var(--muted);font-size:13px}.vt-strat .big{font-weight:700;color:var(--brand-ink)}';
     return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc((vitrineOf(state.client).titulo||"Calendário de conteúdo")+", "+cliente)+'</title><style>'+root+VT_CSS+'</style></head><body>'+
       vitrineHtml(items,"arquivo").replace(/<\/div>$/,'')+'<details class="vt-strat"><summary>Estratégia e linha editorial do período</summary>'+estr+'</details></div>'+
       '<'+S+'>('+vtFileScript.toString()+')('+D+');</'+S+'></body></html>';
+  }
+  // Vitrine por link: a mesma página do painel, aberta com ?vitrine=<token>. O cliente
+  // vê o calendário de hoje (não uma foto antiga) e a decisão dele grava na peça.
+  function vitrinePublicaNaUrl(){
+    var token=null;try{token=new URLSearchParams(location.search).get("vitrine");}catch(e){}
+    if(!token)return false;
+    var cfg=window.COS_CONFIG;
+    function escrever(html){document.open();document.write(html);document.close();}
+    if(!cfg||!/^[0-9a-f]{32}$/.test(token)){escrever(bfPaginaAviso("Link inválido","Confira o link que você recebeu ou peça um novo para quem enviou."));return true;}
+    var url=cfg.url.replace(/\/$/,"")+"/functions/v1/agentes";
+    fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:cfg.anonKey,Authorization:"Bearer "+cfg.anonKey},body:JSON.stringify({op:"vitrine_ver",token:token})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||"Link indisponível.");return j;})})
+      .then(function(d){var c=d.cliente||{};
+        DB_CLIENTS={};DB_CLIENTS[c.id]={id:c.id,name:c.name,niche:c.niche,rotina:c.rotina||{},vitrine:c.vitrine||{}};
+        CLIENTS.unshift({id:c.id,name:c.name||"",full:c.name||"",niche:c.niche||"",av:0});state.client=c.id;
+        GENERATED={strategy:d.estrategia||null,editorial:d.editorial||[],calendar:{items:d.itens||[]},dna:[],ideas:[]};
+        escrever(buildVitrineDoc(d.itens||[],rotinaOf(c.id),c.name||"",{url:url,anon:cfg.anonKey,token:token}));})
+      .catch(function(e){escrever(bfPaginaAviso("Não foi possível abrir o calendário",e.message));});
+    return true;
   }
   // Comportamento no PAINEL ("Ver como cliente"): aprovações e ajustes gravados no banco; topo editável.
   function wireVitrine(root){
@@ -2941,7 +3091,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     root.addEventListener('click',function(e){if(!state.clientView)return;var items=(GENERATED&&GENERATED.calendar&&GENERATED.calendar.items)||[];var t=e.target.closest&&e.target.closest("[data-vt-copy],[data-vt-ok],[data-vt-adj],[data-vt-send],[data-vt-edit]");if(!t)return;
       if(t.hasAttribute("data-vt-edit")){abrirEdicaoTopo();return;}
       var p=t.closest(".vt-p"),itId=p&&p.getAttribute("data-vt-item"),it=items.filter(function(x){return x.id===itId})[0];
-      if(t.hasAttribute("data-vt-copy")){var el=I("#"+t.getAttribute("data-vt-copy")),txt=el?el.textContent:"";var ok=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="📋 Copiar texto"},1600)};if(navigator.clipboard)navigator.clipboard.writeText(txt).then(ok,ok);else ok();return;}
+      if(t.hasAttribute("data-vt-copy")){var el=I("#"+t.getAttribute("data-vt-copy")),txt=el?el.textContent:"";var ok=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="Copiar texto"},1600)};if(navigator.clipboard)navigator.clipboard.writeText(txt).then(ok,ok);else ok();return;}
       if(!it)return;
       function salvar(patch,aviso){dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it,patch);toast(aviso);var aberto=p.id;renderCal();var np=I("#"+aberto);if(np)np.open=true;},function(){toast("Não consegui salvar agora, tente de novo.");});}
       if(t.hasAttribute("data-vt-ok")){salvar({clientStatus:"aprovado",clientAt:new Date().toISOString()},"Pauta aprovada ✓");return;}
@@ -3037,8 +3187,10 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   }
   function calToolbarHtml(temItens){
     return '<div class="toolbar">'+(temItens?'<div class="subtabs"><button class="sub calMode'+(state.calMode!=="lista"?' on':'')+'" data-mode="agenda">Semana</button><button class="sub calMode'+(state.calMode==="lista"?' on':'')+'" data-mode="lista">Lista</button></div>':'')+
-      '<span class="spacer"></span><button class="btn" id="calCfgOpen"><span class="bi">'+iconeUI("settings")+'</span>Rotina e período</button>'+
-      (temItens?'<button class="btn" id="expIcs" title="Importa no Google Agenda ou no celular, com lembrete 30 min antes">Baixar agenda</button><button class="btn" id="expHtml" title="Arquivo para enviar ao cliente: abre no celular, com roteiro, Stories e aprovação por pauta">Arquivo para o cliente</button><button class="btn" id="expGcal">Google Agenda</button>':'')+
+      '<span class="spacer"></span><button class="btn" id="calCfgOpen"><span class="bi">'+iconeUI("settings")+'</span>Rotina e período</button><button class="btn" id="calCamp" title="Lançamento ou data comercial: muda o mix do funil só nesses dias">Campanhas'+(campanhasDe(state.client).length?' ('+campanhasDe(state.client).length+')':'')+'</button>'+
+      // Publicado: link de aprovação e agenda assinada, que se atualizam sozinhos. Offline: arquivo e Google Agenda do Artifact.
+      (temItens?(SB?'<button class="btn pri" id="expLink" title="O cliente abre no celular e aprova ou pede ajuste em cada pauta; a resposta cai aqui">Link de aprovação</button><button class="btn" id="expAssinar" title="Google Agenda ou iPhone: assina uma vez e atualiza sozinho">Assinar agenda</button>'
+        :'<button class="btn" id="expIcs" title="Importa no Google Agenda ou no celular, com lembrete 30 min antes">Baixar agenda</button><button class="btn" id="expHtml" title="Arquivo para enviar ao cliente: abre no celular, com roteiro, Stories e aprovação por pauta">Arquivo para o cliente</button><button class="btn" id="expGcal">Google Agenda</button>'):'')+
       '</div><div id="expMsg" class="pp-m" style="min-height:18px;margin:-8px 0 12px"></div>';
   }
   // Gaveta "Rotina e período": configuração que se mexe pouco sai da frente do calendário.
@@ -3073,6 +3225,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         (hasIdeas?'<button class="btn pri" id="calCfgOpen2" style="margin-top:16px">Montar calendário</button>':'<button class="btn pri" data-ir-aba="ideas" style="margin-top:16px">Ir para Ideias</button>')+'</div>';
       el.innerHTML=h;
       Array.prototype.forEach.call(el.querySelectorAll('#calCfgOpen,#calCfgOpen2'),function(b){b.addEventListener('click',openCalConfig)});
+      var cpb=el.querySelector('#calCamp');if(cpb)cpb.addEventListener('click',function(){abrirCampanhas(state.client);});
       var ia=el.querySelector('[data-ir-aba]');if(ia)ia.addEventListener('click',function(){go(ia.getAttribute('data-ir-aba'))});
       if(items.length){wireGen('.view[data-view="calendar"] [data-gen]');wireCalExtras(items);}
       if(state.calCfgAberta)renderCalConfig();
@@ -3458,11 +3611,11 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   // ---------- Montar tudo automaticamente: DNA (Íris), Estratégia, Linha Editorial, Ideias, Calendário ----------
   var AUTO_STEPS=[["dna","Content DNA (Íris lê o briefing)"],["strategy","Estratégia (Átlas)"],["editorial","Linha Editorial (Bússola)"],["ideas","Ideias (Musa)"],["calendar","Calendário editorial (Cronos)"]];
   function autoFeito(k,g){g=g||{};return k==="dna"?(g.dna||[]).length>=5:k==="strategy"?!!g.strategy:k==="editorial"?(g.editorial||[]).length>0:k==="ideas"?(g.ideas||[]).length>0:((g.calendar&&g.calendar.items)||[]).length>0;}
-  function autoModalHtml(done,atual,erro,days){
+  function autoModalHtml(done,atual,erro,days,travado){
     return '<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(480px,100%)"><div class="dh"><div class="d-title">Montando tudo, '+esc(clientName(state.client))+'</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
       '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Cada agente usa o resultado do anterior. Leva alguns minutos, pode deixar esta janela aberta. Calendário de <b>'+days+' dias</b>, na frequência e com o limite de gravações da rotina do cliente.</div>'+
       AUTO_STEPS.map(function(st){var ok=done.indexOf(st[0])>=0,cur=atual===st[0];return '<div class="stepi'+(ok?' ok':'')+'" style="cursor:default"><span class="dot">'+(ok?'':cur&&!erro?'<span class="spinner" style="margin:0;width:11px;height:11px"></span>':'')+'</span>'+esc(st[1])+(cur&&erro?' <span style="color:var(--warn)">'+esc(erro)+'</span>':'')+'</div>'}).join('')+
-      (erro?'<div style="margin-top:14px"><button class="btn pri" id="autoRetry">Continuar de onde parou</button></div>':'')+
+      (erro?'<div style="margin-top:14px">'+(travado?'<button class="btn pri" id="autoIrDna">Revisar e aprovar o DNA</button>':'<button class="btn pri" id="autoRetry">Continuar de onde parou</button>')+'</div>':'')+
       (done.length===AUTO_STEPS.length?'<div style="margin-top:14px;font-size:13px">Pronto! Revise o <b>Content DNA</b> (as sugestões ficam pendentes para você aprovar) e confira a <b>Linha Editorial</b> e o <b>Calendário</b>.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn pri" id="autoGoCal">Ver o calendário</button><button class="btn" id="autoGoEd">Ver a linha editorial</button></div>':'')+
       '</div></div></aside>';
   }
@@ -3472,8 +3625,9 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     state.autoRunning=id;
     try{GENERATED=await loadDbClientState(id);}catch(e){state.autoRunning=null;throw e;}
     var done=[],atual="",erro="",lastErr=null;
-    function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days);I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
+    function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days,lastErr&&lastErr.code==="trava");I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
       var r=I("#autoRetry");if(r){r.addEventListener('click',function(){montarTudo(id,days)});cooldownBtn(r,lastErr,60);}
+      var d=I("#autoIrDna");if(d)d.addEventListener('click',function(){closeDrawer();fazerPasso("dna");});
       var gc=I("#autoGoCal");if(gc)gc.addEventListener('click',function(){closeDrawer();go("calendar")});var ge=I("#autoGoEd");if(ge)ge.addEventListener('click',function(){closeDrawer();go("editorial")});}
     AUTO_STEPS.forEach(function(st){if(autoFeito(st[0],GENERATED))done.push(st[0]);});
     for(var i=0;i<AUTO_STEPS.length;i++){var k=AUTO_STEPS[i][0];if(done.indexOf(k)>=0)continue;
@@ -3484,12 +3638,12 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
           var out=await CAP.sample.json(buildIrisPrompt(byId(id).name,brief),{modelTier:"default",cache:false});
           var entries=(GENERATED.dna||[]).slice();((out&&out.suggestions)||[]).forEach(function(x){if(!x||!x.field||!x.value)return;entries.push({section:x.section||"business",field:String(x.field),value:String(x.value),state:x.state||"HYPOTHESIS",status:"pending",src:"Briefing do cliente, Íris"});});
           await saveDna(id,entries);if(!entries.length)throw new Error("sem dados");}
-        else if(k==="strategy"){await runGerarEstrategia();if(!GENERATED.strategy)throw new Error("falhou");}
-        else if(k==="editorial"){await runGerarEditorial();if(!(GENERATED.editorial||[]).length)throw new Error("falhou");}
+        else if(k==="strategy"){await runGerarEstrategia({lancar:true});if(!GENERATED.strategy)throw new Error("falhou");}
+        else if(k==="editorial"){await runGerarEditorial({lancar:true});if(!(GENERATED.editorial||[]).length)throw new Error("falhou");}
         else if(k==="ideas"){await gerarIdeiasCore(id,false,15);if(!(GENERATED.ideas||[]).length)throw new Error("falhou");}
         else{state.period=days;await runGerarPlanejamento(days);if(!((GENERATED.calendar&&GENERATED.calendar.items)||[]).length)throw new Error("falhou");}
         done.push(k);
-      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora, tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
+      }catch(e){erro=e&&(e.code||CAP.remote)?sampleErrCopy(e):"não deu certo agora, tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
     }
     try{if(!(vitrineOf(id).mensagem)&&DB_CLIENTS[id]){var mv=await gerarMensagemVitrine();await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{vitrine:Object.assign({},vitrineOf(id),{mensagem:mv})}));}}catch(e){}
     state.autoRunning=null;atual="";draw();renderKpis();
@@ -3625,14 +3779,39 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   // ---- Organização: apagar cliente e juntar cadastros duplicados ----
   var DOCS_CLIENTE=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta","cos_perf"],COLS_CLIENTE=["cos_ideas","cos_calendar"];
   async function apagarCliente(id){
-    for(var i=0;i<COLS_CLIENTE.length;i++){var sn=await dbItemsCol(COLS_CLIENTE[i],id).get();for(var j=0;j<sn.docs.length;j++)await dbItemsCol(COLS_CLIENTE[i],id).doc(sn.docs[j].id).delete();}
-    for(var k=0;k<DOCS_CLIENTE.length;k++){try{await dbDoc(DOCS_CLIENTE[k]+"/"+id).delete();}catch(e){}}
-    await dbDoc("cos_clients/"+id).delete();
+    // Publicado: o banco apaga tudo do cliente numa transação (public.apagar_cliente).
+    if(SB){var rr=await SB.c.rpc("apagar_cliente",{ws:SB.ws,cli:id});if(rr.error)throw rr.error;}
+    else{
+      for(var i=0;i<COLS_CLIENTE.length;i++){var sn=await dbItemsCol(COLS_CLIENTE[i],id).get();for(var j=0;j<sn.docs.length;j++)await dbItemsCol(COLS_CLIENTE[i],id).doc(sn.docs[j].id).delete();}
+      for(var k=0;k<DOCS_CLIENTE.length;k++){try{await dbDoc(DOCS_CLIENTE[k]+"/"+id).delete();}catch(e){}}
+      await dbDoc("cos_clients/"+id).delete();
+    }
     delete DB_CLIENTS[id];delete DB_STATE_CACHE[id];
     for(var n=CLIENTS.length-1;n>=0;n--)if(CLIENTS[n].id===id)CLIENTS.splice(n,1);
     if(state.ativosOpen===id)state.ativosOpen=null;
     if(state.client===id){state.client="";var prox=CLIENTS[0];if(prox)setClient(prox.id);else{GENERATED=null;}}
     refreshClientOptions();
+  }
+  function clienteArquivado(id){var c=DB_CLIENTS[id];return !!(c&&c.admin&&c.admin.ativo===false);}
+  // Arquivar: sai da lista, fica inativo e nenhum agente roda sozinho. Nada é apagado.
+  async function arquivarCliente(id,arquivar){
+    var c=DB_CLIENTS[id];if(!c)return;
+    await saveClientRecord(id,Object.assign({},c,{admin:Object.assign({},c.admin||{},{ativo:!arquivar}),operacao:Object.assign(opDo(id),{pausado:!!arquivar})}));
+  }
+  function aposMudarCliente(){renderClients();if(typeof renderAtivos==="function")renderAtivos();if(typeof renderCobrancaBanner==="function")renderCobrancaBanner();renderKpis();AG_ITENS=null;}
+  // Confirmação por botão (antes era digitar o nome idêntico, e nome com travessão não passava).
+  function confirmarApagar(id){
+    var c=DB_CLIENTS[id]||{name:clientName(id)},g=DB_STATE_CACHE[id]||{},it=(g.calendar&&g.calendar.items)||[],ni=(g.ideas||[]).length;
+    var partes=[(g.dna||[]).length?"Content DNA":"",g.strategy?"estratégia":"",(g.editorial||[]).length?"linha editorial":"",ni?ni+" ideia"+(ni>1?"s":""):"",it.length?it.length+" peça"+(it.length>1?"s":"")+" do calendário":""].filter(Boolean);
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><div class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="dlgT" aria-describedby="dlgD">'+
+      '<h3 id="dlgT">Apagar '+esc(c.name)+'?</h3><p id="dlgD">Sai tudo deste cliente: '+esc(partes.concat(["propostas, aprovações e briefings"]).join(", "))+'. Não dá para desfazer.</p>'+
+      (clienteArquivado(id)?'':'<p class="pp-m">Se vocês só pararam de atender, arquive: fica tudo guardado e os agentes param.</p>')+
+      '<div class="dlg-acoes"><button class="btn" id="dlgCancelar">Cancelar</button>'+(clienteArquivado(id)?'':'<button class="btn" id="dlgArquivar">Arquivar em vez disso</button>')+'<button class="btn perigo" id="dlgApagar">Apagar definitivamente</button></div><p class="pp-m" id="dlgMsg" role="status"></p></div>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dlgCancelar").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);I("#dlgCancelar").focus();
+    var ar=I("#dlgArquivar");if(ar)ar.addEventListener('click',async function(){ar.disabled=true;try{await arquivarCliente(id,true);closeDrawer();toast(c.name+" foi arquivado. Os agentes pararam para este cliente.");aposMudarCliente();}catch(e){ar.disabled=false;I("#dlgMsg").textContent="Não consegui arquivar: "+(e.message||e);}});
+    I("#dlgApagar").addEventListener('click',async function(){var b=this;b.disabled=true;b.textContent="Apagando";
+      try{await apagarCliente(id);closeDrawer();toast(c.name+" foi apagado.");aposMudarCliente();}
+      catch(e){b.disabled=false;b.textContent="Apagar definitivamente";I("#dlgMsg").textContent="Não consegui apagar: "+(e.message||e);}});
   }
   async function juntarClientes(destId,origId){
     var A=Object.assign({},DB_CLIENTS[destId]),B=DB_CLIENTS[origId];if(!A||!B)return;
@@ -3667,15 +3846,13 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:4px 0 14px"><input type="checkbox" id="ecAtivo"'+(a.ativo?' checked':'')+'> Cliente ativo (desmarcar não apaga nada, o histórico fica guardado)</label>'+
       '<button class="btn pri" id="ecSalvar">Salvar</button><span id="ecMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>'+
       (Object.keys(DB_CLIENTS).length>1?'<div class="block"><div class="bt">Cadastro duplicado?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Junta o outro cadastro <b>neste</b>: briefing, ficha, contatos e Content DNA são somados; estratégia, linha editorial, ideias e calendário do outro entram só onde este estiver vazio. Depois o outro cadastro é removido.</div>'+
-        '<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="ecMergeSel" style="flex:1;min-width:160px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px;background:var(--surface-2);color:var(--ink)">'+Object.keys(DB_CLIENTS).filter(function(x){return x!==id}).map(function(x){return '<option value="'+esc(x)+'">'+esc(DB_CLIENTS[x].name)+'</option>'}).join('')+'</select><button class="btn" id="ecMerge">🔀 Juntar neste cadastro</button></div></div>':'')+
-      '<div class="block" style="border-color:var(--emo-bg)"><div class="bt" style="color:var(--emo)">Zona de cuidado</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Apagar remove o cliente e todo o histórico (briefing, estratégia, calendário, aprovações). Se só parou de atender, prefira <b>marcar como inativo</b>.</div><button class="btn" id="ecApagar" style="color:var(--emo)">🗑 Apagar cliente</button></div></div></aside>';
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="ecMergeSel" style="flex:1;min-width:160px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px;background:var(--surface-2);color:var(--ink)">'+Object.keys(DB_CLIENTS).filter(function(x){return x!==id}).map(function(x){return '<option value="'+esc(x)+'">'+esc(DB_CLIENTS[x].name)+'</option>'}).join('')+'</select><button class="btn" id="ecMerge">Juntar neste cadastro</button></div></div>':'')+
+      '<div class="block" style="border-color:var(--emo-bg)"><div class="bt" style="color:var(--emo)">Zona de cuidado</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Apagar remove o cliente e todo o histórico (briefing, estratégia, calendário, aprovações). Se só parou de atender, prefira <b>marcar como inativo</b>.</div><button class="btn" id="ecApagar" style="color:var(--emo)">Apagar cliente</button></div></div></aside>';
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
     var mg=I("#ecMerge");if(mg)mg.addEventListener('click',async function(){var orig=I("#ecMergeSel").value,on=DB_CLIENTS[orig]&&DB_CLIENTS[orig].name;
       if(!orig||!confirm("Juntar “"+on+"” em “"+c.name+"”? O cadastro “"+on+"” deixa de existir depois de juntar."))return;
-      mg.disabled=true;mg.textContent="Juntando…";try{await (SB?comContexto({restaurar:true,motivo:"juntar cadastros"},function(){return juntarClientes(id,orig)}):juntarClientes(id,orig));closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="🔀 Juntar neste cadastro";toast("Não consegui juntar agora.");}});
-    I("#ecApagar").addEventListener('click',async function(){var t=prompt("Isso apaga "+c.name+" e todo o histórico, sem volta.\nPara confirmar, digite o nome do cliente:");
-      if(t===null)return;if(normalizeTextPanel(t).trim()!==normalizeTextPanel(c.name).trim()){toast("Nome não confere, nada foi apagado.");return;}
-      try{await apagarCliente(id);closeDrawer();toast(c.name+" foi apagado.");renderAtivos();renderCobrancaBanner();}catch(e){toast("Não consegui apagar agora.");}});
+      mg.disabled=true;mg.textContent="Juntando…";try{await (SB?comContexto({restaurar:true,motivo:"juntar cadastros"},function(){return juntarClientes(id,orig)}):juntarClientes(id,orig));closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="Juntar neste cadastro";toast("Não consegui juntar: "+(e.message||e));}});
+    I("#ecApagar").addEventListener('click',function(){confirmarApagar(id);});
     I("#ecSalvar").addEventListener('click',async function(){
       var nome=I("#ecNome").value.trim();if(!nome){I("#ecMsg").textContent="O nome não pode ficar vazio.";return;}
       var v=parseFloat(I("#ecValor").value.replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."))||0;
@@ -4065,29 +4242,23 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         function(e){if(m){m.textContent=e&&e.message==="colunas"?"Não achei as colunas de data e alcance. Use o CSV exportado pelo Meta Business Suite.":"Não consegui ler esse arquivo.";m.style.color="var(--warn)";}});});
   }
 
-  // ---- Próximos passos: o painel guia o que falta para cada cliente ----
+  // ---- Próximos passos: as mesmas 6 etapas do trilho do cliente (uma régua só) ----
+  // Antes era uma lista de 9 itens com cara de caixa de marcar que não marcava nada
+  // e contava o progresso diferente do trilho.
   function nextStepsHtml(){
     if(!state.client||!isDbClient(state.client))return '';
-    var g=GENERATED||{},c=DB_CLIENTS[state.client]||{};
-    var items=(g.calendar&&g.calendar.items)||[];
-    var steps=[
-      ["dna","Preencher a ficha do cliente",fichaFilled(c)>=5],
-      ["dna","Montar o Content DNA",(g.dna||[]).length>=5],
-      ["strategy","Gerar a estratégia",!!g.strategy],
-      ["editorial","Gerar a linha editorial",(g.editorial||[]).length>0],
-      ["ideas","Gerar as ideias",(g.ideas||[]).length>0],
-      ["formats","Conferir os formatos do nicho",!!(g.formats&&(g.formats.perfil||g.formats.ia))],
-      ["calendar","Montar o calendário",items.length>0],
-      ["calendar","Escrever a primeira peça com IA",items.some(function(it){return it.content&&!isRascunho(it.content)})],
-      ["performance","Registrar os resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
-    ];
-    var done=steps.filter(function(s){return s[2]}).length,next=steps.filter(function(s){return !s[2]})[0];
-    var falta=(g.dna||[]).length>=3&&!state.clientView&&AUTO_STEPS.some(function(st){return st[0]!=="dna"&&!autoFeito(st[0],g)});
-    var acoes=(falta?'<button class="btn pri genbtn" id="autoBuildBtn">Montar o restante</button>':'')+(next?'<button class="btn'+(falta?'':' pri')+'" data-goto-step="'+next[0]+'">Continuar</button>':'<span class="chip act">Cliente completo</span>');
-    return quadro("Próximos passos de "+esc(clientName(state.client)),done+' de '+steps.length+' etapas feitas.',acoes,
-      '<div class="passos">'+steps.map(function(s){return '<a class="passo'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="pc">'+(s[2]?iconeUI("checkbox-on"):'<i class="cb-vazio"></i>')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div>');
+    var id=state.client,g=GENERATED||{},r=etapasDe(id),x=proximoPasso(id);
+    var falta=(g.dna||[]).length>=3&&!state.clientView&&!travaPlano("estrategia",g)&&AUTO_STEPS.some(function(st){return st[0]!=="dna"&&!autoFeito(st[0],g)});
+    var acoes=(falta?'<button class="btn genbtn" id="autoBuildBtn">Montar o restante</button>':'')+(x.pri?'<button class="btn pri" data-passo="'+x.pri[1]+'">'+esc(x.pri[0])+'</button>':'<span class="chip act">Em dia</span>');
+    return quadro("Próximos passos de "+esc(clientName(id)),'<b>'+esc(x.tit)+'</b>. '+esc(x.apoio),acoes,
+      '<div class="passos">'+ETAPAS.map(function(t,i){var e=r.etapas[i],st=e.estado,
+        txt=st==="feita"?"Feita":st==="bloqueada"?"Depois da etapa anterior":st==="livre"?"Nada neste mês ainda":(e.falta||"Em andamento");
+        return '<a class="passo '+st+'" data-goto-step="'+t[2]+'"><span class="pc">'+(st==="feita"?iconeUI("check-filled"):'<i class="pn">'+(i+1)+'</i>')+'</span><span class="pt"><b>'+t[1]+'</b><small>'+esc(txt)+'</small></span></a>'}).join('')+'</div>');
   }
-  function wireSteps(root){var ab=(root||document).querySelector('#autoBuildBtn');if(ab)ab.addEventListener('click',function(){montarTudo(state.client,state.period||30)});Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
+  function wireSteps(root){root=root||document;
+    var ab=root.querySelector('#autoBuildBtn');if(ab)ab.addEventListener('click',function(){montarTudo(state.client,state.period||30)});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});
+    Array.prototype.forEach.call(root.querySelectorAll('.quadro [data-passo]'),function(b){if(b.closest('#cliHead'))return;b.addEventListener('click',function(){fazerPasso(b.getAttribute('data-passo'),b)})});}
 
   // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
   // (ou guarda uma cópia de segurança). ----
@@ -4161,6 +4332,10 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   }
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
+    // Publicado: o cartão mostra quem entrou e com que papel (antes dizia "Content OS / servidor").
+    if(CAP.remote&&SB){var nm=SB.nome||"Você",n=I("#ucNome"),av=I("#ucAv");
+      if(n)n.textContent=nm;if(av)av.textContent=nm.charAt(0).toUpperCase();
+      el.textContent=PAPEL_LBL[SB.papel]||SB.papel||"";el.dataset.modo="servidor";el.style.color="var(--muted)";el.title=SB.user.email||"";return;}
     var on=aiAvailable();
     el.textContent=CAP.remote?"servidor":on?"ativa":(CAP.local?"offline · salvo aqui":"indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
@@ -4202,12 +4377,15 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       calendar:{total:0,mix:{topo:0,meio:0,fundo:0},items:[]},notion:[],performance:[],
       libraries:LIB,warnings:[]};
   }
+  // O painel antigo não tinha aprovação no DNA: registro sem status era o DNA em uso
+  // e conta como aprovado. Mesma regra do servidor (processo.ts, dnaValeAprovado).
+  function normalizarDna(list){return (list||[]).map(function(e){return e&&e.status==null?Object.assign({},e,{status:"approved",legado:true}):e;});}
   async function loadDbClientState(id){
     var c=DB_CLIENTS[id]||{name:clientName(id)};
     var g=blankClientState(id,c.name);
     if(!CAP.db)return g;
     try{
-      var dnaDoc=await dbDoc("cos_dna/"+id).get();if(dnaDoc.exists)g.dna=(dnaDoc.data()||{}).entries||[];
+      var dnaDoc=await dbDoc("cos_dna/"+id).get();if(dnaDoc.exists)g.dna=normalizarDna((dnaDoc.data()||{}).entries);
       var stratDoc=await dbDoc("cos_strategy/"+id).get();if(stratDoc.exists)g.strategy=stratDoc.data();
       var edDoc=await dbDoc("cos_editorial/"+id).get();if(edDoc.exists)g.editorial=(edDoc.data()||{}).pilares||[];
       var resDoc=await dbDoc("cos_research/"+id).get();if(resDoc.exists)g.research=(resDoc.data()||{}).items||[];
@@ -4264,7 +4442,7 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         '<div class="fld"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="email" required></div>'+
         '<div class="fld"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="current-password" required minlength="6"></div>'+
         '<button class="btn pri login-ok" id="lgEntrar" type="submit">Entrar</button>'+
-        '<div class="login-alt"><button class="lnk" type="button" id="lgCriar">Criar conta</button><button class="lnk" type="button" id="lgEsqueci">Esqueci a senha</button></div>'+
+        '<div class="login-alt"><span class="pp-m">Acesso só por convite da equipe.</span><button class="lnk" type="button" id="lgEsqueci">Esqueci a senha</button></div>'+
         '<div class="login-msg" id="lgMsg" role="status"></div></form>';
       document.body.appendChild(el);
       var msg=function(t,bom){var m=I("#lgMsg");m.textContent=t;m.style.color=bom?"var(--good)":"var(--warn)";};
@@ -4281,11 +4459,6 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
         var r=await c.auth.signInWithPassword(d);b.disabled=false;b.textContent="Entrar";
         if(r.error){msg(traduz(r.error));return;}
         el.remove();resolve(r.data.user);});
-      I("#lgCriar").addEventListener("click",async function(){var d=dados();if(!d.email||d.password.length<6){msg("Digite o e-mail e uma senha com 6 caracteres ou mais, e clique em Criar conta.");return;}
-        var r=await c.auth.signUp({email:d.email,password:d.password,options:{emailRedirectTo:location.origin}});
-        if(r.error){msg(traduz(r.error));return;}
-        if(r.data.session){el.remove();resolve(r.data.user);return;}
-        msg("Conta criada. Confirme pelo link que enviamos para "+d.email+" e depois entre.",true);});
       I("#lgEsqueci").addEventListener("click",async function(){var d=dados();if(!d.email){msg("Digite seu e-mail e clique em Esqueci a senha.");return;}
         var r=await c.auth.resetPasswordForEmail(d.email,{redirectTo:location.origin});
         msg(r.error?traduz(r.error):"Enviamos um link para "+d.email+" criar uma senha nova.",!r.error);});
@@ -4293,16 +4466,19 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     });
   }
 
-  function telaNovaSenha(c){
+  // Link do e-mail: "esqueci a senha" (recovery) ou convite da equipe (invite).
+  function telaNovaSenha(c,convite){
     return new Promise(function(resolve){
       var el=document.createElement("div");el.className="login";
-      el.innerHTML='<form class="login-box" id="nsForm" novalidate><div class="login-marca"><span class="brand-mark">C</span><div><b>Senha nova</b><span>Escolha a senha que vai usar daqui pra frente</span></div></div>'+
-        '<div class="fld"><label for="nsSenha">Senha nova</label><input id="nsSenha" type="password" autocomplete="new-password" minlength="6" required></div>'+
+      el.innerHTML='<form class="login-box" id="nsForm" novalidate><div class="login-marca"><span class="brand-mark">C</span><div><b>'+(convite?'Bem-vindo à equipe':'Senha nova')+'</b><span>'+(convite?'Crie a senha que vai usar para entrar no painel':'Escolha a senha que vai usar daqui pra frente')+'</span></div></div>'+
+        (convite?'<div class="fld"><label for="nsNome">Seu nome</label><input id="nsNome" autocomplete="name" required></div>':'')+
+        '<div class="fld"><label for="nsSenha">'+(convite?'Senha':'Senha nova')+'</label><input id="nsSenha" type="password" autocomplete="new-password" minlength="6" required></div>'+
         '<button class="btn pri login-ok" type="submit">Salvar e entrar</button><div class="login-msg" id="nsMsg" role="status"></div></form>';
       document.body.appendChild(el);
-      I("#nsForm").addEventListener("submit",async function(ev){ev.preventDefault();var v=I("#nsSenha").value;
+      I("#nsForm").addEventListener("submit",async function(ev){ev.preventDefault();var v=I("#nsSenha").value,nm=I("#nsNome")?I("#nsNome").value.trim():"";
+        if(convite&&!nm){I("#nsMsg").textContent="Diga o seu nome, é como a equipe vai te ver.";return;}
         if(v.length<6){I("#nsMsg").textContent="A senha precisa ter pelo menos 6 caracteres.";return;}
-        var r=await c.auth.updateUser({password:v});
+        var r=await c.auth.updateUser(convite?{password:v,data:{nome:nm}}:{password:v});
         if(r.error){I("#nsMsg").textContent="Não deu certo: "+r.error.message;return;}
         history.replaceState(null,"",location.pathname);el.remove();resolve();});
     });
@@ -4311,14 +4487,24 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   async function iniciarServidor(){
     var cfg=window.COS_CONFIG,c=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true}});
     var s=(await c.auth.getSession()).data.session,user=s&&s.user;
-    // Voltou pelo link de "esqueci a senha": já tem sessão; pede a senha nova antes de seguir.
-    if(user&&/type=recovery/.test(location.hash))await telaNovaSenha(c);
+    // Voltou pelo link do e-mail (esqueci a senha ou convite): já tem sessão; pede a senha antes de seguir.
+    if(user&&/type=(recovery|invite)/.test(location.hash)){await telaNovaSenha(c,/type=invite/.test(location.hash));user=((await c.auth.getSession()).data.session||{}).user||user;}
     if(!user)user=await telaLogin(c);
     await c.rpc("aceitar_convites");
-    var m=await c.from("membros").select("workspace_id,papel").eq("user_id",user.id).limit(1);
-    var ws=m.data&&m.data[0]&&m.data[0].workspace_id,papel=m.data&&m.data[0]&&m.data[0].papel;
-    if(!ws){var r=await c.rpc("criar_workspace",{nome:"Content OS"});if(r.error)throw r.error;ws=r.data;papel="dono";}
-    SB={c:c,ws:ws,user:user,papel:papel};
+    // Workspace fixo: o escolhido antes (neste navegador) ou o mais antigo. Antes era
+    // o primeiro que o banco devolvesse, e quem estava em mais de um caía em qualquer um.
+    var ms=((await c.from("membros").select("workspace_id,papel").eq("user_id",user.id)).data)||[],lista=[],ws=null,papel=null;
+    if(ms.length){
+      var wr=((await c.from("workspaces").select("id,nome,created_at")).data)||[];
+      lista=ms.map(function(m){var w=wr.filter(function(x){return x.id===m.workspace_id})[0]||{};return {id:m.workspace_id,papel:m.papel,nome:w.nome||"Content OS",criado:w.created_at||""};})
+        .sort(function(a,b){return String(a.criado).localeCompare(String(b.criado))});
+      var salvo=null;try{salvo=localStorage.getItem("cos_ws");}catch(e){}
+      var ok=lista.filter(function(x){return x.id===salvo})[0]||lista[0];ws=ok.id;papel=ok.papel;
+    }
+    if(!ws){var r=await c.rpc("criar_workspace",{nome:"Content OS"});if(r.error)throw r.error;ws=r.data;papel="dono";lista=[{id:ws,papel:"dono",nome:"Content OS"}];}
+    var meta=user.user_metadata||{};
+    SB={c:c,ws:ws,user:user,papel:papel,nome:meta.nome||String(user.email||"").split("@")[0],workspaces:lista};
+    document.body.classList.toggle("so-leitura",papel==="leitura");
     c.auth.onAuthStateChange(function(ev){if(ev==="SIGNED_OUT")location.reload();});
     return SB;
   }
@@ -4519,15 +4705,71 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   }
 
   // ---------------------------------------------------------------- Equipe
+  // Quem está na equipe, o papel de cada um e o seu perfil. O dono convida (o servidor
+  // cria a conta e manda o e-mail), troca papel, corrige e-mail, reenvia acesso e remove.
+  var PAPEL_LBL={dono:"Dono",editor:"Editor",leitura:"Só leitura"};
+  var PAPEL_DESC={dono:"faz tudo, inclusive a equipe",editor:"trabalha em tudo, não mexe na equipe",leitura:"vê tudo e não muda nada"};
+  function selPapel(id,atual){return '<select id="'+id+'" aria-label="Papel">'+["editor","leitura","dono"].map(function(p){return '<option value="'+p+'"'+(p===atual?' selected':'')+'>'+PAPEL_LBL[p]+'</option>'}).join('')+'</select>';}
   function equipeHtml(){
     if(!SB)return '';
-    return quadro("Equipe","Você entrou como "+esc(SB.user.email||"")+(SB.papel==="dono"?", dono da equipe":"")+". Quem você convidar cria a conta com o mesmo e-mail e entra direto.",'<button class="btn" id="eqSair">Sair</button>',
-      (SB.papel==="dono"?'<div class="q-rodape" style="margin-top:0"><label class="sr" for="eqEmail">E-mail</label><input id="eqEmail" type="email" placeholder="email@exemplo.com" style="max-width:320px"><button class="btn pri" id="eqConvidar">Convidar</button><span id="eqMsg" class="pp-m"></span></div>':'<span id="eqMsg" class="pp-m"></span>'));
+    var dono=SB.papel==="dono",varios=(SB.workspaces||[]).length>1;
+    return quadro("Equipe","Dono "+PAPEL_DESC.dono+". Editor "+PAPEL_DESC.editor+". Só leitura "+PAPEL_DESC.leitura+".",'<button class="btn" id="eqSair">Sair</button>',
+      (varios?'<div class="fld eq-ws"><label for="eqWs">Equipe aberta neste navegador</label><select id="eqWs">'+SB.workspaces.map(function(w){return '<option value="'+esc(w.id)+'"'+(w.id===SB.ws?' selected':'')+'>'+esc(w.nome)+', você é '+esc((PAPEL_LBL[w.papel]||w.papel).toLowerCase())+'</option>'}).join('')+'</select></div>':'')+
+      '<div id="eqLista"><p class="pp-m"><span class="spinner"></span> Carregando a equipe</p></div>'+
+      (dono?'<div class="eq-convite"><div class="bt">Convidar</div><div class="q-rodape" style="margin-top:0"><label class="sr" for="eqEmail">E-mail</label><input id="eqEmail" type="email" placeholder="email@exemplo.com" style="max-width:300px">'+selPapel("eqPapel","editor")+'<button class="btn pri" id="eqConvidar">Convidar</button></div><p class="pp-m">A pessoa recebe um e-mail para criar a senha e já entra na equipe.</p></div>':'')+
+      '<div class="eq-perfil"><div class="bt">Seu perfil</div><div class="q-rodape" style="margin-top:0"><label class="sr" for="eqNome">Seu nome</label><input id="eqNome" value="'+esc(SB.nome||"")+'" placeholder="Seu nome" style="max-width:220px"><button class="btn" id="eqNomeSalvar">Salvar nome</button>'+
+        '<label class="sr" for="eqSenha">Senha nova</label><input id="eqSenha" type="password" autocomplete="new-password" placeholder="Senha nova" style="max-width:200px"><button class="btn" id="eqSenhaSalvar">Trocar senha</button></div><p class="pp-m">Você entrou como '+esc(SB.user.email||"")+'.</p></div>'+
+      '<p class="pp-m" id="eqMsg" role="status"></p>');
+  }
+  function eqMsg(t,bom){var m=I("#eqMsg");if(m){m.textContent=t;m.style.color=bom?"var(--good)":"var(--warn)";}}
+  function quandoAcesso(ts){return ts?"entrou em "+new Date(ts).toLocaleDateString("pt-BR"):"nunca entrou";}
+  async function carregarEquipe(){
+    var el=I("#eqLista");if(!el||!SB)return;
+    var dono=SB.papel==="dono",r=await SB.c.rpc("equipe",{ws:SB.ws});
+    if(r.error){el.innerHTML='<p class="pp-m">Não consegui carregar a equipe: '+esc(r.error.message)+'</p>';return;}
+    var pend=dono?(((await SB.c.from("convites").select("email,papel,created_at").eq("workspace_id",SB.ws)).data)||[]):[];
+    var linhas=(r.data||[]).map(function(p){var eu=p.user_id===SB.user.id,mexe=dono&&!eu;
+      return '<tr data-eq="'+esc(p.user_id)+'"><td><b class="cel-t">'+esc(p.nome||"")+(eu?' <span class="chip">você</span>':'')+'</b><small class="eq-email">'+esc(p.email||"")+'</small></td>'+
+        '<td>'+(mexe?selPapel("eqP-"+p.user_id,p.papel):esc(PAPEL_LBL[p.papel]||p.papel))+'</td><td><small>'+esc(quandoAcesso(p.ultimo_acesso))+'</small></td>'+
+        '<td class="acao nowrap">'+(mexe?'<button class="btn ghost" data-eq-email>Trocar e-mail</button><button class="btn ghost" data-eq-acesso>Enviar link de acesso</button><button class="icon-btn sm" data-eq-remover title="Tirar da equipe" aria-label="Tirar '+esc(p.nome||p.email)+' da equipe">'+iconeUI("linha-trash")+'</button>':'')+'</td></tr>';}).join('');
+    el.innerHTML='<div class="tabela"><table><thead><tr><th>Pessoa</th><th>Papel</th><th>Acesso</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>'+
+      (pend.length?'<p class="pp-m">Convites antigos esperando a pessoa criar conta: '+pend.map(function(c){return esc(c.email)+' <button class="lnk" data-eq-conv="'+esc(c.email)+'">cancelar</button>'}).join(', ')+'</p>':'');
+    el.querySelectorAll('tr[data-eq]').forEach(function(tr){var uid=tr.getAttribute('data-eq'),nome=(tr.querySelector('.cel-t')||{}).textContent||"";
+      var sp=I("#eqP-"+uid);if(sp)sp.addEventListener('change',async function(){sp.disabled=true;
+        var u=await SB.c.from("membros").update({papel:sp.value}).eq("workspace_id",SB.ws).eq("user_id",uid).select("papel");sp.disabled=false;
+        if(u.error||!(u.data||[]).length){eqMsg("Não consegui mudar o papel"+(u.error?": "+u.error.message:"."));carregarEquipe();return;}
+        eqMsg(nome.trim()+" agora é "+PAPEL_LBL[sp.value].toLowerCase()+".",true);});
+      var be=tr.querySelector('[data-eq-email]');if(be)be.addEventListener('click',function(){var cel=tr.querySelector('.eq-email'),atual=cel.textContent;
+        cel.innerHTML='<input type="email" value="'+esc(atual)+'" aria-label="E-mail novo" style="max-width:240px"> <button class="btn sm pri">Salvar</button> <button class="btn sm">Cancelar</button>';
+        var inp=cel.querySelector('input'),bs=cel.querySelectorAll('button');inp.focus();
+        bs[1].addEventListener('click',function(ev){ev.stopPropagation();carregarEquipe();});
+        bs[0].addEventListener('click',async function(ev){ev.stopPropagation();bs[0].disabled=true;
+          try{var x=await chamarServidor("equipe_email",{user_id:uid,email:inp.value});eqMsg("E-mail trocado para "+x.email+". Mande o link de acesso para a pessoa entrar.",true);carregarEquipe();}
+          catch(e){bs[0].disabled=false;eqMsg(e.message);}});});
+      var ba=tr.querySelector('[data-eq-acesso]');if(ba)ba.addEventListener('click',async function(){ba.disabled=true;
+        try{var x=await chamarServidor("equipe_acesso",{user_id:uid});eqMsg("Link de acesso enviado para "+x.email+".",true);}catch(e){eqMsg(e.message);}ba.disabled=false;});
+      var br=tr.querySelector('[data-eq-remover]');if(br)br.addEventListener('click',async function(){
+        if(!confirm("Tirar "+nome.trim()+" da equipe? A pessoa perde o acesso ao painel; a conta dela continua existindo."))return;
+        var d=await SB.c.from("membros").delete().eq("workspace_id",SB.ws).eq("user_id",uid).select("user_id");
+        if(d.error||!(d.data||[]).length){eqMsg("Não consegui tirar da equipe"+(d.error?": "+d.error.message:"."));return;}
+        eqMsg(nome.trim()+" saiu da equipe.",true);carregarEquipe();});
+    });
+    el.querySelectorAll('[data-eq-conv]').forEach(function(b){b.addEventListener('click',async function(){await SB.c.from("convites").delete().eq("workspace_id",SB.ws).eq("email",b.getAttribute('data-eq-conv'));carregarEquipe();})});
   }
   function wireEquipe(){
-    var b=I("#eqConvidar");if(b)b.addEventListener('click',async function(){var e=(I("#eqEmail").value||"").trim().toLowerCase(),m=I("#eqMsg");
-      if(!/^\S+@\S+\.\S+$/.test(e)){m.textContent="Digite um e-mail válido.";return;}
-      var r=await SB.c.from("convites").upsert({workspace_id:SB.ws,email:e});m.textContent=r.error?"Não consegui convidar: "+r.error.message:"Convite registrado. Mande o link do painel para "+e+" criar a conta.";});
+    if(!SB)return;
+    carregarEquipe();
+    var b=I("#eqConvidar");if(b)b.addEventListener('click',async function(){var e=(I("#eqEmail").value||"").trim().toLowerCase();
+      if(!/^\S+@\S+\.\S+$/.test(e)){eqMsg("Digite um e-mail válido.");return;}
+      b.disabled=true;
+      try{var x=await chamarServidor("equipe_convidar",{email:e,papel:I("#eqPapel").value});I("#eqEmail").value="";
+        eqMsg(x.novo?"Convite enviado para "+e+". A pessoa recebe um e-mail para criar a senha.":e+" já tinha conta e entrou na equipe como "+PAPEL_LBL[x.papel].toLowerCase()+".",true);carregarEquipe();}
+      catch(er){eqMsg(er.message);}b.disabled=false;});
+    var ns=I("#eqNomeSalvar");if(ns)ns.addEventListener('click',async function(){var nm=(I("#eqNome").value||"").trim();if(!nm){eqMsg("Digite o seu nome.");return;}
+      var r=await SB.c.auth.updateUser({data:{nome:nm}});if(r.error){eqMsg("Não consegui salvar: "+r.error.message);return;}SB.nome=nm;renderAiBadge();eqMsg("Nome salvo.",true);carregarEquipe();});
+    var ss=I("#eqSenhaSalvar");if(ss)ss.addEventListener('click',async function(){var v=I("#eqSenha").value||"";if(v.length<6){eqMsg("A senha precisa ter pelo menos 6 caracteres.");return;}
+      var r=await SB.c.auth.updateUser({password:v});if(r.error){eqMsg("Não consegui trocar a senha: "+r.error.message);return;}I("#eqSenha").value="";eqMsg("Senha trocada.",true);});
+    var w=I("#eqWs");if(w)w.addEventListener('change',function(){try{localStorage.setItem("cos_ws",w.value);}catch(e){}location.reload();});
     var s=I("#eqSair");if(s)s.addEventListener('click',function(){SB.c.auth.signOut();});
   }
   // ---- Chat do Maestro (tela Hoje) ----
@@ -4577,16 +4819,17 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     if(fim.acoes&&fim.acoes.length&&typeof renderAgentesServidor==="function"&&state.view==="agents")renderAgentesServidor();
   }
   // ---- Calendário geral (aba própria na coluna esquerda) ----
-  // Todas as peças de todos os clientes num mês, como no Notion: grade do mês
-  // ou semana, cor por cliente, arrastar a peça para outro dia e clicar para
-  // abrir. As peças vêm do mesmo banco do calendário de cada cliente.
+  // Todas as peças de todos os clientes. Modos: próximas semanas (padrão, olha para
+  // frente), mês, semana e lista. Camadas: publicações (com a situação e o atraso de
+  // cada peça, as vagas da rotina, feriados, datas comerciais e campanhas) e produção
+  // (o que gravar em cada dia). Arrastar muda a data com as regras de mudancaDeData.
   var AG_ITENS=null,AG_CARREGANDO=false,AG_DIAS=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
-  var AG_ST={"PLANNED":"planejada","IN PRODUCTION":"produzindo","REVIEW":"revisão","WAITING APPROVAL":"aprovar","APPROVED":"aprovada","SCHEDULED":"agendada","PUBLISHED":"publicada"};
+  var AG_ETAPAS=["texto","revisao","aprovacao","ajuste","producao","pronta","publicar","publicada"];
   function agInicioMes(d){return new Date(d.getFullYear(),d.getMonth(),1);}
   function agSegunda(d){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x;}
   function agCor(cid){var c=CLIENTS.filter(function(x){return x.id===cid})[0];return avc(c?c.av:0);}
-  function agEditavel(){return !!CAP.db&&!state.clientView;}
-  function agClientes(){return Object.keys(DB_CLIENTS).map(function(id){return {id:id,nome:clientName(id)}}).sort(function(a,b){return a.nome.localeCompare(b.nome)});}
+  function agEditavel(){return !!CAP.db&&!state.clientView&&!document.body.classList.contains("so-leitura");}
+  function agClientes(){return Object.keys(DB_CLIENTS).filter(function(id){return !clienteArquivado(id)}).map(function(id){return {id:id,nome:clientName(id)}}).sort(function(a,b){return a.nome.localeCompare(b.nome)});}
   function agDoCache(){
     var out=[];
     agClientes().forEach(function(c){var g=DB_STATE_CACHE[c.id];if(g)(g.calendar.items||[]).forEach(function(it){if(isIsoDate(it.data))out.push({cid:c.id,it:it});});});
@@ -4602,23 +4845,63 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     }
     AG_ITENS=out;AG_CARREGANDO=false;
     if(state.view==="agenda")renderAgendaGeral();
+    if(state.view==="overview")renderHojeOperacao();
   }
-  function agVisiveis(){
-    var f=state.agFiltro;
-    return (AG_ITENS||[]).filter(function(o){return !f||f.indexOf(o.cid)>=0}).sort(function(a,b){return (a.it.data+itemHora(a.it)).localeCompare(b.it.data+itemHora(b.it))});
+  function agHora(o){return itemHora(o.it,rotinaOf(o.cid));}
+  // Filtro de clientes, etapa, formato e "só atrasadas", na ordem do dia e da hora.
+  function agVisiveis(semEtapa){
+    var f=state.agFiltro,hoje=fmtD(new Date());
+    return (AG_ITENS||[]).filter(function(o){
+      if(f&&f.indexOf(o.cid)<0)return false;
+      if(state.agFormato&&(o.it.idea||{}).surface!==state.agFormato)return false;
+      if(semEtapa)return true;
+      var s=(state.agEtapa||state.agAtrasadas)?situacaoPeca(o.it,o.cid,hoje):null;
+      if(state.agEtapa&&(!s||s.etapa!==state.agEtapa))return false;
+      if(state.agAtrasadas&&(!s||!s.atraso))return false;
+      return true;
+    }).sort(function(a,b){return (a.it.data+agHora(a)).localeCompare(b.it.data+agHora(b))});
   }
-  function agPorDia(){var m={};agVisiveis().forEach(function(o){(m[o.it.data]=m[o.it.data]||[]).push(o)});return m;}
+  function agPorDia(lista){var m={};lista.forEach(function(o){(m[o.it.data]=m[o.it.data]||[]).push(o)});return m;}
   function agEvHtml(o,cheio){
-    var it=o.it,x=it.idea||{},pub=it.status==="PUBLISHED";
-    return '<div class="ag-ev'+(pub?' pub':'')+(cheio?' cheio':'')+'" data-ag-cli="'+esc(o.cid)+'" data-ag-id="'+esc(it.id)+'"'+(agEditavel()?' draggable="true"':'')+' style="--c:'+agCor(o.cid)+'" title="'+esc(pecaTitulo(it)+", "+clientName(o.cid))+'">'+
+    var it=o.it,x=it.idea||{},s=situacaoPeca(it,o.cid),cls=s?' sit-'+s.etapa+(s.atraso?' atraso':''):'';
+    return '<div class="ag-ev'+cls+(cheio?' cheio':'')+'" data-ag-cli="'+esc(o.cid)+'" data-ag-id="'+esc(it.id)+'"'+(agEditavel()?' draggable="true"':'')+' style="--c:'+agCor(o.cid)+'" title="'+esc(pecaTitulo(it)+", "+clientName(o.cid)+(s?", "+s.txt:""))+'">'+
       '<span class="ag-ev-t">'+esc(pecaTitulo(it))+'</span>'+
-      '<span class="ag-ev-m">'+(cheio?esc(itemHora(it))+' · ':'')+esc(clientName(o.cid))+(cheio?' · '+esc(surfLbl(x.surface)):'')+'</span>'+
-      (cheio?'<span class="chip '+(ST_CHIP[it.status]||"")+'">'+esc(AG_ST[it.status]||stLabel(it.status))+'</span>':'')+'</div>';
+      '<span class="ag-ev-m">'+(cheio?esc(agHora(o))+' · ':'')+esc(clientName(o.cid))+(cheio?' · '+esc(surfLbl(x.surface)):'')+'</span>'+
+      (s?'<span class="ag-sit">'+(s.atraso?'atrasada, ':'')+esc(s.curto)+'</span>':'')+(cheio&&s?'<span class="ag-ev-m ag-sit-txt">'+esc(s.txt)+'</span>':'')+'</div>';
   }
   function agTitulo(ref,modo){
-    if(modo==="semana"){var ini=agSegunda(ref),fim=new Date(ini);fim.setDate(ini.getDate()+6);
+    if(modo==="semana"||modo==="semanas"||modo==="lista"){var ini=agSegunda(ref),fim=new Date(ini);fim.setDate(ini.getDate()+(modo==="semana"?6:modo==="lista"?55:34));
+      if(modo!=="semana"&&fmtD(ini)===fmtD(agSegunda(new Date())))return modo==="lista"?"Próximas 8 semanas":"Próximas 5 semanas";
       return ini.getDate()+(ini.getMonth()!==fim.getMonth()?' de '+MESES_LONGOS[ini.getMonth()]:'')+' a '+fim.getDate()+' de '+MESES_LONGOS[fim.getMonth()]+' '+fim.getFullYear();}
     var n=MESES_LONGOS[ref.getMonth()];return n.charAt(0).toUpperCase()+n.slice(1)+' '+ref.getFullYear();
+  }
+  // Produção: cada peça ainda não publicada grava no dia de produção dela (prazosDe).
+  function agProducaoPorDia(lista){var m={};lista.forEach(function(o){if(o.it.status==="PUBLISHED")return;var p=prazosDe(o.it,o.cid);if(!p)return;
+    var k=p.producao,g=(m[k]=m[k]||{}),c=(g[o.cid]=g[o.cid]||[]);c.push(o);});return m;}
+  // Vagas: dia de postar da rotina, de hoje até a última peça planejada do cliente, sem peça.
+  // Depois da última peça não é vaga, é o período que o Cronos ainda vai montar.
+  function agVagas(inicio,n,lista){
+    var hoje=fmtD(new Date()),ultima={},tem={},out={};
+    (AG_ITENS||[]).forEach(function(o){if(!ultima[o.cid]||o.it.data>ultima[o.cid])ultima[o.cid]=o.it.data;tem[o.cid+"|"+o.it.data]=1;});
+    var clis=agClientes().filter(function(c){return ultima[c.id]&&(!state.agFiltro||state.agFiltro.indexOf(c.id)>=0)});
+    for(var i=0;i<n;i++){var d=new Date(inicio);d.setDate(inicio.getDate()+i);var iso=fmtD(d);if(iso<hoje)continue;
+      clis.forEach(function(c){if(iso>ultima[c.id])return;var r=rotinaOf(c.id),dias=(r.diasPost&&r.diasPost.length?r.diasPost:DIAS_PADRAO[3]).map(Number);
+        if(dias.indexOf(d.getDay())>=0&&!tem[c.id+"|"+iso])(out[iso]=out[iso]||[]).push(c.id);});}
+    return out;
+  }
+  function agCampanhasDoDia(iso){var out=[];agClientes().forEach(function(c){if(state.agFiltro&&state.agFiltro.indexOf(c.id)<0)return;var cp=campanhaNoDia(c.id,iso);if(cp)out.push({cid:c.id,cp:cp});});return out;}
+  function agListaHtml(lista,ref){
+    var ini=fmtD(agSegunda(ref)),fim=somaDias(ini,55),sel=lista.filter(function(o){return o.it.data>=ini&&o.it.data<=fim}),h='',sem='';
+    if(!sel.length)return '<p class="pp-m" style="margin-top:16px">Nada neste período com esses filtros.</p>';
+    h+='<div class="tabela agc-lista"><table><thead><tr><th>Quando</th><th>Cliente</th><th>Peça</th><th>Situação</th><th></th></tr></thead><tbody>';
+    sel.forEach(function(o){var it=o.it,s=situacaoPeca(it,o.cid),w=semanaIso(it.data);
+      if(w!==sem){h+='<tr class="sem-clique agc-sem"><td colspan="5">Semana de '+esc(dataBR(w))+'</td></tr>';sem=w;}
+      h+='<tr data-ag-abrir="'+esc(o.cid)+'|'+esc(it.id)+'"'+(s&&s.atraso?' class="linha-atraso"':'')+'><td class="nowrap">'+esc(dataBR(it.data))+' · '+esc(agHora(o))+'</td>'+
+        '<td><span class="agc-cor" style="--c:'+agCor(o.cid)+'"></span>'+esc(clientName(o.cid))+'</td>'+
+        '<td><b class="cel-t">'+esc(pecaTitulo(it))+'</b><small>'+esc(surfLbl((it.idea||{}).surface))+'</small></td>'+
+        '<td>'+(s?'<span class="chip'+(s.atraso?' warn':s.etapa==="publicada"||s.etapa==="pronta"?' act':'')+'">'+(s.atraso?'atrasada, ':'')+esc(s.curto)+'</span><small>'+esc(s.txt)+'</small>':'')+'</td>'+
+        '<td class="acao"><button class="btn">Abrir</button></td></tr>';});
+    return h+'</tbody></table></div>';
   }
   function renderAgendaGeral(dir){
     var el=I("#agendaGeral");if(!el)return;
@@ -4626,46 +4909,71 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     el.classList.remove("arrastando-algo");
     if(!Object.keys(DB_CLIENTS).length){el.innerHTML=vazioQuadro("Nenhum cliente ainda.","Cadastre um cliente e monte o calendário dele. As peças de todos os clientes aparecem juntas aqui.",'<button class="btn pri" data-ag-ir="clients">Ir para Clientes</button>');agLigar(el);return;}
     if(!AG_ITENS){el.innerHTML='<div class="ag-carregando">Carregando as peças dos clientes</div>';agCarregar();return;}
-    var modo=state.agModo||"mes",ref=state.agRef?new Date(state.agRef):new Date(),hoje=fmtD(new Date()),porDia=agPorDia();
+    var modo=state.agModo||"semanas",camada=state.agCamada||"pub",ref=state.agRef?new Date(state.agRef):new Date(),hoje=fmtD(new Date());
+    var lista=agVisiveis(),porDia=agPorDia(lista),base=agVisiveis(true);
+    var nAtr=base.filter(function(o){var s=situacaoPeca(o.it,o.cid,hoje);return s&&s.atraso}).length;
+    var formatos=[];(AG_ITENS||[]).forEach(function(o){var s=(o.it.idea||{}).surface;if(s&&formatos.indexOf(s)<0)formatos.push(s);});
     var h='<div class="ag-topo"><div class="ag-nav"><h2 class="ag-mes">'+esc(agTitulo(ref,modo))+'</h2>'+
       '<button class="icon-btn sm ag-seta ant" data-ag-passo="-1" aria-label="Anterior">'+iconeUI("seta-cima")+'</button><button class="icon-btn sm ag-seta prox" data-ag-passo="1" aria-label="Próximo">'+iconeUI("seta-cima")+'</button>'+
       '<button class="btn" data-ag-hoje>Hoje</button></div>'+
-      '<div class="subtabs"><button class="sub'+(modo==="mes"?' on':'')+'" data-ag-modo="mes">Mês</button><button class="sub'+(modo==="semana"?' on':'')+'" data-ag-modo="semana">Semana</button></div></div>';
+      '<div class="ag-direita">'+(SB?'<button class="btn" data-ag-assinar>Assinar a agenda da equipe</button>':'')+'<div class="subtabs">'+[["semanas","Próximas semanas"],["mes","Mês"],["semana","Semana"],["lista","Lista"]].map(function(m){return '<button class="sub'+(modo===m[0]?' on':'')+'" data-ag-modo="'+m[0]+'">'+m[1]+'</button>'}).join('')+'</div></div></div>';
     var clis=agClientes();
     if(clis.length>1)h+='<div class="ag-filtro">'+clis.map(function(c){var on=!state.agFiltro||state.agFiltro.indexOf(c.id)>=0;return '<button class="ag-cli'+(on?' on':'')+'" data-ag-cli-f="'+esc(c.id)+'" style="--c:'+agCor(c.id)+'"><i></i>'+esc(c.nome)+'</button>'}).join('')+'</div>';
+    h+='<div class="agc-filtros">'+(modo!=="lista"?'<div class="subtabs"><button class="sub'+(camada==="pub"?' on':'')+'" data-ag-camada="pub">Publicações</button><button class="sub'+(camada==="prod"?' on':'')+'" data-ag-camada="prod">Produção</button></div>':'')+
+      '<select data-ag-f="etapa" aria-label="Filtrar por etapa"><option value="">Todas as etapas</option>'+AG_ETAPAS.map(function(k){return '<option value="'+k+'"'+(state.agEtapa===k?' selected':'')+'>'+esc(SIT[k][0])+'</option>'}).join('')+'</select>'+
+      '<select data-ag-f="formato" aria-label="Filtrar por formato"><option value="">Todos os formatos</option>'+formatos.map(function(s){return '<option value="'+esc(s)+'"'+(state.agFormato===s?' selected':'')+'>'+esc(surfLbl(s))+'</option>'}).join('')+'</select>'+
+      '<button class="btn'+(state.agAtrasadas?' pri':'')+'" data-ag-atrasadas aria-pressed="'+(state.agAtrasadas?'true':'false')+'">Atrasadas ('+nAtr+')</button></div>';
+    if(modo==="lista"){h+=agListaHtml(lista,ref);el.innerHTML=h;agLigar(el);return;}
     var anim=dir?' ag-anim'+(dir>0?'-d':'-e'):'';
     h+='<div class="ag-grade '+(modo==="semana"?'semana':'mes')+anim+'"><div class="ag-cab">'+AG_DIAS.map(function(d,i){return '<div'+(i>4?' class="fds"':'')+'>'+d+'</div>'}).join('')+'</div><div class="ag-dias">';
-    var ini=modo==="semana"?agSegunda(ref):agSegunda(agInicioMes(ref)),n=modo==="semana"?7:42,mes=ref.getMonth();
+    var ini=modo==="mes"?agSegunda(agInicioMes(ref)):agSegunda(ref),n=modo==="semana"?7:modo==="semanas"?35:42,mes=ref.getMonth();
     if(modo==="mes"){var ult=new Date(ref.getFullYear(),mes+1,0);var fimGrade=new Date(ini);fimGrade.setDate(ini.getDate()+35);if(fimGrade>ult)n=35;}
+    var prod=camada==="prod"?agProducaoPorDia(lista):null,vagas=camada==="pub"&&!state.agEtapa&&!state.agAtrasadas?agVagas(ini,n,lista):{};
     for(var i=0;i<n;i++){
       var d=new Date(ini);d.setDate(ini.getDate()+i);var iso=fmtD(d),evs=porDia[iso]||[],fora=modo==="mes"&&d.getMonth()!==mes,sel=state.agDia===iso;
-      var lim=modo==="semana"?99:3;
-      h+='<div class="ag-dia'+(fora?' fora':'')+(iso===hoje?' hoje':'')+(i%7>4?' fds':'')+(sel?' sel':'')+'" data-ag-dia="'+iso+'">'+
-        '<div class="ag-num"><span>'+(d.getDate()===1&&modo==="mes"?d.getDate()+' '+MESES_LONGOS[d.getMonth()].slice(0,3):d.getDate())+'</span>'+(evs.length?'<i class="ag-conta">'+evs.length+'</i>':'')+'</div>'+
-        '<div class="ag-evs">'+evs.slice(0,lim).map(function(o){return agEvHtml(o,modo==="semana")}).join('')+
-        (evs.length>lim?'<button class="ag-mais" data-ag-mais="'+iso+'">mais '+(evs.length-lim)+'</button>':'')+'</div>'+
+      var lim=modo==="semana"?99:3,datas=datasDoDia(iso),camps=agCampanhasDoDia(iso),vg=vagas[iso]||[];
+      h+='<div class="ag-dia'+(fora?' fora':'')+(iso===hoje?' hoje':'')+(i%7>4?' fds':'')+(sel?' sel':'')+(iso<hoje?' passado':'')+'" data-ag-dia="'+iso+'">'+
+        '<div class="ag-num"><span>'+(d.getDate()===1&&modo!=="semana"?d.getDate()+' '+MESES_LONGOS[d.getMonth()].slice(0,3):d.getDate())+'</span>'+(evs.length?'<i class="ag-conta">'+evs.length+'</i>':'')+'</div>'+
+        (datas.length?'<span class="ag-data '+esc(datas[0].tipo)+'" title="'+esc(datas.map(function(x){return x.nome+", "+dataTipoTxt(x)}).join(" · "))+'">'+esc(datas[0].nome)+'</span>':'')+
+        camps.map(function(c){var ini1=c.cp.inicio===iso||i===0||d.getDay()===1;return '<span class="ag-camp" style="--c:'+agCor(c.cid)+'" title="Campanha de '+esc(clientName(c.cid))+': '+esc(c.cp.nome)+'">'+(ini1?esc(c.cp.nome):'&nbsp;')+'</span>'}).join('')+
+        '<div class="ag-evs">';
+      if(prod){var gp=prod[iso]||{};h+=Object.keys(gp).map(function(cid){var ps=gp[cid];return '<div class="ag-ev prod" data-ag-prod="'+esc(cid)+'" style="--c:'+agCor(cid)+'" title="'+esc(ps.map(function(o){return pecaTitulo(o.it)+", vai ao ar "+dataBR(o.it.data)}).join(" · "))+'"><span class="ag-ev-t">Gravar '+ps.length+' peça'+(ps.length>1?'s':'')+'</span><span class="ag-ev-m">'+esc(clientName(cid))+'</span></div>'}).join('');}
+      else h+=evs.slice(0,lim).map(function(o){return agEvHtml(o,modo==="semana")}).join('')+(evs.length>lim?'<button class="ag-mais" data-ag-mais="'+iso+'">mais '+(evs.length-lim)+'</button>':'');
+      h+=(vg.length?'<button class="ag-vaga" data-ag-mais="'+iso+'" title="Dia de postar sem peça: '+esc(vg.map(clientName).join(", "))+'">'+vg.length+' vaga'+(vg.length>1?'s':'')+'</button>':'')+'</div>'+
         '<div class="ag-pontos">'+evs.slice(0,4).map(function(o){return '<i style="background:'+agCor(o.cid)+'"></i>'}).join('')+'</div></div>';
     }
     h+='</div></div>';
-    // Lista do dia escolhido: no celular a grade só mostra pontos, e é aqui que se lê.
-    var diaSel=state.agDia&&porDia[state.agDia]?state.agDia:null;
-    h+='<div class="ag-lista-dia"'+(diaSel?'':' hidden')+'>'+(diaSel?'<div class="bt">'+esc(dataBR(diaSel))+'</div>'+porDia[diaSel].map(function(o){return agEvHtml(o,true)}).join(''):'')+'</div>';
+    // Lista do dia escolhido: no celular a grade só mostra pontos, e é aqui que se lê; no computador traz vagas, datas e o que gravar.
+    var ds=state.agDia;
+    if(ds){var dEv=porDia[ds]||[],dVg=vagas[ds]||[],dDt=datasDoDia(ds),dPr=prod?(prod[ds]||{}):null;
+      h+='<div class="ag-lista-dia"><div class="bt">'+esc(dataBR(ds))+'</div>'+
+        dDt.map(function(x){return '<p class="pp-m" style="margin:0">'+esc(x.nome)+', '+esc(dataTipoTxt(x))+'</p>'}).join('')+
+        agCampanhasDoDia(ds).map(function(c){return '<p class="pp-m" style="margin:0">Campanha de '+esc(clientName(c.cid))+': '+esc(c.cp.nome)+', até '+esc(dataBR(c.cp.fim))+'</p>'}).join('')+
+        (dPr?Object.keys(dPr).map(function(cid){return dPr[cid].map(function(o){return '<div class="ag-ev cheio" data-ag-cli="'+esc(cid)+'" data-ag-id="'+esc(o.it.id)+'" style="--c:'+agCor(cid)+'"><span class="ag-ev-t">Gravar: '+esc(pecaTitulo(o.it))+'</span><span class="ag-ev-m">'+esc(clientName(cid))+' · vai ao ar '+esc(dataBR(o.it.data))+'</span></div>'}).join('')}).join(''):dEv.map(function(o){return agEvHtml(o,true)}).join(''))+
+        dVg.map(function(cid){return '<div class="ag-vaga-linha"><span>Vaga de <b>'+esc(clientName(cid))+'</b>: dia de postar pela rotina, sem peça.</span><button class="btn" data-ag-ideias="'+esc(cid)+'">Ver ideias</button></div>'}).join('')+'</div>';}
     if(!(AG_ITENS||[]).length)h+='<p class="pp-m" style="margin-top:16px">Nenhuma peça com data ainda. Quando o Cronos distribuir as ideias de um cliente, elas aparecem aqui.</p>';
     el.innerHTML=h;agLigar(el);
   }
   function agLigar(el){
     el.querySelectorAll('[data-ag-ir]').forEach(function(b){b.addEventListener('click',function(){go(b.getAttribute('data-ag-ir'))})});
+    var asn=el.querySelector('[data-ag-assinar]');if(asn)asn.addEventListener('click',function(){abrirLinkPublico("agenda",null);});
     el.querySelectorAll('[data-ag-passo]').forEach(function(b){b.addEventListener('click',function(){
-      var p=+b.getAttribute('data-ag-passo'),ref=state.agRef?new Date(state.agRef):new Date();
-      if((state.agModo||"mes")==="semana")ref.setDate(ref.getDate()+7*p);else ref=new Date(ref.getFullYear(),ref.getMonth()+p,1);
+      var p=+b.getAttribute('data-ag-passo'),ref=state.agRef?new Date(state.agRef):new Date(),modo=state.agModo||"semanas";
+      if(modo==="mes")ref=new Date(ref.getFullYear(),ref.getMonth()+p,1);else ref.setDate(ref.getDate()+7*p);
       state.agRef=ref.getTime();state.agDia=null;renderAgendaGeral(p);})});
     var hj=el.querySelector('[data-ag-hoje]');if(hj)hj.addEventListener('click',function(){var velho=state.agRef;state.agRef=null;state.agDia=fmtD(new Date());renderAgendaGeral(velho&&velho<Date.now()?1:velho?-1:0);});
     el.querySelectorAll('[data-ag-modo]').forEach(function(b){b.addEventListener('click',function(){state.agModo=b.getAttribute('data-ag-modo');renderAgendaGeral();})});
+    el.querySelectorAll('[data-ag-camada]').forEach(function(b){b.addEventListener('click',function(){state.agCamada=b.getAttribute('data-ag-camada');renderAgendaGeral();})});
+    el.querySelectorAll('[data-ag-f]').forEach(function(s){s.addEventListener('change',function(){if(s.getAttribute('data-ag-f')==="etapa")state.agEtapa=s.value||null;else state.agFormato=s.value||null;renderAgendaGeral();})});
+    var at=el.querySelector('[data-ag-atrasadas]');if(at)at.addEventListener('click',function(){state.agAtrasadas=!state.agAtrasadas;renderAgendaGeral();});
     el.querySelectorAll('[data-ag-cli-f]').forEach(function(b){b.addEventListener('click',function(){
       var id=b.getAttribute('data-ag-cli-f'),todos=agClientes().map(function(c){return c.id}),f=state.agFiltro?state.agFiltro.slice():todos.slice(),i=f.indexOf(id);
       if(i>=0)f.splice(i,1);else f.push(id);
       state.agFiltro=f.length===todos.length||!f.length?null:f;renderAgendaGeral();})});
-    el.querySelectorAll('.ag-ev').forEach(function(ev){
+    el.querySelectorAll('[data-ag-abrir]').forEach(function(tr){tr.addEventListener('click',function(){var v=tr.getAttribute('data-ag-abrir').split("|");agAbrir(v[0],v[1]);})});
+    el.querySelectorAll('[data-ag-ideias]').forEach(function(b){b.addEventListener('click',function(){setClient(b.getAttribute('data-ag-ideias'));go("ideas");})});
+    el.querySelectorAll('[data-ag-prod]').forEach(function(ev){ev.addEventListener('click',function(e){e.stopPropagation();state.agDia=ev.closest('.ag-dia').getAttribute('data-ag-dia');renderAgendaGeral();})});
+    el.querySelectorAll('.ag-ev[data-ag-id]').forEach(function(ev){
       ev.addEventListener('click',function(e){e.stopPropagation();agAbrir(ev.getAttribute('data-ag-cli'),ev.getAttribute('data-ag-id'));});
       ev.addEventListener('dragstart',function(e){e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",ev.getAttribute('data-ag-cli')+"|"+ev.getAttribute('data-ag-id'));ev.classList.add('arrastando');el.classList.add('arrastando-algo');});
       ev.addEventListener('dragend',function(){ev.classList.remove('arrastando');el.classList.remove('arrastando-algo');el.querySelectorAll('.ag-dia.alvo').forEach(function(d){d.classList.remove('alvo')});});
@@ -4681,11 +4989,13 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
   }
   async function agMover(cid,id,novaData){
     var o=(AG_ITENS||[]).filter(function(x){return x.cid===cid&&x.it.id===id})[0];if(!o||o.it.data===novaData)return;
-    var antiga=o.it.data;o.it.data=novaData;
-    var g=DB_STATE_CACHE[cid];if(g)(g.calendar.items||[]).forEach(function(it){if(it.id===id)it.data=novaData;});
-    renderAgendaGeral();
-    try{await dbItemsCol("cos_calendar",cid).doc(id).update({data:novaData});toast(pecaTitulo(o.it)+" foi para "+dataBR(novaData)+".");}
-    catch(e){o.it.data=antiga;if(g)(g.calendar.items||[]).forEach(function(it){if(it.id===id)it.data=antiga;});renderAgendaGeral();toast("Não consegui mover a peça. Tente de novo.");}
+    var m=mudancaDeData(cid,o.it,novaData);if(!m){renderAgendaGeral();return;}
+    var antes={};Object.keys(m.patch).forEach(function(k){antes[k]=o.it[k];});
+    function aplica(p){Object.assign(o.it,p);var g=DB_STATE_CACHE[cid];if(g)(g.calendar.items||[]).forEach(function(it){if(it.id===id&&it!==o.it)Object.assign(it,p);});}
+    aplica(m.patch);renderAgendaGeral();
+    try{await dbItemsCol("cos_calendar",cid).doc(id).update(m.patch);
+      toast(pecaTitulo(o.it)+" foi para "+dataBR(novaData)+"."+(m.patch.clientStatus===null?" A aprovação do cliente foi reaberta.":"")+(m.avisos.length?" Atenção: "+m.avisos.join("; ")+".":""));}
+    catch(e){aplica(antes);renderAgendaGeral();toast("Não consegui mover a peça. Tente de novo.");}
   }
   // Abrir uma peça de qualquer cliente: carrega o cliente, abre a mesma gaveta do calendário dele.
   async function agAbrir(cid,id){
@@ -4695,7 +5005,11 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
     if(idx<0)return;
     openGenerated(idx);
     var ov=I("#overlay");if(!ov||ov._agObs)return;
-    ov._agObs=new MutationObserver(function(){if(!ov.children.length&&state.view==="agenda"){AG_ITENS=agDoCache().length||!AG_ITENS?agMesclar():AG_ITENS;renderAgendaGeral();}});
+    // Fechou a gaveta: troca as peças do cliente editado (sem lista, recarrega tudo).
+    ov._agObs=new MutationObserver(function(){if(ov.children.length)return;
+      if(state.view!=="agenda"&&state.view!=="overview")return;
+      AG_ITENS=AG_ITENS?agMesclar():null;
+      if(state.view==="agenda")renderAgendaGeral();else renderHojeOperacao();});
     ov._agObs.observe(ov,{childList:true});
   }
   // Depois de editar na gaveta, o cache do cliente tem a versão nova: troca só as peças dele.
@@ -4800,6 +5114,48 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       renderBriefingAviso();setClient(r.id);go("dna");
     }catch(e){if(bt){bt.disabled=false;bt.textContent="Criar cliente";}toast("Não consegui criar o cliente: "+e.message);}
   }
+  // ---- Links públicos: aprovação do cliente (vitrine) e agenda assinada ----
+  // Um link ativo por cliente e tipo: abrir de novo mostra o mesmo; "gerar outro" desativa o antigo.
+  async function linkPublicoAtivo(tipo,cli,novo){
+    var q=SB.c.from("links_publicos").select("token,created_at").eq("workspace_id",SB.ws).eq("tipo",tipo).eq("ativo",true);
+    q=cli?q.eq("client_id",cli):q.is("client_id",null);
+    var r=await q.order("created_at",{ascending:false}).limit(1),atual=r.data&&r.data[0]&&r.data[0].token;
+    if(atual&&!novo)return atual;
+    if(atual){var off=SB.c.from("links_publicos").update({ativo:false}).eq("workspace_id",SB.ws).eq("tipo",tipo);await (cli?off.eq("client_id",cli):off.is("client_id",null));}
+    var n=await SB.c.from("links_publicos").insert({workspace_id:SB.ws,tipo:tipo,client_id:cli||null,criado_por:SB.user.id}).select("token").single();
+    if(n.error)throw n.error;return n.data.token;
+  }
+  function urlVitrine(t){return location.origin+location.pathname+"?vitrine="+t;}
+  function urlAgenda(t){return window.COS_CONFIG.url.replace(/\/$/,"")+"/functions/v1/agentes?agenda="+t;}
+  async function abrirLinkPublico(tipo,cli,novo){
+    var vit=tipo==="vitrine",nome=cli?clientName(cli):"todos os clientes";
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="'+(vit?'Link de aprovação':'Assinar agenda')+'" style="width:min(520px,100%)"><div class="dh"><div style="flex:1;min-width:0"><div class="d-title">'+(vit?'Link de aprovação':'Assinar agenda')+'</div><div class="d-sub">'+esc(nome)+'</div></div><button class="icon-btn" id="dclose" aria-label="Fechar">'+iconeUI("x-fechar")+'</button></div><div class="db"><div class="block" id="lpCorpo"><p class="pp-m"><span class="spinner"></span> Preparando o link</p></div></div></aside>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    var corpo=I("#lpCorpo"),token;
+    try{token=await linkPublicoAtivo(tipo,cli,novo);}catch(e){corpo.innerHTML='<p class="pp-m" style="color:var(--warn)">Não consegui criar o link: '+esc(e.message||e)+'</p>';return;}
+    var url=vit?urlVitrine(token):urlAgenda(token),h;
+    if(vit){
+      var c=DB_CLIENTS[cli]||{},a=typeof adminOf==="function"?adminOf(c):{},quem=(a.contato||c.name||"").split(" ")[0];
+      var msg="Oi"+(quem?", "+quem:"")+"! O seu calendário de conteúdo está aqui. Abra, veja cada pauta com o texto e o roteiro, e toque em Aprovar ou em Pedir ajuste:\n\n"+url;
+      var wa=typeof waLink==="function"?waLink(a.whats,msg):"";
+      h='<p class="pp-m" style="margin-top:0">O cliente abre no celular, sem login. Cada aprovação ou pedido de ajuste cai direto na peça, e o link mostra sempre o calendário de hoje.</p>'+
+        '<div class="fld"><label for="lpUrl">Link</label><input id="lpUrl" readonly value="'+esc(url)+'"></div>'+
+        '<div class="fld"><label>Mensagem</label><div class="copybox" id="lpMsg"></div></div>'+
+        '<div class="q-rodape"><button class="btn pri" id="lpCopiarMsg">Copiar mensagem com o link</button><button class="btn" id="lpCopiar">Copiar só o link</button>'+(wa?'<a class="btn" href="'+esc(wa)+'" target="_blank" rel="noopener">Abrir no WhatsApp do cliente</a>':'')+'</div>';
+    }else{
+      var web=url.replace(/^https?:\/\//,"webcal://");
+      h='<p class="pp-m" style="margin-top:0">Assine uma vez e a agenda atualiza sozinha: publicações no horário de cada peça e os dias de gravação com o que gravar. '+(cli?'':'Entram todos os clientes ativos.')+'</p>'+
+        '<div class="fld"><label for="lpUrl">Link da agenda</label><input id="lpUrl" readonly value="'+esc(url)+'"></div>'+
+        '<div class="q-rodape"><a class="btn pri" href="'+esc(web)+'">Abrir no calendário do celular</a><button class="btn" id="lpCopiar">Copiar o link</button></div>'+
+        '<ul class="pp-m lp-como"><li><b>Google Agenda</b> no computador: Outras agendas, botão de mais, "Do URL", cole o link. O Google atualiza algumas vezes por dia.</li><li><b>iPhone</b>: Ajustes, Calendário, Contas, Adicionar conta, Outra, Adicionar calendário assinado, cole o link.</li></ul>';
+    }
+    h+='<div class="q-rodape" style="margin-top:14px"><button class="lnk" id="lpNovo">Desativar este link e gerar outro</button></div>';
+    corpo.innerHTML=h;
+    if(vit)I("#lpMsg").textContent=msg;
+    var cm=I("#lpCopiarMsg");if(cm)cm.addEventListener('click',function(){copiarTexto(msg,"Mensagem copiada. Cole na conversa com o cliente.")});
+    I("#lpCopiar").addEventListener('click',function(){copiarTexto(url,"Link copiado.")});
+    I("#lpNovo").addEventListener('click',function(){if(confirm("Desativar este link? Quem tiver o link antigo não consegue mais abrir."))abrirLinkPublico(tipo,cli,true);});
+  }
   // Aviso na tela Hoje quando chega briefing novo.
   async function renderBriefingAviso(){
     var el=I("#ovBriefings");if(!el)return;
@@ -4855,6 +5211,18 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       atual=0;for(var m=3;m<6;m++)if(et[m].estado==="atual"&&!atual)atual=m+1;if(!atual)atual=4;}
     return {atual:atual,etapas:et};
   }
+
+  // A trava do servidor (processo.ts, travaDaGravacao) conferida ANTES de chamar a IA:
+  // sem isto o painel pagava a geração e só depois o servidor recusava. Protege a
+  // primeira versão de cada parte; refazer o que já existe passa.
+  function travaPlano(obj,g){
+    g=g||GENERATED||{};var aprov=(g.dna||[]).filter(function(x){return x.status==="approved"}).length;
+    if(obj==="estrategia"&&!g.strategy&&aprov<DNA_MINIMO)return "Aprove pelo menos "+DNA_MINIMO+" registros do Content DNA para gerar a estratégia ("+aprov+" de "+DNA_MINIMO+" aprovados agora).";
+    if(obj==="editorial"&&!(g.editorial||[]).length&&!g.strategy)return "A linha editorial vem depois da estratégia. Gere a estratégia primeiro.";
+    if(obj==="ideias"&&!(g.ideas||[]).length&&!(g.editorial||[]).length)return "As ideias vêm depois da linha editorial. Gere a linha editorial primeiro.";
+    return null;
+  }
+  function erroTrava(t){var e=new Error(t);e.code="trava";return e;}
 
   var QUEM_LBL={voce:["Com você","voce"],cliente:["Com o cliente","cli"],agente:["Com o agente","ag"]};
   function trilhoHtml(id,v){
@@ -5086,9 +5454,140 @@ var ICONES_UI={"bell":"<svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fil
       var b=box.querySelector('[data-dash-ag]');if(b)b.addEventListener('click',function(){go("agents")});
     }catch(e){box.innerHTML=quadro("Agentes","Não consegui ler a atividade agora.",'','');}
   }
+  // ---- Prazos, situação da peça e a operação do dia ----
+  // Cada peça tem prazos contados de trás para frente a partir da publicação, com a
+  // mesma regra do servidor (supabase/functions/_shared/prazos.ts): roteiro pronto,
+  // revisão da equipe, aprovação do cliente, gravação/produção e publicação. A
+  // situação diz o que falta agora e se já passou do prazo. O calendário geral, a
+  // gaveta da peça e a tela Hoje leem daqui.
+  var APROVADA_EQ={"APPROVED":1,"SCHEDULED":1,"PUBLISHED":1};
+  var SIT={texto:["sem texto","Escrever o roteiro"],revisao:["revisar","Revisar e aprovar"],aprovacao:["cliente aprova","Esperar o cliente"],ajuste:["ajuste pedido","Ajustar o que o cliente pediu"],
+    producao:["gravar","Gravar ou produzir"],pronta:["pronta","Publicar no horário"],publicar:["não publicada","Marcar como publicada"],publicada:["publicada","Publicada"]};
+  function somaDias(iso,n){var d=parseD(iso);d.setDate(d.getDate()+n);return fmtD(d);}
+  function semanaIso(iso){var d=parseD(iso);d.setDate(d.getDate()-((d.getDay()+6)%7));return fmtD(d);}
+  function prazosDe(it,cid){
+    if(!it||!isIsoDate(it.data))return null;
+    var r=rotinaOf(cid),op=typeof opDo==="function"?opDo(cid):{},g=+r.gravDia;
+    if(!(g>=0&&g<=6))g=1;
+    var d=parseD(it.data);d.setDate(d.getDate()-1);
+    for(var k=0;k<7&&d.getDay()!==g;k++)d.setDate(d.getDate()-1);
+    var producao=fmtD(d),aprovacao=(op.clienteAprova||"calendario_e_pecas")==="calendario_e_pecas"?somaDias(producao,-1):null;
+    var texto=aprovacao?somaDias(aprovacao,-Math.max(1,Math.round(+op.prazoCliente||2))):somaDias(producao,-1);
+    return {texto:texto,aprovacao:aprovacao,producao:producao,publicacao:it.data};
+  }
+  function situacaoPeca(it,cid,hoje){
+    hoje=hoje||fmtD(new Date());var p=prazosDe(it,cid);if(!p)return null;
+    function s(etapa,prazo,txt){return {etapa:etapa,prazo:prazo,atraso:!!prazo&&prazo<hoje,curto:SIT[etapa][0],acao:SIT[etapa][1],txt:txt,p:p};}
+    if(it.status==="PUBLISHED")return s("publicada",null,it.postUrl?"Publicada":"Publicada, falta o link do post");
+    if(p.publicacao<hoje)return s("publicar",p.publicacao,"Passou do dia "+dataBR(p.publicacao)+": marque como publicada ou mude a data");
+    if(!pecaPronta(it))return s("texto",p.texto,"Roteiro até "+dataBR(p.texto));
+    if(it.clientStatus==="ajuste")return s("ajuste",p.aprovacao||p.producao,"Cliente pediu ajuste"+(it.clientNote?": "+it.clientNote:""));
+    if(!APROVADA_EQ[it.status]&&it.clientStatus!=="aprovado")return s("revisao",p.texto,"Vocês revisam e aprovam até "+dataBR(p.texto));
+    if(p.aprovacao&&it.clientStatus!=="aprovado")return s("aprovacao",p.aprovacao,"Cliente aprova até "+dataBR(p.aprovacao));
+    if(p.producao>=hoje)return s("producao",p.producao,p.producao===hoje?"Gravar hoje":"Gravar em "+dataBR(p.producao));
+    return s("pronta",p.publicacao,"Publicar "+dataBR(p.publicacao)+" às "+itemHora(it,rotinaOf(cid)));
+  }
+  function prazosTxt(it,cid){var p=prazosDe(it,cid);if(!p)return "";
+    return "Roteiro até "+dataBR(p.texto)+(p.aprovacao?" · cliente aprova até "+dataBR(p.aprovacao):"")+" · gravação "+dataBR(p.producao)+" · publicação "+dataBR(p.publicacao);}
+
+  // ---- Feriados nacionais e datas comerciais (o calendário mostra; mover para elas avisa) ----
+  function pascoa(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451);
+    return new Date(y,Math.floor((h+l-7*m+114)/31)-1,((h+l-7*m+114)%31)+1);}
+  var DATAS_ANO={};
+  function datasDoAno(y){
+    if(DATAS_ANO[y])return DATAS_ANO[y];
+    var out={},p=pascoa(y);
+    function add(d,nome,tipo){var k=typeof d==="string"?y+"-"+d:fmtD(d);(out[k]=out[k]||[]).push({nome:nome,tipo:tipo});}
+    function rel(n){var d=new Date(p.getTime());d.setDate(d.getDate()+n);return d;}
+    function enesimo(mes,dia,n){var d=new Date(y,mes,1),c=0;while(d.getMonth()===mes){if(d.getDay()===dia&&++c===n)return d;d.setDate(d.getDate()+1);}return d;}
+    [["01-01","Confraternização Universal"],["04-21","Tiradentes"],["05-01","Dia do Trabalho"],["09-07","Independência"],["10-12","Nossa Senhora Aparecida"],["11-02","Finados"],["11-15","Proclamação da República"],["11-20","Consciência Negra"],["12-25","Natal"]].forEach(function(f){add(f[0],f[1],"feriado");});
+    add(rel(-2),"Sexta-feira Santa","feriado");add(rel(-48),"Carnaval","facultativo");add(rel(-47),"Carnaval","facultativo");add(rel(60),"Corpus Christi","facultativo");
+    [["03-08","Dia Internacional da Mulher"],["03-15","Dia do Consumidor"],["06-12","Dia dos Namorados"],["09-15","Dia do Cliente"],["10-12","Dia das Crianças"]].forEach(function(f){add(f[0],f[1],"comercial");});
+    add(enesimo(4,0,2),"Dia das Mães","comercial");add(enesimo(7,0,2),"Dia dos Pais","comercial");
+    var bf=enesimo(10,4,4);bf.setDate(bf.getDate()+1);add(bf,"Black Friday","comercial");
+    return DATAS_ANO[y]=out;
+  }
+  function datasDoDia(iso){return isIsoDate(iso)?(datasDoAno(+iso.slice(0,4))[iso]||[]):[];}
+  function dataTipoTxt(x){return x.tipo==="feriado"?"feriado":x.tipo==="facultativo"?"ponto facultativo":"data comercial";}
+
+  // ---- Mover uma peça de dia (arrastar no calendário ou mudar na gaveta): as regras ----
+  function regrasMover(cid,it,nova){
+    var hoje=fmtD(new Date()),r=rotinaOf(cid),dias=(r.diasPost&&r.diasPost.length?r.diasPost:DIAS_PADRAO[3]).map(Number),av=[];
+    if(!isIsoDate(nova))return {bloqueio:"Data inválida."};
+    if(nova<hoje&&it.status!=="PUBLISHED")return {bloqueio:"Não dá para marcar uma publicação no passado. Se já foi ao ar, marque como publicada."};
+    var dw=parseD(nova).getDay();if(dias.indexOf(dw)<0)av.push(DIAS_SEM_LONGO[dw]+" não é dia de postar na rotina deste cliente");
+    datasDoDia(nova).forEach(function(x){av.push(x.nome+" ("+dataTipoTxt(x)+")");});
+    var cap=capOf(cid);
+    if(cap&&precisaGravar((it.idea||{}).surface)){
+      var g=(state.client===cid?GENERATED:DB_STATE_CACHE[cid])||{},sem=semanaIso(nova);
+      var n=((g.calendar&&g.calendar.items)||[]).filter(function(x){return x.id!==it.id&&isIsoDate(x.data)&&semanaIso(x.data)===sem&&precisaGravar((x.idea||{}).surface)}).length;
+      if(n>=cap.grav)av.push("a semana de "+dataBR(sem)+" já tem "+n+(n>1?" gravações":" gravação")+" (limite de "+cap.grav+" pela rotina)");
+    }
+    return {avisos:av,reabrir:it.clientStatus==="aprovado"&&nova!==it.data};
+  }
+  // Monta a mudança de data com as regras. Devolve null se bloqueou ou a pessoa desistiu.
+  function mudancaDeData(cid,it,nova,hora){
+    var rg=regrasMover(cid,it,nova);
+    if(rg.bloqueio){toast(rg.bloqueio);return null;}
+    var patch={data:nova};if(hora)patch.hora=hora;
+    if(rg.reabrir){if(!confirm("O cliente já aprovou esta pauta para "+dataBR(it.data)+". Mudar a data e pedir a aprovação dele de novo?"))return null;patch.clientStatus=null;patch.clientNote=null;}
+    if(nova!==it.data){var mv=(it.movimentos||[]).slice(-9);mv.push({de:it.data,para:nova,em:new Date().toISOString(),por:(SB&&SB.nome)||""});patch.movimentos=mv;}
+    return {patch:patch,avisos:rg.avisos};
+  }
+
+  // ---- Campanhas do cliente (lançamento, data comercial): nos dias dela vale o foco de funil dela ----
+  var FOCO_CAMP=[["fundo","Vender (fundo de funil)"],["meio","Aquecer e educar (meio)"],["topo","Atrair gente nova (topo)"],["equilibrio","Equilíbrio"]];
+  function campanhasDe(cid){var c=DB_CLIENTS[cid]||{};return Array.isArray(c.campanhas)?c.campanhas:[];}
+  function campanhaNoDia(cid,iso){return campanhasDe(cid).filter(function(cp){return cp.inicio<=iso&&iso<=cp.fim})[0]||null;}
+  function mixDoFoco(f){for(var i=0;i<FUNIL_OPC.length;i++)if(FUNIL_OPC[i][0]===f)return FUNIL_OPC[i][2];return null;}
+  function abrirCampanhas(cid){
+    function desenhar(msg){
+      var lista=campanhasDe(cid).slice().sort(function(a,b){return a.inicio<b.inicio?-1:1});
+      I("#cpCorpo").innerHTML=(lista.length?'<div class="tabela"><table><thead><tr><th>Campanha</th><th>Período</th><th>Foco</th><th></th></tr></thead><tbody>'+lista.map(function(cp){var f=FOCO_CAMP.filter(function(x){return x[0]===cp.foco})[0];
+          return '<tr class="sem-clique"><td><b class="cel-t">'+esc(cp.nome)+'</b></td><td class="nowrap">'+esc(dataBR(cp.inicio))+' a '+esc(dataBR(cp.fim))+'</td><td>'+esc(f?f[1]:cp.foco)+'</td><td class="acao"><button class="icon-btn sm" data-cp-del="'+esc(cp.id)+'" aria-label="Apagar a campanha '+esc(cp.nome)+'" title="Apagar">'+iconeUI("linha-trash")+'</button></td></tr>'}).join('')+'</tbody></table></div>'
+        :'<p class="pp-m">Nenhuma campanha. Um lançamento ou uma data comercial pede mais conteúdo de venda naqueles dias: marque aqui e o calendário muda o mix só nesse período.</p>')+
+        '<div class="bt" style="margin-top:16px">Nova campanha</div><div class="grid cols-2 q-form"><div class="fld"><label for="cpNome">Nome</label><input id="cpNome" placeholder="Ex.: Lançamento da mentoria"></div><div class="fld"><label for="cpFoco">Foco</label><select id="cpFoco">'+FOCO_CAMP.map(function(f){return '<option value="'+f[0]+'">'+esc(f[1])+'</option>'}).join('')+'</select></div>'+
+        '<div class="fld"><label for="cpIni">Começa</label><input type="date" id="cpIni"></div><div class="fld"><label for="cpFim">Termina</label><input type="date" id="cpFim"></div></div>'+
+        '<div class="q-rodape"><button class="btn pri" id="cpSalvar">Adicionar campanha</button><span class="pp-m" id="cpMsg" role="status">'+esc(msg||"")+'</span></div>'+
+        '<p class="pp-m">Vale para o próximo calendário montado (pelo Cronos ou pelo botão Montar calendário). O que já está no calendário não muda sozinho.</p>';
+      I("#cpSalvar").addEventListener('click',async function(){var nome=I("#cpNome").value.trim(),ini=I("#cpIni").value,fim=I("#cpFim").value,m=I("#cpMsg");
+        if(!nome||!isIsoDate(ini)||!isIsoDate(fim)){m.textContent="Preencha o nome e as duas datas.";return;}
+        if(fim<ini){m.textContent="A campanha termina antes de começar.";return;}
+        var nova=campanhasDe(cid).concat([{id:"cp-"+Date.now().toString(36),nome:nome,inicio:ini,fim:fim,foco:I("#cpFoco").value}]);
+        try{await saveClientRecord(cid,Object.assign({},DB_CLIENTS[cid],{campanhas:nova}));desenhar("Campanha adicionada.");AG_ITENS=null;}catch(e){m.textContent="Não consegui salvar: "+(e.message||e);}});
+      I("#cpCorpo").querySelectorAll('[data-cp-del]').forEach(function(b){b.addEventListener('click',async function(){
+        var nova=campanhasDe(cid).filter(function(cp){return cp.id!==b.getAttribute('data-cp-del')});
+        try{await saveClientRecord(cid,Object.assign({},DB_CLIENTS[cid],{campanhas:nova}));desenhar("Campanha apagada.");AG_ITENS=null;}catch(e){toast("Não consegui apagar: "+(e.message||e));}})});
+    }
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="Campanhas" style="width:min(560px,100%)"><div class="dh"><div style="flex:1;min-width:0"><div class="d-title">Campanhas</div><div class="d-sub">'+esc(clientName(cid))+'</div></div><button class="icon-btn" id="dclose" aria-label="Fechar">'+iconeUI("x-fechar")+'</button></div><div class="db"><div class="block" id="cpCorpo"></div></div></aside>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
+    desenhar();
+  }
+
+  // ---- Tela Hoje: o que a equipe faz hoje, de todos os clientes, pelo que vence primeiro ----
+  function tarefasDoDia(){
+    var hoje=fmtD(new Date()),amanha=somaDias(hoje,1),depois=somaDias(hoje,2),out=[];
+    (AG_ITENS||[]).forEach(function(o){var s=situacaoPeca(o.it,o.cid,hoje);if(!s||s.etapa==="publicada"||!s.prazo)return;
+      if(s.atraso||s.prazo<=depois)out.push({o:o,s:s,quando:s.atraso?"atrasada":s.prazo===hoje?"hoje":s.prazo===amanha?"amanhã":"depois de amanhã"});});
+    return out.sort(function(a,b){return (a.s.prazo<b.s.prazo?-1:a.s.prazo>b.s.prazo?1:0)});
+  }
+  function renderHojeOperacao(){
+    var el=I("#ovHoje");if(!el)return;
+    if(!Object.keys(DB_CLIENTS).length||state.clientView){el.innerHTML="";return;}
+    if(!AG_ITENS){el.innerHTML='';agCarregar();return;}
+    var t=tarefasDoDia(),atr=t.filter(function(x){return x.quando==="atrasada"}).length,hj=t.filter(function(x){return x.quando==="hoje"}).length;
+    var linhas=t.slice(0,12).map(function(x){var it=x.o.it;
+      return '<tr class="sem-clique'+(x.quando==="atrasada"?' linha-atraso':'')+'"><td class="nowrap"><span class="chip'+(x.quando==="atrasada"?' warn':x.quando==="hoje"?' prog':'')+'">'+esc(x.quando)+'</span></td>'+
+        '<td><b class="cel-t">'+esc(clientName(x.o.cid))+'</b><small>'+esc(pecaTitulo(it))+' · '+esc(surfLbl((it.idea||{}).surface))+'</small></td>'+
+        '<td><b class="cel-t">'+esc(x.s.acao)+'</b><small>'+esc(x.s.txt)+'</small></td>'+
+        '<td class="acao"><button class="btn" data-hj-abrir="'+esc(x.o.cid)+'|'+esc(it.id)+'">Abrir</button></td></tr>';}).join('');
+    el.innerHTML=quadro("O que fazer hoje",t.length?(atr?atr+' atrasada'+(atr>1?'s':'')+', ':'')+hj+' para hoje, contando os prazos de roteiro, aprovação, gravação e publicação de todos os clientes.':'Nada vencendo hoje nem nos próximos dois dias.','',
+      t.length?'<div class="tabela"><table><thead><tr><th>Quando</th><th>Peça</th><th>O que fazer</th><th></th></tr></thead><tbody>'+linhas+'</tbody></table></div>'+(t.length>12?'<p class="pp-m">E mais '+(t.length-12)+'. Veja tudo no Calendário, na lista.</p>':''):'');
+    el.querySelectorAll('[data-hj-abrir]').forEach(function(b){b.addEventListener('click',function(){var v=b.getAttribute('data-hj-abrir').split("|");agAbrir(v[0],v[1]);})});
+  }
   // ---------- início do painel ----------
-  // Link de briefing (?briefing=...): o cliente vê só o formulário, nada do painel.
-  if(briefingPublicoNaUrl())return;
+  // Link de briefing (?briefing=...) ou de aprovação (?vitrine=...): o cliente vê só a página dele, nada do painel.
+  if(briefingPublicoNaUrl()||vitrinePublicaNaUrl())return;
   buildNav();renderPipe();renderKpis();renderOverviewContent();renderClients();renderContentList();renderApprovals();renderCal();renderPerf();renderKB();renderAgents();
   buildClientSelect();initTheme();
   I("#clientview").addEventListener('click',function(){toggleClientView(!state.clientView)});

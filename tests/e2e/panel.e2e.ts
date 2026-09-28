@@ -65,6 +65,12 @@ describe("Painel no navegador (window.claude simulado)", () => {
     await page.click("#ncCreate");
     await page.click("#dnaRun");
     await page.waitForFunction(() => /sugestões/.test(document.querySelector("#dnaMsg")?.textContent || ""));
+    // Sem DNA aprovado o plano não começa: o Montar tudo nem aparece.
+    await ir("overview");
+    expect(await page.$("#autoBuildBtn")).toBeNull();
+    await ir("dna");
+    await page.click("#dnaAprTodos");
+    await page.waitForFunction(() => !document.querySelector("#dnaAprTodos"));
     await ir("overview");
     await page.click("#autoBuildBtn");
     await page.waitForFunction(() => /Pronto/.test(document.querySelector("#overlay")?.textContent || ""), null, { timeout: 30_000 });

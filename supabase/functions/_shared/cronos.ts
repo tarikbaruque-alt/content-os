@@ -44,16 +44,27 @@ export function slotsDoPeriodo(inicio: string, fim: string, dias: number[]): str
   return out;
 }
 
-export function montarPeriodo(ideias: Ideia[], rotina: Record<string, any>, inicio: string, fim: string) {
+/** Campanha do cliente (lançamento, data comercial): nos dias dela vale o foco de funil da campanha. */
+export type Campanha = { id: string; nome?: string; inicio: string; fim: string; foco?: string };
+
+export function montarPeriodo(ideias: Ideia[], rotina: Record<string, any>, inicio: string, fim: string, campanhas: Campanha[] = []) {
   const slots = slotsDoPeriodo(inicio, fim, diasDePostagem(rotina));
   const total = slots.length;
   const mix = MIX[rotina?.foco ?? "equilibrio"] ?? MIX.equilibrio!;
+  // Cada slot pertence à base (foco do cliente) ou a uma campanha; o mix de cada grupo é contado à parte.
+  const grupoDe = (slot: string) => { const cp = campanhas.find((c) => c && c.inicio <= slot && slot <= c.fim); return cp ? "c:" + cp.id : "base"; };
+  const grupos: Record<string, { alvo: { topo: number; meio: number; fundo: number }; ct: { topo: number; meio: number; fundo: number } }> = {};
+  for (const k of new Set(slots.map(grupoDe))) {
+    const n = slots.filter((s) => grupoDe(s) === k).length;
+    const cp = k === "base" ? null : campanhas.find((c) => "c:" + c.id === k);
+    const mx = (cp && MIX[cp.foco ?? ""]) || mix;
+    const topo = Math.round((n * mx.topo) / 100), meio = Math.round((n * mx.meio) / 100);
+    grupos[k] = { alvo: { topo, meio, fundo: n - topo - meio }, ct: { topo: 0, meio: 0, fundo: 0 } };
+  }
   const cap = rotina?.tempoGrav == null || rotina.tempoGrav === "" ? null : (() => {
     const c = CAPACIDADE[+rotina.tempoGrav] ?? CAPACIDADE[60]!;
     return { grav: rotina.maxGrav != null ? +rotina.maxGrav : c.grav };
   })();
-  const alvo = { topo: Math.round((total * mix.topo) / 100), meio: Math.round((total * mix.meio) / 100), fundo: 0 };
-  alvo.fundo = total - alvo.topo - alvo.meio;
   const usadas = new Set<string>();
   const gravSemana: Record<string, number> = {};
   const semanaDe = (ds: string) => { const d = new Date(ds + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return fmt(d); };
@@ -74,9 +85,11 @@ export function montarPeriodo(ideias: Ideia[], rotina: Record<string, any>, inic
   const ct = { topo: 0, meio: 0, fundo: 0 };
   const itens: Record<string, any>[] = [];
   slots.forEach((slot, i) => {
-    // Intercala topo/meio/fundo: sempre a etapa mais atrasada em relação ao alvo.
+    // Intercala topo/meio/fundo: sempre a etapa mais atrasada em relação ao alvo do grupo do dia.
+    const g = grupos[grupoDe(slot)]!;
     let etapa: "topo" | "meio" | "fundo" = "topo", melhor = -1;
-    for (const e of ["topo", "meio", "fundo"] as const) { const sc = alvo[e] ? (alvo[e] - ct[e]) / alvo[e] : -1; if (sc > melhor) { melhor = sc; etapa = e; } }
+    for (const e of ["topo", "meio", "fundo"] as const) { const sc = g.alvo[e] ? (g.alvo[e] - g.ct[e]) / g.alvo[e] : -1; if (sc > melhor) { melhor = sc; etapa = e; } }
+    g.ct[etapa]++;
     ct[etapa]++;
     const idea = pegar(etapa, slot);
     if (!idea) return;

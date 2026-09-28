@@ -100,14 +100,39 @@
   // ---- Organização: apagar cliente e juntar cadastros duplicados ----
   var DOCS_CLIENTE=["cos_dna","cos_strategy","cos_editorial","cos_research","cos_refs","cos_formats","cos_exemplos","cos_meta","cos_perf"],COLS_CLIENTE=["cos_ideas","cos_calendar"];
   async function apagarCliente(id){
-    for(var i=0;i<COLS_CLIENTE.length;i++){var sn=await dbItemsCol(COLS_CLIENTE[i],id).get();for(var j=0;j<sn.docs.length;j++)await dbItemsCol(COLS_CLIENTE[i],id).doc(sn.docs[j].id).delete();}
-    for(var k=0;k<DOCS_CLIENTE.length;k++){try{await dbDoc(DOCS_CLIENTE[k]+"/"+id).delete();}catch(e){}}
-    await dbDoc("cos_clients/"+id).delete();
+    // Publicado: o banco apaga tudo do cliente numa transação (public.apagar_cliente).
+    if(SB){var rr=await SB.c.rpc("apagar_cliente",{ws:SB.ws,cli:id});if(rr.error)throw rr.error;}
+    else{
+      for(var i=0;i<COLS_CLIENTE.length;i++){var sn=await dbItemsCol(COLS_CLIENTE[i],id).get();for(var j=0;j<sn.docs.length;j++)await dbItemsCol(COLS_CLIENTE[i],id).doc(sn.docs[j].id).delete();}
+      for(var k=0;k<DOCS_CLIENTE.length;k++){try{await dbDoc(DOCS_CLIENTE[k]+"/"+id).delete();}catch(e){}}
+      await dbDoc("cos_clients/"+id).delete();
+    }
     delete DB_CLIENTS[id];delete DB_STATE_CACHE[id];
     for(var n=CLIENTS.length-1;n>=0;n--)if(CLIENTS[n].id===id)CLIENTS.splice(n,1);
     if(state.ativosOpen===id)state.ativosOpen=null;
     if(state.client===id){state.client="";var prox=CLIENTS[0];if(prox)setClient(prox.id);else{GENERATED=null;}}
     refreshClientOptions();
+  }
+  function clienteArquivado(id){var c=DB_CLIENTS[id];return !!(c&&c.admin&&c.admin.ativo===false);}
+  // Arquivar: sai da lista, fica inativo e nenhum agente roda sozinho. Nada é apagado.
+  async function arquivarCliente(id,arquivar){
+    var c=DB_CLIENTS[id];if(!c)return;
+    await saveClientRecord(id,Object.assign({},c,{admin:Object.assign({},c.admin||{},{ativo:!arquivar}),operacao:Object.assign(opDo(id),{pausado:!!arquivar})}));
+  }
+  function aposMudarCliente(){renderClients();if(typeof renderAtivos==="function")renderAtivos();if(typeof renderCobrancaBanner==="function")renderCobrancaBanner();renderKpis();AG_ITENS=null;}
+  // Confirmação por botão (antes era digitar o nome idêntico, e nome com travessão não passava).
+  function confirmarApagar(id){
+    var c=DB_CLIENTS[id]||{name:clientName(id)},g=DB_STATE_CACHE[id]||{},it=(g.calendar&&g.calendar.items)||[],ni=(g.ideas||[]).length;
+    var partes=[(g.dna||[]).length?"Content DNA":"",g.strategy?"estratégia":"",(g.editorial||[]).length?"linha editorial":"",ni?ni+" ideia"+(ni>1?"s":""):"",it.length?it.length+" peça"+(it.length>1?"s":"")+" do calendário":""].filter(Boolean);
+    I("#overlay").innerHTML='<div class="scrim" id="scrim"></div><div class="dialogo" role="alertdialog" aria-modal="true" aria-labelledby="dlgT" aria-describedby="dlgD">'+
+      '<h3 id="dlgT">Apagar '+esc(c.name)+'?</h3><p id="dlgD">Sai tudo deste cliente: '+esc(partes.concat(["propostas, aprovações e briefings"]).join(", "))+'. Não dá para desfazer.</p>'+
+      (clienteArquivado(id)?'':'<p class="pp-m">Se vocês só pararam de atender, arquive: fica tudo guardado e os agentes param.</p>')+
+      '<div class="dlg-acoes"><button class="btn" id="dlgCancelar">Cancelar</button>'+(clienteArquivado(id)?'':'<button class="btn" id="dlgArquivar">Arquivar em vez disso</button>')+'<button class="btn perigo" id="dlgApagar">Apagar definitivamente</button></div><p class="pp-m" id="dlgMsg" role="status"></p></div>';
+    I("#scrim").addEventListener('click',closeDrawer);I("#dlgCancelar").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);I("#dlgCancelar").focus();
+    var ar=I("#dlgArquivar");if(ar)ar.addEventListener('click',async function(){ar.disabled=true;try{await arquivarCliente(id,true);closeDrawer();toast(c.name+" foi arquivado. Os agentes pararam para este cliente.");aposMudarCliente();}catch(e){ar.disabled=false;I("#dlgMsg").textContent="Não consegui arquivar: "+(e.message||e);}});
+    I("#dlgApagar").addEventListener('click',async function(){var b=this;b.disabled=true;b.textContent="Apagando";
+      try{await apagarCliente(id);closeDrawer();toast(c.name+" foi apagado.");aposMudarCliente();}
+      catch(e){b.disabled=false;b.textContent="Apagar definitivamente";I("#dlgMsg").textContent="Não consegui apagar: "+(e.message||e);}});
   }
   async function juntarClientes(destId,origId){
     var A=Object.assign({},DB_CLIENTS[destId]),B=DB_CLIENTS[origId];if(!A||!B)return;
@@ -142,15 +167,13 @@
       '<label style="display:flex;gap:8px;align-items:center;font-size:13px;margin:4px 0 14px"><input type="checkbox" id="ecAtivo"'+(a.ativo?' checked':'')+'> Cliente ativo (desmarcar não apaga nada, o histórico fica guardado)</label>'+
       '<button class="btn pri" id="ecSalvar">Salvar</button><span id="ecMsg" style="margin-left:10px;font-size:12px;color:var(--muted)"></span></div>'+
       (Object.keys(DB_CLIENTS).length>1?'<div class="block"><div class="bt">Cadastro duplicado?</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Junta o outro cadastro <b>neste</b>: briefing, ficha, contatos e Content DNA são somados; estratégia, linha editorial, ideias e calendário do outro entram só onde este estiver vazio. Depois o outro cadastro é removido.</div>'+
-        '<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="ecMergeSel" style="flex:1;min-width:160px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px;background:var(--surface-2);color:var(--ink)">'+Object.keys(DB_CLIENTS).filter(function(x){return x!==id}).map(function(x){return '<option value="'+esc(x)+'">'+esc(DB_CLIENTS[x].name)+'</option>'}).join('')+'</select><button class="btn" id="ecMerge">🔀 Juntar neste cadastro</button></div></div>':'')+
-      '<div class="block" style="border-color:var(--emo-bg)"><div class="bt" style="color:var(--emo)">Zona de cuidado</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Apagar remove o cliente e todo o histórico (briefing, estratégia, calendário, aprovações). Se só parou de atender, prefira <b>marcar como inativo</b>.</div><button class="btn" id="ecApagar" style="color:var(--emo)">🗑 Apagar cliente</button></div></div></aside>';
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><select id="ecMergeSel" style="flex:1;min-width:160px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:9px;padding:7px;background:var(--surface-2);color:var(--ink)">'+Object.keys(DB_CLIENTS).filter(function(x){return x!==id}).map(function(x){return '<option value="'+esc(x)+'">'+esc(DB_CLIENTS[x].name)+'</option>'}).join('')+'</select><button class="btn" id="ecMerge">Juntar neste cadastro</button></div></div>':'')+
+      '<div class="block" style="border-color:var(--emo-bg)"><div class="bt" style="color:var(--emo)">Zona de cuidado</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px">Apagar remove o cliente e todo o histórico (briefing, estratégia, calendário, aprovações). Se só parou de atender, prefira <b>marcar como inativo</b>.</div><button class="btn" id="ecApagar" style="color:var(--emo)">Apagar cliente</button></div></div></aside>';
     I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);document.addEventListener('keydown',escClose);
     var mg=I("#ecMerge");if(mg)mg.addEventListener('click',async function(){var orig=I("#ecMergeSel").value,on=DB_CLIENTS[orig]&&DB_CLIENTS[orig].name;
       if(!orig||!confirm("Juntar “"+on+"” em “"+c.name+"”? O cadastro “"+on+"” deixa de existir depois de juntar."))return;
-      mg.disabled=true;mg.textContent="Juntando…";try{await (SB?comContexto({restaurar:true,motivo:"juntar cadastros"},function(){return juntarClientes(id,orig)}):juntarClientes(id,orig));closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="🔀 Juntar neste cadastro";toast("Não consegui juntar agora.");}});
-    I("#ecApagar").addEventListener('click',async function(){var t=prompt("Isso apaga "+c.name+" e todo o histórico, sem volta.\nPara confirmar, digite o nome do cliente:");
-      if(t===null)return;if(normalizeTextPanel(t).trim()!==normalizeTextPanel(c.name).trim()){toast("Nome não confere, nada foi apagado.");return;}
-      try{await apagarCliente(id);closeDrawer();toast(c.name+" foi apagado.");renderAtivos();renderCobrancaBanner();}catch(e){toast("Não consegui apagar agora.");}});
+      mg.disabled=true;mg.textContent="Juntando…";try{await (SB?comContexto({restaurar:true,motivo:"juntar cadastros"},function(){return juntarClientes(id,orig)}):juntarClientes(id,orig));closeDrawer();toast("Cadastros juntados em "+c.name+".");if(state.client===id)GENERATED=await loadDbClientState(id);renderAtivos();}catch(e){mg.disabled=false;mg.textContent="Juntar neste cadastro";toast("Não consegui juntar: "+(e.message||e));}});
+    I("#ecApagar").addEventListener('click',function(){confirmarApagar(id);});
     I("#ecSalvar").addEventListener('click',async function(){
       var nome=I("#ecNome").value.trim();if(!nome){I("#ecMsg").textContent="O nome não pode ficar vazio.";return;}
       var v=parseFloat(I("#ecValor").value.replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."))||0;

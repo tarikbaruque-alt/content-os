@@ -1,5 +1,6 @@
 import type { Backend } from "./tipos.ts";
 import type { Ferramenta } from "./executor.ts";
+import { dnaValeAprovado } from "./processo.ts";
 
 // Regras que valem para todo agente. As de voz são as mesmas que o painel já
 // manda para o Claude (apps/web/src/32-formatos-e-analise.js, ANTI_AI_VOICE_JS).
@@ -32,7 +33,7 @@ export async function textoDoCliente(b: Backend, ws: string, cli: string): Promi
     linha("Objetivos", m.objetivos), linha("Propósito", m.proposito), linha("Identidade", m.identidade),
   ].filter(Boolean);
   const dna = (((await b.getDoc(ws, `cos_dna/${cli}`)) ?? {}).entries ?? []) as any[];
-  const reg = dna.filter((e) => e.status !== "rejected").map((e) => `- [${e.section}/${e.field}] (${e.state}${e.status === "approved" ? ", aprovado" : ", pendente"}) ${e.value}`);
+  const reg = dna.filter((e) => e.status !== "rejected").map((e) => `- [${e.section}/${e.field}] (${e.state}${dnaValeAprovado(e) ? ", aprovado" : ", pendente"}) ${e.value}`);
   const br = String(c.briefing ?? "").trim();
   return [
     ficha.length ? `FICHA DO CLIENTE (fato):\n${ficha.join("\n")}` : "",

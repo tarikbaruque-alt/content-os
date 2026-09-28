@@ -79,7 +79,7 @@ export async function executarAgente(d: Deps, ws: string, cli: string, agenteId:
   try {
     if (a.id === "cronos") {
       const v = await vagasDoPeriodo(c);
-      const m = montarPeriodo(v.livres as any, v.rotina, v.inicio, v.fim);
+      const m = montarPeriodo(v.livres as any, v.rotina, v.inicio, v.fim, v.campanhas);
       for (const it of m.itens) await d.b.setDoc(ws, `cos_calendar/${cli}/items/${it.id}`, it);
       propostas = m.itens.length ? 1 : 0;
       if (m.itens.length) {

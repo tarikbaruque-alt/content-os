@@ -3,7 +3,8 @@ import type { Ferramenta } from "./executor.ts";
 import { REGRAS, VOZ, ferramentasDeLeitura, postsMedidos, textoDoCliente } from "./contexto.ts";
 import type { Operacao } from "./operacao.ts";
 import { diasDePostagem, periodoVazio, slotsDoPeriodo } from "./cronos.ts";
-import { DNA_MINIMO } from "./processo.ts";
+import { DNA_MINIMO, dnaValeAprovado } from "./processo.ts";
+import { prazosDaPeca, somarDias } from "./prazos.ts";
 
 /**
  * Os agentes do Content OS. Cada um tem:
@@ -56,7 +57,7 @@ export async function vagasDoPeriodo(c: Ctx) {
   const slots = slotsDoPeriodo(inicio, fim, diasDePostagem(cli.rotina ?? {}));
   const usadas = new Set(itens.map((i) => i.idea?.id).filter(Boolean));
   const livres = (await c.b.listDocs(c.ws, `cos_ideas/${c.cli}/items`)).map((d) => d.data).filter((x) => !usadas.has(x.id));
-  return { inicio, fim, slots, livres, rotina: cli.rotina ?? {} };
+  return { inicio, fim, slots, livres, rotina: cli.rotina ?? {}, campanhas: Array.isArray(cli.campanhas) ? cli.campanhas : [] };
 }
 
 /** Acrescenta registros ao DNA como PENDENTES (a tela do DNA é onde o humano aprova), sem repetir. */
@@ -168,7 +169,7 @@ export const AGENTES: Agente[] = [
       "- 'mix' é um subconjunto de 2 a 4 caminhos cujos pct somam 100.",
     ].join("\n"),
     bloqueio: async (c) => {
-      const aprov = (await dnaDe(c)).filter((e) => e?.status === "approved").length;
+      const aprov = (await dnaDe(c)).filter(dnaValeAprovado).length;
       return aprov >= DNA_MINIMO ? null : `Content DNA com ${aprov} de ${DNA_MINIMO} registros aprovados`;
     },
     pedido: async (c) => `Cliente: ${await nomeCli(c)}. Motivo: ${c.gatilho}. ${(await temDoc(c, `cos_strategy/${c.cli}`)) ? "Revise a estratégia atual para o próximo mês." : "É a primeira estratégia deste cliente."} Hoje é ${hoje(c.agora)}.`,
@@ -281,7 +282,7 @@ export const AGENTES: Agente[] = [
       "- Consulte a Knowledge Base (criação de alto valor: ganchos, ressonância) antes de escrever.",
       "- Respeite o que a ficha diz que NÃO pode aparecer.",
     ].join("\n"),
-    bloqueio: async (c) => ((await pecasSemTexto(c)).length ? null : `nenhuma peça dos próximos ${c.op.horarios.estDias} dias sem texto`),
+    bloqueio: async (c) => ((await pecasSemTexto(c)).length ? null : `nenhuma peça sem texto com prazo de roteiro nos próximos ${c.op.horarios.estDias} dias`),
     // A peça da vez é escolhida em executarAgente (uma execução por peça).
     pedido: async () => "",
     saida: {},
@@ -331,12 +332,19 @@ export function agendaDo(a: Agente, op: Operacao): { agenda: string; gatilho: st
 }
 
 // ------------------------------------------------------------------ Estúdio
+/**
+ * Peças sem texto cujo PRAZO DO ROTEIRO cai nos próximos estDias (ou já passou),
+ * a mais urgente primeiro. O prazo sai de prazosDaPeca: antes da gravação e do
+ * tempo do cliente aprovar, não da data de publicação.
+ */
 export async function pecasSemTexto(c: Ctx) {
-  const ate = new Date(c.agora.getTime() + (c.op?.horarios?.estDias ?? 7) * 864e5).toISOString().slice(0, 10);
-  const de = hoje(c.agora);
+  const de = hoje(c.agora), ate = somarDias(de, c.op?.horarios?.estDias ?? 7);
+  const rotina = ((await c.b.getDoc(c.ws, `cos_clients/${c.cli}`)) ?? {}).rotina;
   return (await c.b.listDocs(c.ws, `cos_calendar/${c.cli}/items`))
-    .filter((d) => d.data.data >= de && d.data.data <= ate && !d.data.content && !d.data.carousel && !d.data.stories && d.data.status !== "APPROVED" && d.data.status !== "PUBLISHED" && d.data.clientStatus !== "ajuste")
-    .sort((a, b) => (a.data.data < b.data.data ? -1 : 1));
+    .filter((d) => d.data.data >= de && !d.data.content && !d.data.carousel && !d.data.stories && d.data.status !== "APPROVED" && d.data.status !== "PUBLISHED" && d.data.clientStatus !== "ajuste")
+    .map((d) => ({ ...d, prazo: prazosDaPeca(d.data.data, rotina, c.op ?? {}).texto }))
+    .filter((d) => d.prazo <= ate)
+    .sort((a, b) => (a.prazo < b.prazo ? -1 : a.prazo > b.prazo ? 1 : a.data.data < b.data.data ? -1 : 1));
 }
 
 export type TipoPeca = "reel" | "carrossel" | "stories";

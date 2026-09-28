@@ -309,29 +309,23 @@
         function(e){if(m){m.textContent=e&&e.message==="colunas"?"Não achei as colunas de data e alcance. Use o CSV exportado pelo Meta Business Suite.":"Não consegui ler esse arquivo.";m.style.color="var(--warn)";}});});
   }
 
-  // ---- Próximos passos: o painel guia o que falta para cada cliente ----
+  // ---- Próximos passos: as mesmas 6 etapas do trilho do cliente (uma régua só) ----
+  // Antes era uma lista de 9 itens com cara de caixa de marcar que não marcava nada
+  // e contava o progresso diferente do trilho.
   function nextStepsHtml(){
     if(!state.client||!isDbClient(state.client))return '';
-    var g=GENERATED||{},c=DB_CLIENTS[state.client]||{};
-    var items=(g.calendar&&g.calendar.items)||[];
-    var steps=[
-      ["dna","Preencher a ficha do cliente",fichaFilled(c)>=5],
-      ["dna","Montar o Content DNA",(g.dna||[]).length>=5],
-      ["strategy","Gerar a estratégia",!!g.strategy],
-      ["editorial","Gerar a linha editorial",(g.editorial||[]).length>0],
-      ["ideas","Gerar as ideias",(g.ideas||[]).length>0],
-      ["formats","Conferir os formatos do nicho",!!(g.formats&&(g.formats.perfil||g.formats.ia))],
-      ["calendar","Montar o calendário",items.length>0],
-      ["calendar","Escrever a primeira peça com IA",items.some(function(it){return it.content&&!isRascunho(it.content)})],
-      ["performance","Registrar os resultados publicados",items.some(function(it){return it.metrics&&it.metrics.alcance})]
-    ];
-    var done=steps.filter(function(s){return s[2]}).length,next=steps.filter(function(s){return !s[2]})[0];
-    var falta=(g.dna||[]).length>=3&&!state.clientView&&AUTO_STEPS.some(function(st){return st[0]!=="dna"&&!autoFeito(st[0],g)});
-    var acoes=(falta?'<button class="btn pri genbtn" id="autoBuildBtn">Montar o restante</button>':'')+(next?'<button class="btn'+(falta?'':' pri')+'" data-goto-step="'+next[0]+'">Continuar</button>':'<span class="chip act">Cliente completo</span>');
-    return quadro("Próximos passos de "+esc(clientName(state.client)),done+' de '+steps.length+' etapas feitas.',acoes,
-      '<div class="passos">'+steps.map(function(s){return '<a class="passo'+(s[2]?' ok':'')+'" data-goto-step="'+s[0]+'"><span class="pc">'+(s[2]?iconeUI("checkbox-on"):'<i class="cb-vazio"></i>')+'</span>'+esc(s[1])+'</a>'}).join('')+'</div>');
+    var id=state.client,g=GENERATED||{},r=etapasDe(id),x=proximoPasso(id);
+    var falta=(g.dna||[]).length>=3&&!state.clientView&&!travaPlano("estrategia",g)&&AUTO_STEPS.some(function(st){return st[0]!=="dna"&&!autoFeito(st[0],g)});
+    var acoes=(falta?'<button class="btn genbtn" id="autoBuildBtn">Montar o restante</button>':'')+(x.pri?'<button class="btn pri" data-passo="'+x.pri[1]+'">'+esc(x.pri[0])+'</button>':'<span class="chip act">Em dia</span>');
+    return quadro("Próximos passos de "+esc(clientName(id)),'<b>'+esc(x.tit)+'</b>. '+esc(x.apoio),acoes,
+      '<div class="passos">'+ETAPAS.map(function(t,i){var e=r.etapas[i],st=e.estado,
+        txt=st==="feita"?"Feita":st==="bloqueada"?"Depois da etapa anterior":st==="livre"?"Nada neste mês ainda":(e.falta||"Em andamento");
+        return '<a class="passo '+st+'" data-goto-step="'+t[2]+'"><span class="pc">'+(st==="feita"?iconeUI("check-filled"):'<i class="pn">'+(i+1)+'</i>')+'</span><span class="pt"><b>'+t[1]+'</b><small>'+esc(txt)+'</small></span></a>'}).join('')+'</div>');
   }
-  function wireSteps(root){var ab=(root||document).querySelector('#autoBuildBtn');if(ab)ab.addEventListener('click',function(){montarTudo(state.client,state.period||30)});Array.prototype.forEach.call((root||document).querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});}
+  function wireSteps(root){root=root||document;
+    var ab=root.querySelector('#autoBuildBtn');if(ab)ab.addEventListener('click',function(){montarTudo(state.client,state.period||30)});
+    Array.prototype.forEach.call(root.querySelectorAll('[data-goto-step]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-goto-step'))})});
+    Array.prototype.forEach.call(root.querySelectorAll('.quadro [data-passo]'),function(b){if(b.closest('#cliHead'))return;b.addEventListener('click',function(){fazerPasso(b.getAttribute('data-passo'),b)})});}
 
   // ---- Backup: leva seus clientes entre o link publicado e a cópia offline
   // (ou guarda uma cópia de segurança). ----
@@ -405,6 +399,10 @@
   }
   function renderAiBadge(){
     var el=I("#aiBadge");if(!el)return;
+    // Publicado: o cartão mostra quem entrou e com que papel (antes dizia "Content OS / servidor").
+    if(CAP.remote&&SB){var nm=SB.nome||"Você",n=I("#ucNome"),av=I("#ucAv");
+      if(n)n.textContent=nm;if(av)av.textContent=nm.charAt(0).toUpperCase();
+      el.textContent=PAPEL_LBL[SB.papel]||SB.papel||"";el.dataset.modo="servidor";el.style.color="var(--muted)";el.title=SB.user.email||"";return;}
     var on=aiAvailable();
     el.textContent=CAP.remote?"servidor":on?"ativa":(CAP.local?"offline · salvo aqui":"indisponível");
     el.style.color=on?"var(--fact)":"var(--faint)";
@@ -446,12 +444,15 @@
       calendar:{total:0,mix:{topo:0,meio:0,fundo:0},items:[]},notion:[],performance:[],
       libraries:LIB,warnings:[]};
   }
+  // O painel antigo não tinha aprovação no DNA: registro sem status era o DNA em uso
+  // e conta como aprovado. Mesma regra do servidor (processo.ts, dnaValeAprovado).
+  function normalizarDna(list){return (list||[]).map(function(e){return e&&e.status==null?Object.assign({},e,{status:"approved",legado:true}):e;});}
   async function loadDbClientState(id){
     var c=DB_CLIENTS[id]||{name:clientName(id)};
     var g=blankClientState(id,c.name);
     if(!CAP.db)return g;
     try{
-      var dnaDoc=await dbDoc("cos_dna/"+id).get();if(dnaDoc.exists)g.dna=(dnaDoc.data()||{}).entries||[];
+      var dnaDoc=await dbDoc("cos_dna/"+id).get();if(dnaDoc.exists)g.dna=normalizarDna((dnaDoc.data()||{}).entries);
       var stratDoc=await dbDoc("cos_strategy/"+id).get();if(stratDoc.exists)g.strategy=stratDoc.data();
       var edDoc=await dbDoc("cos_editorial/"+id).get();if(edDoc.exists)g.editorial=(edDoc.data()||{}).pilares||[];
       var resDoc=await dbDoc("cos_research/"+id).get();if(resDoc.exists)g.research=(resDoc.data()||{}).items||[];

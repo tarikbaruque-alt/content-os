@@ -45,6 +45,18 @@
     return {atual:atual,etapas:et};
   }
 
+  // A trava do servidor (processo.ts, travaDaGravacao) conferida ANTES de chamar a IA:
+  // sem isto o painel pagava a geração e só depois o servidor recusava. Protege a
+  // primeira versão de cada parte; refazer o que já existe passa.
+  function travaPlano(obj,g){
+    g=g||GENERATED||{};var aprov=(g.dna||[]).filter(function(x){return x.status==="approved"}).length;
+    if(obj==="estrategia"&&!g.strategy&&aprov<DNA_MINIMO)return "Aprove pelo menos "+DNA_MINIMO+" registros do Content DNA para gerar a estratégia ("+aprov+" de "+DNA_MINIMO+" aprovados agora).";
+    if(obj==="editorial"&&!(g.editorial||[]).length&&!g.strategy)return "A linha editorial vem depois da estratégia. Gere a estratégia primeiro.";
+    if(obj==="ideias"&&!(g.ideas||[]).length&&!(g.editorial||[]).length)return "As ideias vêm depois da linha editorial. Gere a linha editorial primeiro.";
+    return null;
+  }
+  function erroTrava(t){var e=new Error(t);e.code="trava";return e;}
+
   var QUEM_LBL={voce:["Com você","voce"],cliente:["Com o cliente","cli"],agente:["Com o agente","ag"]};
   function trilhoHtml(id,v){
     var r=etapasDe(id),vendo=etapaDaView(v,r.atual),op=typeof opDo==="function"?opDo(id):{agentes:{}};

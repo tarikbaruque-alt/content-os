@@ -56,6 +56,26 @@ describe("travas do processo", () => {
     expect(await travaDaGravacao(m.b, WS, CLI, new Set(["estrategia", "editorial"]))).toBeNull();
   });
 
+  it("DNA do painel antigo (sem status) conta como aprovado: o cliente antigo não fica travado", async () => {
+    const m = backendMemoria(() => AGORA);
+    const legado = Array.from({ length: 6 }, (_, i) => ({ section: "audience", field: `l${i}`, value: `v${i}`, state: "FACT" }));
+    await m.b.setDoc(WS, `cos_dna/${CLI}`, { entries: legado });
+    expect(await travaDaGravacao(m.b, WS, CLI, new Set(["estrategia"]))).toBeNull();
+    const et = await etapasDoCliente(m.b, WS, CLI, AGORA);
+    expect(et.etapas[1]).toMatchObject({ feito: DNA_MINIMO, falta: null });
+  });
+
+  it("corrigir o que já existe passa pela trava; a trava protege só a primeira versão", async () => {
+    const m = backendMemoria(() => AGORA);
+    await m.b.setDoc(WS, `cos_dna/${CLI}`, dna(0, 8));
+    expect(await travaDaGravacao(m.b, WS, CLI, new Set(["estrategia"]))).toMatch(/pelo menos 5/);
+    await m.b.setDoc(WS, `cos_strategy/${CLI}`, { bigMessage: "já existia" });
+    await m.b.setDoc(WS, `cos_ideas/${CLI}/items/idea-1`, { id: "idea-1", titulo: "x" });
+    expect(await travaDaGravacao(m.b, WS, CLI, new Set(["estrategia"]))).toBeNull();
+    expect(await travaDaGravacao(m.b, WS, CLI, new Set(["editorial"]))).toBeNull();
+    expect(await travaDaGravacao(m.b, WS, CLI, new Set(["ideias"]))).toBeNull();
+  });
+
   it("só aceita caminhos do plano do próprio cliente", () => {
     expect(pathDoCliente("cos_strategy/ana", "ana")).toBe(true);
     expect(pathDoCliente("cos_ideas/ana/items/idea-3", "ana")).toBe(true);

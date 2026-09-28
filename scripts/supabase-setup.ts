@@ -127,8 +127,11 @@ async function kb() {
 async function auth() {
   const painel = process.env.PAINEL_URL;
   if (!painel) { console.log("  auth: defina PAINEL_URL (endereço do painel publicado) para liberar o login por link."); return; }
-  await mgmt("/config/auth", { method: "PATCH", body: JSON.stringify({ site_url: painel, uri_allow_list: `${painel},${painel}/**,http://localhost:3000/**` }) });
-  console.log(`  auth: login liberado para ${painel}`);
+  // Cadastro público desligado: só entra quem o dono convida (o convite é pela Edge
+  // Function, que cria a conta). Com o cadastro aberto, qualquer conta nova ganhava
+  // workspace próprio e usava a chave da Anthropic do projeto.
+  await mgmt("/config/auth", { method: "PATCH", body: JSON.stringify({ site_url: painel, uri_allow_list: `${painel},${painel}/**,http://localhost:3000/**`, disable_signup: true }) });
+  console.log(`  auth: login liberado para ${painel}, cadastro público desligado`);
 }
 
 const passos: Record<string, () => unknown> = { migrations, segredos, funcao, agenda, kb, auth };

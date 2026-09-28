@@ -30,7 +30,7 @@ export type Execucao = {
 };
 
 export type Aprovacao = {
-  workspace_id: string; client_id: string; objeto: string; decisao: "aprovado" | "rejeitado" | "reaberto" | "restaurado";
+  workspace_id: string; client_id: string; objeto: string; decisao: "aprovado" | "rejeitado" | "reaberto" | "restaurado" | "ajuste";
   ref?: string | null; motivo?: string | null; versao_anterior?: unknown; versao?: unknown; por?: string | null;
 };
 export type Tarefa = { id: string; workspace_id: string; client_id: string | null; agente: string; gatilho: string; tentativas: number };

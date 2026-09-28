@@ -248,11 +248,11 @@
   // ---------- Montar tudo automaticamente: DNA (Íris), Estratégia, Linha Editorial, Ideias, Calendário ----------
   var AUTO_STEPS=[["dna","Content DNA (Íris lê o briefing)"],["strategy","Estratégia (Átlas)"],["editorial","Linha Editorial (Bússola)"],["ideas","Ideias (Musa)"],["calendar","Calendário editorial (Cronos)"]];
   function autoFeito(k,g){g=g||{};return k==="dna"?(g.dna||[]).length>=5:k==="strategy"?!!g.strategy:k==="editorial"?(g.editorial||[]).length>0:k==="ideas"?(g.ideas||[]).length>0:((g.calendar&&g.calendar.items)||[]).length>0;}
-  function autoModalHtml(done,atual,erro,days){
+  function autoModalHtml(done,atual,erro,days,travado){
     return '<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" style="width:min(480px,100%)"><div class="dh"><div class="d-title">Montando tudo, '+esc(clientName(state.client))+'</div><button class="icon-btn" id="dclose">✕</button></div><div class="db"><div class="block">'+
       '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Cada agente usa o resultado do anterior. Leva alguns minutos, pode deixar esta janela aberta. Calendário de <b>'+days+' dias</b>, na frequência e com o limite de gravações da rotina do cliente.</div>'+
       AUTO_STEPS.map(function(st){var ok=done.indexOf(st[0])>=0,cur=atual===st[0];return '<div class="stepi'+(ok?' ok':'')+'" style="cursor:default"><span class="dot">'+(ok?'':cur&&!erro?'<span class="spinner" style="margin:0;width:11px;height:11px"></span>':'')+'</span>'+esc(st[1])+(cur&&erro?' <span style="color:var(--warn)">'+esc(erro)+'</span>':'')+'</div>'}).join('')+
-      (erro?'<div style="margin-top:14px"><button class="btn pri" id="autoRetry">Continuar de onde parou</button></div>':'')+
+      (erro?'<div style="margin-top:14px">'+(travado?'<button class="btn pri" id="autoIrDna">Revisar e aprovar o DNA</button>':'<button class="btn pri" id="autoRetry">Continuar de onde parou</button>')+'</div>':'')+
       (done.length===AUTO_STEPS.length?'<div style="margin-top:14px;font-size:13px">Pronto! Revise o <b>Content DNA</b> (as sugestões ficam pendentes para você aprovar) e confira a <b>Linha Editorial</b> e o <b>Calendário</b>.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn pri" id="autoGoCal">Ver o calendário</button><button class="btn" id="autoGoEd">Ver a linha editorial</button></div>':'')+
       '</div></div></aside>';
   }
@@ -262,8 +262,9 @@
     state.autoRunning=id;
     try{GENERATED=await loadDbClientState(id);}catch(e){state.autoRunning=null;throw e;}
     var done=[],atual="",erro="",lastErr=null;
-    function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days);I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
+    function draw(){if(state.client!==id)return;I("#overlay").innerHTML=autoModalHtml(done,atual,erro,days,lastErr&&lastErr.code==="trava");I("#scrim").addEventListener('click',closeDrawer);I("#dclose").addEventListener('click',closeDrawer);
       var r=I("#autoRetry");if(r){r.addEventListener('click',function(){montarTudo(id,days)});cooldownBtn(r,lastErr,60);}
+      var d=I("#autoIrDna");if(d)d.addEventListener('click',function(){closeDrawer();fazerPasso("dna");});
       var gc=I("#autoGoCal");if(gc)gc.addEventListener('click',function(){closeDrawer();go("calendar")});var ge=I("#autoGoEd");if(ge)ge.addEventListener('click',function(){closeDrawer();go("editorial")});}
     AUTO_STEPS.forEach(function(st){if(autoFeito(st[0],GENERATED))done.push(st[0]);});
     for(var i=0;i<AUTO_STEPS.length;i++){var k=AUTO_STEPS[i][0];if(done.indexOf(k)>=0)continue;
@@ -274,12 +275,12 @@
           var out=await CAP.sample.json(buildIrisPrompt(byId(id).name,brief),{modelTier:"default",cache:false});
           var entries=(GENERATED.dna||[]).slice();((out&&out.suggestions)||[]).forEach(function(x){if(!x||!x.field||!x.value)return;entries.push({section:x.section||"business",field:String(x.field),value:String(x.value),state:x.state||"HYPOTHESIS",status:"pending",src:"Briefing do cliente, Íris"});});
           await saveDna(id,entries);if(!entries.length)throw new Error("sem dados");}
-        else if(k==="strategy"){await runGerarEstrategia();if(!GENERATED.strategy)throw new Error("falhou");}
-        else if(k==="editorial"){await runGerarEditorial();if(!(GENERATED.editorial||[]).length)throw new Error("falhou");}
+        else if(k==="strategy"){await runGerarEstrategia({lancar:true});if(!GENERATED.strategy)throw new Error("falhou");}
+        else if(k==="editorial"){await runGerarEditorial({lancar:true});if(!(GENERATED.editorial||[]).length)throw new Error("falhou");}
         else if(k==="ideas"){await gerarIdeiasCore(id,false,15);if(!(GENERATED.ideas||[]).length)throw new Error("falhou");}
         else{state.period=days;await runGerarPlanejamento(days);if(!((GENERATED.calendar&&GENERATED.calendar.items)||[]).length)throw new Error("falhou");}
         done.push(k);
-      }catch(e){erro=e&&e.code?sampleErrCopy(e):"não deu certo agora, tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
+      }catch(e){erro=e&&(e.code||CAP.remote)?sampleErrCopy(e):"não deu certo agora, tente de novo";lastErr=e;state.autoRunning=null;draw();return;}
     }
     try{if(!(vitrineOf(id).mensagem)&&DB_CLIENTS[id]){var mv=await gerarMensagemVitrine();await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{vitrine:Object.assign({},vitrineOf(id),{mensagem:mv})}));}}catch(e){}
     state.autoRunning=null;atual="";draw();renderKpis();

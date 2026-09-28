@@ -162,19 +162,21 @@
   function saveFail(btn){btn.disabled=false;btn.textContent="Salvar edições";toast("Não consegui salvar, suas edições continuam na tela. Tente de novo.");}
   function openGenerated(idx){
     var g=GENERATED,it=g.calendar.items[idx];if(!it)return;var x=it.idea,c=it.content,np=(g.notion||[])[idx];
-    var db=isDbClient(state.client);
+    var db=isDbClient(state.client),sit=typeof situacaoPeca==="function"?situacaoPeca(it,state.client):null;
     var cvData=c?(c.copyVariants||{curta:c.copy,media:c.copy,longa:c.copy}):{curta:"",media:"",longa:""};
     var activeCv="media";
     var body='';
     var stOpts=["PLANNED","REVIEW","WAITING APPROVAL","IN PRODUCTION","APPROVED","PUBLISHED"];
     // Só é editável o que de fato salva (data-idea-fld); o resto é leitura.
-    function efld(l,v,k){return '<div><div class="ql">'+esc(l)+'</div>'+(k&&db?'<div class="editable" contenteditable="true" data-idea-fld="'+k+'">'+esc(v)+'</div>':'<div style="font-size:13px">'+esc(v)+'</div>')+'</div>';}
+    function efld(l,v,k){v=v==null?"":v;return '<div><div class="ql">'+esc(l)+'</div>'+(k&&db?'<div class="editable" contenteditable="true" data-idea-fld="'+k+'">'+esc(v)+'</div>':'<div style="font-size:13px">'+esc(v)+'</div>')+'</div>';}
     var cli=state.clientView;
     if(!cli){
       body+='<div class="block"><div class="bt">Ficha da peça</div><div class="metagrid">'
         +(db?'<div><div class="ql">Publicação, dia e horário</div><div style="display:flex;gap:6px"><input type="date" id="pubData" class="editable" value="'+esc(it.data)+'" style="flex:1;min-width:0"><input type="time" id="pubHora" class="editable" value="'+esc(itemHora(it))+'" style="width:96px"></div><div id="pubMsg" style="font-size:11px;color:var(--faint);margin-top:3px">'+(it.hora?'Horário próprio':'Horário da rotina ('+esc(surfLbl(x.surface))+')')+'</div></div>':efld("Data",it.data))+efld("Tema",x.tema,"tema")+efld("Pilar",(x.pilar||"").split(":")[0])+efld("Formato",x.surface+" + "+x.format)
         +'<div style="grid-column:1/-1">'+efld("Público/Persona",x.persona,"persona")+'</div>'
         +'<div><div class="ql">Status</div>'+(db?'<select class="editable" id="pubStatus" style="width:100%">'+stOpts.map(function(s){return '<option value="'+s+'"'+(s===it.status?' selected':'')+'>'+esc(stLabel(s))+'</option>'}).join('')+'</select><div id="stMsg" style="font-size:11px;color:var(--faint);margin-top:3px"></div>':'<div style="font-size:13px">'+esc(stLabel(it.status))+'</div>')+'</div>'
+        +(sit?'<div style="grid-column:1/-1"><div class="ql">Prazos</div><div style="font-size:13px" id="pubPrazos">'+esc(prazosTxt(it,state.client))+'</div><div id="pubSit" style="font-size:12px;margin-top:3px;color:'+(sit.atraso?'var(--emo)':'var(--muted)')+'">Agora: '+esc((sit.atraso?"atrasada, ":"")+sit.txt)+'</div></div>':'')
+        +(db?'<div style="grid-column:1/-1"><div class="ql">Link do post publicado</div><input type="url" id="pubLink" class="editable" placeholder="https://www.instagram.com/p/..." value="'+esc(it.postUrl||"")+'" style="width:100%"><div id="linkMsg" style="font-size:11px;color:var(--faint);margin-top:3px">Cole quando for ao ar. O link liga os resultados do Instagram a esta peça.</div></div>':'')
         +'</div></div>';
     }else{
       body+='<div class="block"><div class="bt">Ficha</div><div class="metagrid">'+meta("Quando",quando(it))+meta("Tema",x.tema)+meta("Formato",x.surface+" + "+x.format)+meta("Status",stLabel(it.status))+'</div></div>';
@@ -259,17 +261,26 @@
       }
     });
     selTab('estrategia');
-    function savePub(){var dd=I("#pubData"),hh=I("#pubHora");if(!dd||!hh||!isIsoDate(dd.value))return;var patch={data:dd.value,hora:padT(hh.value||itemHora(it))};
-      dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it,patch);var m=I("#pubMsg");if(m)m.textContent="Salvo, "+quando(it);renderCal();},function(){var m=I("#pubMsg");if(m)m.textContent="Não consegui salvar";});}
+    // Mudar a data aqui segue as mesmas regras de arrastar no calendário (é o caminho no celular).
+    function savePub(){var dd=I("#pubData"),hh=I("#pubHora");if(!dd||!hh||!isIsoDate(dd.value))return;var hora=padT(hh.value||itemHora(it));
+      var mud=dd.value!==it.data?mudancaDeData(state.client,it,dd.value,hora):{patch:{data:dd.value,hora:hora},avisos:[]};
+      if(!mud){dd.value=it.data;return;}
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update(mud.patch).then(function(){Object.assign(it,mud.patch);var m=I("#pubMsg");
+        if(m){m.textContent="Salvo, "+quando(it)+(mud.patch.clientStatus===null?". A aprovação do cliente foi reaberta":"")+(mud.avisos.length?". Atenção: "+mud.avisos.join("; "):"");m.style.color=mud.avisos.length?"var(--warn)":"";}
+        var pz=I("#pubPrazos");if(pz)pz.textContent=prazosTxt(it,state.client);AG_ITENS=null;renderCal();},function(){var m=I("#pubMsg");if(m)m.textContent="Não consegui salvar";});}
+    function saveLink(inp){var v=inp.value.trim(),m=I("#linkMsg");
+      if(v&&!/^https?:\/\/\S+$/.test(v)){if(m){m.textContent="Cole o endereço completo, começando com https://";m.style.color="var(--warn)";}return;}
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update({postUrl:v||null}).then(function(){it.postUrl=v||null;if(m){m.textContent=v?"Link salvo.":"Link removido.";m.style.color="var(--good)";}},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}});}
     // Delegado no corpo do drawer: as abas recriam o HTML, então ouvintes
     // presos no elemento se perdiam ao voltar para a aba Estratégia.
     function saveStatus(sel){var st=sel.value,m=I("#stMsg");
-      dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st}).then(function(){it.status=st;if(m){m.textContent="Salvo";m.style.color="var(--good)";}renderCal();renderApprovals();renderContentList();},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}sel.value=it.status;});}
+      dbItemsCol("cos_calendar",state.client).doc(it.id).update({status:st}).then(function(){it.status=st;if(m){m.textContent="Salvo";m.style.color="var(--good)";}AG_ITENS=null;renderCal();renderApprovals();renderContentList();
+        if(st==="PUBLISHED"&&!it.postUrl){var lk=I("#pubLink"),lm=I("#linkMsg");if(lk){lk.focus();if(lm){lm.textContent="Publicada. Cole aqui o link do post.";lm.style.color="var(--brand-ink)";}}}},function(){if(m){m.textContent="Não consegui salvar";m.style.color="var(--warn)";}sel.value=it.status;});}
     function saveIdeaFld(el){var k=el.getAttribute('data-idea-fld'),v=el.textContent.trim();if(v===String(it.idea[k]||""))return;
       var idea=Object.assign({},it.idea);idea[k]=v;
       dbItemsCol("cos_calendar",state.client).doc(it.id).update({idea:idea}).then(function(){it.idea[k]=v;el.style.outline="1px solid var(--good)";setTimeout(function(){el.style.outline="";},900);},function(){el.textContent=it.idea[k]||"";toast("Não consegui salvar a alteração, tente de novo.");});}
     if(db){
-      I("#drawerBody").addEventListener('change',function(e){var t=e.target;if(t.id==="pubData"||t.id==="pubHora")savePub();else if(t.id==="pubStatus")saveStatus(t);});
+      I("#drawerBody").addEventListener('change',function(e){var t=e.target;if(t.id==="pubData"||t.id==="pubHora")savePub();else if(t.id==="pubStatus")saveStatus(t);else if(t.id==="pubLink")saveLink(t);});
       I("#drawerBody").addEventListener('focusout',function(e){var t=e.target;if(t.getAttribute&&t.getAttribute('data-idea-fld'))saveIdeaFld(t);});
     }
     Array.prototype.forEach.call(document.querySelectorAll('.df .btn'),function(b){b.addEventListener('click',async function(){
@@ -348,8 +359,12 @@
         var r0=take0(stage);if(precisaGravar(r0.surface)){var w=semanaDe(slot);gravSem[w]=(gravSem[w]||0)+1;}return r0;
       }
       function take0(stage){var pool=byFunnel[stage].filter(function(x){return usadas.indexOf(x)<0});if(!pool.length)pool=ideas.filter(function(x){return usadas.indexOf(x)<0});if(!pool.length){usadas=[];pool=ideas.slice();}usadas.push(pool[0]);return pool[0];}
-      var ord2=[],ct={topo:0,meio:0,fundo:0},tt={topo:wTopo,meio:wMeio,fundo:wFundo};
-      for(var z=0;z<total;z++){var best="topo",bs=-1;["topo","meio","fundo"].forEach(function(st){var sc=tt[st]?(tt[st]-ct[st])/tt[st]:-1;if(sc>bs){bs=sc;best=st;}});ct[best]++;ord2.push(take(best,slots[z]));}
+      // Campanha no período: nos dias dela vale o foco da campanha (mesma regra do Cronos no servidor).
+      var grupos={},gkey=function(ds){var cp=campanhaNoDia(id,ds);return cp?"c:"+cp.id:"base";};
+      slots.forEach(function(ds){var k=gkey(ds);if(!grupos[k]){var cp=k==="base"?null:campanhaNoDia(id,ds);grupos[k]={n:0,mix:(cp&&mixDoFoco(cp.foco))||mix,ct:{topo:0,meio:0,fundo:0}};}grupos[k].n++;});
+      Object.keys(grupos).forEach(function(k){var gp=grupos[k],t=Math.round(gp.n*gp.mix.topo/100),mm=Math.round(gp.n*gp.mix.meio/100);gp.tt={topo:t,meio:mm,fundo:gp.n-t-mm};});
+      var ord2=[];
+      for(var z=0;z<total;z++){var gz=grupos[gkey(slots[z])],best="topo",bs=-1;["topo","meio","fundo"].forEach(function(st){var sc=gz.tt[st]?(gz.tt[st]-gz.ct[st])/gz.tt[st]:-1;if(sc>bs){bs=sc;best=st;}});gz.ct[best]++;ord2.push(take(best,slots[z]));}
       order=ord2;
       var items=order.map(function(idea,i){
         return {ord:i,id:"cal-"+(i+1),data:slots[i],idea:idea,content:null,carousel:null,stories:null,

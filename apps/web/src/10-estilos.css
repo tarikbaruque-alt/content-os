@@ -212,6 +212,22 @@
   /* Drawer (content detail) */
   .scrim{position:fixed;inset:0;background:rgba(16,15,22,.5);backdrop-filter:blur(2px);z-index:40}
   .drawer{position:fixed;top:0;right:0;height:100%;width:min(680px,100%);background:var(--bg);z-index:41;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.dialogo{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 32px));background:var(--bg);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);padding:22px 22px 16px;z-index:41}
+.dialogo h3{margin:0 0 8px;font-size:17px}
+.dialogo p{margin:0 0 10px;font-size:14px;line-height:1.5}
+.dlg-acoes{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.btn.perigo{background:var(--emo);border-color:var(--emo);color:var(--bg)}
+.btn.perigo:hover{filter:brightness(.95)}
+.ag-direita{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lp-como{margin:14px 0 0;padding-left:18px;line-height:1.6}
+.lp-como li{margin-bottom:6px}
+.eq-ws{max-width:420px;margin:0 0 12px}
+.eq-convite,.eq-perfil{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.eq-convite select,.eq-perfil input{font:inherit}
+/* Só leitura: o banco já recusa a escrita; a tela não oferece o que não vai funcionar. */
+body.so-leitura .genbtn,body.so-leitura #newClientBtn,body.so-leitura [data-arquivar],body.so-leitura [data-apagar],body.so-leitura #autoBuildBtn,body.so-leitura #ecApagar,body.so-leitura [data-act]{display:none!important}
+tr.arquivado td{color:var(--faint)}
+tr.arquivado .av-cli{opacity:.5}
   .drawer .dh{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:16px 20px;display:flex;align-items:flex-start;gap:12px}
   .drawer .db{overflow:auto;padding:20px;display:flex;flex-direction:column;gap:18px;flex:1 1 auto;min-height:0}
   .drawer .df{border-top:1px solid var(--line);padding:14px 20px;display:flex;gap:8px;flex-wrap:wrap;background:var(--surface)}
@@ -670,10 +686,17 @@
   .q-acoes select{min-width:220px}
   .cb-vazio{display:block;width:20px;height:20px;margin:2px;border:1px solid var(--line-strong);border-radius:6px;background:var(--surface)}
   .passos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 24px}
-  .passo{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:14px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line)}
-  .passo.ok{color:var(--faint)}
-  .passo .pc{width:24px;height:24px;flex:0 0 auto}
+  .passo{display:flex;align-items:center;gap:12px;padding:10px 8px;margin:0 -8px;font-size:14px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--line);border-radius:8px}
+  .passo:hover{background:var(--surface-2)}
+  .passo .pc{width:24px;height:24px;flex:0 0 auto;display:grid;place-items:center}
   .passo .pc svg{width:24px;height:24px;display:block}
+  .passo .pn{font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;border:1px solid var(--line-strong);color:var(--muted)}
+  .passo .pt{display:flex;flex-direction:column;min-width:0}
+  .passo .pt small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .passo.feita,.passo.bloqueada{color:var(--faint)}
+  .passo.feita .pt small,.passo.bloqueada .pt small{color:var(--faint)}
+  .passo.atual .pn{border-color:var(--brand);background:var(--brand);color:#fff}
+  .passo.atual b{color:var(--brand-ink)}
   .barra-l{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
   .barra-l:last-child{border-bottom:0}
   .bl-n{flex:0 0 200px;font-size:14px;font-weight:500}
@@ -753,13 +776,38 @@
   .ag-lista-dia{margin-top:16px;display:flex;flex-direction:column;gap:8px}
   .ag-lista-dia .bt{text-transform:capitalize}
   .ag-carregando{padding:48px;text-align:center;color:var(--muted)}
-  @media (min-width:641px){.ag-lista-dia{display:none}}
+  /* Situação da peça no calendário geral: o que falta agora e se passou do prazo. */
+  .ag-sit{font-size:10.5px;line-height:14px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ag-ev.sit-pronta .ag-sit,.ag-ev.sit-publicada .ag-sit{color:var(--good)}
+  .ag-ev.sit-aprovacao .ag-sit,.ag-ev.sit-producao .ag-sit{color:var(--brand-ink)}
+  .ag-ev.atraso{background:color-mix(in srgb,var(--emo) 10%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--emo) 45%,transparent)}
+  .ag-ev.atraso .ag-sit{color:var(--emo)}
+  .ag-ev.sit-publicada{opacity:.6}
+  .ag-ev.prod{background:color-mix(in srgb,var(--c) 16%,var(--surface))}
+  .ag-sit-txt{white-space:normal}
+  .ag-dia.passado .ag-num span{color:var(--faint)}
+  .ag-data{align-self:flex-start;font-size:10.5px;line-height:15px;padding:0 6px;border-radius:4px;background:var(--surface-2);color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ag-data.feriado{background:color-mix(in srgb,var(--warn) 14%,var(--surface));color:var(--warn)}
+  .ag-camp{display:block;font-size:10.5px;line-height:15px;padding:0 6px;border-radius:3px;background:color-mix(in srgb,var(--c) 22%,var(--surface));color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-left:3px solid var(--c)}
+  .ag-vaga{align-self:flex-start;border:1px dashed var(--line-strong);background:none;font:inherit;font-size:11px;color:var(--muted);padding:1px 7px;border-radius:6px;cursor:pointer}
+  .ag-vaga:hover{border-color:var(--brand);color:var(--brand-ink)}
+  .ag-vaga-linha{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px;border:1px dashed var(--line-strong);border-radius:8px;font-size:13px}
+  .agc-filtros{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-4px 0 16px}
+  .agc-filtros select{font:inherit;font-size:13px;height:36px;border:1px solid var(--line);border-radius:8px;padding:0 10px;background:var(--surface);color:var(--ink)}
+  .agc-lista .agc-sem td{background:var(--surface-2);font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .agc-lista tr[data-ag-abrir]{cursor:pointer}
+  .agc-cor{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:8px;vertical-align:middle}
+  tr.linha-atraso td:first-child{box-shadow:inset 3px 0 0 var(--emo)}
   @media (max-width:640px){
     .ag-mes{font-size:20px;min-width:0}
     .ag-dia{min-height:56px;padding:4px 2px;align-items:center}
     .ag-cab div{padding:8px 0;text-align:center}
     .ag-num{justify-content:center;padding:0}
     .ag-evs{display:none} .ag-grade.semana .ag-dia{min-height:72px}
+    /* Célula estreita: campanha vira faixa fina e data vira ponto; o nome aparece na lista do dia. */
+    .ag-camp{width:100%;height:4px;font-size:0;padding:0;border-left:0;border-radius:2px;background:var(--c)}
+    .ag-data{width:6px;height:6px;padding:0;font-size:0;border-radius:50%;align-self:center;background:var(--muted)}
+    .ag-data.feriado{background:var(--warn)}
     .ag-pontos{display:flex;gap:3px;justify-content:center} .ag-pontos i{width:5px;height:5px;border-radius:50%}
     .ag-dia.sel{background:var(--brand-weak)}
   }

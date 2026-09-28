@@ -70,7 +70,7 @@
         '<div class="vt-sum"><div class="vt-chips"><span class="vt-chip">'+f.ic+' '+esc(f.sup)+'</span><span class="vt-chip f-'+esc(x.funil||"")+'">'+esc(fu[0].replace(" de funil",""))+'</span>'+vtStatusHtml(it)+'</div><div class="vt-hd">'+esc(hd)+'</div></div><span class="vt-arrow">›</span></summary>'+
         '<div class="vt-body"><nav class="vt-jump"><a href="#'+id+'-texto">Texto</a><a href="#'+id+'-roteiro">Roteiro</a><a href="#'+id+'-stories">Stories</a></nav>'+
         '<section><h4>O que publicar</h4>'+(x.tema?'<div class="vt-tag">'+esc(x.tema)+'</div>':'')+'<div class="vt-big">'+esc(hd)+'</div>'+(x.conceito&&x.conceito!==hd?'<p>'+esc(x.conceito)+'</p>':'')+'</section>'+
-        '<section id="'+id+'-texto"><h4>Texto pronto</h4>'+(tx?'<div class="vt-copy" id="'+id+'-copy">'+esc(tx)+'</div><button class="vt-btn" data-vt-copy="'+id+'-copy">📋 Copiar texto</button>':'<p class="vt-soft">O texto desta pauta está em produção, em breve aparece aqui.</p>')+'</section>'+
+        '<section id="'+id+'-texto"><h4>Texto pronto</h4>'+(tx?'<div class="vt-copy" id="'+id+'-copy">'+esc(tx)+'</div><button class="vt-btn" data-vt-copy="'+id+'-copy">Copiar texto</button>':'<p class="vt-soft">O texto desta pauta está em produção, em breve aparece aqui.</p>')+'</section>'+
         '<section id="'+id+'-roteiro"><h4>Como produzir</h4>'+(ro.passos.length?'<ol class="vt-steps">'+ro.passos.map(function(p){return '<li><b>'+esc(p.k)+'</b>'+(p.lbl&&String(p.lbl).toLowerCase().indexOf(p.k.toLowerCase())<0?' <span class="vt-soft">('+esc(p.lbl)+')</span>':'')+'<div>'+esc(p.v)+'</div></li>'}).join('')+'</ol>'+(ro.sug?'<p class="vt-soft">Roteiro-base, a versão final chega com o texto.</p>':''):'<p class="vt-soft">Roteiro em produção.</p>')+'</section>'+
         '<section><h4>Formato</h4><div class="vt-fmt"><b>'+f.ic+' '+esc(f.sup)+(f.nome?' · '+esc(f.nome):'')+'</b>'+(f.desc?'<div>'+esc(f.desc)+'</div>':'')+(f.prod&&x.surface!=="Carrossel"?'<div class="vt-soft">'+esc(f.prod)+'</div>':'')+'</div></section>'+
         '<section><h4>Papel estratégico</h4><div class="vt-role f-'+esc(x.funil||"")+'"><b>'+esc(fu[0])+'</b>, '+esc(fu[1])+'.</div>'+(x.proposito||x.objetivo?'<p>'+esc(x.proposito||x.objetivo)+'</p>':'')+'</section>'+
@@ -105,7 +105,9 @@
     '.vt-soft{font-size:12.5px;color:var(--muted,#6A6A7E)}.vt-actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:6px}.vt-adjbox textarea{width:100%;min-height:80px;border:1px solid var(--line,#E8E8F1);border-radius:10px;padding:10px;font:inherit;margin-top:8px;background:var(--surface-2,#FBFBFE);color:var(--ink,#191826)}'+
     '.vt-strat{background:var(--surface,#fff);border:1px solid var(--line,#E8E8F1);border-radius:16px;padding:12px 14px;margin:14px 0}.vt-strat summary{cursor:pointer;font-weight:700}';
   (function(){try{var st=document.createElement("style");st.textContent=VT_CSS;document.head.appendChild(st);}catch(e){}})();
-  // Comportamento no ARQUIVO enviado ao cliente: copiar, aprovar e pedir ajuste (vai para o WhatsApp/e-mail do estrategista).
+  // Comportamento da vitrine fora do painel: copiar, aprovar e pedir ajuste.
+  // Pelo link (D.envio): grava direto na peça, pelo servidor. No arquivo antigo:
+  // vai para o WhatsApp/e-mail do estrategista, que cola a resposta no painel.
   function vtFileScript(D){
     var KEY="vt_status_"+D.cliente;
     function load(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){return {}}}
@@ -113,27 +115,56 @@
     function send(txt,item,st){txt=txt+"\n\nref: CAL|"+D.cid+"|"+item+"|"+st;
       if(D.mail){window.location.href="mailto:"+D.mail+"?subject="+encodeURIComponent("Retorno de pauta, "+D.cliente)+"&body="+encodeURIComponent(txt);return true}
       if(D.wa){window.open("https://wa.me/"+D.wa+"?text="+encodeURIComponent(txt),"_blank");return true}return false}
+    function aviso(p,t,erro){var a=p.querySelector(".vt-aviso");if(!a){a=document.createElement("p");a.className="vt-aviso vt-soft";a.setAttribute("role","status");p.querySelector(".vt-actions").after(a)}a.textContent=t;a.style.color=erro?"#B3261E":"#1E8A5B"}
+    function servidor(p,st,note){return fetch(D.envio.url,{method:"POST",headers:{"Content-Type":"application/json",apikey:D.envio.anon,Authorization:"Bearer "+D.envio.anon},
+      body:JSON.stringify({op:"vitrine_decidir",token:D.envio.token,id:p.getAttribute("data-vt-item"),decisao:st,nota:note||""})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||"Não deu certo, tente de novo.");return j})})}
+    function decidir(p,st,note,txt){
+      if(!D.envio){mark(p,st,note);return send(txt,p.getAttribute("data-vt-item"),st)}
+      var bs=p.querySelectorAll(".vt-actions .vt-btn,.vt-adjbox .vt-btn");[].forEach.call(bs,function(b){b.disabled=true});aviso(p,"Enviando");
+      servidor(p,st,note).then(function(){mark(p,st,note);aviso(p,st==="aprovado"?"Pauta aprovada. Obrigado!":"Pedido de ajuste enviado para a equipe.");[].forEach.call(bs,function(b){b.disabled=false})},
+        function(e){aviso(p,e.message,true);[].forEach.call(bs,function(b){b.disabled=false})});return true}
     function mark(p,st,note){var o=load();o[p.getAttribute("data-vt-item")]={st:st,note:note||""};save(o);paint()}
     function paint(){var o=load(),n=0,tot=0;[].forEach.call(document.querySelectorAll(".vt-p"),function(p){tot++;var s=o[p.getAttribute("data-vt-item")]||(p.getAttribute("data-vt-status")?{st:p.getAttribute("data-vt-status")}:null),ch=p.querySelector(".vt-chips"),old=ch.querySelector(".vt-st");if(old)old.remove();
       if(s){if(s.st==="aprovado")n++;var b=document.createElement("span");b.className="vt-st "+(s.st==="aprovado"?"ok":"adj");b.textContent=s.st==="aprovado"?"Aprovada":"Ajuste pedido";ch.appendChild(b)}});
       var pg=document.querySelector("[data-vt-prog]");if(pg)pg.textContent=n+" de "+tot+" pautas aprovadas";var bar=document.querySelector(".vt-bar i");if(bar)bar.style.width=(tot?Math.round(n*100/tot):0)+"%"}
     document.addEventListener("click",function(e){var t=e.target.closest&&e.target.closest("[data-vt-copy],[data-vt-ok],[data-vt-adj],[data-vt-send]");if(!t)return;var p=t.closest(".vt-p");
-      if(t.hasAttribute("data-vt-copy")){var el=document.getElementById(t.getAttribute("data-vt-copy")),txt=el?el.innerText:"";var done=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="📋 Copiar texto"},1600)};
+      if(t.hasAttribute("data-vt-copy")){var el=document.getElementById(t.getAttribute("data-vt-copy")),txt=el?el.innerText:"";var done=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="Copiar texto"},1600)};
         if(navigator.clipboard)navigator.clipboard.writeText(txt).then(done,function(){var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");done()});else{var r=document.createRange();r.selectNodeContents(el);var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand("copy");done()}return}
-      if(t.hasAttribute("data-vt-ok")){mark(p,"aprovado");send("Aprovado, pauta de "+p.getAttribute("data-vt-label"),p.getAttribute("data-vt-item"),"aprovado");return}
+      if(t.hasAttribute("data-vt-ok")){decidir(p,"aprovado","","Aprovado, pauta de "+p.getAttribute("data-vt-label"));return}
       if(t.hasAttribute("data-vt-adj")){var bx=p.querySelector(".vt-adjbox");bx.hidden=!bx.hidden;if(!bx.hidden)bx.querySelector("textarea").focus();return}
-      if(t.hasAttribute("data-vt-send")){var tx=p.querySelector(".vt-adjbox textarea").value.trim();if(!tx){p.querySelector(".vt-adjbox textarea").focus();return}mark(p,"ajuste",tx);p.querySelector(".vt-adjbox").hidden=true;
-        if(!send("Ajuste na pauta de "+p.getAttribute("data-vt-label")+":\n"+tx,p.getAttribute("data-vt-item"),"ajuste"))alert("Ajuste registrado. Envie este texto ao seu estrategista:\n\n"+tx)}});
+      if(t.hasAttribute("data-vt-send")){var tx=p.querySelector(".vt-adjbox textarea").value.trim();if(!tx){p.querySelector(".vt-adjbox textarea").focus();return}p.querySelector(".vt-adjbox").hidden=true;
+        if(!decidir(p,"ajuste",tx,"Ajuste na pauta de "+p.getAttribute("data-vt-label")+":\n"+tx))aviso(p,"Ajuste registrado. Envie este texto ao seu estrategista: "+tx)}});
     paint();
   }
-  function buildVitrineDoc(items,r,cliente){
-    var cfg=formCfg(),wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
-    var D=JSON.stringify({cliente:cliente,cid:state.client,wa:wa,mail:String(cfg.email||"").trim()}).replace(/</g,"\\u003c");
+  // envio: {url, anon, token} quando a vitrine é aberta pelo link (grava pelo servidor).
+  function buildVitrineDoc(items,r,cliente,envio){
+    var cfg=envio?{}:formCfg(),wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
+    var D=JSON.stringify({cliente:cliente,cid:state.client,wa:wa,mail:String(cfg.email||"").trim(),envio:envio||null}).replace(/</g,"\\u003c");
     var estr=planoClienteHtml(items,r),S='scr'+'ipt';
     var root=':root{--bg:#F5F5FA;--surface:#fff;--surface-2:#FBFBFE;--ink:#191826;--muted:#6A6A7E;--line:#E8E8F1;--brand:#5B45E6;--brand-ink:#4634B6;--brand-weak:#EEEBFF}@media (prefers-color-scheme:dark){:root{--bg:#0E0D16;--surface:#16141F;--surface-2:#1B1927;--ink:#ECEBF5;--muted:#A3A1B7;--line:#2A2838;--brand:#8B7BFF;--brand-ink:#A99CFF;--brand-weak:#241F3B}}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px 14px 50px}.vt-strat h2{font-size:15px;margin:12px 0 6px}.vt-strat section{margin-top:6px}.vt-strat .m{color:var(--muted);font-size:13px}.vt-strat .big{font-weight:700;color:var(--brand-ink)}';
     return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc((vitrineOf(state.client).titulo||"Calendário de conteúdo")+", "+cliente)+'</title><style>'+root+VT_CSS+'</style></head><body>'+
       vitrineHtml(items,"arquivo").replace(/<\/div>$/,'')+'<details class="vt-strat"><summary>Estratégia e linha editorial do período</summary>'+estr+'</details></div>'+
       '<'+S+'>('+vtFileScript.toString()+')('+D+');</'+S+'></body></html>';
+  }
+  // Vitrine por link: a mesma página do painel, aberta com ?vitrine=<token>. O cliente
+  // vê o calendário de hoje (não uma foto antiga) e a decisão dele grava na peça.
+  function vitrinePublicaNaUrl(){
+    var token=null;try{token=new URLSearchParams(location.search).get("vitrine");}catch(e){}
+    if(!token)return false;
+    var cfg=window.COS_CONFIG;
+    function escrever(html){document.open();document.write(html);document.close();}
+    if(!cfg||!/^[0-9a-f]{32}$/.test(token)){escrever(bfPaginaAviso("Link inválido","Confira o link que você recebeu ou peça um novo para quem enviou."));return true;}
+    var url=cfg.url.replace(/\/$/,"")+"/functions/v1/agentes";
+    fetch(url,{method:"POST",headers:{"Content-Type":"application/json",apikey:cfg.anonKey,Authorization:"Bearer "+cfg.anonKey},body:JSON.stringify({op:"vitrine_ver",token:token})})
+      .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error((j&&j.error&&j.error.message)||"Link indisponível.");return j;})})
+      .then(function(d){var c=d.cliente||{};
+        DB_CLIENTS={};DB_CLIENTS[c.id]={id:c.id,name:c.name,niche:c.niche,rotina:c.rotina||{},vitrine:c.vitrine||{}};
+        CLIENTS.unshift({id:c.id,name:c.name||"",full:c.name||"",niche:c.niche||"",av:0});state.client=c.id;
+        GENERATED={strategy:d.estrategia||null,editorial:d.editorial||[],calendar:{items:d.itens||[]},dna:[],ideas:[]};
+        escrever(buildVitrineDoc(d.itens||[],rotinaOf(c.id),c.name||"",{url:url,anon:cfg.anonKey,token:token}));})
+      .catch(function(e){escrever(bfPaginaAviso("Não foi possível abrir o calendário",e.message));});
+    return true;
   }
   // Comportamento no PAINEL ("Ver como cliente"): aprovações e ajustes gravados no banco; topo editável.
   function wireVitrine(root){
@@ -141,7 +172,7 @@
     root.addEventListener('click',function(e){if(!state.clientView)return;var items=(GENERATED&&GENERATED.calendar&&GENERATED.calendar.items)||[];var t=e.target.closest&&e.target.closest("[data-vt-copy],[data-vt-ok],[data-vt-adj],[data-vt-send],[data-vt-edit]");if(!t)return;
       if(t.hasAttribute("data-vt-edit")){abrirEdicaoTopo();return;}
       var p=t.closest(".vt-p"),itId=p&&p.getAttribute("data-vt-item"),it=items.filter(function(x){return x.id===itId})[0];
-      if(t.hasAttribute("data-vt-copy")){var el=I("#"+t.getAttribute("data-vt-copy")),txt=el?el.textContent:"";var ok=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="📋 Copiar texto"},1600)};if(navigator.clipboard)navigator.clipboard.writeText(txt).then(ok,ok);else ok();return;}
+      if(t.hasAttribute("data-vt-copy")){var el=I("#"+t.getAttribute("data-vt-copy")),txt=el?el.textContent:"";var ok=function(){t.textContent="Copiado";setTimeout(function(){t.textContent="Copiar texto"},1600)};if(navigator.clipboard)navigator.clipboard.writeText(txt).then(ok,ok);else ok();return;}
       if(!it)return;
       function salvar(patch,aviso){dbItemsCol("cos_calendar",state.client).doc(it.id).update(patch).then(function(){Object.assign(it,patch);toast(aviso);var aberto=p.id;renderCal();var np=I("#"+aberto);if(np)np.open=true;},function(){toast("Não consegui salvar agora, tente de novo.");});}
       if(t.hasAttribute("data-vt-ok")){salvar({clientStatus:"aprovado",clientAt:new Date().toISOString()},"Pauta aprovada ✓");return;}
@@ -237,8 +268,10 @@
   }
   function calToolbarHtml(temItens){
     return '<div class="toolbar">'+(temItens?'<div class="subtabs"><button class="sub calMode'+(state.calMode!=="lista"?' on':'')+'" data-mode="agenda">Semana</button><button class="sub calMode'+(state.calMode==="lista"?' on':'')+'" data-mode="lista">Lista</button></div>':'')+
-      '<span class="spacer"></span><button class="btn" id="calCfgOpen"><span class="bi">'+iconeUI("settings")+'</span>Rotina e período</button>'+
-      (temItens?'<button class="btn" id="expIcs" title="Importa no Google Agenda ou no celular, com lembrete 30 min antes">Baixar agenda</button><button class="btn" id="expHtml" title="Arquivo para enviar ao cliente: abre no celular, com roteiro, Stories e aprovação por pauta">Arquivo para o cliente</button><button class="btn" id="expGcal">Google Agenda</button>':'')+
+      '<span class="spacer"></span><button class="btn" id="calCfgOpen"><span class="bi">'+iconeUI("settings")+'</span>Rotina e período</button><button class="btn" id="calCamp" title="Lançamento ou data comercial: muda o mix do funil só nesses dias">Campanhas'+(campanhasDe(state.client).length?' ('+campanhasDe(state.client).length+')':'')+'</button>'+
+      // Publicado: link de aprovação e agenda assinada, que se atualizam sozinhos. Offline: arquivo e Google Agenda do Artifact.
+      (temItens?(SB?'<button class="btn pri" id="expLink" title="O cliente abre no celular e aprova ou pede ajuste em cada pauta; a resposta cai aqui">Link de aprovação</button><button class="btn" id="expAssinar" title="Google Agenda ou iPhone: assina uma vez e atualiza sozinho">Assinar agenda</button>'
+        :'<button class="btn" id="expIcs" title="Importa no Google Agenda ou no celular, com lembrete 30 min antes">Baixar agenda</button><button class="btn" id="expHtml" title="Arquivo para enviar ao cliente: abre no celular, com roteiro, Stories e aprovação por pauta">Arquivo para o cliente</button><button class="btn" id="expGcal">Google Agenda</button>'):'')+
       '</div><div id="expMsg" class="pp-m" style="min-height:18px;margin:-8px 0 12px"></div>';
   }
   // Gaveta "Rotina e período": configuração que se mexe pouco sai da frente do calendário.
@@ -273,6 +306,7 @@
         (hasIdeas?'<button class="btn pri" id="calCfgOpen2" style="margin-top:16px">Montar calendário</button>':'<button class="btn pri" data-ir-aba="ideas" style="margin-top:16px">Ir para Ideias</button>')+'</div>';
       el.innerHTML=h;
       Array.prototype.forEach.call(el.querySelectorAll('#calCfgOpen,#calCfgOpen2'),function(b){b.addEventListener('click',openCalConfig)});
+      var cpb=el.querySelector('#calCamp');if(cpb)cpb.addEventListener('click',function(){abrirCampanhas(state.client);});
       var ia=el.querySelector('[data-ir-aba]');if(ia)ia.addEventListener('click',function(){go(ia.getAttribute('data-ir-aba'))});
       if(items.length){wireGen('.view[data-view="calendar"] [data-gen]');wireCalExtras(items);}
       if(state.calCfgAberta)renderCalConfig();

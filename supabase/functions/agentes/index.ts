@@ -9,9 +9,18 @@
 //   {op:"conversar", ws, mensagem, historico, cliente}  chat do Maestro: responde e aciona agentes
 //   {op:"gravar", ws, cliente, docs:[{path,data}], proposta?, restaurar?}  plano (estratégia, linha, ideias) com trava e registro
 //   {op:"etapas", ws, cliente?}          etapa de cada cliente (processo de 6 etapas)
+// Equipe (só o dono; o cadastro público fica desligado):
+//   {op:"equipe_convidar", ws, email, papel}  cria a conta, manda o convite e põe na equipe
+//   {op:"equipe_email", ws, user_id, email}   corrige o e-mail de quem está na equipe
+//   {op:"equipe_acesso", ws, user_id}         reenvia o link para definir a senha
+// Papel "leitura" só usa estado e etapas; o resto pede editor ou dono.
 // Briefing por link (sem login; o token do link é a credencial):
 //   {op:"briefing_ver", token}           nome do cliente e da agência para o formulário
 //   {op:"briefing_enviar", token, respostas}  grava a resposta para a equipe importar
+// Vitrine por link (sem login; token de links_publicos):
+//   {op:"vitrine_ver", token}                        pautas do cliente para aprovar
+//   {op:"vitrine_decidir", token, id, decisao, nota} aprovado | ajuste, gravado na peça
+// Assinatura de agenda (GET ?agenda=<token>): .ics que o Google Agenda e o iPhone atualizam sozinhos.
 // Agenda (pg_cron, com x-cron-secret):
 //   {op:"batida"}                        Maestro: enfileira pela agenda e consome a fila
 //
@@ -26,6 +35,8 @@ import { conversar } from "../_shared/conversa.ts";
 import { limparRespostas, tokenValido, MAX_POR_DIA } from "../_shared/briefing.ts";
 import { etapasDoCliente, objetoDoPath, pathDoCliente, travaDaGravacao, type Objeto } from "../_shared/processo.ts";
 import type { ClienteLlm } from "../_shared/tipos.ts";
+import { authAdminSupabase, convidar, enviarAcesso, trocarEmail, type Membros, type Papel } from "../_shared/equipe.ts";
+import { dadosDaVitrine, decidirPauta, icsDaAgenda } from "../_shared/vitrine.ts";
 
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void };
 
@@ -54,16 +65,27 @@ const CORS = {
 const json = (dados: unknown, status = 200) => new Response(JSON.stringify(dados), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 const erro = (codigo: string, mensagem: string, status = 400) => json({ error: { code: codigo, message: mensagem } }, status);
 
-/** Quem está chamando, e se é membro do workspace pedido. */
-async function membro(req: Request, ws: string): Promise<string | null> {
+/** Quem está chamando e com que papel no workspace pedido (null: não é da equipe). */
+async function membro(req: Request, ws: string): Promise<{ uid: string; papel: Papel } | null> {
   const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
   if (!token || !ws) return null;
   const r = await fetch(`${URL_SB}/auth/v1/user`, { headers: { Authorization: `Bearer ${token}`, apikey: ANON } });
   if (!r.ok) return null;
   const uid = (await r.json()).id as string;
-  const m = await b.rest(`/membros?select=user_id&workspace_id=eq.${encodeURIComponent(ws)}&user_id=eq.${encodeURIComponent(uid)}`);
-  return m?.length ? uid : null;
+  const m = await b.rest(`/membros?select=papel&workspace_id=eq.${encodeURIComponent(ws)}&user_id=eq.${encodeURIComponent(uid)}`);
+  return m?.length ? { uid, papel: m[0].papel as Papel } : null;
 }
+
+const membros: Membros = {
+  papelDe: async (ws, uid) => (await b.rest(`/membros?select=papel&workspace_id=eq.${encodeURIComponent(ws)}&user_id=eq.${encodeURIComponent(uid)}`))?.[0]?.papel ?? null,
+  adicionar: async (ws, uid, papel) => { await b.rest(`/membros`, { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ workspace_id: ws, user_id: uid, papel }) }); },
+};
+const authAdmin = authAdminSupabase(URL_SB, SERVICO, b.rest);
+// Para onde o link do e-mail volta: o painel que fez o pedido (ou SITE_URL, se configurado).
+const voltarPara = (req: Request) => Deno.env.get("SITE_URL") || (/^https:\/\//.test(req.headers.get("origin") ?? "") ? req.headers.get("origin")! : "");
+const EDITA = new Set(["ia", "rodar", "decidir", "acervo", "conversar", "gravar"]);
+const SO_DONO = new Set(["equipe_convidar", "equipe_email", "equipe_acesso"]);
+const respostaEquipe = (r: { ok: true } | { erro: string }) => ("erro" in r ? erro("equipe", r.erro) : json(r));
 
 async function iaDoPainel(ws: string, input: unknown): Promise<Response> {
   if (!anthropic) return erro("sem_chave", "A chave da Anthropic ainda não foi configurada no servidor.", 503);
@@ -197,8 +219,36 @@ async function briefingPublico(body: any): Promise<Response> {
   return json({ ok: true });
 }
 
+/** Link público ativo do tipo pedido: o token é a credencial. */
+async function linkPublico(token: unknown, tipo: "vitrine" | "agenda"): Promise<{ workspace_id: string; client_id: string | null } | null> {
+  if (!tokenValido(token)) return null;
+  return (await b.rest(`/links_publicos?select=workspace_id,client_id&token=eq.${encodeURIComponent(token)}&tipo=eq.${tipo}&ativo=eq.true`))?.[0] ?? null;
+}
+
+async function vitrinePublica(body: any): Promise<Response> {
+  const link = await linkPublico(body.token, "vitrine");
+  if (!link || !link.client_id) return erro("link", "Este link não está mais ativo. Peça um novo para quem enviou.", 404);
+  if (body.op === "vitrine_ver") return json(await dadosDaVitrine(b, link.workspace_id, link.client_id, new Date()));
+  const r = await decidirPauta(b, link.workspace_id, link.client_id, body.id, body.decisao, body.nota, new Date());
+  return "erro" in r ? erro("vitrine", r.erro) : json(r);
+}
+
+async function agendaPublica(token: string): Promise<Response> {
+  const link = await linkPublico(token, "agenda");
+  if (!link) return new Response("Link de agenda inválido ou desativado.", { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  // Sem cliente: todos os clientes ativos (arquivado não entra na agenda da equipe).
+  const clientes = link.client_id ? [link.client_id] : (await b.listDocs(link.workspace_id, "cos_clients"))
+    .filter((d) => d.data?.admin?.ativo !== false).map((d) => d.path.split("/")[1]!);
+  const ics = await icsDaAgenda(b, link.workspace_id, clientes, new Date());
+  return new Response(ics, { headers: { "Content-Type": "text/calendar; charset=utf-8", "Cache-Control": "public, max-age=900", "Access-Control-Allow-Origin": "*" } });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  if (req.method === "GET") {
+    const t = new URL(req.url).searchParams.get("agenda");
+    if (t) return agendaPublica(t);
+  }
   if (req.method !== "POST") return erro("metodo", "Use POST.", 405);
   let body: any;
   try { body = await req.json(); } catch { return erro("json", "Corpo inválido."); }
@@ -211,12 +261,22 @@ Deno.serve(async (req) => {
   }
 
   if (body.op === "briefing_ver" || body.op === "briefing_enviar") return briefingPublico(body);
+  if (body.op === "vitrine_ver" || body.op === "vitrine_decidir") return vitrinePublica(body);
 
   const ws = String(body.ws ?? "");
-  const uid = await membro(req, ws);
-  if (!uid) return erro("not_granted", "Entre no painel com uma conta da equipe.", 401);
+  const quem = await membro(req, ws);
+  if (!quem) return erro("not_granted", "Entre no painel com uma conta da equipe.", 401);
+  const uid = quem.uid;
+  if (EDITA.has(body.op) && quem.papel === "leitura") return erro("somente_leitura", "Seu acesso é só de leitura. Peça ao dono da equipe para mudar o seu papel.", 403);
+  if (SO_DONO.has(body.op) && quem.papel !== "dono") return erro("so_dono", "Só o dono da equipe pode mexer na equipe.", 403);
 
   switch (body.op) {
+    case "equipe_convidar":
+      return respostaEquipe(await convidar(authAdmin, membros, ws, body.email, body.papel, voltarPara(req)));
+    case "equipe_email":
+      return respostaEquipe(await trocarEmail(authAdmin, membros, ws, body.user_id, body.email));
+    case "equipe_acesso":
+      return respostaEquipe(await enviarAcesso(authAdmin, membros, ws, body.user_id, voltarPara(req)));
     case "estado":
       return json({ chave: !!anthropic, modelo: MODELO, orcamento: ORCAMENTO, gasto: await b.gastoDoMes(ws) });
     case "ia":

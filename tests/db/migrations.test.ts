@@ -12,7 +12,7 @@ import { unaccent } from "@electric-sql/pglite/contrib/unaccent";
 const SUPABASE_STUB = `
   create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
   create schema auth;
-  create table auth.users (id uuid primary key, email text);
+  create table auth.users (id uuid primary key, email text, raw_user_meta_data jsonb, last_sign_in_at timestamptz);
   create function auth.uid() returns uuid language sql stable as
     $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
   grant usage on schema public, auth to anon, authenticated, service_role;
@@ -21,6 +21,7 @@ const SUPABASE_STUB = `
 `;
 const A = "00000000-0000-0000-0000-00000000000a";
 const B = "00000000-0000-0000-0000-00000000000b";
+const L = "00000000-0000-0000-0000-00000000000d";
 let db: PGlite;
 
 async function como<T>(user: string | null, fn: () => Promise<T>): Promise<T> {
@@ -34,7 +35,7 @@ describe("migrations do Supabase", () => {
     db = new PGlite({ extensions: { unaccent } });
     await db.exec(SUPABASE_STUB);
     for (const f of readdirSync("supabase/migrations").sort()) await db.exec(readFileSync(`supabase/migrations/${f}`, "utf8"));
-    await db.exec(`insert into auth.users values ('${A}', 'tarik@x.com'), ('${B}', 'outro@y.com');`);
+    await db.exec(`insert into auth.users (id, email, raw_user_meta_data) values ('${A}', 'tarik@x.com', '{"nome":"Tarik"}'), ('${B}', 'outro@y.com', null), ('${L}', 'leitor@x.com', null);`);
   }, 60_000);
 
   it("primeiro acesso cria o workspace; chamar de novo não cria outro", async () => {
@@ -165,5 +166,66 @@ describe("migrations do Supabase", () => {
     await db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_strategy/cli-3', '{}')", [wsA]);
     await como(A, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_dna/cli-3', $2)", [wsA, dna(6)]));
     expect((await um("select count(*)::int as n from public.agent_tasks where client_id = 'cli-3' and agente = 'atlas'"))!.n).toBe(0);
+  });
+
+  it("DNA do painel antigo (sem status) conta como aprovado, igual ao servidor", async () => {
+    const legado = JSON.stringify({ entries: [{ field: "a", value: "v" }, { field: "b", value: "v", status: "pending" }, { field: "c", value: "v", status: "approved" }] });
+    expect((await um("select privado.dna_aprovados($1::jsonb) as n", [legado]))!.n).toBe(2);
+    // A normalização da migration dá o status explícito, sem mexer em quem já tinha.
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    await db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_dna/cli-antigo', $2)", [wsA, legado]);
+    const mig = readFileSync("supabase/migrations/20260928000010_dna_legado.sql", "utf8");
+    await db.exec(mig.slice(mig.indexOf("update public.docs")));
+    const e = (await um("select data->'entries' as e from public.docs where path = 'cos_dna/cli-antigo'"))!.e as any[];
+    expect(e.map((x) => [x.status, !!x.legado])).toEqual([["approved", true], ["pending", false], ["approved", false]]);
+  });
+
+  it("apagar cliente leva tudo dele numa operação só, e só dentro do próprio workspace", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    for (const p of ["cos_clients/del", "cos_dna/del", "cos_strategy/del", "cos_calendar/del/items/c1", "cos_ideas/del/items/i1", "cos_clients/fica", "cos_calendar/fica/items/del"])
+      await db.query("insert into public.docs (workspace_id, path, data) values ($1, $2, '{}')", [wsA, p]);
+    await db.query("insert into public.proposals (workspace_id, client_id, agente, tipo, titulo, payload) values ($1, 'del', 'atlas', 'aviso', 'x', '{}')", [wsA]);
+    // Quem é de outro workspace não apaga.
+    await expect(como(B, () => db.query("select public.apagar_cliente($1, 'del')", [wsA]))).rejects.toThrow(/sem permissão/);
+    const r = await como(A, () => um("select public.apagar_cliente($1, 'del') as n", [wsA]));
+    expect(r!.n).toBe(5);
+    const sobra = (await db.query<any>("select path from public.docs where workspace_id = $1 and (path like '%del%' or path like '%fica%') order by path", [wsA])).rows.map((x) => x.path);
+    expect(sobra).toEqual(["cos_calendar/fica/items/del", "cos_clients/fica"]);
+    expect((await um("select count(*)::int as n from public.proposals where client_id = 'del'"))!.n).toBe(0);
+  });
+
+  it("papéis: leitura vê e não muda; editor muda; só o dono troca papel (e não o próprio)", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    await db.query("insert into public.membros (workspace_id, user_id, papel) values ($1, $2, 'leitura')", [wsA, L]);
+    expect((await como(L, () => db.query("select * from public.docs"))).rows.length).toBeGreaterThan(0);
+    await expect(como(L, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_clients/leitor', '{}')", [wsA]))).rejects.toThrow(/row-level security/);
+    expect((await como(L, () => db.query("delete from public.docs where workspace_id = $1", [wsA]))).affectedRows).toBe(0);
+    await expect(como(L, () => db.query("select public.apagar_cliente($1, 'fica')", [wsA]))).rejects.toThrow(/sem permissão/);
+    // O leitor não se promove; o dono promove, mas não mexe no próprio papel.
+    expect((await como(L, () => db.query("update public.membros set papel = 'dono' where user_id = $1", [L]))).affectedRows).toBe(0);
+    expect((await como(A, () => db.query("update public.membros set papel = 'leitura' where user_id = $1", [A]))).affectedRows).toBe(0);
+    expect((await como(A, () => db.query("update public.membros set papel = 'editor' where user_id = $1", [L]))).affectedRows).toBe(1);
+    await como(L, () => db.query("insert into public.docs (workspace_id, path, data) values ($1, 'cos_clients/leitor', '{}')", [wsA]));
+    // Só a coluna papel muda.
+    await expect(como(A, () => db.query("update public.membros set workspace_id = workspace_id where user_id = $1", [L]))).rejects.toThrow(/permission denied/);
+  });
+
+  it("links públicos: editor cria, leitura e outro workspace não; token sai pronto para a URL", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    const r = await como(A, () => um("insert into public.links_publicos (workspace_id, tipo, client_id, criado_por) values ($1, 'vitrine', 'cli-1', $2) returning token", [wsA, A]));
+    expect(r!.token).toMatch(/^[0-9a-f]{32}$/);
+    await expect(como(A, () => db.query("insert into public.links_publicos (workspace_id, tipo, criado_por) values ($1, 'vitrine', $2)", [wsA, A]))).rejects.toThrow(/check/);
+    await expect(como(B, () => db.query("insert into public.links_publicos (workspace_id, tipo, client_id, criado_por) values ($1, 'agenda', null, $2)", [wsA, B]))).rejects.toThrow(/row-level security/);
+    expect((await como(B, () => db.query("select * from public.links_publicos"))).rows).toHaveLength(0);
+    expect(await como(null, () => db.query("select * from public.links_publicos").then((x) => x.rows.length, () => -1))).toBe(-1);
+  });
+
+  it("equipe() lista nome, e-mail e papel só para quem é do workspace", async () => {
+    const wsA = (await um("select workspace_id from public.membros where user_id = $1", [A]))!.workspace_id;
+    const eq = (await como(L, () => db.query<any>("select email, nome, papel from public.equipe($1)", [wsA]))).rows;
+    expect(eq[0]).toEqual({ email: "tarik@x.com", nome: "Tarik", papel: "dono" });
+    expect(eq.map((x) => x.email)).toContain("leitor@x.com");
+    expect((await como(B, () => db.query("select * from public.equipe($1)", [wsA]))).rows).toHaveLength(0);
+    await expect(como(A, () => db.query("select public.usuario_por_email('tarik@x.com')"))).rejects.toThrow(/permission denied/);
   });
 });

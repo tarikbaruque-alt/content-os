@@ -24,19 +24,33 @@ export function pathDoCliente(path: string, cli: string): boolean {
   return o === "ideias" ? partes.length === 4 && partes[2] === "items" && /^[\w-]{1,80}$/.test(partes[3]!) : partes.length === 2;
 }
 
+/**
+ * Registro do DNA que vale como aprovado. Sem status é registro do painel
+ * antigo, que não tinha aprovação: era o DNA em uso, então conta como aprovado.
+ * A mesma regra está em privado.dna_aprovados (banco) e no painel.
+ */
+export const dnaValeAprovado = (e: any): boolean => !!e && (e.status === "approved" || e.status == null);
+
 export async function dnaAprovados(b: Backend, ws: string, cli: string): Promise<number> {
   const e = (((await b.getDoc(ws, `cos_dna/${cli}`)) ?? {}).entries ?? []) as any[];
-  return e.filter((x) => x?.status === "approved").length;
+  return e.filter(dnaValeAprovado).length;
 }
 
-/** Por que esta gravação do plano não pode acontecer agora, ou null. */
+/**
+ * Por que esta gravação do plano não pode acontecer agora, ou null. A trava
+ * protege a PRIMEIRA versão de cada parte: corrigir ou refazer o que já existe
+ * passa (e fica registrado em aprovacoes com a versão anterior).
+ */
 export async function travaDaGravacao(b: Backend, ws: string, cli: string, objetos: Set<Objeto>): Promise<string | null> {
-  if (objetos.has("estrategia") && (await dnaAprovados(b, ws, cli)) < DNA_MINIMO)
+  const jaTemEstr = !!(await b.getDoc(ws, `cos_strategy/${cli}`));
+  const jaTemEdit = !!(await b.getDoc(ws, `cos_editorial/${cli}`));
+  if (objetos.has("estrategia") && !jaTemEstr && (await dnaAprovados(b, ws, cli)) < DNA_MINIMO)
     return `A estratégia só entra com pelo menos ${DNA_MINIMO} registros do Content DNA aprovados.`;
-  const temEstr = objetos.has("estrategia") || !!(await b.getDoc(ws, `cos_strategy/${cli}`));
-  if (objetos.has("editorial") && !temEstr) return "A linha editorial só entra depois da estratégia aprovada.";
-  const temEdit = objetos.has("editorial") || !!(await b.getDoc(ws, `cos_editorial/${cli}`));
-  if (objetos.has("ideias") && !temEdit) return "As ideias só entram depois da linha editorial aprovada.";
+  const temEstr = objetos.has("estrategia") || jaTemEstr;
+  if (objetos.has("editorial") && !jaTemEdit && !temEstr) return "A linha editorial só entra depois da estratégia aprovada.";
+  const temEdit = objetos.has("editorial") || jaTemEdit;
+  if (objetos.has("ideias") && !temEdit && !(await b.listDocs(ws, `cos_ideas/${cli}/items`)).length)
+    return "As ideias só entram depois da linha editorial aprovada.";
   return null;
 }
 
@@ -64,7 +78,7 @@ const APROVADA = new Set(["APPROVED", "SCHEDULED", "PUBLISHED"]);
 export async function etapasDoCliente(b: Backend, ws: string, cli: string, agora: Date): Promise<{ atual: number; etapas: Etapa[] }> {
   const c = (await b.getDoc(ws, `cos_clients/${cli}`)) ?? {};
   const dna = (((await b.getDoc(ws, `cos_dna/${cli}`)) ?? {}).entries ?? []) as any[];
-  const aprov = dna.filter((x) => x?.status === "approved").length, pend = dna.filter((x) => x?.status === "pending").length;
+  const aprov = dna.filter(dnaValeAprovado).length, pend = dna.filter((x) => x?.status === "pending").length;
   const temEstr = !!(await b.getDoc(ws, `cos_strategy/${cli}`)), temEdit = !!(await b.getDoc(ws, `cos_editorial/${cli}`));
   const ideias = (await b.listDocs(ws, `cos_ideas/${cli}/items`)).length;
   const mes = agora.toISOString().slice(0, 7), hoje = agora.toISOString().slice(0, 10);
