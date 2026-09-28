@@ -2472,19 +2472,20 @@
     function progresso(){var n=ess.filter(respondida).length,pronto=reqs.every(function(s){return val(s)});document.getElementById("bar").style.width=Math.round(100*n/ess.length)+"%";document.getElementById("pct").textContent=pronto?(n===ess.length?"Tudo pronto para enviar":"Pronto para enviar (as que faltam são opcionais)"):n+" de "+ess.length+" perguntas respondidas";}
     function salvar(){var o={};subs.forEach(function(s){o[s.k]=val(s)});try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}progresso();}
     try{var r=JSON.parse(localStorage.getItem(KEY)||"{}");subs.forEach(function(s){setv(s,r[s.k])})}catch(e){}
-    box.addEventListener("change",function(e){var t=e.target;if(t.type==="checkbox"){var s=subs.filter(function(x){return x.k===t.name})[0];if(s&&s.max&&box.querySelectorAll("input[name="+s.k+"]:checked").length>s.max){t.checked=false;alert("Marque no máximo "+s.max+" opções.")}}salvar();});
+    box.addEventListener("change",function(e){var t=e.target;if(t.type==="checkbox"){var s=subs.filter(function(x){return x.k===t.name})[0];var av=t.closest(".f").querySelector(".hint");if(s&&s.max&&box.querySelectorAll("input[name="+s.k+"]:checked").length>s.max){t.checked=false;if(av){av.textContent="Marque no máximo "+s.max+" opções.";av.classList.add("aviso")}}else if(av&&s&&s.hint){av.textContent=s.hint;av.classList.remove("aviso")}}salvar();});
     box.addEventListener("input",salvar);progresso();
     function texto(){var t=D.mark+"\n";subs.forEach(function(s){var v=val(s);if(v)t+="\n▸ "+s.l+"\n"+v+"\n"});return t}
     function ok(){var m=document.getElementById("msg");[].forEach.call(box.querySelectorAll(".q.falta"),function(x){x.classList.remove("falta")});
       var falta=D.form.filter(function(q){return q.sub.some(function(s){return s.req&&!val(s)})});
       if(falta.length){falta.forEach(function(q){box.querySelector(".q[data-n=\""+q.n+"\"]").classList.add("falta")});m.className="msg err";m.textContent="Faltam as perguntas "+falta.map(function(q){return q.n}).join(", ")+". Elas estão marcadas em vermelho.";box.querySelector(".q.falta").scrollIntoView({behavior:"smooth",block:"center"});return false}
       m.className="msg";m.textContent="";return true}
-    document.getElementById("go").addEventListener("click",function(){if(!ok())return;var o=document.getElementById("out");o.style.display="block";document.getElementById("txt").value=texto();o.scrollIntoView({behavior:"smooth"})});
+    document.getElementById("go").addEventListener("click",function(){if(!ok())return;var o=document.getElementById("out"),t=texto();o.style.display="block";document.getElementById("txt").value=t;
+      document.getElementById("wa").href="https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(t);
+      if(D.mail)document.getElementById("em").href="mailto:"+D.mail+"?subject="+encodeURIComponent("📋 Briefing de conteúdo — "+nome())+"&body="+encodeURIComponent(t);
+      o.scrollIntoView({behavior:"smooth"})});
     var nome=function(){return ((box.querySelector("[data-k=name]")||{}).value||"").trim()};
-    var em=document.getElementById("em");if(!D.mail)em.style.display="none";
-    em.addEventListener("click",function(){window.location.href="mailto:"+D.mail+"?subject="+encodeURIComponent("📋 Briefing de conteúdo — "+nome())+"&body="+encodeURIComponent(texto())});
-    document.getElementById("wa").addEventListener("click",function(){window.open("https://wa.me/"+(D.wa||"")+"?text="+encodeURIComponent(texto()),"_blank")});
-    document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt");t.select();var done=function(){document.getElementById("cpm").textContent="Copiado. Agora é só colar na conversa e enviar."};if(navigator.clipboard)navigator.clipboard.writeText(t.value).then(done,function(){document.execCommand("copy");done()});else{document.execCommand("copy");done()}});
+    if(!D.mail)document.getElementById("em").style.display="none";
+    document.getElementById("cp").addEventListener("click",function(){var t=document.getElementById("txt"),m=document.getElementById("cpm");var done=function(){m.textContent="Copiado. Agora é só colar na conversa e enviar."};var manual=function(){t.focus();t.select();m.textContent="Texto selecionado: toque e segure para copiar."};try{navigator.clipboard.writeText(t.value).then(done,manual)}catch(e){manual()}});
   }
   function buildBriefingFormHtml(cfg){
     var para=cfg.cliente?String(cfg.cliente).trim():"",de=cfg.nome?String(cfg.nome):"",wa=String(cfg.whats||"").replace(/\D/g,"");if(wa&&wa.length<=11)wa="55"+wa;
@@ -2494,15 +2495,15 @@
       'main{max-width:620px;margin:0 auto;padding:0 16px 56px}'+
       '.hero{background:#23212b;color:#fff;border-radius:0 0 22px 22px;padding:28px 22px 24px;margin:0 -16px 18px}.hero .de{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#f3c969}.hero h1{font-size:26px;line-height:1.2;margin:10px 0 8px;font-weight:700}.hero p{margin:0;color:#d9d6e3;font-size:15px}'+
       '.chips-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chips-info span{background:rgba(255,255,255,.1);border-radius:20px;padding:4px 11px;font-size:13px}'+
-      '.prog{position:sticky;top:0;z-index:5;background:#f6f4ef;padding:10px 0 8px}.track{height:6px;background:#e7e2d8;border-radius:6px;overflow:hidden}#bar{height:100%;width:0;background:#e0a72e;transition:width .3s}#pct{font-size:12.5px;color:#7a7585;margin-top:5px}'+
+      '.prog{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#f6f4ef;padding:10px 0 8px}.track{height:6px;background:#e7e2d8;border-radius:6px;overflow:hidden}#bar{height:100%;width:0;background:#e0a72e;transition:width .3s}#pct{font-size:12.5px;color:#7a7585;margin-top:5px}'+
       '.sec{margin-top:18px}.sh{margin:8px 2px 10px}.step{font-size:12px;font-weight:600;color:#b07d12;letter-spacing:.04em}.sh h2{font-size:21px;margin:2px 0 0}.oph{margin:6px 0 0;font-size:14px;color:#6f6a7a}'+
       '.q{background:#fff;border:1px solid #ebe6dc;border-radius:16px;padding:16px 16px 14px;margin-bottom:12px;transition:border-color .2s}.q.falta{border-color:#d9534f;box-shadow:0 0 0 3px rgba(217,83,79,.12)}'+
       '.qh{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}.qn{flex:0 0 26px;height:26px;border-radius:50%;background:#23212b;color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:1px}.qt{font-weight:650;font-size:16.5px;line-height:1.35}.req{color:#c9483f}'+
-      '.f{margin-top:10px}.f:first-of-type{margin-top:0}.fl{display:block;font-size:14px;font-weight:600;color:#4a4655;margin-bottom:6px}.hint{font-size:12.5px;color:#8a8595;margin:-2px 0 6px}'+
+      '.f{margin-top:10px}.f:first-of-type{margin-top:0}.fl{display:block;font-size:14px;font-weight:600;color:#4a4655;margin-bottom:6px}.hint{font-size:12.5px;color:#8a8595;margin:-2px 0 6px}.hint.aviso{color:#c9483f;font-weight:600}'+
       'input[type=text],textarea{width:100%;border:1px solid #ddd7cb;border-radius:12px;padding:12px 13px;font:inherit;font-size:16px;background:#fcfbf8;color:inherit;resize:vertical}input[type=text]:focus,textarea:focus{outline:none;border-color:#e0a72e;box-shadow:0 0 0 3px rgba(224,167,46,.18);background:#fff}'+
       '.opts{display:flex;flex-wrap:wrap;gap:8px}.chip{position:relative;cursor:pointer}.chip input{position:absolute;opacity:0;pointer-events:none}.chip span{display:inline-block;border:1px solid #ddd7cb;border-radius:22px;padding:9px 15px;font-size:15px;background:#fcfbf8;transition:all .15s}.chip input:checked+span{background:#23212b;border-color:#23212b;color:#fff}.chip input:focus-visible+span{box-shadow:0 0 0 3px rgba(224,167,46,.35)}'+
       '.sec.opt .q{background:#fbf8f1;border-style:dashed}.sec.opt .qn{background:#b9b2a3}'+
-      '.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;font:inherit;font-weight:650;font-size:16px;cursor:pointer;margin-top:10px}.pri{background:#23212b;color:#fff}.wa{background:#25D366;color:#fff}.sec2{background:#ece7dd;color:#23212b}'+
+      '.btn{display:block;width:100%;text-align:center;text-decoration:none;border:0;border-radius:14px;padding:15px 16px;font:inherit;font-weight:650;font-size:16px;cursor:pointer;margin-top:10px}.pri{background:#23212b;color:#fff}.wa{background:#25D366;color:#fff}.sec2{background:#ece7dd;color:#23212b}'+
       '.msg{font-size:14px;margin-top:10px;color:#6f6a7a}.msg.err{color:#c9483f;font-weight:600}#out{display:none;margin-top:22px}.done{background:#fff;border:1px solid #ebe6dc;border-radius:16px;padding:18px}.done h2{margin:0 0 4px;font-size:21px}.done p{margin:0 0 6px;color:#6f6a7a;font-size:15px}'+
       '#txt{width:100%;min-height:140px;margin-top:12px;font-size:13px}.rod{text-align:center;color:#9a95a3;font-size:12.5px;margin-top:26px}';
     var S='scr'+'ipt';
@@ -2513,8 +2514,8 @@
       '<div class="prog"><div class="track"><div id="bar"></div></div><div id="pct"></div></div>'+
       '<div id="form"></div><button class="btn pri" id="go">Concluir briefing</button><div class="msg" id="msg"></div>'+
       '<div id="out"><div class="done"><h2>Obrigado'+(para?', '+esc(para):'')+'!</h2><p>Agora é só enviar as respostas'+(de?' para '+esc(de):'')+'.</p>'+
-      '<button class="btn pri" id="em">Enviar por e-mail (recomendado)</button><button class="btn wa" id="wa">Enviar pelo WhatsApp</button><button class="btn sec2" id="cp">Copiar respostas</button>'+
-      '<div class="msg" id="cpm">Se o e-mail abrir incompleto, toque em Copiar respostas e cole no corpo da mensagem.</div><textarea id="txt" readonly></textarea></div></div>'+
+      '<a class="btn wa" id="wa" href="#" target="_blank" rel="noopener">Enviar pelo WhatsApp'+(de?' para '+esc(de.split(" ·")[0]):'')+'</a><a class="btn pri" id="em" href="#">Enviar por e-mail</a><button class="btn sec2" id="cp">Copiar respostas</button>'+
+      '<div class="msg" id="cpm">Se o WhatsApp não abrir com o texto, toque em Copiar respostas e cole na conversa.</div><textarea id="txt" readonly></textarea></div></div>'+
       '<p class="rod">'+(de?esc(de)+' · ':'')+'Suas respostas ficam só neste aparelho até você enviar.</p>'+
       '</main><'+S+'>('+briefFormApp.toString()+')('+data+');</'+S+'></body></html>';
   }
