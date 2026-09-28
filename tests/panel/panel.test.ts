@@ -28,7 +28,9 @@ describe("Painel (apps/web)", () => {
     const m = html.match(/\/\*__NICHE_FORMATS_START__\*\/ var NICHE_FORMATS=(.*); \/\*__NICHE_FORMATS_END__\*\//);
     expect(m).not.toBeNull();
     const embedded = JSON.parse(m![1]!);
-    expect(embedded).toEqual(JSON.parse(JSON.stringify({ formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS, gatilhos: GATILHOS, elementos: ELEMENTOS })));
+    // O sync troca travessão e seta por vírgula no texto que vai para o painel.
+    expect(embedded).toEqual(JSON.parse(JSON.stringify({ formatos: FORMATOS, perfis: NICHE_PROFILES, generico: GENERIC_PROFILE, alternativas: FN_ALTERNATIVAS, gatilhos: GATILHOS, elementos: ELEMENTOS }).replace(/\s+[—→]\s+/g, ", ")));
+    expect(m![1]).not.toMatch(/[—→]/);
   });
 
   it("todo JavaScript inline compila (sem erro de sintaxe)", () => {
@@ -37,9 +39,15 @@ describe("Painel (apps/web)", () => {
     for (const code of scripts) expect(() => new Script(code)).not.toThrow();
   });
 
+  it("nenhuma função declarada duas vezes (o painel é um escopo só: a segunda apaga a primeira em silêncio)", () => {
+    const nomes = [...html.matchAll(/^ {2}(?:async )?function ([A-Za-z_$][\w$]*)\(/gm)].map((m) => m[1]!);
+    const repetidos = nomes.filter((n, i) => nomes.indexOf(n) !== i);
+    expect(repetidos).toEqual([]);
+  });
+
   it("toda view do menu tem sua seção e seu título", () => {
     const nav = [...html.matchAll(/\["([a-z]+)","[^"]+"\]/g)].map((x) => x[1]!);
-    const views = new Set(nav.filter((v) => ["overview", "ativos", "clients", "analyze", "dna", "plan", "strategy", "research", "editorial", "ideas", "formats", "distribution", "content", "calendar", "approvals", "performance", "kb", "agents", "config"].includes(v)));
+    const views = new Set(nav.filter((v) => ["overview", "propostas", "ativos", "clients", "analyze", "dna", "plan", "strategy", "research", "editorial", "ideas", "formats", "distribution", "content", "calendar", "approvals", "performance", "kb", "agents", "config"].includes(v)));
     for (const v of views) {
       expect(html.includes(`data-view="${v}"`), `seção ${v}`).toBe(true);
       expect(new RegExp(`[{,]${v}:\\["`).test(html), `título ${v}`).toBe(true);

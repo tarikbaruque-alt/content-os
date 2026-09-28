@@ -1,0 +1,9 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Checkbox">
+<g id="Indeterminate Box">
+<path d="M7 11C6.44772 11 6 11.4477 6 12C6 12.5523 6.44772 13 7 13H17C17.5523 13 18 12.5523 18 12C18 11.4477 17.5523 11 17 11H7Z" fill="#4D4AEA"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M6 1.5C3.51472 1.5 1.5 3.51472 1.5 6V18C1.5 20.4853 3.51472 22.5 6 22.5H18C20.4853 22.5 22.5 20.4853 22.5 18V6C22.5 3.51472 20.4853 1.5 18 1.5H6ZM2.5 6C2.5 4.067 4.067 2.5 6 2.5H18C19.933 2.5 21.5 4.067 21.5 6V18C21.5 19.933 19.933 21.5 18 21.5H6C4.067 21.5 2.5 19.933 2.5 18V6Z" fill="#4D4AEA"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M6 2.5C4.067 2.5 2.5 4.067 2.5 6V18C2.5 19.933 4.067 21.5 6 21.5H18C19.933 21.5 21.5 19.933 21.5 18V6C21.5 4.067 19.933 2.5 18 2.5H6ZM7 11C6.44772 11 6 11.4477 6 12C6 12.5523 6.44772 13 7 13H17C17.5523 13 18 12.5523 18 12C18 11.4477 17.5523 11 17 11H7Z" fill="#F4F3FF"/>
+</g>
+</g>
+</svg>

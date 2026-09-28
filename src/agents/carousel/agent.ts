@@ -264,7 +264,8 @@ export async function writeCarousel(
   try {
     const res = await llm.generate({ system: SYSTEM, messages: [{ role: "user", content: buildCarouselPrompt(idea, ctx, base) }], maxTokens: 6000 });
     return parseCarouselJson(res.text, base) ?? base;
-  } catch {
+  } catch (e) {
+    console.warn(`⚠️ Mosaico: IA falhou, usando rascunho (${(e as Error).message})`);
     return base;
   }
 }

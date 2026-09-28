@@ -208,7 +208,8 @@ export async function writeContent(
     });
     const parsed = parseWriterJson(res.text, idea, fallback);
     return parsed ?? fallback;
-  } catch {
+  } catch (e) {
+    console.warn(`⚠️ Rima: IA falhou, usando rascunho (${(e as Error).message})`);
     return fallback;
   }
 }

@@ -411,7 +411,8 @@ export async function writeStorySequence(
   try {
     const res = await llm.generate({ system: SYSTEM, messages: [{ role: "user", content: buildStoryPrompt(idea, ctx, base) }], maxTokens: 6000 });
     return parseStoryJson(res.text, base) ?? base;
-  } catch {
+  } catch (e) {
+    console.warn(`⚠️ Enredo: IA falhou, usando rascunho (${(e as Error).message})`);
     return base;
   }
 }

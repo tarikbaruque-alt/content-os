@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Protótipo da fase 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F9F9FD; --line:#ECECEE; --line-strong:#E0E0E0;
+    --ink:#2A2A2A; --muted:#57595B; --faint:#8C8E90;
+    --brand:#4D4AEA; --brand-weak:#F4F3FF; --brand-ink:#3E3BC4;
+    --good:#147129; --good-bg:#EAFDEE; --warn:#8A5A00; --warn-bg:#FFF6E0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/20px Inter,system-ui,sans-serif}
+  button{font:inherit;color:inherit;cursor:pointer}
+  svg{display:block}
+  .ic{width:24px;height:24px;display:inline-grid;place-items:center;flex:0 0 auto}
+  .ic svg{width:100%;height:100%}
+
+  /* faixa do protótipo (não faz parte do painel) */
+  .proto{position:sticky;top:0;z-index:30;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 24px;background:#2A2A2A;color:#fff;font-size:13px}
+  .proto b{font-weight:600;margin-right:8px}
+  .proto button{background:transparent;border:1px solid #57595B;color:#fff;border-radius:200px;padding:4px 12px}
+  .proto button.on{background:#fff;color:#2A2A2A;border-color:#fff}
+
+  .app{display:grid;grid-template-columns:272px minmax(0,1fr);min-height:calc(100vh - 44px)}
+  .side{border-right:1px solid var(--line);padding:0 16px 28px;display:flex;flex-direction:column}
+  .brand{display:flex;gap:8px;align-items:center;padding:32px 10px 26px;font-weight:600;font-size:18px}
+  .brand .ic{width:30px;height:30px}
+  .nav{display:grid;gap:2px}
+  .nav a{display:flex;align-items:center;gap:8px;height:48px;padding:0 16px;border-radius:6px;font-size:15px;font-weight:500;text-decoration:none;color:var(--ink)}
+  .nav a.on{background:var(--brand-weak);color:var(--brand)}
+  .nav .n{margin-left:auto;background:var(--surface-2);color:var(--muted);font-size:12px;line-height:16px;padding:2px 8px;border-radius:200px;font-weight:500}
+  .nav a.on .n{background:#fff;color:var(--brand)}
+  .side-fim{margin-top:auto;display:grid;gap:22px}
+  .user{border:2px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;gap:10px;align-items:center}
+  .av{width:37px;height:37px;border-radius:50%;display:grid;place-items:center;font-weight:600;background:var(--brand-weak);color:var(--brand);flex:0 0 auto}
+  .user small{display:block;color:var(--faint);font-size:13px}
+
+  main{padding:32px 42px 64px 32px;min-width:0}
+  .head{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .crumb{font-size:13px;color:var(--faint)}
+  h1{font-size:28px;line-height:38px;font-weight:500;margin:0}
+  .sub{color:var(--muted);font-size:14px}
+  .head .acoes{margin-left:auto;display:flex;gap:12px;align-items:center}
+  .btn{height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--line-strong);background:#fff;font-weight:500;display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+  .btn:hover{background:var(--surface-2)}
+  .btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn.pri:hover{background:var(--brand-ink)}
+  .btn.lil{background:var(--brand-weak);border-color:transparent;color:var(--brand)}
+  .btn.sm{height:36px;padding:0 14px}
+  .btn.ic-only{width:40px;padding:0;justify-content:center}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:200px;font-size:12px;line-height:16px;font-weight:500;background:var(--surface-2);color:var(--muted)}
+  .pill i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+  .pill.ok{background:var(--good-bg);color:var(--good)} .pill.ok i{background:var(--good)}
+  .pill.man{background:var(--warn-bg);color:var(--warn)} .pill.man i{background:var(--warn)}
+  .pill.voce{background:var(--brand-weak);color:var(--brand)} .pill.voce i{background:var(--brand)}
+
+  /* trilho */
+  .trilho{margin-top:28px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .et{position:relative;padding:18px 18px 16px;border-right:1px solid var(--line);background:#fff;text-align:left;border-top:0;border-bottom:0;border-left:0;display:grid;gap:6px;align-content:start;transition:background .15s}
+  .et:last-child{border-right:0}
+  .et:hover{background:var(--surface-2)}
+  .et.atual{background:var(--brand-weak)}
+  .et.bloq{cursor:not-allowed}
+  .et .topo{display:flex;align-items:center;gap:8px}
+  .et .num{font-size:12px;color:var(--faint);font-weight:500}
+  .et .nome{font-size:15px;font-weight:600}
+  .et.bloq .nome{color:var(--faint)}
+  .marca{width:24px;height:24px;flex:0 0 auto;display:grid;place-items:center}
+  .marca.feita{color:var(--brand)}
+  .marca.atual{border-radius:50%;border:2px solid var(--brand);background:#fff}
+  .marca.atual::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--brand)}
+  .marca.bloq{border-radius:50%;border:1.5px solid var(--line-strong)}
+  .et .estado{font-size:12px;line-height:16px;color:var(--muted);min-height:32px}
+  .et.atual .estado{color:var(--brand-ink);font-weight:500}
+  .barra{height:6px;border-radius:100px;background:var(--line);overflow:hidden}
+  .barra i{display:block;height:100%;background:var(--brand);border-radius:100px;transition:width .3s}
+  .et .conta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--faint)}
+  .et .pill{padding:2px 8px}
+
+  /* próximo passo */
+  .prox{margin-top:16px;display:flex;align-items:center;gap:24px;padding:20px 24px;border-radius:12px;border:1px solid #DCDBFB;background:var(--brand-weak);flex-wrap:wrap}
+  .prox .txt{flex:1;min-width:280px}
+  .prox .eyebrow{font-size:12px;font-weight:600;color:var(--brand);letter-spacing:.02em}
+  .prox b{display:block;font-size:18px;line-height:26px;font-weight:600;margin-top:2px}
+  .prox span.apoio{color:var(--muted)}
+  .prox .quem{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+  .prox .quem .av{width:28px;height:28px;font-size:12px}
+  .prox .acoes{display:flex;gap:12px}
+
+  /* corpo */
+  .corpo{margin-top:24px;display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:24px;align-items:start}
+  .quadro{border:1px solid var(--line);border-radius:12px;background:#fff;padding:24px}
+  .quadro h3{font-size:18px;line-height:24px;font-weight:500;margin:0}
+  .quadro p{margin:4px 0 0;color:var(--muted)}
+  .q-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
+  .q-head .acoes{margin-left:auto;display:flex;gap:8px}
+  .lote{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);margin-bottom:8px}
+  .lote .qt{font-weight:500}
+  .lote .acoes{margin-left:auto;display:flex;gap:8px}
+  .cb{width:20px;height:20px;border-radius:6px;border:1px solid #D0D5DD;background:#fff;display:grid;place-items:center;flex:0 0 auto;padding:0}
+  .cb.on{background:var(--brand-weak);border-color:var(--brand)}
+  .cb.on::after{content:"";width:10px;height:6px;border-left:2px solid var(--brand);border-bottom:2px solid var(--brand);transform:rotate(-45deg) translate(1px,-1px)}
+  .cb.parc{background:var(--brand-weak);border-color:var(--brand)}
+  .cb.parc::after{content:"";width:10px;height:2px;background:var(--brand);border-radius:2px}
+  .reg{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .reg:last-child{border-bottom:0}
+  .reg .c{flex:1;min-width:0}
+  .reg .campo{font-size:12px;color:var(--faint);font-weight:500}
+  .reg .valor{font-weight:500;margin-top:2px}
+  .reg .fonte{font-size:12px;color:var(--faint);margin-top:4px}
+  .reg .lado{display:flex;gap:8px;align-items:center}
+  .reg.aprovado{opacity:.55}
+  .reg.aprovado .ic{color:var(--brand)}
+  .apoio{display:grid;gap:24px}
+  .apoio .quadro{padding:20px}
+  .apoio h3{font-size:16px}
+  .cita{margin-top:12px;padding:12px 14px;border-left:3px solid var(--line-strong);color:var(--muted);background:var(--surface-2);border-radius:0 8px 8px 0}
+  .auto-l{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+  .auto-l:last-of-type{border-bottom:0}
+  .lnk{background:none;border:0;padding:0;color:var(--brand);font-weight:500}
+
+  /* gaveta */
+  .scrim{position:fixed;inset:0;background:rgba(42,42,42,.35);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+  .gaveta{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:#fff;z-index:41;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s cubic-bezier(.2,.7,.2,1);box-shadow:0 24px 60px -20px rgba(16,24,40,.35)}
+  .aberta .scrim{opacity:1;pointer-events:auto}
+  .aberta .gaveta{transform:none}
+  .g-h{padding:24px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+  .g-h b{font-size:18px;font-weight:500;display:block}
+  .g-h small{color:var(--faint);font-size:14px}
+  .g-b{flex:1;overflow:auto;padding:8px 24px 24px}
+  .g-f{padding:16px 24px;border-top:1px solid var(--line);display:flex;gap:12px;justify-content:flex-end;align-items:center}
+  .g-f .nota{margin-right:auto;font-size:12px;color:var(--faint)}
+  .grupo{margin-top:20px}
+  .grupo .gt{font-size:12px;font-weight:600;color:var(--faint);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+  .chave{display:flex;gap:16px;align-items:flex-start;padding:16px 0;border-bottom:1px solid var(--line)}
+  .chave .c{flex:1}
+  .chave .t{font-weight:500}
+  .chave .d{color:var(--muted);font-size:13px;margin-top:2px;transition:color .15s}
+  .chave.off .d{color:var(--warn)}
+  .chave .extra{margin-top:10px;display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+  .chave.off .extra{display:none}
+  select{height:36px;border:1px solid var(--line-strong);border-radius:8px;padding:0 10px;font:inherit;background:#fff}
+  /* interruptor (padrão Untitled UI, cores do arquivo) */
+  .sw{position:relative;width:44px;height:24px;border-radius:12px;border:0;background:var(--line);padding:0;flex:0 0 auto;transition:background .2s}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(16,24,40,.1),0 1px 2px rgba(16,24,40,.06);transition:transform .2s}
+  .sw[aria-checked="true"]{background:var(--brand)}
+  .sw[aria-checked="true"]::after{transform:translateX(20px)}
+  .sw:focus-visible{outline:none;box-shadow:0 0 0 4px var(--brand-weak)}
+  .chave.pausa .sw[aria-checked="true"]{background:#B42318}
+
+  .semana{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .semana .st{padding:12px 16px;font-weight:500;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .semana .st small{color:var(--faint);font-weight:400;font-size:12px}
+  .sem-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+  .sem-d{border-right:1px solid var(--line);padding:8px 6px;min-height:120px;display:flex;flex-direction:column;gap:4px}
+  .sem-d:last-child{border-right:0}
+  .sem-d .dn{font-size:12px;color:var(--faint);font-weight:500;text-align:center;margin-bottom:2px}
+  .ev{font-size:11px;line-height:14px;padding:4px 6px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
+  .ev b{display:block;font-weight:600;color:var(--ink)}
+  .ev.post{background:var(--brand-weak)} .ev.post b{color:var(--brand)}
+  .ev.grav{background:var(--warn-bg)} .ev.grav b{color:var(--warn)}
+  .ev.off{opacity:.35;text-decoration:line-through}
+  .dias{display:flex;gap:6px;flex-wrap:wrap}
+  .dia{height:32px;min-width:44px;padding:0 10px;border-radius:8px;border:1px solid var(--line-strong);background:#fff;font-size:13px;font-weight:500}
+  .dia.on{background:var(--brand-weak);border-color:var(--brand);color:var(--brand)}
+  .rot{padding:16px 0;border-bottom:1px solid var(--line);display:grid;gap:10px}
+  .rot .t{font-weight:500}
+  .rot .linha{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+  @media (max-width:1100px){.trilho{grid-template-columns:repeat(3,minmax(0,1fr))}.et:nth-child(3){border-right:0}.et:nth-child(-n+3){border-bottom:1px solid var(--line)}.corpo{grid-template-columns:1fr}}
+  @media (max-width:760px){
+    .app{grid-template-columns:1fr}.side{display:none}main{padding:20px 16px 48px}
+    .trilho{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.et{flex:0 0 72%;scroll-snap-align:start;border-bottom:0!important}
+    .prox{padding:16px}.prox .acoes{width:100%}.prox .acoes .btn{flex:1;justify-content:center}
+    .head .acoes{margin-left:0;flex-wrap:wrap}
+    .corpo>*{min-width:0}.lote{flex-wrap:wrap}.lote .acoes{margin-left:0}
+    .reg{flex-wrap:wrap}.reg .lado{width:100%;justify-content:flex-end}
+    .q-head{flex-wrap:wrap}
+    .proto{padding:8px 16px}
+  }
+</style>
+</head>
+<body>
+<div class="proto" role="toolbar" aria-label="Protótipo"><b>Protótipo da fase 2. Ver o cliente em:</b>
+  <button data-cena="entender" class="on">Entender, esperando você</button>
+  <button data-cena="planejar-agente">Planejar, agente trabalhando</button>
+  <button data-cena="planejar-voce">Planejar, esperando você</button>
+  <button data-cena="produzir">Produzir, esperando o cliente</button>
+</div>
+<div class="app" id="app">
+  <aside class="side">
+    <div class="brand"><span class="ic">{{ic:logomark}}</span>Content OS</div>
+    <nav class="nav">
+      <a href="#"><span class="ic">{{ic:nav-home}}</span>Hoje<span class="n">3</span></a>
+      <a href="#" class="on"><span class="ic">{{ic:nav-user}}</span>Clientes</a>
+      <a href="#"><span class="ic">{{ic:nav-grid-ativo}}</span>Calendário</a>
+      <a href="#"><span class="ic">{{ic:nav-layers}}</span>Agentes</a>
+    </nav>
+    <div class="side-fim">
+      <nav class="nav"><a href="#"><span class="ic">{{ic:nav-settings}}</span>Configuração</a></nav>
+      <div class="user"><span class="av">N</span><div><b>Nicácio</b><small>Content OS</small></div></div>
+    </div>
+  </aside>
+  <main>
+    <div class="head">
+      <div><div class="crumb">Clientes</div><h1>Dr Julia</h1><div class="sub">Endodontia, desde setembro de 2026</div></div>
+      <div class="acoes">
+        <span class="pill ok" id="pilAuto"><i></i>Piloto automático ligado</span>
+        <button class="btn">Ver como cliente</button>
+        <button class="btn" id="abrirOp"><span class="ic" style="width:20px;height:20px">{{ic:settings}}</span>Como este cliente roda</button>
+      </div>
+    </div>
+
+    <div class="trilho" id="trilho" role="list" aria-label="Etapas do cliente"></div>
+    <div class="prox" id="prox"></div>
+
+    <div class="corpo">
+      <section class="quadro" id="principal"></section>
+      <div class="apoio">
+        <section class="quadro">
+          <h3>Briefing</h3><p>Respondido pela cliente no link, em 20/09.</p>
+          <div class="cita">Atendo pacientes com dor de dente que têm medo de canal. Quero que percebam que o tratamento hoje é rápido e sem dor.</div>
+          <div style="margin-top:12px"><button class="lnk">Ver as 30 respostas</button></div>
+        </section>
+        <section class="quadro">
+          <h3>Como este cliente roda</h3>
+          <div style="margin-top:8px" id="resumoAuto"></div>
+          <div style="margin-top:12px"><button class="lnk" id="abrirOp2">Ajustar</button></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="op">
+  <div class="scrim" id="scrim"></div>
+  <aside class="gaveta" role="dialog" aria-label="Como este cliente roda">
+    <div class="g-h"><div style="flex:1"><b>Como a Dr Julia roda</b><small>O que acontece sozinho, quando acontece e o que espera vocês.</small></div><button class="btn ic-only" id="fechar" aria-label="Fechar"><span class="ic" style="width:20px;height:20px">{{ic:x-fechar}}</span></button></div>
+    <div class="g-b" id="chaves"></div>
+    <div class="g-f"><span class="nota">Cada mudança fica registrada com quem mudou e quando.</span><button class="btn" id="cancelar">Cancelar</button><button class="btn pri" id="salvar">Salvar</button></div>
+  </aside>
+</div>
+
+<script>
+(function(){
+  var IC={check:'{{icjs:check-filled}}'};
+  var HORARIOS={planDia:"20",planHora:"9h",radarDia:"segunda",radarHora:"7h",estHora:"6h",estDias:"7 dias",prazo:"2 dias",postHora:"18h",gravDia:"Ter"};
+  var ROTINA={dias:["Seg","Qua","Sex"]};
+  function sel(k,ops){return '<select data-h="'+k+'" aria-label="'+k+'">'+ops.map(function(o){return '<option'+(o===HORARIOS[k]?' selected':'')+'>'+o+'</option>'}).join('')+'</select>';}
+  var CHAVES=[
+    {g:"Planejamento",k:"plano",t:"Planejamento mensal automático",on:"Todo dia 20, o Pulso lê o mês e o Átlas propõe o plano do próximo. Vocês aprovam.",off:"Ninguém planeja o próximo mês sozinho. Use Pedir agora na etapa Planejar.",extra:'Todo dia '+sel("planDia",["10","15","20","25"])+' do mês, às '+sel("planHora",["8h","9h","10h"]),v:true},
+    {k:"radar",t:"Pesquisa semanal de pautas",on:"O Radar traz pautas do nicho com fonte e data.",extra:'Toda '+sel("radarDia",["segunda","terça","quarta","quinta","sexta"])+' às '+sel("radarHora",["6h","7h","8h"]),off:"Sem pautas novas; o plano usa só o DNA e os resultados.",v:true},
+    {g:"Produção",k:"estudio",t:"Peças escritas com antecedência",on:"O Estúdio escreve as peças que ainda não têm texto e manda para a aprovação de vocês.",extra:'Todo dia às '+sel("estHora",["5h","6h","7h"])+' escreve as peças dos próximos '+sel("estDias",["3 dias","7 dias","14 dias"]),off:"As peças ficam sem texto até alguém pedir na etapa Produzir.",v:true},
+    {g:"Aprovação do cliente",k:"cliCal",t:"Cliente aprova o calendário",on:"Depois que vocês aprovam, a cliente recebe o link do calendário do mês.",off:"O calendário vale com a aprovação de vocês.",v:true},
+    {k:"cliPeca",t:"Cliente aprova cada peça",on:"Cada peça aprovada por vocês vai para a cliente pelo link.",off:"A peça vale com a aprovação de vocês.",extra:'Prazo de resposta '+sel("prazo",["1 dia","2 dias","3 dias"]),v:true},
+    {k:"semResp",t:"Publicar se a cliente não responder no prazo",on:"Passou o prazo, a peça segue com a aprovação de vocês.",off:"A peça espera a resposta da cliente.",v:false},
+    {g:"Pausa",k:"pausa",t:"Pausar tudo deste cliente",on:"Nenhum agente roda para a Dr Julia. O que já foi aprovado continua no calendário.",off:"Os agentes seguem as regras acima.",v:false,pausa:true}
+  ];
+  var estado={},rascunho={};CHAVES.forEach(function(c){estado[c.k]=c.v});
+  var cena="entender";
+  var E=function(id){return document.getElementById(id)};
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+  var CENAS={
+    "entender":{atual:2,prog:[[1,1],[3,5],[0,4],[0,0],[0,0],[0,0]],est:["Feita em 20/09","8 sugestões esperando você","Bloqueada até o DNA","","",""],
+      prox:{e:"Próximo passo",b:"Aprove o Content DNA da Dr Julia",a:"A Íris sugeriu 8 registros. Com 5 aprovados, o planejamento começa sozinho.",quem:"Com você",p:"Revisar e aprovar",s:"Pedir à Íris de novo"}},
+    "planejar-agente":{atual:3,prog:[[1,1],[5,5],[0,4],[0,0],[0,0],[0,0]],est:["Feita em 20/09","Feita em 22/09","O Átlas está montando a estratégia","","",""],
+      prox:{e:"Em andamento",b:"O Átlas está montando a estratégia de outubro",a:"Começou às 14:02, costuma levar poucos minutos. Quando terminar, a proposta aparece aqui para você aprovar.",quem:"Com o agente",p:null,s:"Ver o que ele está fazendo"}},
+    "planejar-voce":{atual:3,prog:[[1,1],[5,5],[1,4],[0,0],[0,0],[0,0]],est:["Feita em 20/09","Feita em 22/09","Estratégia esperando você","","",""],
+      prox:{e:"Próximo passo",b:"Aprove a estratégia de outubro",a:"Posicionamento, Big Message e o mix do mês. Aprovando, a linha editorial e as ideias vêm em seguida.",quem:"Com você",p:"Revisar e aprovar",s:"Pedir ajuste"}},
+    "produzir":{atual:4,prog:[[1,1],[5,5],[4,4],[6,12],[2,3],[1,2]],est:["Feita em 20/09","Feita em 22/09","Feita em 24/09","3 peças esperando a cliente","1 peça para marcar como publicada","1 resultado para registrar"],
+      prox:{e:"Esperando a cliente",b:"3 peças aguardam a aprovação da Dr Julia",a:"Enviadas ontem às 18h. O prazo termina amanhã; depois disso a peça espera, porque publicar sem resposta está desligado.",quem:"Com a cliente",p:"Lembrar a cliente",s:"Ver as peças"}}
+  };
+  var NOMES=["Briefing","Entender","Planejar","Produzir","Publicar","Medir"];
+  var AUTO_DA_ETAPA={3:"plano",4:"estudio"};
+
+  function renderTrilho(){
+    var c=CENAS[cena];
+    E("trilho").innerHTML=NOMES.map(function(n,i){
+      var num=i+1,st=num<c.atual?"feita":num===c.atual?"atual":(c.atual>=4&&num>4?"atual-ciclo":"bloq");
+      if(st==="atual-ciclo")st=c.prog[i][1]?(c.prog[i][0]<c.prog[i][1]?"feita-parcial":"feita"):"bloq";
+      var p=c.prog[i],pct=p[1]?Math.round(p[0]/p[1]*100):0;
+      var marca=st==="feita"?'<span class="marca feita">'+IC.check+'</span>':st==="atual"||st==="feita-parcial"?'<span class="marca atual"></span>':'<span class="marca bloq"></span>';
+      var auto=AUTO_DA_ETAPA[num]&&(!estado[AUTO_DA_ETAPA[num]]||estado.pausa)?'<span class="pill man"><i></i>Manual</span>':'';
+      var estTxt=c.est[i]||(st==="bloq"?"Bloqueada até a etapa anterior":"");
+      return '<button class="et '+(st==="atual"?"atual":st==="bloq"?"bloq":"")+'" role="listitem" '+(st==="bloq"?'aria-disabled="true"':'')+'>'+
+        '<div class="topo">'+marca+'<span class="num">'+num+'</span><span class="nome">'+n+'</span></div>'+
+        '<div class="estado">'+esc(estTxt)+'</div>'+
+        '<div class="barra"><i style="width:'+pct+'%"></i></div>'+
+        '<div class="conta"><span>'+(p[1]?p[0]+' de '+p[1]:'')+'</span>'+auto+'</div></button>';
+    }).join('');
+  }
+  function renderProx(){
+    var x=CENAS[cena].prox,pausado=estado.pausa;
+    if(pausado)x={e:"Cliente pausado",b:"Nenhum agente roda para a Dr Julia",a:"O que já foi aprovado continua no calendário. Reative em Como este cliente roda.",quem:"Pausado",p:"Reativar",s:null};
+    var pil=x.quem==="Com você"?"voce":x.quem==="Pausado"?"man":"";
+    E("prox").innerHTML='<div class="txt"><div class="eyebrow">'+esc(x.e)+'</div><b>'+esc(x.b)+'</b><span class="apoio">'+esc(x.a)+'</span></div>'+
+      '<span class="pill '+pil+'"><i></i>'+esc(x.quem)+'</span>'+
+      '<div class="acoes">'+(x.s?'<button class="btn lil">'+esc(x.s)+'</button>':'')+(x.p?'<button class="btn pri" id="proxPri">'+esc(x.p)+'</button>':'')+'</div>';
+    var pp=E("proxPri");if(pp&&pausado)pp.addEventListener('click',function(){estado.pausa=false;tudo();});
+  }
+  var DNA=[
+    {s:"Público",f:"Persona",v:"Adultos de 25 a 50 anos com dor de dente e medo de tratamento de canal",fonte:"do briefing",st:"Fato",ap:true},
+    {s:"Público",f:"Dor principal",v:"Medo de sentir dor durante o canal",fonte:"do briefing",st:"Fato",ap:true},
+    {s:"Negócio",f:"Oferta",v:"Tratamento de canal em sessão única, com anestesia computadorizada",fonte:"do briefing",st:"Fato",ap:true},
+    {s:"Posicionamento",f:"Diferencial",v:"Especialista em canal sem dor, atendimento no mesmo dia",fonte:"sugerido pela Íris",st:"Hipótese",ap:false,sel:true},
+    {s:"Comunicação",f:"Tom",v:"Acolhedor e técnico sem jargão",fonte:"do briefing",st:"Fato",ap:false,sel:true},
+    {s:"Público",f:"Objeção",v:"Acha que canal é caro e demorado",fonte:"sugerido pela Íris",st:"Hipótese",ap:false,sel:true},
+    {s:"Posicionamento",f:"Percepção desejada",v:"A dentista que tira o medo do canal",fonte:"sugerido pela Íris",st:"Insight",ap:false},
+    {s:"Negócio",f:"Região",v:"Zona Sul de São Paulo",fonte:"do briefing",st:"Fato",ap:false}
+  ];
+  function renderPrincipal(){
+    var el=E("principal");
+    if(cena!=="entender"){el.innerHTML='<div class="q-head"><div><h3>'+(cena==="produzir"?"Peças do mês":"Planejamento de outubro")+'</h3><p>'+(cena==="produzir"?"12 peças: 6 aprovadas, 3 com a cliente, 3 em produção.":"Estratégia, linha editorial, ideias e calendário, um de cada vez.")+'</p></div></div><p style="color:var(--faint)">Nesta etapa o conteúdo segue o mesmo formato: o que espera ação no topo, com o botão ao lado; o resto abaixo, para consulta.</p>';return;}
+    var pend=DNA.filter(function(d){return !d.ap}),sel=pend.filter(function(d){return d.sel}).length,aprov=DNA.length-pend.length;
+    var cab=sel===0?"":sel===pend.length?"on":"parc";
+    el.innerHTML='<div class="q-head"><div><h3>Content DNA</h3><p>'+pend.length+' sugestões esperando você, '+aprov+' aprovados. Com 5 aprovados, o planejamento começa.</p></div></div>'+
+      (pend.length?'<div class="lote"><button class="cb '+cab+'" id="selTodos" aria-label="Selecionar todos"></button><span class="qt">'+(sel?sel+' selecionado'+(sel>1?'s':''):'Selecionar')+'</span><div class="acoes"><button class="btn sm" '+(sel?'':'disabled')+'>Descartar</button><button class="btn pri sm" id="aprSel" '+(sel?'':'disabled')+'>Aprovar selecionados</button></div></div>':'')+
+      DNA.map(function(d,i){return d.ap?
+        '<div class="reg aprovado"><span class="ic" style="width:20px;height:20px">'+IC.check+'</span><div class="c"><div class="campo">'+esc(d.s)+', '+esc(d.f)+'</div><div class="valor">'+esc(d.v)+'</div></div><span class="pill ok"><i></i>Aprovado</span></div>':
+        '<div class="reg"><button class="cb '+(d.sel?'on':'')+'" data-i="'+i+'" aria-label="Selecionar"></button><div class="c"><div class="campo">'+esc(d.s)+', '+esc(d.f)+'</div><div class="valor">'+esc(d.v)+'</div><div class="fonte">'+esc(d.fonte)+'</div></div><div class="lado"><span class="pill">'+esc(d.st)+'</span><button class="btn sm">Editar</button></div></div>';}).join('');
+    el.querySelectorAll('.reg .cb').forEach(function(b){b.addEventListener('click',function(){var d=DNA[+b.dataset.i];d.sel=!d.sel;renderPrincipal();})});
+    var st=E("selTodos");if(st)st.addEventListener('click',function(){var todos=pend.every(function(d){return d.sel});pend.forEach(function(d){d.sel=!todos});renderPrincipal();});
+    var ap=E("aprSel");if(ap)ap.addEventListener('click',function(){pend.forEach(function(d){if(d.sel){d.ap=true;d.sel=false}});
+      var n=DNA.filter(function(d){return d.ap}).length;CENAS.entender.prog[1]=[Math.min(n,5),5];CENAS.entender.est[1]=n>=5?"Feita agora":(DNA.length-n)+" sugestões esperando você";
+      if(n>=5){CENAS.entender.prox={e:"Pronto",b:"DNA aprovado. O Átlas já está na fila para a estratégia",a:"Você não precisa fazer nada agora. Avisamos aqui quando a proposta chegar.",quem:"Com o agente",p:null,s:"Ver a fila"};}
+      tudo();});
+  }
+  function renderResumo(){
+    E("resumoAuto").innerHTML=CHAVES.filter(function(c){return c.k!=="pausa"}).map(function(c){var on=estado[c.k]&&!estado.pausa;var q={plano:"dia "+HORARIOS.planDia+", "+HORARIOS.planHora,radar:HORARIOS.radarDia+", "+HORARIOS.radarHora,estudio:"todo dia, "+HORARIOS.estHora}[c.k];return '<div class="auto-l"><span>'+esc(c.t)+(on&&q?'<small style="display:block;color:var(--faint)">'+esc(q)+'</small>':'')+'</span><span class="pill '+(on?'ok':'')+'"><i></i>'+(on?'Ligado':'Desligado')+'</span></div>'}).join('')+
+      '<div class="auto-l"><span>Posts<small style="display:block;color:var(--faint)">'+esc(ROTINA.dias.join(", ")+", "+HORARIOS.postHora)+'</small></span><span class="pill"><i></i>'+ROTINA.dias.length+' por semana</span></div>';
+    var algumOff=CHAVES.some(function(c){return c.k!=="pausa"&&c.k!=="semResp"&&!estado[c.k]});
+    var p=E("pilAuto");p.className="pill "+(estado.pausa?"man":algumOff?"man":"ok");p.innerHTML='<i></i>'+(estado.pausa?"Cliente pausado":algumOff?"Piloto automático parcial":"Piloto automático ligado");
+  }
+  var DS=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],DL={segunda:"Seg","terça":"Ter",quarta:"Qua",quinta:"Qui",sexta:"Sex"};
+  function semanaHtml(){
+    var r=rascunho,pausa=r.pausa;
+    return '<div class="semana"><div class="st">A semana da Dr Julia<small>muda enquanto você ajusta</small></div><div class="sem-g">'+DS.map(function(d){
+      var ev='';
+      if(r.radar&&DL[HORARIOS.radarDia]===d)ev+='<div class="ev'+(pausa?' off':'')+'"><b>'+HORARIOS.radarHora+'</b>Radar: pautas</div>';
+      if(r.estudio&&d!=="Dom")ev+='<div class="ev'+(pausa?' off':'')+'"><b>'+HORARIOS.estHora+'</b>Estúdio escreve</div>';
+      if(HORARIOS.gravDia===d)ev+='<div class="ev grav"><b>Gravação</b>Reels da semana</div>';
+      if(ROTINA.dias.indexOf(d)>=0)ev+='<div class="ev post"><b>'+HORARIOS.postHora+'</b>Post no ar</div>';
+      return '<div class="sem-d"><div class="dn">'+d+'</div>'+ev+'</div>';}).join('')+'</div></div>'+
+      (r.plano?'<p style="margin:8px 0 0;font-size:12px;color:var(--faint)">E uma vez por mês: dia '+HORARIOS.planDia+' às '+HORARIOS.planHora+', o planejamento do mês seguinte.</p>':'');
+  }
+  function rotinaHtml(){
+    return '<div class="grupo"><div class="gt">Rotina de postagem</div></div><div class="rot"><div class="t">Dias de postar</div><div class="dias">'+DS.map(function(d){return '<button class="dia'+(ROTINA.dias.indexOf(d)>=0?' on':'')+'" data-dia="'+d+'" aria-pressed="'+(ROTINA.dias.indexOf(d)>=0)+'">'+d+'</button>'}).join('')+'</div>'+
+      '<div class="linha">Horário de postar '+sel("postHora",["9h","12h","18h","20h"])+' <span>e</span> dia de gravação '+sel("gravDia",DS)+'</div>'+
+      '<div class="linha">'+ROTINA.dias.length+' posts por semana. O Cronos usa estes dias para distribuir as ideias no calendário.</div></div>';
+  }
+  function renderChaves(){
+    E("chaves").innerHTML=semanaHtml()+CHAVES.map(function(c){var v=rascunho[c.k];
+      return (c.g?'<div class="grupo"><div class="gt">'+esc(c.g)+'</div></div>':'')+
+        '<div class="chave'+(v?'':' off')+(c.pausa?' pausa':'')+'"><div class="c"><div class="t" id="t-'+c.k+'">'+esc(c.t)+'</div><div class="d">'+esc(v?c.on:c.off)+'</div>'+(c.extra?'<div class="extra">'+c.extra+'</div>':'')+'</div>'+
+        '<button class="sw" role="switch" aria-checked="'+(v?'true':'false')+'" aria-labelledby="t-'+c.k+'" data-k="'+c.k+'"></button></div>';}).join('');
+    var prod=E("chaves").querySelector('#t-estudio').closest('.chave');prod.insertAdjacentHTML('afterend',rotinaHtml());
+    function redesenha(){var y=E("chaves").scrollTop;renderChaves();E("chaves").scrollTop=y;}
+    E("chaves").querySelectorAll('.sw').forEach(function(b){b.addEventListener('click',function(){rascunho[b.dataset.k]=!rascunho[b.dataset.k];redesenha();})});
+    E("chaves").querySelectorAll('select[data-h]').forEach(function(s){s.addEventListener('change',function(){HORARIOS[s.dataset.h]=s.value;redesenha();})});
+    E("chaves").querySelectorAll('[data-dia]').forEach(function(b){b.addEventListener('click',function(){var d=b.dataset.dia,i=ROTINA.dias.indexOf(d);if(i>=0)ROTINA.dias.splice(i,1);else ROTINA.dias.push(d);ROTINA.dias.sort(function(a,c){return DS.indexOf(a)-DS.indexOf(c)});redesenha();})});
+  }
+  function abrir(){rascunho=Object.assign({},estado);renderChaves();E("op").classList.add("aberta");}
+  function fechar(){E("op").classList.remove("aberta");}
+  E("abrirOp").addEventListener('click',abrir);E("abrirOp2").addEventListener('click',abrir);
+  E("fechar").addEventListener('click',fechar);E("scrim").addEventListener('click',fechar);E("cancelar").addEventListener('click',fechar);
+  E("salvar").addEventListener('click',function(){estado=Object.assign({},rascunho);fechar();tudo();});
+  document.addEventListener('keydown',function(e){if(e.key==="Escape")fechar();});
+  document.querySelectorAll('[data-cena]').forEach(function(b){b.addEventListener('click',function(){cena=b.dataset.cena;document.querySelectorAll('[data-cena]').forEach(function(x){x.classList.toggle('on',x===b)});tudo();})});
+  function tudo(){renderTrilho();renderProx();renderPrincipal();renderResumo();}
+  tudo();
+})();
+</script>
+</body>
+</html>
