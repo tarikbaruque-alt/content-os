@@ -12,6 +12,8 @@ _base: &base
   sombra_px: 2
   caixa_alta: true
   palavras_por_linha: 3
+  entrada: fade         # fade | slide | nenhuma (efeito quando o bloco de palavras aparece)
+  bounce: false         # true = palavra ativa "quica"
   pop: 118              # % de escala no "pulo" da palavra ativa (100 = sem efeito)
   pos_y_pct: 68         # altura do texto (0 topo – 100 base). Zona segura Reels: 60–72
   fundo: null
@@ -59,3 +61,18 @@ cinema:                 # estilo filme: minúsculas, uma linha, sem animação
   palavras_por_linha: 6
   pop: 100
   pos_y_pct: 82
+
+uma_palavra:            # 1 palavra grande por vez — ritmo máximo (estilo TikTok)
+  <<: *base
+  palavras_por_linha: 1
+  tamanho: 110
+  entrada: nenhuma
+  bounce: true
+  pop: 115
+
+dinamico:               # 2 palavras, entra deslizando, palavra quica
+  <<: *base
+  palavras_por_linha: 2
+  tamanho: 92
+  entrada: slide
+  bounce: true

@@ -2,6 +2,9 @@
 """Gera legenda ASS animada (palavra ativa em destaque) a partir de words.json.
 
 Uso: legenda_ass.py words.json --estilo hormozi [--out legenda.ass] [--res 1080x1920]
+       [--palavras N]          quantas palavras aparecem por vez (1 = uma palavra grande por vez)
+       [--entrada fade|slide|nenhuma]   efeito quando cada bloco de palavras aparece
+       [--bounce | --sem-bounce]        "quique" da palavra ativa
 Queimar: ffmpeg -i IN -vf "ass=legenda.ass[:fontsdir=assets/fontes]" OUT
 Edição de texto (corrigir nomes): edite words.json e rode de novo — não precisa retranscrever.
 """
@@ -35,10 +38,17 @@ def main():
     ap.add_argument("--estilo", default="hormozi")
     ap.add_argument("--out", default="legenda.ass")
     ap.add_argument("--res", default="1080x1920")
+    ap.add_argument("--palavras", type=int)
+    ap.add_argument("--entrada", choices=["fade", "slide", "nenhuma"])
+    ap.add_argument("--bounce", dest="bounce", action="store_true", default=None)
+    ap.add_argument("--sem-bounce", dest="bounce", action="store_false")
     ap.add_argument("--presets", default=os.path.join(HERE, "..", "presets", "legendas.yaml"))
     a = ap.parse_args()
 
     st = yaml.safe_load(open(a.presets))[a.estilo]
+    if a.palavras: st["palavras_por_linha"] = a.palavras
+    if a.entrada: st["entrada"] = a.entrada
+    if a.bounce is not None: st["bounce"] = a.bounce
     W, H = map(int, a.res.split("x"))
     words = json.load(open(a.words))
     cor, ativa = ass_color(st["cor"]), ass_color(st["ativa"])
@@ -77,12 +87,24 @@ Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
                     tag = f"{{\\c{ativa}"
                     if st.get("ativa_fundo"):
                         tag += f"\\bord14\\3c{ass_color(st['ativa_fundo'])}"
-                    if pop != 100:
+                    if pop != 100 and st.get("bounce"):
+                        # sobe além do tamanho e assenta: sensação de "quique"
+                        tag += (f"\\fscx{pop + 10}\\fscy{pop + 10}\\t(0,70,\\fscx{pop - 6}\\fscy{pop - 6})"
+                                f"\\t(70,140,\\fscx100\\fscy100)")
+                    elif pop != 100:
                         tag += f"\\fscx{pop}\\fscy{pop}\\t(0,90,\\fscx100\\fscy100)"
                     parts.append(f"{tag}}}{t}{{\\r}}")
                 else:
                     parts.append(t)
-            ev.append(f"Dialogue: 0,{ts(start)},{ts(end)},L,,0,0,0,,{' '.join(parts)}")
+            pre = ""
+            if i == 0:  # efeito de entrada só quando o bloco aparece
+                ent = st.get("entrada", "nenhuma")
+                y = int(H * st["pos_y_pct"] / 100)
+                if ent == "fade":
+                    pre = "{\\fad(120,0)}"
+                elif ent == "slide":
+                    pre = f"{{\\move({W // 2},{y + 50},{W // 2},{y},0,140)\\fad(100,0)}}"
+            ev.append(f"Dialogue: 0,{ts(start)},{ts(end)},L,,0,0,0,,{pre}{' '.join(parts)}")
     open(a.out, "w", encoding="utf-8").write(head + "\n".join(ev) + "\n")
     print(f"{len(ev)} eventos, estilo '{a.estilo}' -> {a.out}")
 

@@ -6,7 +6,9 @@
 arquivo: entrada/nome-do-video.mp4
 cliente:
 preset: reels-9x16          # ver presets/
-estilo_legenda: hormozi     # hormozi | clean | caixa | neon | cinema
+estilo_legenda: hormozi     # hormozi | clean | caixa | neon | cinema | uma_palavra | dinamico
+palavras_por_vez: 3         # 1–4 (menos = mais rápido)
+entrada_legenda: fade       # fade | slide | nenhuma
 duracao_alvo: 30s           # máx.
 cortes:                     # o que remover/manter
   - remover silêncios: sim

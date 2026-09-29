@@ -20,6 +20,29 @@ Regra de ouro: **o áudio nunca corta; a imagem troca a cada 2–4 s.**
 | **Imagens + zoom lento (Ken Burns)** | grátis | Fotos/prints/infográficos viram clipe com `zoom` no plano. |
 | **IA (Artlist generate_video/image)** | **créditos** | Conta atual: teste grátis (1 vídeo, 2 imagens). Só compensa com assinatura; use para cenas que não existem em banco. |
 
+## Integração com Pexels, Pixabay e Pinterest
+
+| Serviço | Como integra | Status |
+|---|---|---|
+| **Pexels** | `scripts/buscar_broll.py "consulta" --fonte pexels` (API gratuita, vídeos verticais, licença livre) | pronto; precisa de `PEXELS_API_KEY` + rede liberada |
+| **Pixabay** | `scripts/buscar_broll.py "consulta" --fonte pixabay` (API gratuita, licença livre) | pronto; precisa de `PIXABAY_API_KEY` + rede liberada |
+| **Pinterest** | **não integra como fonte de B-roll** | ver abaixo |
+
+**Pré-requisitos (uma vez):**
+1. Criar as chaves gratuitas (pexels.com/api e pixabay.com/api/docs) e cadastrar em
+   `PEXELS_API_KEY` / `PIXABAY_API_KEY` como credenciais do ambiente (não no git).
+2. Liberar na rede do ambiente: `api.pexels.com`, `videos.pexels.com`, `images.pexels.com`,
+   `pixabay.com`, `cdn.pixabay.com`.
+
+Cada arquivo baixado é registrado em `assets/broll/creditos.json` (fonte, autor, página).
+Pexels e Pixabay não exigem atribuição, mas o registro evita perder a origem.
+
+**Pinterest:** a API oficial só acessa as *suas* pins/boards (e exige app aprovado); não oferece
+busca/download livre, e raspar o site fere os termos. Além disso, quase tudo lá é
+material protegido de terceiros, sem licença de uso comercial. Use o Pinterest como **moodboard**:
+salve prints/imagens de referência em `referencias/` (e descreva em `referencias/notas.md`) — eu leio
+imagens e replico o *estilo* (cores, enquadramento, ritmo), sem reutilizar o material alheio.
+
 ## Regras de qualidade
 - **Duração:** 2–3 s cada; nunca > 4 s. Entradas em `t` alinhadas ao começo de uma frase/palavra-chave.
 - **Nunca cobrir os primeiros 1,5 s** (gancho com rosto) nem o CTA final.

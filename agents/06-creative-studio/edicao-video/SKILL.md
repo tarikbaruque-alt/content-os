@@ -29,11 +29,13 @@
 |---|---|
 | Transcrever com tempo por palavra | `python3 scripts/transcrever.py entrada/x.mp4 --out words.json` |
 | Legenda animada bonita | `python3 scripts/legenda_ass.py words.json --estilo hormozi --out legenda.ass` |
+| Baixar B-roll (Pexels/Pixabay) | `python3 scripts/buscar_broll.py "café close" --n 3` |
 | Inserir B-roll | `python3 scripts/aplicar_broll.py entrada/x.mp4 plano.json saida/y.mp4` |
 | Queimar a legenda | `ffmpeg -i y.mp4 -vf "ass=legenda.ass:fontsdir=assets/fontes" -c:a copy z.mp4` |
 
 Estilos de legenda: `hormozi` (impacto), `clean` (elegante), `caixa` (destaque em caixa),
-`neon`, `cinema` — em `presets/legendas.yaml`. Corrigir um nome errado = editar `words.json` e rerrodar
+`neon`, `cinema`, `uma_palavra` (1 palavra por vez), `dinamico` (2 palavras, entra deslizando, quica) — em `presets/legendas.yaml`.
+Ajustes rápidos na chamada: `--palavras 2` (poucas palavras por vez), `--entrada fade|slide|nenhuma`, `--bounce`. Corrigir um nome errado = editar `words.json` e rerrodar
 (não retranscreve). Guia de B-roll em [`broll.md`](./broll.md).
 
 ## 3. Regras inegociáveis
