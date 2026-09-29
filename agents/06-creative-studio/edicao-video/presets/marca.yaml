@@ -1,0 +1,16 @@
+# Preencher por cliente (copiar para marca-<cliente>.yaml se houver vários).
+cliente: NOME
+cores:
+  primaria: "#000000"
+  secundaria: "#FFFFFF"
+  destaque: "#FFD400"
+fonte: assets/fontes/PRINCIPAL.ttf
+logo:
+  arquivo: assets/logos/logo.png
+  posicao: topo-direita
+  largura_px: 180
+  opacidade: 0.9
+  mostrar_em: todo-o-video       # ou: inicio | fim
+tom: ""                           # ex.: direto, acolhedor, técnico
+musica_padrao: nenhuma
+palavras_proibidas: []

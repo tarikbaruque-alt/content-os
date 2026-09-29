@@ -1,0 +1,19 @@
+nome: reels-9x16
+resolucao: 1080x1920
+fps: 30
+codec_video: libx264
+crf: 20
+preset_x264: medium
+codec_audio: aac
+audio_bitrate: 192k
+loudness_lufs: -14          # normalização de áudio
+enquadramento: cover        # cover = preenche e corta; contain = barras
+remover_silencios:
+  ativo: true
+  limite_db: -35
+  duracao_min_s: 0.35
+zona_segura:                # não colocar texto/logo fora daqui (UI das redes)
+  topo_px: 250
+  base_px: 380
+  laterais_px: 60
+duracao_max_s: 90

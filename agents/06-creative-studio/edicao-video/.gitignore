@@ -1,0 +1,8 @@
+# Vídeos e áudio pesados ficam fora do git
+entrada/*
+saida/*
+assets/musicas/*
+referencias/*.mp4
+referencias/*.mov
+!**/.gitkeep
+!referencias/notas.md

@@ -1,0 +1,20 @@
+# Estilos de legenda. O agente usa o nome em `estilo_legenda` do briefing.
+padrao:
+  fonte: assets/fontes/PRINCIPAL.ttf   # trocar pela fonte da marca
+  tamanho: 64
+  cor: "#FFFFFF"
+  contorno: "#000000"
+  contorno_px: 4
+  posicao: centro-baixo               # dentro da zona segura
+  max_palavras_por_linha: 4
+  destaque_palavra: false
+destaque:
+  herda: padrao
+  cor_destaque: "#FFD400"
+  destaque_palavra: true              # palavra falada fica em cor_destaque
+  caixa_alta: true
+minimalista:
+  herda: padrao
+  tamanho: 52
+  contorno_px: 0
+  fundo: "#00000099"

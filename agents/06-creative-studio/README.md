@@ -23,7 +23,7 @@ briefing e schema. Todas bebem da **Knowledge Base** (ver seção abaixo).
 | Headlines & Hooks | *a detalhar* | Criação de Alto Valor (ganchos canônicos) | 🟡 KB pronta |
 | CTAs | *a detalhar* | Jornada & Editorias | 🟡 KB pronta |
 | Vídeos / roteiro longo | *a criar* | — | ⏳ |
-| Direção visual / de edição | *a criar* | — | ⏳ |
+| **Edição de Vídeo** (direção de edição) | [`edicao-video/`](./edicao-video/) | Presets + receitas ffmpeg | ✅ template pronto |
 
 > ⭐ = prioridade. **🟡 KB pronta** significa que o conhecimento já foi
 > formalizado e a competência pode ser detalhada a seguir, reusando os padrões
