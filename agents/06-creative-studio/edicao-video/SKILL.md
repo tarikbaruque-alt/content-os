@@ -23,6 +23,19 @@
 - **Testar em prévia curta** (`-t 5`, resolução baixa) antes de renderizar tudo.
 - Ajustes pequenos: alterar o valor no preset/briefing e rerrodar, sem reescrever o comando.
 
+## 2b. Recursos prontos (testados)
+
+| Tarefa | Comando |
+|---|---|
+| Transcrever com tempo por palavra | `python3 scripts/transcrever.py entrada/x.mp4 --out words.json` |
+| Legenda animada bonita | `python3 scripts/legenda_ass.py words.json --estilo hormozi --out legenda.ass` |
+| Inserir B-roll | `python3 scripts/aplicar_broll.py entrada/x.mp4 plano.json saida/y.mp4` |
+| Queimar a legenda | `ffmpeg -i y.mp4 -vf "ass=legenda.ass:fontsdir=assets/fontes" -c:a copy z.mp4` |
+
+Estilos de legenda: `hormozi` (impacto), `clean` (elegante), `caixa` (destaque em caixa),
+`neon`, `cinema` — em `presets/legendas.yaml`. Corrigir um nome errado = editar `words.json` e rerrodar
+(não retranscreve). Guia de B-roll em [`broll.md`](./broll.md).
+
 ## 3. Regras inegociáveis
 
 1. **Nunca sobrescrever** o arquivo original: sempre gravar em `saida/` com o nome `AAAA-MM-DD_cliente_tema_vN.mp4`.
@@ -36,7 +49,8 @@
 | Preset | Uso |
 |---|---|
 | `presets/reels-9x16.yaml` | Reels/Shorts/TikTok: 1080×1920, legenda, ritmo |
-| `presets/legendas.yaml` | Estilos de legenda (fonte, cor, posição, animação) |
+| `presets/legendas.yaml` | Estilos de legenda animada (fonte, cor, posição, pulo) |
+| `presets/broll.yaml` | Ritmo de B-roll (duração, cobertura, zoom, fade) |
 | `presets/marca.yaml` | Identidade do cliente (cores, fonte, logo, música) |
 
 Novo formato (feed 4:5, YouTube 16:9, Stories) = copiar um preset e ajustar.
@@ -51,10 +65,12 @@ Novo formato (feed 4:5, YouTube 16:9, Stories) = copiar um preset e ajustar.
 | `assets/logos/` | Logo (PNG transparente) |
 | `assets/musicas/` | Trilhas licenciadas |
 | `assets/overlays/` | Barras, setas, transições, molduras |
+| `assets/broll/` | Clipes/imagens de cobertura (ver `broll.md`) |
 | `saida/` | Resultado (gerado pelo agente) |
 
 ## 6. Ambiente
 
 Requer `ffmpeg`/`ffprobe`. Se não estiver instalado: `apt-get install -y ffmpeg`.
-Para legenda automática: `pip install faster-whisper` (roda local, sem custo de API).
+Scripts: `pip install pyyaml faster-whisper` (transcrição local, sem custo de API; o 1º uso baixa o modelo).
+Fontes: os estilos usam Montserrat/Poppins; coloque os `.ttf` em `assets/fontes/` (sem eles cai numa fonte padrão).
 Vídeos grandes **não vão no git** (ver `.gitignore` desta pasta); passe por upload na sessão ou Drive.

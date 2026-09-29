@@ -1,20 +1,61 @@
-# Estilos de legenda. O agente usa o nome em `estilo_legenda` do briefing.
-padrao:
-  fonte: assets/fontes/PRINCIPAL.ttf   # trocar pela fonte da marca
-  tamanho: 64
+# Estilos de legenda animada (palavra por palavra). Usados por scripts/legenda_ass.py
+# Cores em #RRGGBB. `ativa` = palavra sendo falada. Fonte: nome INSTALADO no sistema
+# (ou arquivo em assets/fontes/, passado com --fontsdir assets/fontes).
+_base: &base
+  fonte: Montserrat
+  negrito: true
+  tamanho: 78
   cor: "#FFFFFF"
+  ativa: "#FFD400"
   contorno: "#000000"
-  contorno_px: 4
-  posicao: centro-baixo               # dentro da zona segura
-  max_palavras_por_linha: 4
-  destaque_palavra: false
-destaque:
-  herda: padrao
-  cor_destaque: "#FFD400"
-  destaque_palavra: true              # palavra falada fica em cor_destaque
+  contorno_px: 5
+  sombra_px: 2
   caixa_alta: true
-minimalista:
-  herda: padrao
-  tamanho: 52
+  palavras_por_linha: 3
+  pop: 118              # % de escala no "pulo" da palavra ativa (100 = sem efeito)
+  pos_y_pct: 68         # altura do texto (0 topo – 100 base). Zona segura Reels: 60–72
+  fundo: null
+
+hormozi:                # impacto: caixa alta, palavra ativa amarela com pulo
+  <<: *base
+
+clean:                  # elegante e discreto, ativa em branco puro, resto translúcido
+  <<: *base
+  fonte: Poppins
+  tamanho: 64
+  cor: "#FFFFFFB3"
+  ativa: "#FFFFFF"
   contorno_px: 0
-  fundo: "#00000099"
+  sombra_px: 4
+  caixa_alta: false
+  pop: 106
+
+caixa:                  # palavra ativa com destaque em caixa colorida
+  <<: *base
+  tamanho: 70
+  cor: "#FFFFFF"
+  ativa: "#111111"
+  ativa_fundo: "#FFD400"
+  contorno_px: 0
+  sombra_px: 0
+  pop: 110
+
+neon:
+  <<: *base
+  cor: "#FFFFFF"
+  ativa: "#00F0FF"
+  contorno: "#0040FF"
+  contorno_px: 4
+  pop: 120
+
+cinema:                 # estilo filme: minúsculas, uma linha, sem animação
+  <<: *base
+  fonte: DejaVu Serif
+  negrito: false
+  tamanho: 58
+  ativa: "#FFFFFF"
+  contorno_px: 2
+  caixa_alta: false
+  palavras_por_linha: 6
+  pop: 100
+  pos_y_pct: 82

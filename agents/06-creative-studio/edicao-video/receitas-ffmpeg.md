@@ -30,7 +30,10 @@ Com barras (contain): `scale=1080:1920:force_original_aspect_ratio=decrease,pad=
 -af "loudnorm=I=-14:TP=-1.5:LRA=11"
 ```
 
-## Legenda queimada (.srt → vídeo)
+## Legenda animada bonita (preferida)
+Gerar com `scripts/legenda_ass.py` e queimar: `-vf "ass=legenda.ass:fontsdir=assets/fontes"`.
+
+## Legenda simples (.srt → vídeo)
 ```
 -vf "subtitles=legenda.srt:force_style='FontName=Fonte,FontSize=18,PrimaryColour=&HFFFFFF&,OutlineColour=&H000000&,Outline=3,Alignment=2,MarginV=380'"
 ```

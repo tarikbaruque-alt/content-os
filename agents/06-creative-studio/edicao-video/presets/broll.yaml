@@ -1,0 +1,19 @@
+# Ritmos de B-roll. O agente escolhe conforme o briefing (`ritmo_broll`).
+suave:
+  dur_media_s: 3.0
+  cobertura_max_pct: 30
+  zoom: 0.05
+  fade_s: 0.3
+dinamico:            # padrão para Reels
+  dur_media_s: 2.2
+  cobertura_max_pct: 45
+  zoom: 0.08
+  fade_s: 0.15
+frenetico:
+  dur_media_s: 1.5
+  cobertura_max_pct: 55
+  zoom: 0.12
+  fade_s: 0          # corte seco
+proibido_cobrir:
+  inicio_s: 1.5
+  fim_s: 2.0         # trecho do CTA

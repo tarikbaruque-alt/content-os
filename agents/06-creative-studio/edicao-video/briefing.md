@@ -6,11 +6,14 @@
 arquivo: entrada/nome-do-video.mp4
 cliente:
 preset: reels-9x16          # ver presets/
-estilo_legenda: padrao      # ver presets/legendas.yaml
+estilo_legenda: hormozi     # hormozi | clean | caixa | neon | cinema
 duracao_alvo: 30s           # máx.
 cortes:                     # o que remover/manter
   - remover silêncios: sim
   - remover trecho: "00:12-00:15"
+broll: sim                  # sim | nao
+ritmo_broll: dinamico       # suave | dinamico | frenetico (presets/broll.yaml)
+fonte_broll: assets/broll   # pasta ou lista de arquivos
 gancho_inicial:             # texto na tela nos 3 primeiros segundos
 cta_final:                  # texto/áudio no final
 musica: nenhuma             # arquivo de assets/musicas/ ou nenhuma
