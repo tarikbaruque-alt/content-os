@@ -189,5 +189,5 @@
       '<div class="cc-m">'+esc(x.surface)+' + '+esc(x.format)+' · '+esc((x.pilar||"").split(":")[0])+'</div>'+
       '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(x.funcao)+'</span><span class="badge">'+esc(x.funil)+'</span>'+(c?'<span class="pill emo-pill">♥ '+esc(c.emocao)+'</span>':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
   }
-  function wireGen(sel){Array.prototype.forEach.call(document.querySelectorAll(sel),function(el){el.addEventListener('click',function(){openGenerated(+el.getAttribute('data-gen'))})})}
+  function wireGen(sel){Array.prototype.forEach.call(document.querySelectorAll(sel),function(el){el.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.pauta'))return;openGenerated(+el.getAttribute('data-gen'))})})}
 

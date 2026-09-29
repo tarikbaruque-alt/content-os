@@ -217,7 +217,7 @@
       var bc=col[it.idea.surface]||"#575663",headline=pecaTitulo(it),produced=pecaPronta(it);
       return '<div class="card content-card" data-gen="'+idx+'" style="border-left:3px solid '+bc+'"><div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span class="badge">'+esc(quando(it))+'</span><span class="badge '+(STCOL[it.status]||"badge")+'" style="margin-left:auto">'+esc(it.status)+'</span></div>'+
         '<div class="cc-h">'+esc(headline)+'</div>'+(isRascunho(it.content)?'<div style="margin-top:6px">'+rascunhoBadge(it.content)+'</div>':'')+'<div class="cc-m">'+esc(it.idea.surface)+' + '+esc(it.idea.format)+' · '+esc((it.idea.pilar||"").split(":")[0])+'</div>'+
-        '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="badge">'+esc(it.idea.funil)+'</span>'+(produced?'':'<span class="badge prog">ainda não produzido</span>')+'</div></div>';
+        '<div class="cc-tags"><span class="pill st-INSIGHT">'+esc(it.idea.funcao)+'</span><span class="badge">'+esc(it.idea.funil)+'</span>'+(produced?'':'<span class="badge prog">ainda não produzido</span>')+'</div>'+pautaHtml(it,idx)+'</div>';
     }).join('')+'</div>';
   }
   function periodSelectorHtml(){

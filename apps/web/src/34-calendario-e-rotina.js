@@ -80,6 +80,29 @@
       saveClientRecord(id,Object.assign({},rec,{rotina:r})).then(function(){if(r.tempoGrav!=null){state.diasPost=DIAS_PADRAO[(CAPACIDADE[r.tempoGrav]||CAPACIDADE[60]).total].slice();state.diasPostCli=id;}toast("Rotina salva — frequência, horários e limite de gravações aplicados.");renderCal();},function(){I("#rotMsg").textContent="Não consegui salvar";});
     });
   }
+  // Pauta dentro do calendário: roteiro, legenda, slides e Stories de cada post, abertos sem sair da agenda.
+  function pautaTextos(it){var c=it.content,cr=it.carousel,s=it.stories,x=it.idea||{},T={};
+    if(c){if(c.roteiro&&c.roteiro.length)T.roteiro=c.roteiro.map(function(q){return q.label+": "+q.text}).join("\n");
+      var cp=c.copy||(c.copyVariants&&c.copyVariants.media)||"";if(cp)T.legenda=cp;if(c.cta)T.cta=c.cta;}
+    if(cr){if(cr.slides&&cr.slides.length)T.slides=cr.slides.map(function(q,i){return (i+1)+". "+(q.titulo||"")+(q.texto?" — "+q.texto:"")}).join("\n");
+      if(!T.legenda&&cr.copy)T.legenda=cr.copy;if(!T.cta&&cr.cta)T.cta=cr.cta;}
+    if(s&&s.stories&&s.stories.length){T.stories=s.stories.map(function(q,i){return (i+1)+". "+(q.fala||"")+(q.interacao?" ("+q.interacao+")":"")}).join("\n");
+      if(x.surface==="Stories"&&!T.cta&&s.cta)T.cta=s.cta;}
+    return T;}
+  function pautaBlocos(it){var T=pautaTextos(it),x=it.idea||{},B=[],cta=T.cta?"CTA: "+T.cta:"";
+    function comCta(t){return cta&&t.indexOf(T.cta)<0?t+"\n\n"+cta:t;}
+    if(T.roteiro)B.push(["🎬 Roteiro",T.roteiro]);
+    if(T.slides)B.push(["🎠 Slides ("+it.carousel.slides.length+")",T.slides]);
+    if(T.stories)B.push([x.surface==="Stories"?"📱 Sequência de Stories ("+it.stories.stories.length+")":"📱 Stories de apoio ("+it.stories.stories.length+")",!T.legenda&&x.surface==="Stories"?comCta(T.stories):T.stories]);
+    if(T.legenda)B.push(["✍️ Legenda"+(cta?" + CTA":""),comCta(T.legenda)]);
+    return B;}
+  function pautaHtml(it,idx){var B=pautaBlocos(it);if(!B.length)return '';
+    return '<div class="pauta">'+B.map(function(b,k){return '<details class="pauta-d"><summary>'+b[0]+'</summary><div class="pauta-t">'+esc(b[1])+'</div><button class="btn ghost pauta-cp" data-pauta-cp="'+idx+'" data-k="'+k+'">📋 Copiar</button></details>'}).join('')+'</div>';}
+  function wirePauta(root,items){
+    Array.prototype.forEach.call(root.querySelectorAll('[data-pauta-cp]'),function(b){b.addEventListener('click',function(e){e.stopPropagation();
+      var it=items[+b.getAttribute('data-pauta-cp')],bl=it?pautaBlocos(it)[+b.getAttribute('data-k')]:null,txt=bl?bl[1]:"";
+      if(txt&&navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){toast("Copiado.")},function(){toast("Não consegui copiar — selecione o texto.")});else toast("Selecione o texto para copiar.");});});
+  }
   function agendaHtml(items){
     var r=rotinaOf(state.client),A=agendaData(items,r),st=storyTimes(r),h='',lastWeek='';
     if(!A.keys.length)return '';
@@ -90,7 +113,7 @@
       if(D.grav.length)rows+='<div class="ag-row ag-grav"><span class="ag-t">'+padT(r.gravHora)+'</span><div><b>🎥 Dia de gravação e produção</b> — '+D.grav.length+' peça'+(D.grav.length>1?'s':'')+' da semana<div class="ag-sub">'+D.grav.map(function(g){return '<a data-gen="'+g.idx+'">'+surfIc(g.it.idea.surface)+' '+esc(acaoProducao(g.it.idea.surface))+': '+esc(pecaTitulo(g.it))+' <span style="color:var(--faint)">(vai ao ar '+esc(dataBR(g.it.data))+')</span></a>'}).join('')+'</div></div></div>';
       D.pub.forEach(function(p){var x=p.it.idea,c=p.it.content,s=p.it.stories;
         rows+='<div class="ag-row" data-gen="'+p.idx+'"><span class="ag-t">'+p.t+'</span><div><b>'+surfIc(x.surface)+' '+esc(surfLbl(x.surface))+'</b> · '+esc(pecaTitulo(p.it))+(p.it.clientStatus==="aprovado"?' <span class="badge act">✓ cliente aprovou</span>':p.it.clientStatus==="ajuste"?' <span class="badge prog" title="'+esc(p.it.clientNote||"")+'">✏️ ajuste: '+esc(String(p.it.clientNote||"").slice(0,60))+'</span>':'')+'<div class="ag-sub">'+esc(x.format)+' · '+esc(x.funcao)+' · '+esc(x.funil)+(pecaPronta(p.it)?'':' · <span class="badge prog">ainda não produzido</span>')+'</div>'+
-          (s&&s.stories&&s.stories.length?'<div class="ag-sub">📱 Stories de apoio ('+s.stories.length+' telas) — '+esc(st.filter(function(t){return t>=p.t})[0]||st[st.length-1]||"")+'</div>':'')+'</div></div>';});
+          (s&&s.stories&&s.stories.length&&x.surface!=="Stories"?'<div class="ag-sub">📱 Stories de apoio ('+s.stories.length+' telas) — '+esc(st.filter(function(t){return t>=p.t})[0]||st[st.length-1]||"")+'</div>':'')+pautaHtml(p.it,p.idx)+'</div></div>';});
       if(D.pub.length&&st.length)rows+='<div class="ag-row ag-st"><span class="ag-t">📱</span><div class="ag-sub" style="margin:0">Stories do dia: '+st.join(' · ')+'</div></div>';
       h+='<div class="card pad ag-day"><div class="ag-d">'+esc(DIAS_SEM_LONGO[d.getDay()])+' <span>'+("0"+d.getDate()).slice(-2)+'/'+("0"+(d.getMonth()+1)).slice(-2)+'</span></div>'+rows+'</div>';
     });
@@ -110,6 +133,8 @@
         if(c&&c.copy)desc.push("Legenda:\n"+c.copy);
         if(c&&c.cta)desc.push("CTA: "+c.cta);
         var cr=p.it.carousel;if(cr&&cr.slides&&cr.slides.length)desc.push("Slides:\n"+cr.slides.map(function(q,i){return (i+1)+". "+q.titulo+(q.texto?" — "+q.texto:"")}).join("\n")+(cr.copy?"\n\nLegenda:\n"+cr.copy:""));
+        if(cr&&cr.cta&&!(c&&c.cta))desc.push("CTA: "+cr.cta);
+        var sq=p.it.stories;if(sq&&sq.stories&&sq.stories.length)desc.push((x.surface==="Stories"?"Stories:\n":"Stories de apoio:\n")+sq.stories.map(function(q,i){return (i+1)+". "+(q.fala||"")+(q.interacao?" ("+q.interacao+")":"")}).join("\n"));
         ev("pub-"+(p.it.id||p.idx)+"-"+k,k,p.t,30,surfIc(x.surface)+" Postar "+surfLbl(x.surface)+": "+pecaTitulo(p.it),desc.join("\n\n"));});
     });
     L.push("END:VCALENDAR");
@@ -175,5 +200,6 @@
     var b=I("#expHtml");if(b)b.addEventListener('click',function(){downloadText("calendario-"+slug+".html",buildVitrineDoc(items,r,cli),"text/html",function(ok){msg(ok,"✓ Envie o arquivo ao cliente (WhatsApp/e-mail)");});});
     var vw=I("#expView");if(vw)vw.addEventListener('click',function(){state.view="calendar";toggleClientView(true);});
     var gc=I("#expGcal");if(gc)gc.addEventListener('click',function(){openGcalModal(items);});
+    var cal=I('.view[data-view="calendar"]');if(cal)wirePauta(cal,items);
     wireRotina();
   }
