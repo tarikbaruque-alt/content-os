@@ -6,3 +6,5 @@ referencias/*.mp4
 referencias/*.mov
 !**/.gitkeep
 !referencias/notas.md
+assets/broll/*
+!assets/broll/.gitkeep
