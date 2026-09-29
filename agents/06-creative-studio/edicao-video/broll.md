@@ -34,8 +34,12 @@ Regra de ouro: **o áudio nunca corta; a imagem troca a cada 2–4 s.**
 2. Liberar na rede do ambiente: `api.pexels.com`, `videos.pexels.com`, `images.pexels.com`,
    `pixabay.com`, `cdn.pixabay.com`.
 
+Imagens: acrescente `--tipo imagem` (ex.: `buscar_broll.py "escritório moderno" --tipo imagem`). Imagens viram cena com zoom lento no `plano.json`.
+
 Cada arquivo baixado é registrado em `assets/broll/creditos.json` (fonte, autor, página).
 Pexels e Pixabay não exigem atribuição, mas o registro evita perder a origem.
+
+**Sem marca d'água:** os arquivos baixados pela API oficial (Pexels/Pixabay) já vêm limpos, sem marca d'água — a licença é livre para uso comercial. Marca d'água só aparece em *prévias* de bancos pagos (Artlist, Shutterstock, Adobe Stock, etc.); nesses, o arquivo limpo vem com a licença/assinatura. Não removemos marca d'água de material de terceiros.
 
 **Pinterest:** a API oficial só acessa as *suas* pins/boards (e exige app aprovado); não oferece
 busca/download livre, e raspar o site fere os termos. Além disso, quase tudo lá é

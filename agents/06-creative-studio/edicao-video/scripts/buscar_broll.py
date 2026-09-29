@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Busca e baixa B-roll de Pexels e/ou Pixabay (licenças livres p/ uso comercial).
 
-Uso: buscar_broll.py "café close" [--fonte pexels|pixabay|ambas] [--n 3]
+Uso: buscar_broll.py "café close" [--tipo video|imagem] [--fonte pexels|pixabay|ambas] [--n 3]
          [--dur-min 3] [--dur-max 15] [--saida assets/broll] [--somente-listar]
 Chaves (gratuitas) em variáveis de ambiente: PEXELS_API_KEY, PIXABAY_API_KEY.
 Registra origem/autor de cada arquivo em assets/broll/creditos.json.
@@ -38,9 +38,25 @@ def pixabay(q, n, key):
             yield {"fonte": "pixabay", "id": v["id"], "dur": v["duration"], "url": f["url"],
                    "w": f["width"], "h": f["height"], "autor": v["user"], "pagina": v["pageURL"]}
 
+def pexels_img(q, n, key):
+    d = get_json("https://api.pexels.com/v1/search?" + urllib.parse.urlencode(
+        {"query": q, "orientation": "portrait", "per_page": n * 2}), {"Authorization": key})
+    for p in d.get("photos", []):
+        yield {"fonte": "pexels", "id": p["id"], "dur": 0, "url": p["src"].get("large2x") or p["src"]["original"],
+               "w": p["width"], "h": p["height"], "autor": p["photographer"], "pagina": p["url"], "ext": "jpg"}
+
+def pixabay_img(q, n, key):
+    d = get_json("https://pixabay.com/api/?" + urllib.parse.urlencode(
+        {"key": key, "q": q, "image_type": "photo", "orientation": "vertical",
+         "per_page": max(n * 2, 3), "safesearch": "true"}))
+    for h in d.get("hits", []):
+        yield {"fonte": "pixabay", "id": h["id"], "dur": 0, "url": h["largeImageURL"],
+               "w": h["imageWidth"], "h": h["imageHeight"], "autor": h["user"], "pagina": h["pageURL"], "ext": "jpg"}
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("consulta")
+    ap.add_argument("--tipo", default="video", choices=["video", "imagem"])
     ap.add_argument("--fonte", default="ambas", choices=["pexels", "pixabay", "ambas"])
     ap.add_argument("--n", type=int, default=3)
     ap.add_argument("--dur-min", type=float, default=3)
@@ -50,14 +66,17 @@ def main():
     a = ap.parse_args()
 
     achados = []
-    for nome, fn, env in (("pexels", pexels, "PEXELS_API_KEY"), ("pixabay", pixabay, "PIXABAY_API_KEY")):
+    img = a.tipo == "imagem"
+    fontes = (("pexels", pexels_img if img else pexels, "PEXELS_API_KEY"),
+              ("pixabay", pixabay_img if img else pixabay, "PIXABAY_API_KEY"))
+    for nome, fn, env in fontes:
         if a.fonte not in (nome, "ambas"):
             continue
         key = os.environ.get(env)
         if not key:
             print(f"[aviso] {env} não definida; pulando {nome}", file=sys.stderr)
             continue
-        achados += [c for c in fn(a.consulta, a.n, key) if a.dur_min <= c["dur"] <= a.dur_max][:a.n]
+        achados += [c for c in fn(a.consulta, a.n, key) if img or a.dur_min <= c["dur"] <= a.dur_max][:a.n]
 
     if not achados:
         sys.exit("Nenhum resultado (verifique chaves, rede e a consulta).")
@@ -66,7 +85,7 @@ def main():
     reg = json.load(open(reg_path)) if os.path.exists(reg_path) else []
     slug = re.sub(r"[^a-z0-9]+", "-", a.consulta.lower()).strip("-")[:30]
     for c in achados:
-        arq = os.path.join(a.saida, f"{slug}_{c['fonte']}_{c['id']}.mp4")
+        arq = os.path.join(a.saida, f"{slug}_{c['fonte']}_{c['id']}.{c.get('ext', 'mp4')}")
         print(f"{c['fonte']:8} {c['dur']:>4}s {c['w']}x{c['h']}  {c['autor']}  {c['pagina']}")
         if a.somente_listar:
             continue
