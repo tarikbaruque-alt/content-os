@@ -82,6 +82,9 @@
   .client-switch .av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:#fff;font-weight:600;font-size:11px;font-family:var(--font-display)}
   .client-switch select{border:0;background:transparent;color:var(--ink);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;outline:none}
   .icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px}
+  .rn-btn{border:0;background:none;padding:0 3px;margin-left:2px;font-size:12px;line-height:1;cursor:pointer;opacity:.45;vertical-align:middle;border-radius:5px}
+  .rn-btn:hover,.rn-btn:focus-visible{opacity:1;background:var(--surface-2)}
+  [data-rn-name][contenteditable="true"]{padding:0 4px;outline:2px solid var(--brand);outline-offset:1px;border-radius:5px;background:var(--surface);cursor:text}
   .icon-btn:hover{color:var(--ink);border-color:var(--brand)}
 
   .wrap{padding:24px 26px 70px;max-width:1200px;width:100%}
@@ -677,9 +680,10 @@
     var cards=CLIENTS.map(function(c){var g=(GENERATED_ALL||{})[c.id]||DB_STATE_CACHE[c.id];
       var n=g&&g.dna?g.dna.length:(DNA[c.id]||[]).length,ct=g&&g.calendar?g.calendar.items.length:CONTENT.filter(function(x){return x.client===c.id}).length;
       var blank=isDbClient(c.id)&&!n&&!ct;
-      return '<div class="card pad" style="cursor:pointer" data-client="'+c.id+'"><div style="display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+avc(c.av)+'">'+c.name.charAt(0)+'</div><div><div style="font-family:var(--font-display);font-weight:700;font-size:15px">'+esc(c.full)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(c.niche)+'</div></div></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'+(blank?'<span class="badge">em branco — pronto pra preencher</span>':'<span class="badge">'+n+' registros DNA</span><span class="badge">'+ct+' conteúdos</span>')+'</div></div>'}).join('');
+      return '<div class="card pad" style="cursor:pointer" data-client="'+c.id+'"><div style="display:flex;gap:12px;align-items:center"><div style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+avc(c.av)+'">'+c.name.charAt(0)+'</div><div><div style="font-family:var(--font-display);font-weight:700;font-size:15px">'+renameHtml(c.id,c.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(c.niche)+'</div></div></div><div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">'+(blank?'<span class="badge">em branco — pronto pra preencher</span>':'<span class="badge">'+n+' registros DNA</span><span class="badge">'+ct+' conteúdos</span>')+'</div></div>'}).join('');
     var addCard='<div class="card pad dashed-add" style="cursor:pointer;display:flex;align-items:center;justify-content:center;min-height:96px;border-style:dashed;color:var(--muted)" id="clientAddCard"><div style="text-align:center"><div style="font-size:22px;line-height:1">+</div><div style="font-size:12.5px;font-weight:600;margin-top:4px">Novo cliente</div></div></div>';
     I("#clientCards").innerHTML=cards+addCard;
+    wireRename(I("#clientCards"),renderClients);
     Array.prototype.forEach.call(document.querySelectorAll('[data-client]'),function(el){el.addEventListener('click',function(){setClient(el.getAttribute('data-client'));go('dna')})});
     I("#clientAddCard").addEventListener('click',openNewClientModal);
     var bt=I("#briefTools");if(bt){bt.innerHTML=briefToolsHtml();var b1=I("#bfForm");if(b1)b1.addEventListener('click',openBriefFormModal);var b2=I("#bfImport");if(b2)b2.addEventListener('click',openBriefImportModal);var b3=I("#inboxRefresh");if(b3)b3.addEventListener('click',renderInbox);}
@@ -2732,12 +2736,13 @@
     h+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px">'+[["ativos","Ativos ("+ativos.length+")"],["inativos","Inativos ("+inat+")"],["todos","Todos ("+todos.length+")"]].map(function(f){return '<button class="preset atFiltro" data-f="'+f[0]+'" style="'+(filtro===f[0]?'background:var(--brand-weak);color:var(--brand-ink);border-color:transparent':'')+'">'+f[1]+'</button>'}).join('')+
       '<span style="flex:1"></span><button class="btn" id="atGcal" title="Cria um lembrete que se repete todo mês na sua Google Agenda">📆 Lembrete mensal de cobrança na Google Agenda</button></div>';
     h+=lista.length?'<div class="grid cols-3">'+lista.map(function(c){var a=adminOf(c),f=c.ficha||{},ig=String(f.instagram||"").trim(),brief=!!String(c.briefing||"").trim();
-      return '<div class="card pad at-card" data-at-open="'+esc(c.id)+'" style="cursor:pointer'+(a.ativo?'':';opacity:.62')+'"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><div style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+avc((byId(c.id)||{}).av||0)+'">'+esc(String(c.name||"?").charAt(0))+'</div><div style="min-width:0;flex:1"><div style="font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.2">'+esc(c.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(c.niche||"Área não informada")+'</div></div>'+
+      return '<div class="card pad at-card" data-at-open="'+esc(c.id)+'" style="cursor:pointer'+(a.ativo?'':';opacity:.62')+'"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><div style="width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;background:'+avc((byId(c.id)||{}).av||0)+'">'+esc(String(c.name||"?").charAt(0))+'</div><div style="min-width:0;flex:1"><div style="font-family:var(--font-display);font-weight:700;font-size:15px;line-height:1.2">'+renameHtml(c.id,c.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(c.niche||"Área não informada")+'</div></div>'+
         '<span class="badge '+(a.ativo?'act':'')+'">'+(a.ativo?'Ativo':'Inativo')+'</span></div>'+
         '<div style="font-size:12.5px;line-height:1.9">'+(ig?'📸 '+esc(ig.charAt(0)==="@"?ig:"@"+ig):'<span style="color:var(--faint)">📸 sem @</span>')+'<br>'+(a.whats?'💬 <a href="'+waLink(a.whats)+'" target="_blank" rel="noopener" data-stop>'+esc(a.whats)+'</a>':'<span style="color:var(--faint)">💬 sem WhatsApp</span>')+'<br>💰 <b>'+(a.valor?brl(a.valor)+'/mês':'<span style="color:var(--faint);font-weight:400">sem valor</span>')+'</b>'+(a.valor?' <span style="color:var(--faint)">· vence dia '+a.venc+(a.pagos[mes]?' · ✓ recebido':'')+'</span>':'')+'</div>'+
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">'+(brief?'<span class="badge act">✓ briefing</span>':'<button class="btn pri" data-at-brief="'+esc(c.id)+'">+ Adicionar briefing</button>')+'<button class="btn" data-at-edit="'+esc(c.id)+'">✏️ Editar</button><button class="btn ghost" data-at-toggle="'+esc(c.id)+'">'+(a.ativo?'Marcar inativo':'Reativar')+'</button></div></div>';}).join('')+'</div>':
       '<div class="card empty-hero"><div class="eh-ic">＋</div><div class="eh-t">'+(filtro==="inativos"?'Nenhum cliente inativo.':'Nenhum cliente ainda. Cadastre ou importe um briefing em <b>Clientes</b>.')+'</div></div>';
     el.innerHTML=h;
+    wireRename(el,function(){renderAtivos();renderCobrancaBanner();});
     I("#atNovo").addEventListener('click',openNewClientModal);
     var gcb=I("#atGcal");if(gcb)gcb.addEventListener('click',openGcalCobranca);
     var tb=I("#atTpl");if(tb)tb.addEventListener('click',openTplCobranca);
@@ -2753,6 +2758,27 @@
         if(navigator.clipboard)navigator.clipboard.writeText(txt).then(function(){toast("Mensagem copiada.")},function(){toast(txt)});else toast(txt);return;}
       var card=t.closest('[data-at-open]');if(card)abrirPaginaCliente(card.getAttribute('data-at-open'),false);};
   }
+  // Renomear direto no card: ✏️ ao lado do nome; Enter ou clicar fora salva, Esc cancela.
+  function renameHtml(id,name){return '<span data-rn-name>'+esc(name)+'</span>'+(isDbClient(id)?' <button class="rn-btn" data-rn="'+esc(id)+'" title="Renomear cliente" aria-label="Renomear cliente">✏️</button>':'');}
+  function wireRename(root,after){
+    Array.prototype.forEach.call(root.querySelectorAll('[data-rn]'),function(b){
+      var sp=b.previousElementSibling;if(!sp||!sp.hasAttribute('data-rn-name'))return;
+      sp.addEventListener('click',function(e){if(sp.isContentEditable)e.stopPropagation();});
+      b.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();if(sp.isContentEditable)return;
+        var id=b.getAttribute('data-rn'),old=(DB_CLIENTS[id]||{}).name||sp.textContent,done=false;
+        sp.contentEditable="true";sp.focus();var rg=document.createRange();rg.selectNodeContents(sp);var sel=window.getSelection();sel.removeAllRanges();sel.addRange(rg);
+        async function fim(salvar){if(done)return;done=true;sp.contentEditable="false";sp.removeEventListener('keydown',tecla);sp.removeEventListener('blur',sair);
+          var v=sp.textContent.replace(/\s+/g," ").trim();
+          if(!salvar||!v||v===old||!DB_CLIENTS[id]){sp.textContent=old;if(salvar&&!v)toast("O nome não pode ficar vazio.");return;}
+          sp.textContent=v;
+          try{await saveClientRecord(id,Object.assign({},DB_CLIENTS[id],{name:v}));toast("Nome atualizado para "+v+".");}
+          catch(err){sp.textContent=old;toast("Não consegui salvar o nome agora.");return;}
+          if(after)after();}
+        function tecla(e){if(e.key==="Enter"){e.preventDefault();fim(true);}else if(e.key==="Escape"){e.preventDefault();e.stopPropagation();fim(false);}}
+        function sair(){fim(true);}
+        sp.addEventListener('keydown',tecla);sp.addEventListener('blur',sair);});
+    });
+  }
   function abrirPaginaCliente(id,focoBriefing){state.ativosOpen=id;state.ativosBrief=!!focoBriefing;if(state.client!==id)setClient(id);else renderAtivos();}
   function renderClientePagina(el,id){
     var c=DB_CLIENTS[id],a=adminOf(c),f=c.ficha||{},g=(state.client===id&&GENERATED)||DB_STATE_CACHE[id]||{},st=g.strategy,ed=g.editorial||[],items=(g.calendar&&g.calendar.items)||[],r=rotinaOf(id);
@@ -2761,7 +2787,7 @@
     var aprov=items.filter(function(it){return it.clientStatus==="aprovado"}).length,ajuste=items.filter(function(it){return it.clientStatus==="ajuste"}).length;
     var sec=function(t,body,acao){return '<div class="card pad" style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px"><div class="bt" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--faint)">'+t+'</div><span style="flex:1"></span>'+(acao||'')+'</div>'+body+'</div>'};
     var h='<div style="margin:4px 0 14px"><button class="btn ghost" id="cpVoltar">← Clientes ativos</button></div>'+
-      '<div class="card pad" style="margin-bottom:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:220px"><h3 style="font-size:22px">'+esc(c.name)+' <span class="badge '+(a.ativo?'act':'')+'" style="vertical-align:middle">'+(a.ativo?'Ativo':'Inativo')+'</span></h3><div style="color:var(--muted);font-size:13px;margin-top:3px">'+esc(c.niche||"")+(ig?' · '+esc(ig.charAt(0)==="@"?ig:"@"+ig):'')+(a.whats?' · <a href="'+waLink(a.whats)+'" target="_blank" rel="noopener">💬 '+esc(a.whats)+'</a>':'')+'</div></div>'+
+      '<div class="card pad" style="margin-bottom:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:220px"><h3 style="font-size:22px">'+renameHtml(id,c.name)+' <span class="badge '+(a.ativo?'act':'')+'" style="vertical-align:middle">'+(a.ativo?'Ativo':'Inativo')+'</span></h3><div style="color:var(--muted);font-size:13px;margin-top:3px">'+esc(c.niche||"")+(ig?' · '+esc(ig.charAt(0)==="@"?ig:"@"+ig):'')+(a.whats?' · <a href="'+waLink(a.whats)+'" target="_blank" rel="noopener">💬 '+esc(a.whats)+'</a>':'')+'</div></div>'+
       '<div style="text-align:right"><div style="font-family:var(--font-display);font-weight:700;font-size:20px">'+(a.valor?brl(a.valor)+'<span style="font-size:13px;color:var(--faint)">/mês</span>':'—')+'</div><div style="font-size:12px;color:var(--muted)">'+(a.valor?'vence dia '+a.venc+(a.pagos[mesChave()]?' · ✓ recebido este mês':''):'')+'</div></div><button class="btn" id="cpEdit">✏️ Editar dados</button></div>';
     var bBody=brief?'<div class="copybox" style="max-height:220px;overflow:auto">'+esc(brief)+'</div>':
       '<div class="empty-hero" style="padding:22px 10px"><div class="eh-t" style="margin-bottom:12px">Este cliente ainda não tem briefing. O briefing alimenta o Content DNA, a estratégia, a linha editorial e as ideias.</div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="btn pri" id="cpForm">📨 Enviar formulário ao cliente</button><button class="btn" id="cpColar">📥 Colar briefing recebido</button><button class="btn" id="cpEscrever">✍️ Escrever agora</button></div></div>';
@@ -2772,6 +2798,7 @@
     h+=sec("Calendário editorial",items.length?'<div style="font-size:13px;margin-bottom:8px">'+items.length+' conteúdos · '+aprov+' aprovado(s) pelo cliente'+(ajuste?' · <b style="color:var(--warn)">'+ajuste+' ajuste(s) pedido(s)</b>':'')+'</div>'+(prox.length?prox.map(function(it){return '<div class="ag-row" style="cursor:default"><span class="ag-t">'+esc(itemHora(it,r))+'</span><div><b>'+esc(dataBR(it.data))+'</b> · '+surfIc(it.idea.surface)+' '+esc(pecaTitulo(it))+'</div></div>'}).join(''):'<div style="font-size:12.5px;color:var(--muted)">Sem publicações futuras.</div>'):'<div style="font-size:13px;color:var(--muted)">Ainda não montado.</div>',
       '<button class="btn" data-cp-go="calendar">Abrir →</button>'+(items.length?'<button class="btn" id="cpVerCliente">👁 Ver como o cliente</button>':'')+(brief&&!items.length&&aiAvailable()?'<button class="btn pri" id="cpMontar">✦ Montar tudo</button>':''));
     el.innerHTML=h;
+    wireRename(el,renderAtivos);
     I("#cpVoltar").addEventListener('click',function(){state.ativosOpen=null;renderAtivos();});
     I("#cpEdit").addEventListener('click',function(){openEditCliente(id);});
     Array.prototype.forEach.call(el.querySelectorAll('[data-cp-go]'),function(b){b.addEventListener('click',function(){go(b.getAttribute('data-cp-go'));})});
