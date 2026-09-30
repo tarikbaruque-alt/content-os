@@ -18,13 +18,15 @@
     "smoke": "tsx src/demo/smoke.ts",
     "panel:sync": "tsx src/demo/sync-panel.ts",
     "preview": "echo \"Abra apps/web/index.html no navegador (ou rode: npx --yes serve apps/web)\"",
-    "commercial": "tsx src/demo/run-commercial.ts"
+    "commercial": "tsx src/demo/run-commercial.ts",
+    "prospect:build": "tsx src/demo/build-prospect.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.7.4",
+    "esbuild": "^0.28.2",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2",
     "vitest": "^2.1.1"

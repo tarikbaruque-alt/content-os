@@ -35,7 +35,8 @@ export function extractNumericClaims(text: string): string[] {
     /R\$\s?\d[\d.,]*/gi,
     /\d+(?:[.,]\d+)?\s?%/g,
     /\b\d+\s?(?:x|vezes)\b/gi,
-    /\b\d[\d.]*\+?\s+(?:clientes?|cases?|projetos?|anos?|empresas?|marcas?|seguidores?|leads?|vendas?|contratos?)\b/gi,
+    /\b\d[\d.]*\+?\s+(?:clientes?|cases?|projetos?|anos?|empresas?|marcas?|seguidores?|leads?|vendas?|contratos?|pacientes?|alunos?|pedidos?|atendimentos?|curtidas?|visualiza[cç][oõ]es|unidades?)\b/gi,
+    /\b\d[\d.,]*\s?(?:mil|milh[aã]o|milh[oõ]es|k)\b/gi,
   ];
   for (const p of patterns) {
     for (const m of text.matchAll(p)) out.add(m[0].toLowerCase().replace(/\s+/g, " ").replace(/[.,]+$/, "").trim());

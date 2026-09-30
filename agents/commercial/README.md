@@ -9,6 +9,8 @@
 > ⚠ Este módulo **estende** o núcleo de 10 agentes; por isso vive em registro próprio
 > (`src/commercial/registry.ts`) até a sua aprovação (ver `ARCHITECTURE.md` §3).
 
+> **Para prospectar serviços de conteúdo no Instagram** use o app dedicado [`apps/prospect`](../../apps/prospect/README.md) (Mesa de Prospecção). Este módulo é genérico (qualquer serviço) e serviu de base para as regras de honestidade.
+
 Código: [`src/commercial/`](../../src/commercial/) · Testes: [`tests/commercial/`](../../tests/commercial/) ·
 Demonstração (dados **fictícios**): `npm run commercial [diagnostico|abordagem|descoberta|objecao|negociacao|coach|fechamento]`
 
