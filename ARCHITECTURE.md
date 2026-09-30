@@ -73,6 +73,16 @@ agentes existentes** — nunca cria um agente novo por arquivo.
 | 8 | **Performance** | Métricas, hipóteses, experimentos, insights, aprendizados, recomendações | [`agents/08-performance.md`](./agents/08-performance.md) |
 | 9 | **Knowledge** *(curador)* | Ingestão dos materiais de referência → Knowledge Base própria: extrai princípios/frameworks, versiona, remove redundância, resolve conflitos, preserva origem | [`agents/09-knowledge.md`](./agents/09-knowledge.md) |
 
+### 3.0 Módulo Comercial — *proposta de extensão (aguarda aprovação)*
+
+Foi construído um módulo **Comercial** (prospecção, diagnóstico, abordagem,
+descoberta, objeções, negociação, coaching e preparação de fechamento) em
+[`src/commercial/`](./src/commercial/), documentado em
+[`agents/commercial/README.md`](./agents/commercial/README.md). Ele **não altera** o
+núcleo de 10 agentes: usa registro próprio (`src/commercial/registry.ts`) e segue as
+mesmas regras de governança (§5). A decisão de **incorporá-lo ao teto de agentes** ou
+mantê-lo como módulo à parte é sua.
+
 ### 3.1 Slot 10 — reservado (Orchestration) — *decisão sua*
 
 Um possível **Orchestrator** coordenaria o pipeline (rotear a demanda ao agente

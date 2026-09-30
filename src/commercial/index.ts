@@ -1,0 +1,16 @@
+export * from "./types.js";
+export * from "./guardrails.js";
+export { COMMERCIAL_AGENTS } from "./registry.js";
+export type { CommercialAgentInfo } from "./registry.js";
+export { COMMERCIAL_DOCTRINE, OUTBOUND_CHECKLIST } from "./prompts.js";
+export { assessLead, pickBestService } from "./assessment.js";
+export { analyzeOpportunity } from "./diagnosis.js";
+export { buildFirstApproach, isRefusal } from "./approach.js";
+export { analyzeDiscovery } from "./discovery.js";
+export { buildValueChain, buildServiceValue } from "./value.js";
+export { planAuthority } from "./authority.js";
+export { analyzeObjection } from "./objections.js";
+export { adviseNegotiation } from "./negotiation.js";
+export { coachDeal } from "./coach.js";
+export { prepareClosing } from "./closing.js";
+export * from "./render.js";
