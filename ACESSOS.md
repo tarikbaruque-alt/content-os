@@ -20,6 +20,16 @@ O painel é um arquivo **na sua pasta de trabalho**:
 > No painel: **Plano do Mês → clique num conteúdo** → abas **🎠 Criar Carrossel** e **📱 Criar Sequência de Stories**.
 > Aba **Agentes** = os 12 especialistas (Estúdio Criativo: Rima, Mosaico, Enredo).
 
+## 🎯 Mesa de Prospecção (app separado — prospectar conteúdo no Instagram)
+
+- **Link online (Artifact privado — só você abre):** 👉 https://claude.ai/artifact/Ca9xS7NvZQaDTvqZWtw6D1
+- **Código:** `apps/prospect/` (telas) e `src/prospect/` (motor testado) · leia `apps/prospect/README.md`
+- **Republicar após mudanças:** `npm run prospect:build` e publique `apps/prospect/index.html` na mesma URL.
+- Os dados ficam no banco do próprio Artifact (`pro_leads`, `pro_config`); faça backup em *Minha operação → Exportar*.
+- A IA do app usa a conta Claude de quem a abre (pede permissão na primeira vez); sem ela, tudo funciona igual, só sem a análise de texto colado e o "Polir com IA".
+
+---
+
 ### 🔑 Configurar as chaves (uma vez só)
 
 Abra a aba **🔑 Configuração** no painel → cole as chaves → **Baixar .env** →
