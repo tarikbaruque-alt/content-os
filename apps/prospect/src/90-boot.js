@@ -138,7 +138,7 @@ const ACTIONS = {
     lead.conversa.push({ autor: $('#cv-autor').value, texto: t });
     $('#cv-text').value = '';
     $('#conv').innerHTML = convList(lead);
-    if (lead.status === 'abordado') lead.status = 'conversa';
+    if (lead.status === 'abordado' && lead.conversa.some((m) => m.autor === 'lead')) E.applyStatus(lead, 'conversa', S.op);
     saveLead(lead); refreshResults();
   },
   delMsg(el) {
@@ -147,7 +147,24 @@ const ACTIONS = {
     $('#conv').innerHTML = convList(lead);
     saveLead(lead); refreshResults();
   },
-  markAbordado() { const lead = curLead(); if (!lead) return; lead.status = 'abordado'; saveLead(lead); toast('Marcado como abordado.'); render(); },
+  markAbordado() { const lead = curLead(); if (!lead) return; E.applyStatus(lead, 'abordado', S.op); saveLead(lead); toast('Marcado como abordado. Próximo contato: ' + (lead.proximoContato || '—') + '.'); render(); },
+  otherVariant() {
+    const lead = curLead(); if (!lead) return;
+    const id = lead.profile.id, a = analysis(lead);
+    const now = S.approachVar[id] != null ? S.approachVar[id] : (a.approach.variante || 0);
+    S.approachVar[id] = (now + 1) % E.VARIANT_COUNT;
+    render();
+  },
+  copyDossier() { const lead = curLead(); if (lead) copyText(E.buildDossier(lead, analysis(lead), S.op)); },
+  toggleQuick(el) { S.quick = el.checked; LS.set('mesa.v1.quick', S.quick); render(); },
+  registerContact() {
+    const lead = curLead(); if (!lead) return;
+    const r = E.registerContact(lead, S.op);
+    saveLead(lead);
+    toast(r.esgotou ? 'Cadência esgotada: considere encerrar com educação (a última mensagem já está pronta).' : 'Contato registrado. Próximo: ' + r.proximo + '.');
+    render();
+  },
+  openFollow(el) { S.leadId = el.dataset.id; S.view = 'lead'; S.tab = 'follow'; render(); window.scrollTo(0, 0); },
   polish(el) { const lead = curLead(); if (lead) aiPolish(lead, +el.dataset.i); },
 
   detectObj() { S.obj.text = ($('#ob-text') || {}).value || ''; S.obj.key = ''; render(); },
@@ -220,12 +237,18 @@ document.addEventListener('click', (e) => {
 document.addEventListener('change', (e) => {
   const t = e.target;
   if (t.matches('#imp-file')) { if (t.files && t.files[0]) importBackup(t.files[0]); t.value = ''; return; }
+  if (t.matches('[data-cad]')) {
+    const v = t.value.split(/[,;\s]+/).map(Number).filter((n) => Number.isFinite(n) && n > 0 && n <= 90).map(Math.round);
+    if (v.length) S.op.cadenciaDias = v; else delete S.op.cadenciaDias;
+    saveOp(); return;
+  }
+  if (t.matches('[data-act="toggleQuick"]')) return;
   if (t.matches('[data-bind]')) return onBind(t);
   if (t.matches('[data-op]')) return onOp(t);
   if (t.matches('[data-svc]')) return onSvc(t);
   if (t.matches('[data-status]')) {
     const l = S.leads.find((x) => x.profile.id === t.dataset.status);
-    if (l) { l.status = t.value; saveLead(l); if (S.view === 'prospects') render(); else refreshResults(); }
+    if (l) { E.applyStatus(l, t.value, S.op); saveLead(l); if (S.view === 'prospects') render(); else refreshResults(); }
     return;
   }
   const ch = t.dataset && t.dataset.actChange;

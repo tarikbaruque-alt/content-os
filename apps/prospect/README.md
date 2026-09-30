@@ -47,3 +47,12 @@ npm test                 # um teste falha se o HTML publicado divergir do códig
 - Edite as telas em `apps/prospect/src/*.js|css|html` e o motor em `src/prospect/`; depois rode o build.
 - `index.html` é um **fragmento** (sem `<html>`/`<body>`): o envelope é adicionado na publicação.
 - Para republicar, use a URL já registrada (ver `ACESSOS.md`).
+
+
+## Melhorias: ritmo de trabalho
+
+- **Modo rápido do Raio-X**: só o essencial (8 dimensões, números de 30 dias, negócio, observação) para triar mais perfis por hora.
+- **Follow-up**: painel "Para fazer hoje" (atrasados e do dia), próximo contato com cadência ajustável (padrão 2, 5, 10 dias), mensagens de retomada que nunca vendem nem criam urgência e histórico de contatos.
+- **Funil com números reais**: a % só aparece com pelo menos 5 na etapa anterior.
+- **Duas versões de cada abordagem** ("Outra versão do texto"), ambas validadas pelos mesmos guardrails.
+- **Copiar resumo do prospect** para colar em CRM, Notion ou WhatsApp.

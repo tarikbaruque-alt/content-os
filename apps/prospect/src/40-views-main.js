@@ -37,6 +37,8 @@ function viewProspects() {
       <h1>Prospects</h1>
       <p class="lede">Perfis de Instagram que podem contratar gestão e criação de conteúdo. Registre o que você observa; o sistema separa o que é fato do que é hipótese e prioriza quem pode virar contrato mensal.</p>
     </div></div>
+    ${todayPanel(rows)}
+    ${funnelCard()}
     <datalist id="nichos-list">${list(niches, (n) => `<option value="${esc(n.nome)}"></option>`)}</datalist>
     <div class="split" style="margin-bottom:18px">
       <section class="card stack" aria-labelledby="h-add">
@@ -193,6 +195,11 @@ function viewOps() {
         </div>
       </section>
 
+      <section class="card stack"><h3>Cadência de follow-up</h3>
+        <p class="small muted">Dias entre tentativas quando o prospect não responde, separados por vírgula. Padrão: 2, 5, 10.</p>
+        <label class="f">Dias<input type="text" data-cad value="${esc(E.cadenciaOf(op).join(', '))}"></label>
+      </section>
+
       <section class="card stack"><h3>Regras comerciais</h3>
         <p class="small muted">Sem regra cadastrada, nenhum desconto, parcelamento ou fase inicial é sugerido além do padrão.</p>
         <div class="g3">
@@ -233,4 +240,24 @@ function proofForm(kind, withResult) {
     ${withResult ? `<label class="f">Resultado documentado (obrigatório p/ case, depoimento e resultado)<input type="text" id="${kind}-r"></label>` : ''}
     <div class="row"><label class="row"><input type="checkbox" id="${kind}-v"> Já verifiquei esta informação</label><button type="button" class="btn ghost" data-act="addProof" data-kind="${kind}">Adicionar</button></div>
   </details>`;
+}
+
+
+/* ---------- Hoje / atrasados e funil ---------- */
+function todayPanel(rows) {
+  const t = today();
+  const due = rows.map((r) => ({ l: r.l, d: E.dueState(r.l, t) })).filter((x) => x.d)
+    .sort((a, b) => (b.d.estado === 'atrasado') - (a.d.estado === 'atrasado') || b.d.dias - a.d.dias);
+  if (!due.length) return '';
+  return `<section class="card stack" style="margin-bottom:18px" aria-labelledby="h-today"><h3 id="h-today">Para fazer hoje · ${due.length}</h3>
+    <ul class="clean">${list(due, ({ l, d }) => `<li><button type="button" class="name" data-act="openFollow" data-id="${esc(l.profile.id)}">${esc(l.profile.nome)}</button> <span class="small muted">@${esc(l.profile.handle)} · ${STATUS_LABEL[l.status]}</span> <span class="badge ${d.estado === 'atrasado' ? 'HIPOTESE' : 'CONFIRMADO'}">${d.estado === 'atrasado' ? 'atrasado ' + d.dias + 'd' : 'hoje'}</span></li>`)}</ul></section>`;
+}
+function funnelCard() {
+  if (S.leads.length < 1) return '';
+  const f = E.funnel(S.leads);
+  return `<details class="card" style="margin-bottom:18px"><summary>Funil · ${f.total} prospect(s), ${f.emAberto} em aberto, ${f.perdidos} perdido(s)</summary>
+    <div class="table-wrap"><table><thead><tr><th>Etapa</th><th>Chegaram</th><th>Da etapa anterior</th></tr></thead><tbody>
+    ${list(f.etapas, (e) => `<tr><td>${esc(e.rotulo)}</td><td>${e.alcancaram}</td><td>${e.daAnterior ? (e.daAnterior.pct == null ? e.daAnterior.n + ' de ' + e.daAnterior.d + ' <span class="muted small">(poucos casos para uma %)</span>' : e.daAnterior.n + ' de ' + e.daAnterior.d + ' · ' + e.daAnterior.pct + '%') : '—'}</td></tr>`)}
+    </tbody></table></div>
+    <p class="small muted">Contagens reais dos seus prospects; a % só aparece com pelo menos 5 na etapa anterior. Quem foi perdido continua contando nas etapas que alcançou.</p></details>`;
 }

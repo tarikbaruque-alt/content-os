@@ -18,3 +18,5 @@ export * from "./ai.js";
 export * from "./factory.js";
 export * from "./analyze.js";
 export * from "./demo.js";
+export * from "./pipeline.js";
+export * from "./dossier.js";

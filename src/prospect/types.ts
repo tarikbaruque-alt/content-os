@@ -82,6 +82,11 @@ export type Lead = {
   doresConfirmadas: string[];
   criadoEm?: string;
   atualizadoEm?: string;
+  /** Data (AAAA-MM-DD) do próximo contato combinado/sugerido. */
+  proximoContato?: string;
+  /** Linha do tempo: mudanças de etapa e contatos registrados. */
+  historico?: { quando: string; evento: string; status?: LeadStatus }[];
+  motivoPerda?: string;
 };
 
 export type ServiceKey =
@@ -107,6 +112,8 @@ export type Operacao = {
   provas: ProofItem[];
   processo: string[];
   regras: { descontoMaximoPct?: number; descontoCondicoes?: string[]; parcelamentoMaxParcelas?: number; faseInicialPermitida?: boolean; margemMinimaPct?: number };
+  /** Dias entre tentativas de contato sem resposta. Padrão do sistema: 2, 5 e 10. */
+  cadenciaDias?: number[];
 };
 
 export const OPERACAO_VAZIA: Operacao = { nichosCustom: [], catalogo: {}, diferenciais: [], provas: [], processo: [], regras: {} };

@@ -31,6 +31,9 @@ export function normalizeLead(x: unknown): Lead | null {
     doresConfirmadas: Array.isArray(o.doresConfirmadas) ? o.doresConfirmadas : [],
     ...(o.criadoEm ? { criadoEm: o.criadoEm } : {}),
     ...(o.atualizadoEm ? { atualizadoEm: o.atualizadoEm } : {}),
+    ...(typeof o.proximoContato === "string" && /^\d{4}-\d{2}-\d{2}$/.test(o.proximoContato) ? { proximoContato: o.proximoContato } : {}),
+    ...(Array.isArray(o.historico) ? { historico: o.historico.filter((h) => h && typeof h.quando === "string" && typeof h.evento === "string") } : {}),
+    ...(typeof o.motivoPerda === "string" ? { motivoPerda: o.motivoPerda } : {}),
   };
 }
 
@@ -45,5 +48,6 @@ export function normalizeOperacao(x: unknown): Operacao {
     provas: Array.isArray(o.provas) ? o.provas : [],
     processo: Array.isArray(o.processo) ? o.processo : [],
     regras: o.regras ?? {},
+    ...(Array.isArray(o.cadenciaDias) ? { cadenciaDias: o.cadenciaDias.filter((n) => Number.isFinite(n) && n > 0 && n < 365).map((n) => Math.round(n)) } : {}),
   };
 }

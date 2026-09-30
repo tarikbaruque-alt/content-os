@@ -48,6 +48,7 @@ function leadHead(lead, a) {
     <h1>${esc(lead.profile.nome)}</h1>
     <span class="muted">@${esc(lead.profile.handle)} · ${esc(nichoNome(lead) || 'sem nicho')}</span>
     <span class="sp"></span>
+    <button type="button" class="btn ghost small" data-act="copyDossier">Copiar resumo</button>
     <span class="prio ${a.score.prioridade}" title="${esc(a.score.avisos.join(' '))}">${PRIO_LABEL[a.score.prioridade]} · ${a.score.pontuacao}/100</span>
     <label class="f" style="min-width:150px"><span class="mono" style="font-size:10px">ETAPA</span>
       <select data-status="${esc(lead.profile.id)}" aria-label="Etapa">${E.LEAD_STATUS.map((s) => `<option value="${s}" ${lead.status === s ? 'selected' : ''}>${STATUS_LABEL[s]}</option>`).join('')}</select></label>
@@ -64,6 +65,7 @@ function tabBody(lead, a) {
     case 'args': return tabArgs(lead, a);
     case 'obj': return tabObj(lead, a);
     case 'pitch': return tabPitch(lead, a);
+    case 'follow': return tabFollow(lead, a);
     default: return '';
   }
 }
@@ -105,10 +107,12 @@ function tabRaioX(lead, a) {
     return dimRow(lead, 'dims', d.key, d.label, !manual && eff && eff.origem === 'contagem' ? `Derivado dos números informados: ${eff.nota} (${eff.base})` : '');
   });
   const grupos = [['perfil', 'Perfil e apresentação'], ['cadencia', 'Cadência'], ['formato', 'Formatos'], ['conversao', 'Conversão'], ['conteudo', 'Conteúdo'], ['funil', 'Funil de conteúdo']];
+  if (S.quick) return tabQuick(lead, a);
   return `
     <datalist id="nichos-list3">${list(E.allNiches(S.op), (n) => `<option value="${esc(n.nome)}"></option>`)}</datalist>
     <div class="split">
       <div class="stack">
+        ${quickToggle()}
         <details class="card" open><summary>1 · Perfil</summary><div class="stack">
           <div class="g2">
             ${fText(lead, 'profile.nome', 'Nome do negócio ou pessoa')}
@@ -302,7 +306,7 @@ function tabAudit(lead, a) {
 function tabApproach(lead, a) {
   const id = lead.profile.id;
   const gid = S.approachGargalo[id];
-  const ap = gid ? E.buildApproach(lead, a.raiox, a.qual, S.op, { gargaloId: gid }) : a.approach;
+  const ap = approachFor(lead, a);
   const head = `<div class="page-title"><div><h2>Primeira abordagem</h2>
     <p class="lede">Não vende: gera conversa. Observação real do perfil + oportunidade + pergunta. Sem elogio genérico, sem promessa, sem falar de gestão de redes sociais.</p></div></div>`;
   if (E.isRefusal(ap)) return `${head}<div class="callout bad"><b>Não gerei a mensagem.</b> ${esc(ap.motivo)}<br>${esc(ap.proximoPasso)}</div>`;
@@ -313,6 +317,7 @@ function tabApproach(lead, a) {
       </div>
       <div class="card stack"><span class="sect-label">Avisos</span><ul class="plain small">${list(ap.avisos, (x) => `<li>${esc(x)}</li>`)}</ul></div>
     </div>
+    <div class="row" style="margin-bottom:8px"><button type="button" class="btn ghost small" data-act="otherVariant">Outra versão do texto</button><span class="small muted">Versão ${(ap.variante || 0) + 1} de ${E.VARIANT_COUNT}: mesmo fato e mesma pergunta, outra forma de dizer.</span></div>
     <div class="stack">
       ${list(ap.variantes, (v, i) => {
         const pol = S.polish[id + ':' + i];
@@ -433,4 +438,82 @@ function tabPitch(lead, a) {
     <section class="card stack" style="margin-top:14px"><h3>O que entrou no pitch</h3>
       <div class="table-wrap"><table><tbody>${list(p.entradasUsadas, (e) => `<tr><td><b>${esc(e.entrada)}</b></td><td>${e.valor ? esc(e.valor) : '<span class="muted">não informado</span>'}</td></tr>`)}</tbody></table></div></section>`
     : '<div class="empty"><h3>Pronto para montar</h3><p>Clique em CRIAR PITCH. Quanto mais completo o Raio-X e a qualificação, mais específico o pitch.</p></div>'}`;
+}
+
+
+/* ---------- Modo rápido do Raio-X ---------- */
+const QUICK_DIMS = ['posicionamento', 'clareza_oferta', 'frequencia', 'autoridade', 'educativo', 'comercial', 'prova_social', 'cta'];
+function quickToggle() {
+  return `<div class="card row"><label class="row" style="gap:8px;cursor:pointer"><input type="checkbox" data-act="toggleQuick" ${S.quick ? 'checked' : ''}><b>Modo rápido</b></label><span class="small muted">${S.quick ? 'Só o essencial (cerca de 2 minutos por perfil). Desmarque para o Raio-X completo de 19 dimensões.' : 'Marque para preencher só o essencial e triar mais perfis por hora.'}</span></div>`;
+}
+function tabQuick(lead, a) {
+  const dimRows = list(QUICK_DIMS, (k) => {
+    const d = E.DIMENSOES.find((x) => x.key === k);
+    return d ? dimRow(lead, 'dims', d.key, d.label, '') : '';
+  });
+  return `
+    <datalist id="nichos-list3">${list(E.allNiches(S.op), (n) => `<option value="${esc(n.nome)}"></option>`)}</datalist>
+    <div class="split">
+      <div class="stack">
+        ${quickToggle()}
+        <section class="card stack"><h3>Perfil</h3>
+          <div class="g2">
+            ${fText(lead, 'profile.nome', 'Nome do negócio ou pessoa')}
+            ${fText(lead, 'profile.nicho', 'Nicho', { t: 'nicho', list: 'nichos-list3', ph: 'Escolha ou digite' })}
+          </div>
+          ${fText(lead, 'profile.temaDominado', 'O que este perfil demonstra dominar (fato que você viu)', { ph: 'Ex.: dermatologia estética' })}
+        </section>
+        <section class="card stack"><h3>Números dos últimos 30 dias</h3>
+          <div class="g3">
+            ${fText(lead, 'profile.posts30d', 'Posts', { num: 1, t: 'num' })}
+            ${fText(lead, 'profile.reels30d', 'Reels', { num: 1, t: 'num' })}
+            ${fSel(lead, 'profile.ctaNaBio', 'CTA na bio?', [['sim', 'Sim'], ['nao', 'Não']], 'bool3')}
+          </div>
+        </section>
+        <section class="card"><h3>Avaliação essencial</h3><p class="small muted" style="margin-bottom:8px">Avalie só o que deu para observar. Escreva o fato visto: ele vira a evidência.</p>${dimRows}</section>
+        <section class="card stack"><h3>O negócio</h3>
+          ${dimRow(lead, 'flat', 'negocio', 'Tem um bom negócio', '')}
+          ${dimRow(lead, 'flat', 'capacidade', 'Capacidade de investimento', '')}
+        </section>
+        <section class="card stack"><h3>Observação real</h3>
+          <div id="notas-list">${notasList(lead)}</div>
+          <div class="g2">
+            <label class="f">Observação (fato)<input type="text" id="nt-texto" placeholder="Ex.: o site não mostra o cardápio"></label>
+            <label class="f">Onde viu<input type="text" id="nt-fonte" placeholder="Ex.: Instagram (bio)"></label>
+          </div>
+          <div class="row"><button type="button" class="btn ghost" data-act="addNota">Adicionar observação</button></div>
+        </section>
+      </div>
+      <aside class="sticky" aria-label="Leitura do perfil"><div id="results" class="stack">${raioxResults(lead, a)}</div></aside>
+    </div>`;
+}
+
+/* ---------- Follow-up ---------- */
+function tabFollow(lead, a) {
+  const due = E.dueState(lead, today());
+  const fu = E.followUps(lead, a.raiox, a.qual, S.op);
+  const hist = (lead.historico || []).slice().reverse();
+  const n = E.attempts(lead);
+  const cad = E.cadenciaOf(S.op);
+  return `
+    <div class="page-title"><div><h2>Follow-up</h2>
+      <p class="lede">Retomadas educadas que agregam algo, sem cobrar, sem urgência inventada. A cadência é ${cad.join(', ')} dias entre tentativas (ajuste em Minha operação).</p></div></div>
+    <div class="g2" style="align-items:start;margin-bottom:12px">
+      <div class="card stack">
+        <span class="sect-label">Próximo contato</span>
+        ${due ? `<div class="callout ${due.estado === 'atrasado' ? 'bad' : ''}"><b>${due.estado === 'atrasado' ? 'Atrasado há ' + due.dias + ' dia(s)' : 'É hoje'}.</b></div>` : ''}
+        <label class="f">Data<input type="date" data-bind="proximoContato" value="${esc(lead.proximoContato || '')}"></label>
+        <div class="row"><button type="button" class="btn" data-act="registerContact" ${lead.status === 'fechado' || lead.status === 'perdido' ? 'disabled' : ''}>Registrei um contato</button>
+          <span class="small muted">${n} tentativa(s) sem resposta registrada(s).</span></div>
+        <p class="small muted">Ao registrar, o sistema agenda a próxima data pela cadência. Acabando a cadência, sugere encerrar com educação.</p>
+      </div>
+      <div class="card stack"><span class="sect-label">Motivo da perda (se perder)</span>
+        ${fText(lead, 'motivoPerda', 'O que aconteceu', { ph: 'Ex.: sem orçamento agora' })}
+        <p class="small muted">Só para você aprender o que melhora. Nada disso vai para mensagem nenhuma.</p></div>
+    </div>
+    ${fu.length ? `<div class="stack">${list(fu, (f) => `<div class="card stack"><div class="row"><b>${esc(f.rotulo)}</b><span class="small muted">${esc(f.situacao)}</span><span class="sp"></span>${copyBtn(f.texto)}</div><div class="msg">${esc(f.texto)}</div>${f.avisos.length ? `<div class="callout bad">${esc(f.avisos.join('; '))}</div>` : ''}</div>`)}</div>`
+      : '<div class="empty"><p>Sem mensagem de follow-up para esta etapa. Marque o prospect como <b>Abordado</b> para ver as retomadas.</p></div>'}
+    <div class="card stack" style="margin-top:14px"><h3>Histórico</h3>
+      ${hist.length ? `<ul class="clean">${list(hist, (h) => `<li><span class="mono small">${esc(fmtDate(h.quando))}</span> ${esc(h.evento === 'contato' ? 'Contato registrado (sem resposta)' : h.evento)}</li>`)}</ul>` : '<p class="small muted">Sem eventos ainda.</p>'}
+    </div>`;
 }

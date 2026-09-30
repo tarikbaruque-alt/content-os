@@ -12,14 +12,15 @@ const CERTEZA_LABEL = { OBSERVADO: 'Observado', HIPOTESE: 'Hipótese', CONFIRMAD
 const NOTA_LABEL = { forte: 'Forte', regular: 'Regular', fraca: 'Fraca', ausente: 'Ausente' };
 const TABS = [
   ['raiox', 'Raio-X'], ['why', 'Por que nós?'], ['audit', 'Mini auditoria'], ['approach', 'Abordagem'],
-  ['qual', 'Qualificação'], ['args', 'Argumentos'], ['obj', 'Objeções'], ['pitch', 'Pitch'],
+  ['qual', 'Qualificação'], ['args', 'Argumentos'], ['obj', 'Objeções'], ['pitch', 'Pitch'], ['follow', 'Follow-up'],
 ];
 
+function LS0(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
 const S = {
   view: 'prospects', leadId: null, tab: 'raiox',
   leads: [], op: E.normalizeOperacao(null),
   filter: 'todos', storage: 'local', canSample: false, canDownload: false,
-  ai: {}, polish: {}, approachGargalo: {}, pitchOn: {}, obj: { text: '', key: '' }, find: { nicho: '', cidade: '', plan: null },
+  ai: {}, polish: {}, approachGargalo: {}, approachVar: {}, quick: !!LS0('mesa.v1.quick'), pitchOn: {}, obj: { text: '', key: '' }, find: { nicho: '', cidade: '', plan: null },
   confirmDel: null, sampling: null,
 };
 
@@ -141,6 +142,11 @@ function setPath(o, path, val) {
     if (box && !box.nota) box.nota = 'nao_avaliado';
   }
 }
+const today = () => E.dayStr(new Date());
+const approachFor = (lead, a) => {
+  const id = lead.profile.id, gid = S.approachGargalo[id], v = S.approachVar[id];
+  return gid || v != null ? E.buildApproach(lead, a.raiox, a.qual, S.op, { gargaloId: gid || undefined, variante: v }) : a.approach;
+};
 const curLead = () => S.leads.find((l) => l.profile.id === S.leadId) || null;
 const analysis = (lead) => E.analyzeLead(lead, S.op);
 const nichoNome = (lead) => E.nicheName(lead, S.op);
@@ -178,8 +184,8 @@ async function aiRaioX(lead) {
 async function aiPolish(lead, idx) {
   if (!sampleFn) return;
   const a = analysis(lead);
-  if (E.isRefusal(a.approach)) return;
-  const orig = a.approach.variantes[idx];
+  if (E.isRefusal(approachFor(lead, a))) return;
+  const orig = approachFor(lead, a).variantes[idx];
   if (!orig) return;
   const anchors = [lead.profile.temaDominado || ''].filter(Boolean);
   const key = lead.profile.id + ':' + idx;
