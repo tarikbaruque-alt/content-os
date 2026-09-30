@@ -128,6 +128,7 @@ local (que está no `.gitignore`) ou nas configurações do ambiente do Claude C
 | `NOTION_DATABASE_ID` | Database de destino (32 caracteres, tirados da URL) | URL do database no Notion | ❌ falta |
 | `NOTION_SYNC_AUTHORIZE` | Liga a escrita real (sem ela, só faz dry-run) | — | deixar vazio; usar `--authorize` |
 | `PIXABAY_API_KEY` | Imagens de referência reais (Mosaico/Enredo) | pixabay.com/api/docs (grátis) | opcional |
+| `PEXELS_API_KEY` | Fotos e vídeos (b-roll) de referência reais | pexels.com/api (grátis) | opcional |
 | `TYPESAFE_API_KEY` | Camada de decisão Jev (futuro) | — | não usar ainda |
 
 Depois de configurar: `npm run doctor` deve mostrar ✅ em Anthropic e Notion.

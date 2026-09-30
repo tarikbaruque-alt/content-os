@@ -84,6 +84,17 @@ PIXABAY_API_KEY=...
 ```
 Sem chave, o sistema gera **links de busca** (Pinterest/Pixabay) — nunca inventa imagens.
 
+## 🎞️ Pexels (fotos e vídeos/b-roll reais — opcional)
+
+| O quê | Link |
+|---|---|
+| Pegar API key (grátis) | https://www.pexels.com/api |
+
+```
+PEXELS_API_KEY=...
+```
+Pode usar junto com o Pixabay. A chave só é enviada a `api.pexels.com`.
+
 ---
 
 ## ⚡ Comandos rápidos

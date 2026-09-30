@@ -156,6 +156,9 @@ async function main() {
     process.env.PIXABAY_API_KEY
       ? { label: "Pixabay", ok: true, detail: "chave presente — imagens reais no carrossel/Stories." }
       : { label: "Pixabay", ok: false, detail: "sem chave — usando links de busca (Pinterest/Pixabay), nada inventado.", fix: "Opcional: PIXABAY_API_KEY (grátis em pixabay.com/api/docs)." },
+    process.env.PEXELS_API_KEY
+      ? { label: "Pexels", ok: true, detail: "chave presente — foto e vídeo (b-roll) reais no carrossel/Stories." }
+      : { label: "Pexels", ok: false, detail: "sem chave — sem foto/vídeo do Pexels.", fix: "Opcional: PEXELS_API_KEY (grátis em pexels.com/api)." },
   ]);
 
   console.log("\n---");

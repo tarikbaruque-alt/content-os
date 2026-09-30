@@ -155,7 +155,7 @@ export type ProducedContent = {
 
 /** Referência visual (nunca inventada): termo de busca + link real de busca. */
 export type VisualRef = {
-  fonte: "Pixabay" | "Pinterest" | "Sugestão";
+  fonte: "Pixabay" | "Pexels" | "Pinterest" | "Sugestão";
   termo: string;
   url?: string;
   nota: string;
