@@ -24,3 +24,8 @@ npm-debug.log*
 
 # Plano gerado pelo pipeline (build)
 apps/web/generated-plan.json
+
+# Vídeos de trabalho do Remotion (recortes, props e renders)
+video/legenda-3d/public/*
+!video/legenda-3d/public/.gitkeep
+video/legenda-3d/out/
