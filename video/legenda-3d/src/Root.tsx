@@ -1,5 +1,6 @@
 import React from "react";
 import { Composition } from "remotion";
+import { Edicao, type EdicaoProps, SOBRA } from "./edicao/Edicao";
 import { Legenda3D } from "./Legenda3D";
 import { type Props, propsSchema } from "./tipos";
 
@@ -27,6 +28,17 @@ const exemplo: Props = {
 };
 
 export const Root: React.FC = () => (
+  <>
+  <Composition
+    id="Edicao"
+    component={Edicao}
+    defaultProps={{ palavras: [], duracao: 5 } as EdicaoProps}
+    fps={30}
+    width={1080}
+    height={1920}
+    durationInFrames={150}
+    calculateMetadata={({ props }) => ({ durationInFrames: Math.ceil((props.duracao + SOBRA) * 30) })}
+  />
   <Composition
     id="Legenda3D"
     component={Legenda3D}
@@ -43,4 +55,5 @@ export const Root: React.FC = () => (
       durationInFrames: Math.max(1, Math.ceil(props.duracaoSegundos * props.fps)),
     })}
   />
+  </>
 );
