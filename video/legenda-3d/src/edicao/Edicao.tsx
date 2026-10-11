@@ -16,10 +16,11 @@ import {
 } from "remotion";
 import { usarFonte } from "../fontes";
 import { COR, PLANOS } from "./marca";
-import { BROLLS, type BRoll, CAPITULOS, PAGINAS, PALAVRAS_CHAVE, SECAO_LARANJA, SONS, TOMADAS } from "./roteiro";
+import { BROLLS, type BRoll, CAPITULOS, ICONES, type Icone as IconeT, PAGINAS, PALAVRAS_CHAVE, SECAO_LARANJA, SONS, TOMADAS } from "./roteiro";
 
 export type PalavraEdicao = { palavra: string; inicio: number; fim: number };
-export type EdicaoProps = { palavras: PalavraEdicao[]; duracao: number };
+export type Maos = { fps: number; direita: [number, number][]; esquerda: [number, number][] };
+export type EdicaoProps = { palavras: PalavraEdicao[]; duracao: number; maos?: Maos };
 
 const ANTON = usarFonte("Anton");
 const MONT = usarFonte("Montserrat");
@@ -51,31 +52,58 @@ const extrusao = (cor: string, prof: number) =>
 
 // ---------- câmera ----------
 const IMPACTOS = [0.08, 1.84, 10.76, 32.47, 44.04];
+// Socos de zoom nas palavras-chave (câmera avança rápido e volta).
+const SOCOS = [10.76, 17.43, 29.27, 30.55, 32.47, 43.0, 44.04];
+// Trocas de plano que não ficam escondidas por B-roll ganham transição com desfoque de movimento.
+const TRANSICOES = TOMADAS.map((x) => x.ini).filter((x) => x > 0 && !BROLLS.some((b) => x >= b.ini && x <= b.fim + 0.05));
 
-const useCamera = () => {
-  const { t } = useT();
+const cameraEm = (t: number) => {
   const tomada = TOMADAS.find((x) => t >= x.ini && t < x.fim) ?? TOMADAS[TOMADAS.length - 1]!;
   const p = PLANOS[tomada.plano];
-  const deriva = 1 + 0.03 * interpolate(t, [tomada.ini, tomada.fim], [0, 1], clamp);
+  let escala = p.escala * (1 + 0.03 * interpolate(t, [tomada.ini, tomada.fim], [0, 1], clamp));
+  for (const i of SOCOS) {
+    const d = t - i;
+    if (d >= 0 && d < 0.6) escala *= 1 + 0.07 * (1 - Math.exp(-d * 60)) * Math.exp(-d * 7);
+  }
+  let desfoque = 0;
+  for (const i of TRANSICOES) {
+    const d = t - i;
+    if (d >= 0 && d < 0.35) escala *= 1 + 0.06 * Math.exp(-d * 14);
+    if (d >= 0 && d < 0.1) desfoque = Math.max(desfoque, 6 * (1 - d / 0.1));
+  }
   let dx = 0;
   let dy = 0;
   for (const i of IMPACTOS) {
     const d = t - i;
     if (d >= 0 && d < 0.3) {
-      const a = 14 * Math.exp(-d * 14);
-      dx += Math.sin(d * 90) * a;
-      dy += Math.cos(d * 77) * a * 0.7;
+      const amp = 14 * Math.exp(-d * 14);
+      dx += Math.sin(d * 90) * amp;
+      dy += Math.cos(d * 77) * amp * 0.7;
     }
   }
-  return {
-    transform: `translate(${dx}px, ${dy}px) scale(${p.escala * deriva})`,
-    transformOrigin: `${p.origemX}% ${p.origemY}%`,
-  };
+  return { escala, ox: (p.origemX / 100) * 1080, oy: (p.origemY / 100) * 1920, dx, dy, desfoque };
+};
+
+/** Leva um ponto do vídeo original para a tela, aplicando a câmera do instante t. */
+const projetar = (t: number, x: number, y: number) => {
+  const c = cameraEm(t);
+  return { x: c.ox + (x - c.ox) * c.escala + c.dx, y: c.oy + (y - c.oy) * c.escala + c.dy };
 };
 
 const Camera: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const estilo = useCamera();
-  return <AbsoluteFill style={estilo}>{children}</AbsoluteFill>;
+  const { t } = useT();
+  const c = cameraEm(t);
+  return (
+    <AbsoluteFill
+      style={{
+        transform: `translate(${c.dx}px, ${c.dy}px) scale(${c.escala})`,
+        transformOrigin: `${c.ox}px ${c.oy}px`,
+        filter: c.desfoque > 0.2 ? `blur(${c.desfoque}px)` : undefined,
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
 };
 
 // ---------- peças gráficas ----------
@@ -106,27 +134,41 @@ const Pilula: React.FC<{ texto: string; fundo: string; cor: string; tamanho: num
   </div>
 );
 
-const Titulo: React.FC<{ texto: string; cor: string; sombra: string; tamanho: number; style?: React.CSSProperties }> = ({
+/** Separação RGB que treme e some logo depois da entrada. */
+const useGlitch = (t0?: number) => {
+  const { t, frame } = useT();
+  if (t0 === undefined) return "";
+  const d = t - t0;
+  if (d < 0 || d > 0.28) return "";
+  const dx = 12 * (1 - d / 0.28) * (frame % 2 ? 1 : -0.6);
+  return `${dx}px 0 0 rgba(255,0,70,0.75), ${-dx}px 0 0 rgba(0,210,255,0.75), `;
+};
+
+const Titulo: React.FC<{ texto: string; cor: string; sombra: string; tamanho: number; glitch?: number; style?: React.CSSProperties }> = ({
   texto,
   cor,
   sombra,
   tamanho,
+  glitch,
   style,
-}) => (
-  <div
-    style={{
-      fontFamily: ANTON.familia,
-      fontSize: tamanho,
-      lineHeight: 1,
-      color: cor,
-      whiteSpace: "nowrap",
-      textShadow: `${extrusao(sombra, Math.max(3, Math.round(tamanho / 14)))}, 0 ${Math.round(tamanho / 6)}px ${Math.round(tamanho / 4)}px rgba(0,0,0,0.26)`,
-      ...style,
-    }}
-  >
-    {texto}
-  </div>
-);
+}) => {
+  const rgb = useGlitch(glitch);
+  return (
+    <div
+      style={{
+        fontFamily: ANTON.familia,
+        fontSize: tamanho,
+        lineHeight: 1,
+        color: cor,
+        whiteSpace: "nowrap",
+        textShadow: `${rgb}${extrusao(sombra, Math.max(3, Math.round(tamanho / 14)))}, 0 ${Math.round(tamanho / 6)}px ${Math.round(tamanho / 4)}px rgba(0,0,0,0.26)`,
+        ...style,
+      }}
+    >
+      {texto}
+    </div>
+  );
+};
 
 const Seta: React.FC<{ cor: string; tamanho: number; baixo?: boolean }> = ({ cor, tamanho, baixo }) => (
   <svg width={tamanho} height={tamanho} viewBox="0 0 100 100" style={{ transform: baixo ? "rotate(180deg)" : undefined }}>
@@ -204,40 +246,124 @@ const Desliza: React.FC<{ t0: number; t1: number; children: React.ReactNode; sty
 };
 
 // ---------- gráficos atrás da pessoa ----------
-const Abertura: React.FC = () => {
+/** Anel de energia e riscos saindo da ponta do dedo quando a palavra aparece. */
+const Explosao: React.FC<{ t0: number; x: number; y: number; cor: string }> = ({ t0, x, y, cor }) => {
   const { t } = useT();
-  const vs = useMola(1.2, { damping: 9, stiffness: 240, mass: 0.6 });
-  const tam2 = 106;
-  if (t > 2.94) return null;
+  const d = t - t0;
+  if (d < 0 || d > 0.5) return null;
+  const p = d / 0.5;
+  const raio = 30 + 170 * (1 - (1 - p) ** 3);
+  return (
+    <svg width={500} height={500} viewBox="-250 -250 500 500" style={{ position: "absolute", left: x - 250, top: y - 250, opacity: 1 - p }}>
+      <circle r={raio} fill="none" stroke={cor} strokeWidth={14 * (1 - p) + 2} />
+      {Array.from({ length: 10 }, (_, i) => {
+        const ang = (i / 10) * Math.PI * 2 + 0.3;
+        const r0 = raio * 0.55;
+        const r1 = raio * 1.05;
+        return (
+          <line key={i} x1={Math.cos(ang) * r0} y1={Math.sin(ang) * r0} x2={Math.cos(ang) * r1} y2={Math.sin(ang) * r1} stroke={COR.preto} strokeWidth={7 * (1 - p) + 1} strokeLinecap="round" />
+        );
+      })}
+    </svg>
+  );
+};
+
+/** Palavra em duas linhas apoiada na ponta do dedo, seguindo a mão enquanto ela sobe. */
+const PalavraNaMao: React.FC<{
+  t0: number;
+  t1: number;
+  linhas: [string, string];
+  ancoras: [number, number][];
+  fpsMaos: number;
+  cor: string;
+  sombra: string;
+  minX: number;
+  maxX: number;
+}> = ({ t0, t1, linhas, ancoras, fpsMaos, cor, sombra, minX, maxX }) => {
+  const { t } = useT();
+  const s = useMola(t0, { damping: 11, stiffness: 210, mass: 0.7 });
+  if (t < t0 || t > t1 || !ancoras.length) return null;
+  const i = Math.min(ancoras.length - 1, Math.max(0, Math.round(t * fpsMaos)));
+  const [ax, ay] = ancoras[i]!;
+  const tela = projetar(t, ax, ay);
+  const tamanho = 86;
+  const alturaBloco = tamanho * 2 * 0.96;
+  const cx = Math.min(maxX, Math.max(minX, tela.x));
+  const base = tela.y - 18;
+  const sai = saida(t, t1);
   return (
     <>
-      <Batida t0={0.08} t1={2.94} style={{ top: 22 }}>
-        <Titulo texto="HIPERTROFIA" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={122} />
-      </Batida>
-      <Batida t0={1.84} t1={2.94} style={{ top: 140, paddingLeft: 108 }}>
-        <Titulo texto="EMAGRECIMENTO" cor={COR.laranja} sombra={COR.laranjaEscuro} tamanho={tam2} />
-      </Batida>
+      <Explosao t0={t0} x={tela.x} y={tela.y} cor={cor} />
+      <div
+        style={{
+          position: "absolute",
+          left: cx - 300,
+          width: 600,
+          top: Math.max(50, base - alturaBloco),
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          opacity: Math.min(1, s * 3) * sai,
+          filter: `blur(${(1 - Math.min(1, s)) * 12}px)`,
+          transform: `translateY(${(1 - s) * 140}px) scale(${interpolate(s, [0, 1], [0.2, 1])}) rotate(${(1 - s) * -12}deg)`,
+          transformOrigin: "50% 100%",
+        }}
+      >
+        <Titulo texto={linhas[0]} cor={cor} sombra={sombra} tamanho={tamanho} glitch={t0} style={{ lineHeight: 0.96 }} />
+        <Titulo texto={linhas[1]} cor={cor} sombra={sombra} tamanho={tamanho} glitch={t0} style={{ lineHeight: 0.96 }} />
+      </div>
+    </>
+  );
+};
+
+const Abertura: React.FC<{ maos?: Maos }> = ({ maos }) => {
+  const { t } = useT();
+  const vs = useMola(1.2, { damping: 9, stiffness: 240, mass: 0.6 });
+  if (t > 2.94 || !maos) return null;
+  return (
+    <>
+      <PalavraNaMao
+        t0={0.08}
+        t1={2.94}
+        linhas={["HIPER-", "TROFIA"]}
+        ancoras={maos.direita}
+        fpsMaos={maos.fps}
+        cor={COR.verde}
+        sombra={COR.verdeEscuro}
+        minX={870}
+        maxX={905}
+      />
+      <PalavraNaMao
+        t0={1.84}
+        t1={2.94}
+        linhas={["EMAGRE-", "CIMENTO"]}
+        ancoras={maos.esquerda}
+        fpsMaos={maos.fps}
+        cor={COR.laranja}
+        sombra={COR.laranjaEscuro}
+        minX={200}
+        maxX={360}
+      />
       {t >= 1.2 ? (
         <div
           style={{
             position: "absolute",
-            left: 112,
-            top: 146,
-            width: 92,
-            height: 92,
-            borderRadius: 46,
+            left: 540 - 56,
+            top: 92,
+            width: 112,
+            height: 112,
+            borderRadius: 56,
             background: COR.preto,
             border: "6px solid #fff",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontFamily: ANTON.familia,
-            fontSize: 44,
+            fontSize: 52,
             color: "#fff",
             boxShadow: "0 14px 30px rgba(0,0,0,0.35)",
-            transform: `scale(${vs}) rotate(${(1 - vs) * -90}deg)`,
+            transform: `scale(${vs}) rotate(${(1 - vs) * -180}deg)`,
             opacity: saida(t, 2.94),
-            zIndex: 2,
           }}
         >
           VS
@@ -253,7 +379,7 @@ const NaoMuda: React.FC = () => (
       <Pilula texto="O TREINO" fundo={COR.preto} cor="#fff" tamanho={64} />
     </Desliza>
     <Batida t0={10.76} t1={11.62} style={{ top: 168 }}>
-      <Titulo texto="NÃO MUDA" cor={COR.preto} sombra="rgba(0,0,0,0.18)" tamanho={150} />
+      <Titulo texto="NÃO MUDA" cor={COR.preto} sombra="rgba(0,0,0,0.18)" tamanho={150} glitch={10.76} />
       <Check tamanho={118} />
     </Batida>
     <Desliza t0={12.36} t1={13.74} style={{ top: 110 }}>
@@ -268,7 +394,7 @@ const ConsumirMais: React.FC = () => (
       <Pilula texto="CONSUMIR" fundo={COR.preto} cor="#fff" tamanho={62} />
     </Desliza>
     <Batida t0={19.99} t1={21.54} style={{ top: 176, right: 610, justifyContent: "flex-end", gap: 14 }}>
-      <Titulo texto="MAIS" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={160} />
+      <Titulo texto="MAIS" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={160} glitch={19.99} />
       <Seta cor={COR.verde} tamanho={110} />
     </Batida>
   </>
@@ -305,7 +431,7 @@ const Checklist: React.FC = () => {
         {t >= 24.71 ? chip(b, "INTENSIDADE") : <div style={{ width: 480 }} />}
       </div>
       <Desliza t0={26.47} t1={27.47} style={{ top: 118 }}>
-        <Titulo texto="ADEQUADOS AO OBJETIVO" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={68} />
+        <Titulo texto="ADEQUADOS AO OBJETIVO" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={68} glitch={26.47} />
       </Desliza>
     </div>
   );
@@ -316,7 +442,7 @@ const Deficit: React.FC = () => {
   const c = useMola(33.11, { damping: 10, stiffness: 230, mass: 0.6 });
   return (
     <Batida t0={32.47} t1={34.5} style={{ top: 46, gap: 18 }}>
-      <Titulo texto="DÉFICIT" cor={COR.laranja} sombra={COR.laranjaEscuro} tamanho={118} />
+      <Titulo texto="DÉFICIT" cor={COR.laranja} sombra={COR.laranjaEscuro} tamanho={118} glitch={32.47} />
       <div style={{ opacity: t >= 33.11 ? Math.min(1, c * 2) : 0, transform: `scale(${interpolate(c, [0, 1], [0.4, 1])})` }}>
         <Titulo texto="CALÓRICO" cor={COR.preto} sombra="rgba(0,0,0,0.15)" tamanho={118} />
       </div>
@@ -382,7 +508,7 @@ const Preservar: React.FC = () => (
       <Pilula texto="PRESERVAR" fundo={COR.preto} cor="#fff" tamanho={54} />
     </Desliza>
     <Batida t0={44.04} t1={45.25} style={{ top: 104 }}>
-      <Titulo texto="MASSA MUSCULAR" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={100} />
+      <Titulo texto="MASSA MUSCULAR" cor={COR.verde} sombra={COR.verdeEscuro} tamanho={100} glitch={44.04} />
     </Batida>
   </>
 );
@@ -498,25 +624,46 @@ const Legenda: React.FC<{ palavras: PalavraEdicao[] }> = ({ palavras }) => {
         const s = spring({ frame: local, fps, config: { damping: 11, stiffness: 260, mass: 0.5 } });
         const falando = t >= p.inicio && t < p.fim;
         const chave = PALAVRAS_CHAVE.has(limpar(p.palavra).toLowerCase());
+        const caixa = falando ? spring({ frame: local, fps, config: { damping: 13, stiffness: 320, mass: 0.4 } }) : 0;
         return (
           <span
             key={i}
             style={{
+              position: "relative",
               display: "inline-block",
-              fontFamily: MONT.familia,
-              fontWeight: 900,
-              fontSize: 88,
-              lineHeight: 1.12,
-              textTransform: "uppercase",
-              color: falando || chave ? destaque : "#fff",
-              WebkitTextStroke: "14px #000",
-              paintOrder: "stroke fill",
-              textShadow: "0 8px 0 rgba(0,0,0,0.55)",
               transform: `translateY(${(1 - s) * 26}px) scale(${interpolate(s, [0, 1], [0.55, 1]) * (falando ? 1.06 : 1)})`,
               opacity: Math.min(1, s * 2.5),
             }}
           >
-            {limpar(p.palavra)}
+            {falando ? (
+              <span
+                style={{
+                  position: "absolute",
+                  inset: "6px -16px 2px -16px",
+                  background: destaque,
+                  borderRadius: 18,
+                  border: "5px solid #000",
+                  boxShadow: "0 8px 0 rgba(0,0,0,0.55)",
+                  transform: `scale(${interpolate(caixa, [0, 1], [0.6, 1])}) rotate(-2.5deg)`,
+                }}
+              />
+            ) : null}
+            <span
+              style={{
+                position: "relative",
+                fontFamily: MONT.familia,
+                fontWeight: 900,
+                fontSize: 88,
+                lineHeight: 1.12,
+                textTransform: "uppercase",
+                color: falando ? "#fff" : chave ? destaque : "#fff",
+                WebkitTextStroke: "14px #000",
+                paintOrder: "stroke fill",
+                textShadow: falando ? "none" : "0 8px 0 rgba(0,0,0,0.55)",
+              }}
+            >
+              {limpar(p.palavra)}
+            </span>
           </span>
         );
       })}
@@ -598,6 +745,115 @@ const Chamada: React.FC = () => {
   );
 };
 
+// ---------- ícones, flash e barra de progresso ----------
+const GLIFOS: Record<IconeT["tipo"], { fundo: string; desenho: React.ReactNode }> = {
+  pergunta: {
+    fundo: COR.amarelo,
+    desenho: (
+      <text x="50" y="74" textAnchor="middle" fontSize="70" fontFamily={ANTON.familia} fill={COR.preto}>
+        ?
+      </text>
+    ),
+  },
+  lampada: {
+    fundo: COR.amarelo,
+    desenho: (
+      <g fill="none" stroke={COR.preto} strokeWidth={6} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M50 20 C34 20 26 32 26 43 C26 53 33 58 37 64 L37 70 L63 70 L63 64 C67 58 74 53 74 43 C74 32 66 20 50 20 Z" fill="#fff" />
+        <path d="M40 78 L60 78 M43 85 L57 85" />
+      </g>
+    ),
+  },
+  raio: {
+    fundo: COR.laranja,
+    desenho: <path d="M56 12 L26 56 L47 56 L40 88 L74 40 L52 40 Z" fill="#fff" stroke={COR.preto} strokeWidth={5} strokeLinejoin="round" />,
+  },
+  alvo: {
+    fundo: "#fff",
+    desenho: (
+      <g>
+        <circle cx="50" cy="50" r="32" fill={COR.laranja} />
+        <circle cx="50" cy="50" r="22" fill="#fff" />
+        <circle cx="50" cy="50" r="12" fill={COR.laranja} />
+        <path d="M50 50 L84 16 M72 16 L84 16 L84 28" stroke={COR.preto} strokeWidth={6} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+    ),
+  },
+  halter: {
+    fundo: COR.verde,
+    desenho: (
+      <g fill="#fff" stroke={COR.preto} strokeWidth={4} strokeLinejoin="round">
+        <rect x="30" y="46" width="40" height="8" rx="3" />
+        <rect x="18" y="32" width="12" height="36" rx="4" />
+        <rect x="70" y="32" width="12" height="36" rx="4" />
+        <rect x="10" y="39" width="8" height="22" rx="3" />
+        <rect x="82" y="39" width="8" height="22" rx="3" />
+      </g>
+    ),
+  },
+  joinha: {
+    fundo: COR.verde,
+    desenho: (
+      <path
+        d="M22 46 L34 46 L34 80 L22 80 Z M38 78 L38 48 C44 42 48 34 50 22 C51 17 60 18 60 26 C60 32 58 38 56 44 L74 44 C80 44 83 49 81 54 L76 72 C75 76 72 78 68 78 Z"
+        fill="#fff"
+        stroke={COR.preto}
+        strokeWidth={5}
+        strokeLinejoin="round"
+      />
+    ),
+  },
+};
+
+const IconeSalto: React.FC<{ i: IconeT }> = ({ i }) => {
+  const { t } = useT();
+  const s = useMola(i.t0, { damping: 9, stiffness: 230, mass: 0.6 });
+  if (t < i.t0 || t > i.t1) return null;
+  const sai = saida(t, i.t1, 0.15);
+  const g = GLIFOS[i.tipo];
+  const bob = Math.sin((t - i.t0) * 5) * 6;
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: i.x - i.tam / 2,
+        top: i.y - i.tam / 2 + bob,
+        width: i.tam,
+        height: i.tam,
+        transform: `scale(${s * sai}) rotate(${(1 - s) * -30 + Math.sin((t - i.t0) * 3) * 4}deg)`,
+        filter: "drop-shadow(0 14px 18px rgba(0,0,0,0.35))",
+      }}
+    >
+      <svg width={i.tam} height={i.tam} viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="46" fill={g.fundo} stroke={COR.preto} strokeWidth={5} />
+        {g.desenho}
+      </svg>
+    </div>
+  );
+};
+
+const Flash: React.FC = () => {
+  const { t } = useT();
+  const b = BROLLS.find((x) => t >= x.ini && t < x.ini + 0.14);
+  if (!b) return null;
+  return <AbsoluteFill style={{ background: "#fff", opacity: 0.85 * (1 - (t - b.ini) / 0.14) }} />;
+};
+
+const BarraProgresso: React.FC<{ duracao: number }> = ({ duracao }) => {
+  const { t } = useT();
+  const laranja = t >= SECAO_LARANJA.ini && t < SECAO_LARANJA.fim;
+  return (
+    <div style={{ position: "absolute", left: 0, bottom: 0, height: 10, width: `${Math.min(1, t / duracao) * 100}%`, background: laranja ? COR.laranja : COR.verde }} />
+  );
+};
+
+// Whoosh curto nas trocas de plano que ainda não têm som por perto.
+const SONS_TRANSICAO = TRANSICOES.filter((x) => !SONS.some((s) => Math.abs(s.t - x) < 0.2)).map((x) => ({
+  t: x - 0.06,
+  arquivo: "whoosh_curto",
+  volume: 0.24,
+}));
+
 // ---------- composição ----------
 const useFontes = () => {
   const [handle] = useState(() => delayRender("fontes"));
@@ -611,7 +867,7 @@ const useFontes = () => {
   return ok;
 };
 
-export const Edicao: React.FC<EdicaoProps> = ({ palavras, duracao }) => {
+export const Edicao: React.FC<EdicaoProps> = ({ palavras, duracao, maos }) => {
   const { t, fps } = useT();
   const prontas = useFontes();
   const ultimo = Math.floor(duracao * fps) - 2;
@@ -626,7 +882,7 @@ export const Edicao: React.FC<EdicaoProps> = ({ palavras, duracao }) => {
       <Camera>{video("edicao/base.mp4", { volume: 1 })}</Camera>
       {prontas ? (
         <>
-          <Abertura />
+          <Abertura maos={maos} />
           <NaoMuda />
           <ConsumirMais />
           <Checklist />
@@ -641,12 +897,17 @@ export const Edicao: React.FC<EdicaoProps> = ({ palavras, duracao }) => {
           {BROLLS.map((b, i) => (
             <CamadaBRoll key={i} b={b} />
           ))}
+          <Flash />
+          {ICONES.map((i, k) => (
+            <IconeSalto key={k} i={i} />
+          ))}
           <Capitulo />
           <Legenda palavras={palavras} />
           <Chamada />
+          <BarraProgresso duracao={duracao} />
         </>
       ) : null}
-      {SONS.map((s, i) => (
+      {[...SONS, ...SONS_TRANSICAO, ...ICONES.map((i) => ({ t: i.t0 - 0.02, arquivo: "pop", volume: 0.45 })), { t: 12.85, arquivo: "riser", volume: 0.4 }].map((s, i) => (
         <Sequence key={i} from={Math.max(0, Math.round(s.t * fps))} durationInFrames={Math.round(1.6 * fps)}>
           <Audio src={staticFile(`edicao/sfx/${s.arquivo}.wav`)} volume={s.volume} />
         </Sequence>

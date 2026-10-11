@@ -10,6 +10,8 @@ cliente ficam em `public/edicao/`, que não vai para o git.
 | `preparar_cortes.py` | corta as pausas, remapeia os tempos e gera o vídeo-base tratado (cor, nitidez, áudio) |
 | `sfx.py` | sintetiza os efeitos sonoros e a trilha (sem licença de terceiros) |
 | `medir_png.py` + `analisar_cabeca.py` | medem onde está a cabeça em cada momento, para posicionar os títulos |
+| `rastrear_maos.py` + `ancoras_maos.py` | rastreiam as mãos (MediaPipe 0.10.14, modelo embutido) e geram a posição das palavras da abertura, que entra em `props.json` como `maos` |
+| `medir_cabeca.py` | mede a cabeça direto do `.webm` recortado |
 | `masterizar.py` | áudio final em −14 LUFS / −1,5 dBTP |
 | `folha.sh` | folha de quadros para conferência |
 

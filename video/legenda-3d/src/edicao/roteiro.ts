@@ -112,3 +112,15 @@ export const PAGINAS: [number, number][] = [
   [55, 57], [58, 60], [61, 64], [65, 67], [68, 69], [70, 72], [73, 75], [76, 77], [78, 79], [80, 82],
   [83, 85], [86, 88], [89, 89], [90, 93], [94, 96], [97, 99], [100, 102],
 ];
+
+// Ícones que saltam ao lado da cabeça nos planos médios (lado e posição medidos pela cabeça).
+export type Icone = { t0: number; t1: number; tipo: "pergunta" | "lampada" | "raio" | "alvo" | "halter" | "joinha"; x: number; y: number; tam: number };
+export const ICONES: Icone[] = [
+  { t0: 4.48, t1: 6.43, tipo: "pergunta", x: 250, y: 400, tam: 190 },
+  { t0: 5.36, t1: 6.43, tipo: "lampada", x: 962, y: 430, tam: 160 },
+  { t0: 6.48, t1: 7.93, tipo: "raio", x: 256, y: 420, tam: 180 },
+  { t0: 27.99, t1: 30.27, tipo: "alvo", x: 193, y: 430, tam: 160 },
+  { t0: 29.27, t1: 30.27, tipo: "halter", x: 972, y: 430, tam: 150 },
+  { t0: 37.7, t1: 39.48, tipo: "halter", x: 916, y: 420, tam: 170 },
+  { t0: 45.3, t1: 46.84, tipo: "joinha", x: 321, y: 420, tam: 200 },
+];
