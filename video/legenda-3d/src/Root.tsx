@@ -1,5 +1,6 @@
 import React from "react";
 import { Composition } from "remotion";
+import { Coluna, type ColunaProps, SOBRA_COLUNA } from "./coluna/Coluna";
 import { Edicao, type EdicaoProps, SOBRA } from "./edicao/Edicao";
 import { Legenda3D } from "./Legenda3D";
 import { type Props, propsSchema } from "./tipos";
@@ -29,6 +30,16 @@ const exemplo: Props = {
 
 export const Root: React.FC = () => (
   <>
+  <Composition
+    id="Coluna"
+    component={Coluna}
+    defaultProps={{ palavras: [], duracao: 5 } as ColunaProps}
+    fps={30}
+    width={1080}
+    height={1920}
+    durationInFrames={150}
+    calculateMetadata={({ props }) => ({ durationInFrames: Math.ceil((props.duracao + SOBRA_COLUNA) * 30) })}
+  />
   <Composition
     id="Edicao"
     component={Edicao}

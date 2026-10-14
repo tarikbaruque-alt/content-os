@@ -27,3 +27,13 @@ python3 ferramentas/masterizar.py saida.mp4 final.mp4
 
 O roteiro da edição (planos, B-roll, gráficos, sons e páginas da legenda) fica
 em `src/edicao/roteiro.ts`.
+
+## Edição "dica do físio — coluna lombar" (composição `Coluna`)
+
+| Script | Etapa |
+|---|---|
+| `trecho_whisper.py` | confere trechos duvidosos com o Whisper em pedaços curtos |
+| `decupar_coluna.py` | decupagem: trechos mantidos (cortes só dentro de silêncios, com margem), tempo das palavras por bloco de fala e vídeo-base tratado |
+| `trilha_calma.py` | trilha calma sem bateria e riser longo |
+
+O roteiro visual (planos, passos, cartões, sons e páginas de 2 palavras) fica em `src/coluna/roteiro.ts`.
