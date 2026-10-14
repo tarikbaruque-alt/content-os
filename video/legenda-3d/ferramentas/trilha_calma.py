@@ -19,9 +19,15 @@ for c in range(int(dur / bar) + 2):
     add(lp(pad * env, 1400) * 0.05, ini)
     tb = t(bar); add((np.sin(2 * np.pi * hz(ac[0] - 12) * tb) * np.minimum(1, tb / 0.05) * np.minimum(1, (bar - tb) / 0.2)) * 0.12, ini)
     for k in range(8):                                   # dedilhado em colcheias
+        if ini + k * beat / 2 > dur - 2.8: break             # o final fica só com o acorde de resolução
         m = ac[[0, 2, 1, 3, 2, 1, 3, 2][k]] + 12; tp = t(0.9)
         pl = (np.sin(2 * np.pi * hz(m) * tp) + 0.3 * np.sin(4 * np.pi * hz(m) * tp)) * np.exp(-tp * 5) * np.minimum(1, tp / 0.004)
         add(pl * 0.05, ini + k * beat / 2, pan=0.3 if k % 2 else -0.3)
+# acorde final (Ré menor) dedilhado e deixado soar
+for k, m in enumerate([62, 65, 69, 74]):
+    tp = t(3.0)
+    nota = (np.sin(2 * np.pi * hz(m) * tp) + 0.25 * np.sin(4 * np.pi * hz(m) * tp)) * np.exp(-tp * 1.3) * np.minimum(1, tp / 0.006)
+    add(nota * 0.07, dur - 2.6 + k * 0.07, pan=(k - 1.5) * 0.2)
 mix = mix[: int(dur * SR)]
 f = int(1.2 * SR); mix[-f:] *= np.linspace(1, 0, f)[:, None]; mix[: int(0.5 * SR)] *= np.linspace(0, 1, int(0.5 * SR))[:, None]
 sf.write(f"{OUT}/trilha_calma.wav", (mix / np.abs(mix).max() * 0.7).astype(np.float32), SR)

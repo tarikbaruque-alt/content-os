@@ -21,7 +21,8 @@ export const TOMADAS: { ini: number; fim: number; plano: Plano }[] = [
   { ini: 11.26, fim: 16.56, plano: W },
   { ini: 16.56, fim: 19.56, plano: W2 },
   { ini: 19.56, fim: 25.51, plano: W },
-  { ini: 25.51, fim: 60, plano: M(58, 24) },
+  { ini: 25.51, fim: 30.0, plano: M(58, 24) },
+  { ini: 30.0, fim: 60, plano: W },
 ];
 
 // Páginas da legenda: no máximo 2 palavras (índices das palavras em props.palavras).
@@ -81,4 +82,5 @@ export const SONS: { t: number; arquivo: string; volume: number }[] = [
   { t: 26.11, arquivo: "ding", volume: 0.3 },
   { t: 28.45, arquivo: "whoosh_curto", volume: 0.26 },
   { t: 28.76, arquivo: "ding", volume: 0.32 },
+
 ];

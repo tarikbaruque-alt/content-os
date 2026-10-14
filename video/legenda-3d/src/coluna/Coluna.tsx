@@ -22,7 +22,7 @@ export type ColunaProps = { palavras: PalavraColuna[]; duracao: number };
 
 const MONT = usarFonte("Montserrat");
 const SERIF = usarFonte("Playfair Display");
-export const SOBRA_COLUNA = 1.0;
+export const SOBRA_COLUNA = 0.6; // último quadro segurado antes do fade
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const suave = Easing.bezier(0.22, 1, 0.36, 1);
@@ -366,7 +366,7 @@ const Repetir: React.FC<{ fimTotal: number }> = ({ fimTotal }) => {
   const t0 = 28.47;
   if (t < t0) return null;
   const e = entrada(t, t0, 0.45);
-  const s = saida(t, fimTotal, 0.35);
+  const s = saida(t, fimTotal, 0.5);
   return (
     <div style={{ position: "absolute", top: 96, left: 0, right: 0, display: "flex", justifyContent: "center", opacity: e * s, transform: `translateY(${(1 - e) * -30}px)` }}>
       <Vidro style={{ display: "flex", alignItems: "center", gap: 20, padding: "20px 38px 20px 26px" }}>
@@ -374,7 +374,7 @@ const Repetir: React.FC<{ fimTotal: number }> = ({ fimTotal }) => {
           <path d="M50 22 A20 20 0 1 0 52 38" fill="none" stroke={COR.ouro} strokeWidth={7} strokeLinecap="round" />
           <path d="M50 8 L50 24 L36 22" fill="none" stroke={COR.ouro} strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span style={{ fontFamily: SERIF.familia, fontStyle: "italic", fontWeight: 900, fontSize: 60, color: "#fff" }}>Pode repetir</span>
+        <span style={{ fontFamily: SERIF.familia, fontStyle: "italic", fontWeight: 900, fontSize: 60, color: "#fff" }}>Pode repetir em casa</span>
       </Vidro>
     </div>
   );
@@ -500,9 +500,10 @@ export const Coluna: React.FC<ColunaProps> = ({ palavras, duracao }) => {
           </CartaoImagem>
           <Dor />
           <Legenda palavras={palavras} />
-          <Progresso duracao={duracao} />
+          <Progresso duracao={fimTotal} />
         </>
       ) : null}
+      <AbsoluteFill style={{ background: "#000", opacity: interpolate(t, [fimTotal - 0.5, fimTotal], [0, 1], clamp) }} />
       {SONS.map((s, i) => (
         <Sequence key={i} from={Math.max(0, Math.round(s.t * fps))} durationInFrames={Math.round(3 * fps)}>
           <Audio src={staticFile(`coluna/sfx/${s.arquivo}.wav`)} volume={s.volume} />
