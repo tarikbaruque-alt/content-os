@@ -20,6 +20,7 @@ export const GUINNESS_DURATION = 2639;
 const HIDDEN_CAPTIONS: [number, number][] = [
   [750, 872],
   [1467, 1604],
+  [2000, 2141],
 ];
 
 // Zoom in/out na câmera do apresentador: [frame, escala, corte seco?]
@@ -38,6 +39,7 @@ const PUNCH: [number, number, boolean][] = [
   [1711, 1.14, false],
   [1912, 1.0, true],
   [1944, 1.1, false],
+  [2000, 1.0, false],
   [2093, 1.0, true],
   [2141, 1.04, true],
   [2195, 1.13, false],
@@ -213,10 +215,10 @@ export const Guinness: React.FC = () => {
 
       {/* ===== Grafismos sobre o apresentador ===== */}
       <Sequence name="Passo 1" from={2000} durationInFrames={141}>
-        <StepCard n="1" text="Descubra a pergunta que seus clientes mais fazem" top={1010} />
+        <StepCard n="1" text="Descubra a pergunta que seus clientes mais fazem" top={1335} />
       </Sequence>
       <Sequence name="Passo 2" from={2098} durationInFrames={43}>
-        <StepCard n="2" text="Transforme a resposta em conteúdo" top={1140} />
+        <StepCard n="2" text="Transforme a resposta em conteúdo" top={1475} />
       </Sequence>
       <Sequence name="Quadro" from={2436} durationInFrames={94}>
         <SeriesTitle top={1000} />

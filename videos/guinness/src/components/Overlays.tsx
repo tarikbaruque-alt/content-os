@@ -130,7 +130,7 @@ export const StepCard: React.FC<{n: string; text: string; top: number}> = ({n, t
         >
           {n}
         </div>
-        <div style={{fontFamily: F.serif, fontWeight: 900, fontStyle: 'italic', fontSize: 40, color: C.ink, lineHeight: 1.08}}>
+        <div style={{fontFamily: F.serif, fontWeight: 900, fontStyle: 'italic', fontSize: 44, color: C.ink, lineHeight: 1.08}}>
           {text}
         </div>
       </div>

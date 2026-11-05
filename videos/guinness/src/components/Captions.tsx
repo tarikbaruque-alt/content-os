@@ -138,7 +138,8 @@ export const Captions: React.FC<{hidden: [number, number][]}> = ({hidden}) => {
       {captionPages.map((page, i) => {
         const from = Math.round((page.startMs / 1000) * fps);
         let to = Math.round((page.endMs / 1000) * fps);
-        for (const [a] of hidden) {
+        for (const [a, b] of hidden) {
+          if (from >= a && from < b) return null;
           if (from < a && to > a) to = a;
         }
         if (to - from <= 0) return null;
