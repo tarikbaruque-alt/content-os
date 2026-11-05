@@ -13,6 +13,7 @@ import {MapScene} from './scenes/MapScene';
 import {QuotesScene} from './scenes/QuotesScene';
 import {SearchScene} from './scenes/SearchScene';
 import {TimelineScene} from './scenes/TimelineScene';
+import {TitleCard} from './scenes/TitleCard';
 
 export const GUINNESS_DURATION = 2639;
 
@@ -99,6 +100,11 @@ export const Guinness: React.FC = () => {
     <AbsoluteFill style={{backgroundColor: '#0d0a07'}}>
       <ARoll />
       <FilmLook grain={0.08} vignette={0.4} seed="aroll" />
+
+      {/* ===== Abertura: rótulo "Atrás do Rótulo" no 1º segundo ===== */}
+      <Sequence name="Abertura" from={0} durationInFrames={50}>
+        <TitleCard exitAt={36} />
+      </Sequence>
 
       {/* ===== B-roll e grafismos em tela cheia ===== */}
       <Sequence name="Capa (gancho)" from={132} durationInFrames={80}>
@@ -237,7 +243,10 @@ export const Guinness: React.FC = () => {
       <Captions hidden={HIDDEN_CAPTIONS} />
 
       {/* ===== Efeitos sonoros ===== */}
-      {[129, 209, 307, 610, 747, 869, 952, 1001, 1137, 1219, 1349, 1464, 1791, 2259, 2313].map((f) => (
+      <Sequence from={0} durationInFrames={15} name="carimbo abertura" layout="none">
+        <Audio src={sfx('stamp')} volume={0.45} />
+      </Sequence>
+      {[34, 129, 209, 307, 610, 747, 869, 952, 1001, 1137, 1219, 1349, 1464, 1791, 2259, 2313].map((f) => (
         <Sequence key={`w${f}`} from={f} durationInFrames={20} name="whoosh" layout="none">
           <Audio src={sfx('whoosh')} volume={0.35} />
         </Sequence>
