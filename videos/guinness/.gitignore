@@ -8,3 +8,6 @@ out
 
 # Takes brutos do apresentador (pesados; ficam fora do Git)
 public/takes/
+
+# A raiz do repositório ignora pastas data/; aqui src/data guarda as legendas
+!src/data/

@@ -36,6 +36,16 @@ for i,w in enumerate(words):
     if t[-1] in ".!?:" and L>=10: flush()
     elif t[-1] in "," and L>=16: flush()
 flush()
+# Ajustes manuais: quantas palavras vão em cada página, por take (frases que não podem ser quebradas).
+MANUAL_PAGES={11:[5,7], 15:[5,1,5,2,5,6,4]}
+for tk,sizes in MANUAL_PAGES.items():
+    toks=[t for p in pages for t in p if t["take"]==tk]
+    assert sum(sizes)==len(toks), (tk, len(toks))
+    first=next(i for i,p in enumerate(pages) if p[0]["take"]==tk)
+    last=max(i for i,p in enumerate(pages) if p[0]["take"]==tk)
+    new=[]; k=0
+    for n in sizes: new.append(toks[k:k+n]); k+=n
+    pages[first:last+1]=new
 out=[]
 for i,p in enumerate(pages):
     start=p[0]["fromMs"]; nxt=pages[i+1][0]["fromMs"] if i+1<len(pages) else p[-1]["toMs"]+600

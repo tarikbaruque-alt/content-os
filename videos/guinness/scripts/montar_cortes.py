@@ -30,7 +30,8 @@ for k,x in enumerate(W[15]):
     if x[2]=="para": x[2]="pra"
 W[15][-1][2]="cima!"
 for x in W[15]:
-    if x[2]=="por": x[2]="Por"; W[15][-3][2]="vambora"
+    if x[2]=="por": x[2]="Por"
+W[15][-3][2]="vão bora"
 setw(12,0,"Quer")
 for t in W: print(t," ".join(x[2] for x in W[t]),file=sys.stderr)
 # ---- cut list: (take, srcStart, srcEnd) ----
