@@ -73,7 +73,7 @@ const CaptionPage: React.FC<{page: PageData}> = ({page}) => {
 };
 
 // Os selos das técnicas entram nestes frames: a legenda anterior termina ali.
-const STAMPS = [176, 432, 673];
+const STAMPS = [176, 432, 783];
 
 export const Captions: React.FC = () => (
   <AbsoluteFill style={{pointerEvents: 'none'}}>

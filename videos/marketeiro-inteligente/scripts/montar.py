@@ -5,6 +5,9 @@ import json, sys
 FPS = 30
 T = json.load(open(sys.argv[1]))
 W = {int(k): v["words"] for k, v in T.items()}
+# take 12: o Whisper ouviu "Que ele" no lugar de "Aquele"
+if 12 in W and W[12][0][2] == "Que":
+    W[12][0:2] = [[W[12][0][0], W[12][1][1], "Aquele"]]
 ON = {int(k): v["on"] for k, v in T.items()}
 
 SPEC = {
@@ -17,10 +20,11 @@ SPEC = {
  7: "Bom, | nem preciso | dizer que | vale para | o seu | *negócio também.",
  8: "Por isso, | muitas vezes | o *bombom | vem em | conjunto com | a _conta. | Justamente | pra conta | não ser | a sua | última ~lembrança.",
  9: "Reparem que | *nenhum desses | princípios | mudou o | ~sabor da | comida, | mas mudou | o que | você _sentiu | durante a | experiência | que esteve | no restaurante.",
+ 12: "Aquele vinho | *caríssimo | no topo | da carta, | talvez esteja | ali nem | para ser | _vendido.",
  11: "Comenta a | palavra | *INTELIGENTE | que eu | vou mostrar | qual desses | momentos | você está | _desperdiçando | no seu | negócio. | E me | segue para | mais conteúdos. | *Vão_bora!",
 }
 # (take, início, fim) em segundos no take original; ("BEAT", frames) = batida sem fala
-CUTS = [(1,0.00,4.62),(2,0.15,2.60),(3,0.05,1.48),(4,0.18,5.02),(5,0.00,1.76),("BEAT_A",24),
+CUTS = [(1,0.00,4.62),(2,0.15,2.60),(3,0.05,1.48),(4,0.18,5.02),(5,0.00,1.76),(12,0.00,4.45),
         (6,0.00,3.88),(7,0.02,2.66),("BEAT_B",54),(8,0.12,6.34),(9,0.00,7.24),(11,0.00,5.56),(11,6.00,8.60)]
 
 # pareia as palavras da especificação com as palavras do Whisper (mesma contagem por take)
