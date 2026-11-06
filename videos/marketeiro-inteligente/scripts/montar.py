@@ -25,7 +25,7 @@ SPEC = {
  9: "Reparem que | *nenhum desses | princípios | mudou o | ~sabor da | comida, | mas mudou | o que | você _sentiu | durante a | experiência | que esteve | no restaurante.",
  12: "Aquele vinho | *caríssimo | no topo | da carta, | talvez esteja | ali nem | para ser | _vendido.",
  13: "Terceiro princípio: | #O final que fica na mente. | O ser | humano | sempre *lembra | do melhor | ~momento | e de | como *terminou | aquela | experiência.",
- 11: "Comenta a | palavra | *INTELIGENTE | que eu | vou mostrar | qual desses | momentos | você está | _desperdiçando | no seu | negócio. | E me | segue para | mais conteúdos. | *Vão_bora!",
+ 11: "Comenta a | palavra | *INTELIGENTE | que eu | vou mostrar | qual desses | momentos | você está | _desperdiçando | no seu | negócio. | E me | segue para | mais conteúdos. | *Vambora!",
 }
 # (take, início, fim) em segundos no take original; ("BEAT", frames) = batida sem fala
 CUTS = [(1,0.00,4.14),(2,0.15,1.02),(2,1.30,2.60),(3,0.05,1.48),(4,0.18,2.56),(4,2.76,3.60),(4,3.84,5.02),
