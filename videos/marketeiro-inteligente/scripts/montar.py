@@ -8,6 +8,9 @@ W = {int(k): v["words"] for k, v in T.items()}
 # take 12: o Whisper ouviu "Que ele" no lugar de "Aquele"
 if 12 in W and W[12][0][2] == "Que":
     W[12][0:2] = [[W[12][0][0], W[12][1][1], "Aquele"]]
+# take 13: o Whisper ouviu "Ser o" no lugar de "Terceiro"
+if 13 in W and W[13][0][2] == "Ser":
+    W[13][0:2] = [[W[13][0][0], W[13][1][1], "Terceiro"]]
 ON = {int(k): v["on"] for k, v in T.items()}
 
 SPEC = {
@@ -21,11 +24,13 @@ SPEC = {
  8: "Por isso, | muitas vezes | o *bombom | vem em | conjunto com | a _conta. | Justamente | pra conta | não ser | a sua | última ~lembrança.",
  9: "Reparem que | *nenhum desses | princípios | mudou o | ~sabor da | comida, | mas mudou | o que | você _sentiu | durante a | experiência | que esteve | no restaurante.",
  12: "Aquele vinho | *caríssimo | no topo | da carta, | talvez esteja | ali nem | para ser | _vendido.",
+ 13: "Terceiro princípio: | #O final que fica na mente. | O ser | humano | sempre *lembra | do melhor | ~momento | e de | como *terminou | aquela | experiência.",
  11: "Comenta a | palavra | *INTELIGENTE | que eu | vou mostrar | qual desses | momentos | você está | _desperdiçando | no seu | negócio. | E me | segue para | mais conteúdos. | *Vão_bora!",
 }
 # (take, início, fim) em segundos no take original; ("BEAT", frames) = batida sem fala
-CUTS = [(1,0.00,4.62),(2,0.15,2.60),(3,0.05,1.48),(4,0.18,5.02),(5,0.00,1.76),(12,0.00,4.45),
-        (6,0.00,3.88),(7,0.02,2.66),("BEAT_B",54),(8,0.12,6.34),(9,0.00,7.24),(11,0.00,5.56),(11,6.00,8.60)]
+CUTS = [(1,0.00,4.14),(2,0.15,1.02),(2,1.30,2.60),(3,0.05,1.48),(4,0.18,2.56),(4,2.76,3.60),(4,3.84,5.02),
+        (5,0.00,1.76),(12,0.00,4.45),(6,0.00,3.88),(13,0.00,2.42),(13,2.62,5.08),(13,5.16,7.30),
+        (8,0.12,6.34),(9,0.00,3.42),(9,3.62,7.24),(11,0.00,5.56),(11,6.00,7.72),(11,7.92,8.60)]
 
 # pareia as palavras da especificação com as palavras do Whisper (mesma contagem por take)
 def spec_words(n):

@@ -4,12 +4,12 @@ Reels de cerca de 50 s feito em [Remotion](https://www.remotion.dev). Mostra 3 t
 
 ## O que tem na edição
 
-- **Decupagem:** takes 1 a 9, 11 e 12 (o 12 é a frase do vinho, gravada depois). O take 10 ficou de fora porque repete o fechamento do 11. Os cortes estão em `scripts/montar.py`.
+- **Decupagem:** takes 1 a 6, 8, 9, 11, 12 e 13. O 12 (vinho do topo da carta) e o 13 (terceiro princípio) foram gravados depois. Ficaram de fora o 7 (a carta já mostra "No seu negócio") e o 10 (repete o fechamento do 11). Os cortes estão em `scripts/montar.py`.
 - **Rosto centralizado:** cada take tem um enquadramento próprio, calculado por detecção de rosto (`scripts/faces.py`). O rosto fica sempre em (540, 850) e com a mesma altura.
 - **Painéis do storyboard como card**, sobre o próprio painel desfocado em tela cheia, com movimento de câmera dentro do card (`src/components/Card.tsx`).
 - **Legendas de 2 palavras** (`src/components/Captions.tsx`). A palavra de destaque fica maior e amarela (Anton), em serifada itálica (Playfair) ou grifada em amarelo (`@remotion/rough-notation`).
 - **Selos das técnicas** (1 · ESPERA EXPLICADA, 2 · ANCORAGEM e 3 · O FINAL QUE FICA). Nesses trechos, a legenda dá lugar ao selo.
-- **Frase ainda não gravada** ("a gente lembra do melhor momento… e do final") entra como bilhete sobre o card.
+- **Carta de vinhos:** o preço do Reserva Especial foi trocado de R$ 390 para R$ 790 no próprio painel, para a âncora ficar mais forte.
 - **Sem trilha.** Os efeitos foram sintetizados com ffmpeg: sino na abertura e no "INTELIGENTE", whoosh nas trocas, relógio, taças e carimbo.
 
 ## Como rodar
