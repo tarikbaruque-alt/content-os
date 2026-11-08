@@ -1,0 +1,11 @@
+{
+  "name": "carrossel-whopper-detour",
+  "private": true,
+  "description": "Carrossel 4:5 sobre o case Whopper Detour (Burger King, 2018)",
+  "scripts": { "render": "node render.js" },
+  "dependencies": {
+    "@fontsource/anton": "^5.0.0",
+    "@fontsource/inter": "^5.0.0",
+    "@fontsource/instrument-serif": "^5.0.0"
+  }
+}
