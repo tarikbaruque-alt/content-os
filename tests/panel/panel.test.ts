@@ -79,4 +79,32 @@ describe("Painel (apps/web)", () => {
     expect(btn.disabled).toBe(true);
     expect(sb.out.cooldownBtn!({ ...btn, disabled: false }, { code: "invalid_json" }, 60)).toBe(false);
   });
+
+  it("briefing curto: respostas viram ficha, público, objeções, rotina e meta; briefing antigo continua sendo lido", () => {
+    const bloco = (v: string) => { const m = html.match(new RegExp(`  var ${v}=[\\s\\S]*?;\\n(?=  (?:var|function|//))`)); expect(m, v).not.toBeNull(); return m![0]; };
+    const fn = (f: string) => { const m = html.match(new RegExp(`  function ${f}\\([\\s\\S]*?\\n  }\\n`)); expect(m, f).not.toBeNull(); return m![0]; };
+    const src = ["TEMPO_OPC", "DIAS_SEM_LONGO", "BRIEF_MARK", "BRIEF_FREQ", "BRIEF_TEMPO", "BRIEF_TOM", "BRIEF_OBJ_FUNIL", "BRIEF_FORM", "BRIEF_ANTIGO"].map(bloco).join("")
+      + fn("normalizeTextPanel") + fn("parseBriefing") + "this.parse=parseBriefing;";
+    const ctx: { parse?: (t: string) => Record<string, string> | null } = {};
+    new Script(src).runInNewContext(ctx);
+    const r = (pares: [string, string][]) => "📋 BRIEFING DE CONTEÚDO\n" + pares.map(([l, v]) => `\n▸ ${l}\n${v}\n`).join("");
+    const novo = ctx.parse!(r([
+      ["Seu nome ou nome da marca", "Carol Pedrosa"], ["Sua área de atuação", "Nutricionista"], ["Tipo de atendimento", "Os dois"], ["Cidade / bairro", "Botafogo"],
+      ["Idade do cliente ideal", "26 a 35, 36 a 50"], ["Em que momento ele está?", "Quer emagrecer sem dieta restritiva"],
+      ["O que faz a pessoa hesitar antes de fechar com você", "Preço"], ["Outro motivo", "Acha que não vai manter"],
+      ["Pergunta 1", "Posso comer pão à noite?"], ["Pergunta 2", "Precisa cortar doce?"], ["Como você fala", "Acolhedor, Técnico e direto"],
+      ["O que você quer com o Instagram agora?", "Vender mais"], ["Qual é a sua principal meta para os próximos 3 meses?", "Fechar 10 clientes"],
+      ["Quantos posts por semana?", "4 por semana"], ["Tempo para gravar por semana", "30 min"],
+    ]))!;
+    expect(novo.regiao).toBe("Presencial e online · Botafogo");
+    expect(novo.publico).toBe("Quer emagrecer sem dieta restritiva; idade: 26 a 35, 36 a 50");
+    expect(novo.objecoes).toBe("Preço, Acha que não vai manter");
+    expect(novo.perguntas).toBe("Posso comer pão à noite? | Precisa cortar doce?");
+    expect(novo.tom).toBe("acolhedor, técnico e direto");
+    expect(novo.funil).toMatch(/\(fundo\)/);
+    expect(novo.tempo).toBe("Até 30 min");
+    expect(novo.meta).toBe("Fechar 10 clientes");
+    const antigo = ctx.parse!(r([["Nome da empresa ou marca", "Studio X"], ["Quantos conteúdos por semana você quer?", "3 por semana"], ["Neste momento, qual o foco principal?", "Aquecer e educar quem já me segue (meio)"]]))!;
+    expect(antigo).toMatchObject({ name: "Studio X", frequencia: "3 por semana", funil: "Aquecer e educar quem já me segue (meio)" });
+  });
 });
