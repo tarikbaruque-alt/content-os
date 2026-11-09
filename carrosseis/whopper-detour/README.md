@@ -1,6 +1,9 @@
 # Carrossel — Whopper Detour (Burger King, 2018)
 
-Carrossel 4:5 (1080 × 1350) com 7 slides. Objetivo: atrair empresários para os serviços de estratégia de conteúdo e gestão de redes sociais. As imagens prontas estão em `out/01.png` … `out/07.png`.
+Carrossel 4:5 (1080 × 1350) com 7 slides. Objetivo: atrair empresários para os serviços de estratégia de conteúdo e gestão de redes sociais.
+
+- **Versão 2 (modo GPS, recomendada):** `out-v2/01.png` … `out-v2/07.png`. O fundo é um mapa noturno panorâmico (`map.png`, gerado por `map.js`) com a rota do “desvio” atravessando os 7 slides: começa no McDonald’s, passa pelo centavo, chega ao Burger King e vira pontilhada no futuro (a recompra, que é oportunidade e não garantia). Cada slide tem uma faixa de GPS no topo e um “tempo de chegada” no rodapé.
+- **Versão 1 (tipográfica):** `out/01.png` … `out/07.png`.
 
 ## Texto dos slides
 
@@ -37,5 +40,9 @@ npm i
 ```
 
 ```bash
-node render.js
+node map.js
+```
+
+```bash
+node render.js slides-v2.html out-v2
 ```
