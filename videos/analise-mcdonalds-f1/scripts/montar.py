@@ -163,7 +163,7 @@ def find(n, word, occ=0):
 
 marks = {
  'take': take_from,
- 'logo': find(4, 'logo'), 'oportunidade': find(4, 'oportunidade'),
+ 'onde1': find(1, 'onde'), 'logo': find(4, 'logo'), 'oportunidade': find(4, 'oportunidade'),
  'circuitos24': find(5, '24'), 'curioso': find(5, 'curioso'),
  'arcos': find(6, 'arcos'),
  'nuvem': find(8, 'nuvem'), 'rosto': find(8, 'rosto'),

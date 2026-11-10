@@ -77,14 +77,14 @@ export const CaseClip: React.FC<{at: number; rate?: number; dur: number; w?: num
 };
 
 // Foto vertical (F1) cobrindo o painel, com aproximação lenta em direção ao ponto de interesse.
-const PhotoPanel: React.FC<{src: string; focusY: number; zoomTo: number; dur: number}> = ({src, focusY, zoomTo, dur}) => {
+const PhotoPanel: React.FC<{src: string; aspect: number; focusX: number; focusY: number; zoomTo: number; dur: number}> = ({src, aspect, focusX, focusY, zoomTo, dur}) => {
   const f = useCurrentFrame();
   const z = interpolate(f, [0, dur], [1, zoomTo], {...clamp, easing: Easing.inOut(Easing.sin)});
-  const H = 2160; // foto ~1:2 com 1080 de largura
+  const H = Math.round(1080 * aspect);
   const top = Math.min(0, Math.max(SPLIT_Y - H, SPLIT_Y / 2 - focusY * H));
   return (
     <AbsoluteFill style={{overflow: 'hidden'}}>
-      <div style={{position: 'absolute', left: 0, top, width: 1080, height: H, scale: String(z), transformOrigin: `50% ${focusY * 100}%`}}>
+      <div style={{position: 'absolute', left: 0, top, width: 1080, height: H, scale: String(z), transformOrigin: `${focusX * 100}% ${focusY * 100}%`, filter: 'contrast(1.04) saturate(1.05)'}}>
         <Img src={staticFile(src)} style={{width: 1080, height: H, objectFit: 'cover'}} />
       </div>
     </AbsoluteFill>
@@ -100,7 +100,7 @@ const PanelContent: React.FC<{s: Section; dur: number; seqFrom: number}> = ({s, 
       {s.top.kind === 'case' ? (
         <CaseClip at={s.top.at} rate={s.top.rate} dur={dur} />
       ) : s.top.kind === 'img' ? (
-        <PhotoPanel src={s.top.src} focusY={s.top.focusY} zoomTo={s.top.zoomTo ?? 1.1} dur={dur} />
+        <PhotoPanel src={s.top.src} aspect={s.top.aspect} focusX={s.top.focusX} focusY={s.top.focusY} zoomTo={s.top.zoomTo ?? 1.1} dur={dur} />
       ) : (
         <Graphic name={s.top.name} seqFrom={seqFrom} />
       )}

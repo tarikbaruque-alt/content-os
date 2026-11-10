@@ -32,17 +32,31 @@ export const faceFix = (take: number) => {
 };
 
 export type GfxName = 'cloud' | 'dict' | 'curvas' | 'timer' | 'espectador' | 'steps' | 'triad' | 'results' | 'lesson';
-export type Top = {kind: 'case'; at: number; rate?: number} | {kind: 'gfx'; name: GfxName} | {kind: 'img'; src: string; focusY: number; zoomTo?: number};
+export type Top = {kind: 'case'; at: number; rate?: number} | {kind: 'gfx'; name: GfxName} | {kind: 'img'; src: string; aspect: number; focusX: number; focusY: number; zoomTo?: number};
 export type Mode = 'face' | 'split' | 'full' | 'end';
 export type Section = {name: string; from: number; to: number; mode: Mode; top?: Top; punch?: number};
+
+// Fotos da F1: Ferrari na curva (abertura) e Ferrari 44 cheia de patrocinadores ("mais uma logo na pista").
+const FOTO_CURVA = {kind: 'img' as const, src: 'img/f1-curva.jpg', aspect: 2, focusX: 0.62, focusY: 0.56, zoomTo: 1.12};
+const FOTO_LOGOS = {kind: 'img' as const, src: 'img/f1-logos.jpg', aspect: 1870 / 1080, focusX: 0.6, focusY: 0.72, zoomTo: 1.25};
 
 // Imagens do case (segundos do vídeo do case): 3 s capacete com o M · 6 s largada · 15 s satélite dos circuitos
 // 24 s arcos desenhados · 30 s logo + Golden Zone · 34 s mais arcos · 40 s grade dos 24 arcos · 44 s Golden Zone na corrida · 47 s app
 const SECTIONS_LONGA = (): Section[] => [
-  {name: 'Gancho · dinheiro nas curvas', from: T(1), to: T(2), mode: 'split', top: {kind: 'case', at: 30}},
+  ...(IMG.curva
+    ? [
+        {name: 'Gancho · o McDonald\'s viu dinheiro', from: T(1), to: MK.onde1, mode: 'split' as Mode, top: {kind: 'case' as const, at: 30}},
+        {name: 'Gancho · onde todo mundo via curvas', from: MK.onde1, to: T(2), mode: 'split' as Mode, top: FOTO_CURVA},
+      ]
+    : [{name: 'Gancho · dinheiro nas curvas', from: T(1), to: T(2), mode: 'split' as Mode, top: {kind: 'case' as const, at: 30}}]),
   {name: 'Sacada genial', from: T(2), to: T(3), mode: 'face', punch: 1.1},
   {name: 'Já patrocinava', from: T(3), to: T(4), mode: 'split', top: {kind: 'case', at: 3}},
-  {name: 'Mais uma logo na pista', from: T(4), to: T(5), mode: 'split', top: {kind: 'case', at: 6}},
+  ...(IMG.logos
+    ? [
+        {name: 'Mais uma logo na pista', from: T(4), to: MK.oportunidade, mode: 'split' as Mode, top: FOTO_LOGOS},
+        {name: 'Oportunidade que ninguém via', from: MK.oportunidade, to: T(5), mode: 'split' as Mode, top: {kind: 'case' as const, at: 9.5}},
+      ]
+    : [{name: 'Mais uma logo na pista', from: T(4), to: T(5), mode: 'split' as Mode, top: {kind: 'case' as const, at: 6}}]),
   {name: '24 circuitos', from: T(5), to: T(6), mode: 'full', top: {kind: 'case', at: 15}},
   {name: 'Arcos dourados', from: T(6), to: T(7), mode: 'full', top: {kind: 'case', at: 24}},
   {name: 'Cérebro e padrões', from: T(7), to: T(8), mode: 'face'},
@@ -69,14 +83,14 @@ const SECTIONS_CURTA = (): Section[] => [
   ...(IMG.curva
     ? [
         {name: 'Gancho · o McDonald\'s viu dinheiro', from: T(1), to: MK.onde1, mode: 'split' as Mode, top: {kind: 'case' as const, at: 30}},
-        {name: 'Gancho · onde todo mundo via curvas', from: MK.onde1, to: T(3), mode: 'split' as Mode, top: {kind: 'img' as const, src: 'img/f1-curva.jpg', focusY: 0.52, zoomTo: 1.12}},
+        {name: 'Gancho · onde todo mundo via curvas', from: MK.onde1, to: T(3), mode: 'split' as Mode, top: FOTO_CURVA},
       ]
     : [{name: 'Gancho · dinheiro nas curvas', from: T(1), to: T(3), mode: 'split' as Mode, top: {kind: 'case' as const, at: 30}}]),
   {name: 'Já patrocinava', from: T(3), to: T(4), mode: 'split', top: {kind: 'case', at: 3}},
   ...(IMG.logos
     ? [
-        {name: 'Mais uma logo na pista', from: T(4), to: MK.oportunidade, mode: 'split' as Mode, top: {kind: 'img' as const, src: 'img/f1-logos.jpg', focusY: 0.72, zoomTo: 1.22}},
-        {name: 'Oportunidade que ninguém via', from: MK.oportunidade, to: T(5), mode: 'split' as Mode, top: {kind: 'case' as const, at: 9}},
+        {name: 'Mais uma logo na pista', from: T(4), to: MK.oportunidade, mode: 'split' as Mode, top: FOTO_LOGOS},
+        {name: 'Oportunidade que ninguém via', from: MK.oportunidade, to: T(5), mode: 'split' as Mode, top: {kind: 'case' as const, at: 9.5}},
       ]
     : [{name: 'Mais uma logo na pista', from: T(4), to: T(5), mode: 'split' as Mode, top: {kind: 'case' as const, at: 6}}]),
   {name: '24 circuitos', from: T(5), to: T(6), mode: 'full', top: {kind: 'case', at: 15}},

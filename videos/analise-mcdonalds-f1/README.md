@@ -2,15 +2,15 @@
 
 Duas versões no mesmo projeto. A escolha fica em `src/versao.ts`:
 
-- **curta** (padrão, ~89 s):
+- **curta** (~89 s):
   - sai o take 2 e as perguntas "Sabe por que isso acontece?", "E percebe o que eles fizeram?" e "E sabe qual é a lição?";
   - o take 5 fica sem "criativa de marketing do McDonald's";
   - o take 11 fica sem "Mas olha só" e sem "da estratégia de marketing realizada pelo McDonald's";
   - o take 19 termina em "7% em vendas", e os outros números ficam só na tela.
   - Decupagem: `scripts/montar_curto.py`.
-- **longa** (~1 min 50 s, todos os takes menos o 12). Decupagem: `scripts/montar.py`.
+- **longa** (padrão atual, ~1 min 50 s, todos os takes menos o 12). Decupagem: `scripts/montar.py`.
 
-Fotos da F1 (opcionais) para a versão curta:
+Fotos da F1 (opcionais, valem para as duas versões; ficam fora do Git):
 
 - `public/img/f1-curva.jpg`: abertura, em "onde todo mundo via curvas";
 - `public/img/f1-logos.jpg`: "mais uma logo na pista".
