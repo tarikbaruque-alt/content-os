@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {GfxName, MK} from '../timeline';
+import {CURTA, GfxName, MK} from '../timeline';
 import {C, clamp, SANS, SERIF} from '../theme';
 
 // Grafismos do painel de cima (1080×860). Conteúdo entre y 160 e y 720: em cima fica a interface do Instagram,
@@ -307,7 +307,59 @@ const Triad: React.FC<{g: number; s0: number}> = ({g, s0}) => {
 
 // ---------- Resultados (dados divulgados pela agência) ----------
 const fmt = (v: number, dec: number) => v.toFixed(dec).replace('.', ',');
+const ResultsCurta: React.FC<{g: number; s0: number}> = ({g, s0}) => {
+  const hero = useSpring(g, MK.p7 - 4, 14);
+  const c = interpolate(g, [MK.p7 - 4, MK.p7 + 12], [0, 7], {...clamp, easing: Easing.out(Easing.cubic)});
+  const small = [
+    {at: MK.segundo19, v: '2,3 mi', label: 'usuários ativos nas corridas'},
+    {at: MK.segundo19 + 8, v: '2,7 mi', label: 'downloads do app no mês'},
+  ];
+  return (
+    <AbsoluteFill>
+      <PanelBg kicker="O RESULTADO · SEGUNDO A AGÊNCIA" g={g} at={s0} />
+      {/* "Deu certo." ocupa o painel até os números entrarem */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          top: 300,
+          textAlign: 'center',
+          fontFamily: SERIF,
+          fontStyle: 'italic',
+          fontSize: 170,
+          color: C.white,
+          opacity: ease(g, s0 + 2, 8) * (1 - ease(g, MK.segundo19 - 6, 6)),
+          scale: String(0.94 + 0.06 * ease(g, s0 + 2, 12)),
+        }}
+      >
+        Deu <span style={{color: C.gold}}>certo.</span>
+      </div>
+      <div style={{position: 'absolute', left: 90, top: 230, display: 'flex', alignItems: 'baseline', gap: 30, opacity: hero, scale: String(0.85 + 0.15 * hero), transformOrigin: 'left center'}}>
+        <div style={{fontFamily: SANS, fontWeight: 900, fontSize: 210, letterSpacing: -8, lineHeight: 1, color: C.gold, fontVariantNumeric: 'tabular-nums', width: 470}}>+{Math.round(c)}%</div>
+        <div style={{fontFamily: SANS, fontWeight: 700, fontSize: 46, lineHeight: 1.1, color: C.white}}>
+          em vendas
+          <br />
+          digitais
+        </div>
+      </div>
+      <div style={{position: 'absolute', left: 90, right: 90, top: 520, display: 'flex', gap: 40}}>
+        {small.map((x) => {
+          const p = ease(g, x.at - 2, 8);
+          return (
+            <div key={x.v} style={{flex: 1, borderTop: `2px solid ${C.line}`, paddingTop: 18, opacity: p, translate: `0 ${(1 - p) * 14}px`}}>
+              <div style={{fontFamily: SANS, fontWeight: 900, fontSize: 76, letterSpacing: -3, lineHeight: 1, color: C.gold}}>{x.v}</div>
+              <div style={{marginTop: 8, fontFamily: SANS, fontWeight: 600, fontSize: 28, color: C.white}}>{x.label}</div>
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const Results: React.FC<{g: number; s0: number}> = ({g, s0}) => {
+  if (CURTA) return <ResultsCurta g={g} s0={s0} />;
   const stats = [
     {at: MK.p7, v: 7, dec: 0, pre: '+', suf: '%', label: 'em vendas digitais'},
     {at: MK.p23, v: 2.3, dec: 1, pre: '', suf: ' mi', label: 'usuários ativos nas corridas'},

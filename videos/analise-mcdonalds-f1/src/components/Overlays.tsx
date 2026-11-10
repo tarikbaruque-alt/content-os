@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {MK, T} from '../timeline';
+import {MK, SECOND_TAKE_FROM, T} from '../timeline';
 import {C, clamp, SANS, SERIF, TEXT_SHADOW} from '../theme';
 
 const ease = (f: number, a: number, len = 10) => interpolate(f, [a, a + len], [0, 1], {...clamp, easing: Easing.out(Easing.cubic)});
@@ -41,7 +41,7 @@ const Chip: React.FC<{children: React.ReactNode; gold?: boolean; p: number; styl
 export const HookKicker: React.FC = () => {
   const f = useCurrentFrame();
   const a = useSp(f, -4);
-  const out = interpolate(f, [T(2) - 6, T(2)], [1, 0], clamp);
+  const out = interpolate(f, [SECOND_TAKE_FROM - 6, SECOND_TAKE_FROM], [1, 0], clamp);
   return (
     <AbsoluteFill style={{opacity: out}}>
       <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 420, background: 'linear-gradient(to bottom, rgba(11,11,13,0.75), rgba(11,11,13,0))'}} />
@@ -95,7 +95,7 @@ export const Counter24: React.FC = () => {
         <div style={{display: 'flex', alignItems: 'center', gap: 14, fontWeight: 800, fontSize: 26, letterSpacing: 4, color: C.gold}}>
           <div style={{width: 34, height: 3, backgroundColor: C.gold}} />A INVESTIGAÇÃO
         </div>
-        <div style={{display: 'flex', alignItems: 'baseline', gap: 20, marginTop: 6}}>
+        <div style={{display: 'flex', alignItems: 'baseline', gap: 20, marginTop: 6, opacity: num, translate: `0 ${(1 - num) * 16}px`}}>
           <div style={{fontWeight: 900, fontSize: 190, letterSpacing: -8, color: C.gold, lineHeight: 1, opacity: num, fontVariantNumeric: 'tabular-nums', width: 250}}>{n}</div>
           <div style={{fontWeight: 800, fontSize: 56, letterSpacing: -1.5, color: C.white, lineHeight: 1.05}}>
             circuitos

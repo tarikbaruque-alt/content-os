@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Easing, interpolate, Sequence, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame} from 'remotion';
 import {Audio, Video} from '@remotion/media';
 import {faceFix, SECTIONS, SEGS, Section, sectionAt, splitProgress} from '../timeline';
 import {C, clamp, SANS, SPLIT_Y} from '../theme';
@@ -76,13 +76,34 @@ export const CaseClip: React.FC<{at: number; rate?: number; dur: number; w?: num
   );
 };
 
+// Foto vertical (F1) cobrindo o painel, com aproximação lenta em direção ao ponto de interesse.
+const PhotoPanel: React.FC<{src: string; focusY: number; zoomTo: number; dur: number}> = ({src, focusY, zoomTo, dur}) => {
+  const f = useCurrentFrame();
+  const z = interpolate(f, [0, dur], [1, zoomTo], {...clamp, easing: Easing.inOut(Easing.sin)});
+  const H = 2160; // foto ~1:2 com 1080 de largura
+  const top = Math.min(0, Math.max(SPLIT_Y - H, SPLIT_Y / 2 - focusY * H));
+  return (
+    <AbsoluteFill style={{overflow: 'hidden'}}>
+      <div style={{position: 'absolute', left: 0, top, width: 1080, height: H, scale: String(z), transformOrigin: `50% ${focusY * 100}%`}}>
+        <Img src={staticFile(src)} style={{width: 1080, height: H, objectFit: 'cover'}} />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const PanelContent: React.FC<{s: Section; dur: number; seqFrom: number}> = ({s, dur, seqFrom}) => {
   const f = useCurrentFrame();
   const fade = interpolate(f, [0, 5], [0, 1], clamp);
   if (!s.top) return null;
   return (
     <AbsoluteFill style={{opacity: fade}}>
-      {s.top.kind === 'case' ? <CaseClip at={s.top.at} rate={s.top.rate} dur={dur} /> : <Graphic name={s.top.name} seqFrom={seqFrom} />}
+      {s.top.kind === 'case' ? (
+        <CaseClip at={s.top.at} rate={s.top.rate} dur={dur} />
+      ) : s.top.kind === 'img' ? (
+        <PhotoPanel src={s.top.src} focusY={s.top.focusY} zoomTo={s.top.zoomTo ?? 1.1} dur={dur} />
+      ) : (
+        <Graphic name={s.top.name} seqFrom={seqFrom} />
+      )}
     </AbsoluteFill>
   );
 };

@@ -5,15 +5,15 @@ import './fonts';
 import {Captions} from './components/Captions';
 import {ARoll, FullCase, TopPanel, Voice} from './components/Layers';
 import {ArcosTitle, Counter24, CtaPill, EndCard, HookKicker, LogoChips, ZoneChips} from './components/Overlays';
-import {MK, SECTIONS, SPEECH_END, T, TOTAL} from './timeline';
+import {MK, SECOND_TAKE_FROM, SECTIONS, SPEECH_END, T, TOTAL} from './timeline';
 import {C} from './theme';
 
 const sfx = (n: string) => staticFile(`sfx/${n}.wav`);
 
 const POPS = [
   'logo', 'oportunidade', 'circuitos24', 'arcos', 'rosto', 'pareidolia', 'vendas11', 'golden13', 'oferta13', 'perdeu15', 'chance15',
-  'participante16', 'acompanhar17', 'abrir17', 'agir17', 'atencao18', 'urgencia18', 'recompensa18', 'p7', 'p23', 'p27', 'acao20', 'direct21',
-];
+  'participante16', 'acompanhar17', 'abrir17', 'agir17', 'atencao18', 'urgencia18', 'recompensa18', 'segundo19', 'p7', 'p23', 'p27', 'acao20', 'direct21',
+].filter((k) => typeof MK[k] === 'number');
 
 export type AnaliseProps = {diagSemVoz?: boolean};
 
@@ -29,7 +29,7 @@ export const Analise: React.FC<AnaliseProps> = ({diagSemVoz = false}) => (
       </Sequence>
     ))}
 
-    <Sequence name="Selo da análise" from={0} durationInFrames={T(2)}>
+    <Sequence name="Selo da análise" from={0} durationInFrames={SECOND_TAKE_FROM}>
       <HookKicker />
     </Sequence>
     <Sequence name="Chips · logo / oportunidade" from={0} durationInFrames={T(5)}>

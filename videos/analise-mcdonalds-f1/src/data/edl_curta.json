@@ -1,0 +1,2234 @@
+{
+ "fps": 30,
+ "total": 2634,
+ "segs": [
+  {
+   "take": 1,
+   "src": 3,
+   "srcEnd": 55,
+   "from_": 0
+  },
+  {
+   "take": 1,
+   "src": 66,
+   "srcEnd": 135,
+   "from_": 52
+  },
+  {
+   "take": 3,
+   "src": 7,
+   "srcEnd": 115,
+   "from_": 121
+  },
+  {
+   "take": 4,
+   "src": 0,
+   "srcEnd": 200,
+   "from_": 229
+  },
+  {
+   "take": 5,
+   "src": 0,
+   "srcEnd": 15,
+   "from_": 429
+  },
+  {
+   "take": 5,
+   "src": 72,
+   "srcEnd": 208,
+   "from_": 444
+  },
+  {
+   "take": 6,
+   "src": 1,
+   "srcEnd": 128,
+   "from_": 580
+  },
+  {
+   "take": 7,
+   "src": 44,
+   "srcEnd": 124,
+   "from_": 707
+  },
+  {
+   "take": 8,
+   "src": 2,
+   "srcEnd": 88,
+   "from_": 787
+  },
+  {
+   "take": 9,
+   "src": 0,
+   "srcEnd": 74,
+   "from_": 873
+  },
+  {
+   "take": 10,
+   "src": 2,
+   "srcEnd": 116,
+   "from_": 947
+  },
+  {
+   "take": 11,
+   "src": 20,
+   "srcEnd": 103,
+   "from_": 1061
+  },
+  {
+   "take": 11,
+   "src": 183,
+   "srcEnd": 326,
+   "from_": 1144
+  },
+  {
+   "take": 13,
+   "src": 2,
+   "srcEnd": 88,
+   "from_": 1287
+  },
+  {
+   "take": 13,
+   "src": 96,
+   "srcEnd": 184,
+   "from_": 1373
+  },
+  {
+   "take": 14,
+   "src": 2,
+   "srcEnd": 48,
+   "from_": 1461
+  },
+  {
+   "take": 14,
+   "src": 58,
+   "srcEnd": 196,
+   "from_": 1507
+  },
+  {
+   "take": 15,
+   "src": 2,
+   "srcEnd": 101,
+   "from_": 1645
+  },
+  {
+   "take": 16,
+   "src": 58,
+   "srcEnd": 149,
+   "from_": 1744
+  },
+  {
+   "take": 17,
+   "src": 0,
+   "srcEnd": 130,
+   "from_": 1835
+  },
+  {
+   "take": 18,
+   "src": 0,
+   "srcEnd": 119,
+   "from_": 1965
+  },
+  {
+   "take": 18,
+   "src": 123,
+   "srcEnd": 126,
+   "from_": 2084
+  },
+  {
+   "take": 19,
+   "src": 7,
+   "srcEnd": 87,
+   "from_": 2087
+  },
+  {
+   "take": 19,
+   "src": 107,
+   "srcEnd": 150,
+   "from_": 2167
+  },
+  {
+   "take": 20,
+   "src": 42,
+   "srcEnd": 269,
+   "from_": 2210
+  },
+  {
+   "take": 21,
+   "src": 2,
+   "srcEnd": 74,
+   "from_": 2437
+  },
+  {
+   "take": 21,
+   "src": 78,
+   "srcEnd": 203,
+   "from_": 2509
+  }
+ ],
+ "pages": [
+  {
+   "take": 1,
+   "start": 1,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "McDonald's",
+     "e": null
+    }
+   ],
+   "end": 30
+  },
+  {
+   "take": 1,
+   "start": 30,
+   "toks": [
+    {
+     "t": "viu",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 32
+  },
+  {
+   "take": 1,
+   "start": 32,
+   "toks": [
+    {
+     "t": "dinheiro",
+     "e": "serif"
+    }
+   ],
+   "end": 43
+  },
+  {
+   "take": 1,
+   "start": 43,
+   "toks": [
+    {
+     "t": "onde",
+     "e": null
+    },
+    {
+     "t": "todo",
+     "e": null
+    }
+   ],
+   "end": 64
+  },
+  {
+   "take": 1,
+   "start": 64,
+   "toks": [
+    {
+     "t": "mundo",
+     "e": null
+    },
+    {
+     "t": "via",
+     "e": null
+    }
+   ],
+   "end": 84
+  },
+  {
+   "take": 1,
+   "start": 84,
+   "toks": [
+    {
+     "t": "curvas",
+     "e": "under"
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "end": 102
+  },
+  {
+   "take": 1,
+   "start": 102,
+   "toks": [
+    {
+     "t": "Fórmula",
+     "e": null
+    },
+    {
+     "t": "1.",
+     "e": null
+    }
+   ],
+   "end": 121
+  },
+  {
+   "take": 3,
+   "start": 122,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "McDonald's",
+     "e": null
+    }
+   ],
+   "end": 153
+  },
+  {
+   "take": 3,
+   "start": 153,
+   "toks": [
+    {
+     "t": "já",
+     "e": null
+    },
+    {
+     "t": "patrocinava",
+     "e": null
+    }
+   ],
+   "end": 180
+  },
+  {
+   "take": 3,
+   "start": 180,
+   "toks": [
+    {
+     "t": "Fórmula",
+     "e": null
+    },
+    {
+     "t": "1",
+     "e": null
+    }
+   ],
+   "end": 199
+  },
+  {
+   "take": 3,
+   "start": 199,
+   "toks": [
+    {
+     "t": "na",
+     "e": null
+    },
+    {
+     "t": "América",
+     "e": null
+    },
+    {
+     "t": "Latina.",
+     "e": null
+    }
+   ],
+   "end": 229
+  },
+  {
+   "take": 4,
+   "start": 230,
+   "toks": [
+    {
+     "t": "Mas",
+     "e": null
+    },
+    {
+     "t": "em",
+     "e": null
+    }
+   ],
+   "end": 234
+  },
+  {
+   "take": 4,
+   "start": 234,
+   "toks": [
+    {
+     "t": "vez",
+     "e": null
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "end": 246
+  },
+  {
+   "take": 4,
+   "start": 246,
+   "toks": [
+    {
+     "t": "simplesmente",
+     "e": null
+    }
+   ],
+   "end": 262
+  },
+  {
+   "take": 4,
+   "start": 262,
+   "toks": [
+    {
+     "t": "colocar",
+     "e": null
+    },
+    {
+     "t": "mais",
+     "e": null
+    }
+   ],
+   "end": 287
+  },
+  {
+   "take": 4,
+   "start": 287,
+   "toks": [
+    {
+     "t": "uma",
+     "e": null
+    },
+    {
+     "t": "logo",
+     "e": "serif"
+    }
+   ],
+   "end": 300
+  },
+  {
+   "take": 4,
+   "start": 300,
+   "toks": [
+    {
+     "t": "na",
+     "e": null
+    },
+    {
+     "t": "pista,",
+     "e": null
+    }
+   ],
+   "end": 321
+  },
+  {
+   "take": 4,
+   "start": 321,
+   "toks": [
+    {
+     "t": "decidiu",
+     "e": null
+    },
+    {
+     "t": "procurar",
+     "e": null
+    }
+   ],
+   "end": 352
+  },
+  {
+   "take": 4,
+   "start": 352,
+   "toks": [
+    {
+     "t": "por",
+     "e": null
+    },
+    {
+     "t": "uma",
+     "e": null
+    }
+   ],
+   "end": 362
+  },
+  {
+   "take": 4,
+   "start": 362,
+   "toks": [
+    {
+     "t": "oportunidade",
+     "e": "gold"
+    }
+   ],
+   "end": 381
+  },
+  {
+   "take": 4,
+   "start": 381,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "ninguém",
+     "e": null
+    }
+   ],
+   "end": 398
+  },
+  {
+   "take": 4,
+   "start": 398,
+   "toks": [
+    {
+     "t": "estava",
+     "e": null
+    },
+    {
+     "t": "enxergando.",
+     "e": "under"
+    }
+   ],
+   "end": 429
+  },
+  {
+   "take": 5,
+   "start": 430,
+   "toks": [
+    {
+     "t": "A",
+     "e": null
+    },
+    {
+     "t": "equipe",
+     "e": null
+    }
+   ],
+   "end": 446
+  },
+  {
+   "take": 5,
+   "start": 446,
+   "toks": [
+    {
+     "t": "analisou",
+     "e": null
+    },
+    {
+     "t": "os",
+     "e": null
+    }
+   ],
+   "end": 466
+  },
+  {
+   "take": 5,
+   "start": 466,
+   "toks": [
+    {
+     "t": "24",
+     "e": "gold"
+    },
+    {
+     "t": "circuitos",
+     "e": null
+    }
+   ],
+   "end": 511
+  },
+  {
+   "take": 5,
+   "start": 511,
+   "toks": [
+    {
+     "t": "da",
+     "e": null
+    },
+    {
+     "t": "temporada",
+     "e": null
+    }
+   ],
+   "end": 532
+  },
+  {
+   "take": 5,
+   "start": 532,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "descobriu",
+     "e": null
+    }
+   ],
+   "end": 559
+  },
+  {
+   "take": 5,
+   "start": 559,
+   "toks": [
+    {
+     "t": "algo",
+     "e": null
+    },
+    {
+     "t": "curioso.",
+     "e": "serif"
+    }
+   ],
+   "end": 580
+  },
+  {
+   "take": 6,
+   "start": 581,
+   "toks": [
+    {
+     "t": "Algumas",
+     "e": null
+    },
+    {
+     "t": "curvas",
+     "e": "under"
+    }
+   ],
+   "end": 606
+  },
+  {
+   "take": 6,
+   "start": 606,
+   "toks": [
+    {
+     "t": "lembravam",
+     "e": null
+    },
+    {
+     "t": "os",
+     "e": null
+    }
+   ],
+   "end": 629
+  },
+  {
+   "take": 6,
+   "start": 629,
+   "toks": [
+    {
+     "t": "famosos",
+     "e": null
+    }
+   ],
+   "end": 647
+  },
+  {
+   "take": 6,
+   "start": 647,
+   "toks": [
+    {
+     "t": "arcos",
+     "e": "serif"
+    },
+    {
+     "t": "dourados",
+     "e": "serif"
+    }
+   ],
+   "end": 682
+  },
+  {
+   "take": 6,
+   "start": 682,
+   "toks": [
+    {
+     "t": "do",
+     "e": null
+    },
+    {
+     "t": "McDonald's.",
+     "e": null
+    }
+   ],
+   "end": 707
+  },
+  {
+   "take": 7,
+   "start": 707,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "nosso",
+     "e": null
+    }
+   ],
+   "end": 716
+  },
+  {
+   "take": 7,
+   "start": 716,
+   "toks": [
+    {
+     "t": "cérebro",
+     "e": null
+    },
+    {
+     "t": "adora",
+     "e": null
+    }
+   ],
+   "end": 753
+  },
+  {
+   "take": 7,
+   "start": 753,
+   "toks": [
+    {
+     "t": "reconhecer",
+     "e": null
+    }
+   ],
+   "end": 771
+  },
+  {
+   "take": 7,
+   "start": 771,
+   "toks": [
+    {
+     "t": "padrões.",
+     "e": "gold"
+    }
+   ],
+   "end": 787
+  },
+  {
+   "take": 8,
+   "start": 788,
+   "toks": [
+    {
+     "t": "Sabe",
+     "e": null
+    },
+    {
+     "t": "quando",
+     "e": null
+    }
+   ],
+   "end": 799
+  },
+  {
+   "take": 8,
+   "start": 799,
+   "toks": [
+    {
+     "t": "você",
+     "e": null
+    },
+    {
+     "t": "olha",
+     "e": null
+    }
+   ],
+   "end": 814
+  },
+  {
+   "take": 8,
+   "start": 814,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "uma",
+     "e": null
+    }
+   ],
+   "end": 823
+  },
+  {
+   "take": 8,
+   "start": 823,
+   "toks": [
+    {
+     "t": "nuvem",
+     "e": "serif"
+    }
+   ],
+   "end": 835
+  },
+  {
+   "take": 8,
+   "start": 835,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "reconhece",
+     "e": null
+    }
+   ],
+   "end": 855
+  },
+  {
+   "take": 8,
+   "start": 855,
+   "toks": [
+    {
+     "t": "um",
+     "e": null
+    },
+    {
+     "t": "rosto?",
+     "e": "serif"
+    }
+   ],
+   "end": 873
+  },
+  {
+   "take": 9,
+   "start": 874,
+   "toks": [
+    {
+     "t": "Isso",
+     "e": null
+    },
+    {
+     "t": "tem",
+     "e": null
+    }
+   ],
+   "end": 884
+  },
+  {
+   "take": 9,
+   "start": 884,
+   "toks": [
+    {
+     "t": "nome,",
+     "e": null
+    },
+    {
+     "t": "e",
+     "e": null
+    }
+   ],
+   "end": 902
+  },
+  {
+   "take": 9,
+   "start": 902,
+   "toks": [
+    {
+     "t": "se",
+     "e": null
+    },
+    {
+     "t": "chama",
+     "e": null
+    }
+   ],
+   "end": 913
+  },
+  {
+   "take": 9,
+   "start": 913,
+   "toks": [
+    {
+     "t": "pareidolia.",
+     "e": "gold"
+    }
+   ],
+   "end": 945
+  },
+  {
+   "take": 10,
+   "start": 948,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 952
+  },
+  {
+   "take": 10,
+   "start": 952,
+   "toks": [
+    {
+     "t": "McDonald's",
+     "e": null
+    }
+   ],
+   "end": 973
+  },
+  {
+   "take": 10,
+   "start": 973,
+   "toks": [
+    {
+     "t": "transformou",
+     "e": null
+    },
+    {
+     "t": "essa",
+     "e": null
+    }
+   ],
+   "end": 998
+  },
+  {
+   "take": 10,
+   "start": 998,
+   "toks": [
+    {
+     "t": "percepção",
+     "e": null
+    }
+   ],
+   "end": 1019
+  },
+  {
+   "take": 10,
+   "start": 1019,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "estratégia",
+     "e": "under"
+    }
+   ],
+   "end": 1045
+  },
+  {
+   "take": 10,
+   "start": 1045,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "marketing.",
+     "e": null
+    }
+   ],
+   "end": 1057
+  },
+  {
+   "take": 11,
+   "start": 1067,
+   "toks": [
+    {
+     "t": "Encontrar",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 1084
+  },
+  {
+   "take": 11,
+   "start": 1084,
+   "toks": [
+    {
+     "t": "M",
+     "e": "gold"
+    },
+    {
+     "t": "nas",
+     "e": null
+    }
+   ],
+   "end": 1097
+  },
+  {
+   "take": 11,
+   "start": 1097,
+   "toks": [
+    {
+     "t": "curvas",
+     "e": null
+    },
+    {
+     "t": "foi",
+     "e": null
+    }
+   ],
+   "end": 1115
+  },
+  {
+   "take": 11,
+   "start": 1115,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "parte",
+     "e": null
+    }
+   ],
+   "end": 1124
+  },
+  {
+   "take": 11,
+   "start": 1124,
+   "toks": [
+    {
+     "t": "mais",
+     "e": null
+    },
+    {
+     "t": "fácil.",
+     "e": "serif"
+    }
+   ],
+   "end": 1148
+  },
+  {
+   "take": 11,
+   "start": 1148,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "que,",
+     "e": null
+    }
+   ],
+   "end": 1157
+  },
+  {
+   "take": 11,
+   "start": 1157,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "fato,",
+     "e": null
+    }
+   ],
+   "end": 1169
+  },
+  {
+   "take": 11,
+   "start": 1169,
+   "toks": [
+    {
+     "t": "foi",
+     "e": null
+    },
+    {
+     "t": "uma",
+     "e": null
+    }
+   ],
+   "end": 1176
+  },
+  {
+   "take": 11,
+   "start": 1176,
+   "toks": [
+    {
+     "t": "sacada",
+     "e": null
+    },
+    {
+     "t": "genial",
+     "e": null
+    }
+   ],
+   "end": 1206
+  },
+  {
+   "take": 11,
+   "start": 1206,
+   "toks": [
+    {
+     "t": "foi",
+     "e": null
+    },
+    {
+     "t": "transformar",
+     "e": null
+    }
+   ],
+   "end": 1233
+  },
+  {
+   "take": 11,
+   "start": 1233,
+   "toks": [
+    {
+     "t": "aquelas",
+     "e": null
+    },
+    {
+     "t": "curvas",
+     "e": "under"
+    }
+   ],
+   "end": 1257
+  },
+  {
+   "take": 11,
+   "start": 1257,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "vendas.",
+     "e": "gold"
+    }
+   ],
+   "end": 1287
+  },
+  {
+   "take": 13,
+   "start": 1288,
+   "toks": [
+    {
+     "t": "Quando",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 1296
+  },
+  {
+   "take": 13,
+   "start": 1296,
+   "toks": [
+    {
+     "t": "líder",
+     "e": null
+    },
+    {
+     "t": "da",
+     "e": null
+    }
+   ],
+   "end": 1308
+  },
+  {
+   "take": 13,
+   "start": 1308,
+   "toks": [
+    {
+     "t": "corrida",
+     "e": null
+    }
+   ],
+   "end": 1322
+  },
+  {
+   "take": 13,
+   "start": 1322,
+   "toks": [
+    {
+     "t": "entrava",
+     "e": null
+    },
+    {
+     "t": "na",
+     "e": null
+    }
+   ],
+   "end": 1337
+  },
+  {
+   "take": 13,
+   "start": 1337,
+   "toks": [
+    {
+     "t": "chamada",
+     "e": null
+    }
+   ],
+   "end": 1349
+  },
+  {
+   "take": 13,
+   "start": 1349,
+   "toks": [
+    {
+     "t": "Golden",
+     "e": "gold"
+    },
+    {
+     "t": "Zone,",
+     "e": "gold"
+    }
+   ],
+   "end": 1373
+  },
+  {
+   "take": 13,
+   "start": 1373,
+   "toks": [
+    {
+     "t": "era",
+     "e": null
+    },
+    {
+     "t": "liberada",
+     "e": null
+    }
+   ],
+   "end": 1399
+  },
+  {
+   "take": 13,
+   "start": 1399,
+   "toks": [
+    {
+     "t": "uma",
+     "e": null
+    },
+    {
+     "t": "oferta",
+     "e": "under"
+    }
+   ],
+   "end": 1419
+  },
+  {
+   "take": 13,
+   "start": 1419,
+   "toks": [
+    {
+     "t": "no",
+     "e": null
+    },
+    {
+     "t": "aplicativo",
+     "e": null
+    }
+   ],
+   "end": 1440
+  },
+  {
+   "take": 13,
+   "start": 1440,
+   "toks": [
+    {
+     "t": "do",
+     "e": null
+    },
+    {
+     "t": "McDonald's.",
+     "e": null
+    }
+   ],
+   "end": 1461
+  },
+  {
+   "take": 14,
+   "start": 1462,
+   "toks": [
+    {
+     "t": "Mas",
+     "e": null
+    },
+    {
+     "t": "tem",
+     "e": null
+    }
+   ],
+   "end": 1473
+  },
+  {
+   "take": 14,
+   "start": 1473,
+   "toks": [
+    {
+     "t": "um",
+     "e": null
+    },
+    {
+     "t": "detalhe",
+     "e": null
+    }
+   ],
+   "end": 1487
+  },
+  {
+   "take": 14,
+   "start": 1487,
+   "toks": [
+    {
+     "t": "importante:",
+     "e": "serif"
+    }
+   ],
+   "end": 1507
+  },
+  {
+   "take": 14,
+   "start": 1507,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "oferta",
+     "e": null
+    }
+   ],
+   "end": 1524
+  },
+  {
+   "take": 14,
+   "start": 1524,
+   "toks": [
+    {
+     "t": "durava",
+     "e": null
+    },
+    {
+     "t": "apenas",
+     "e": "gold"
+    }
+   ],
+   "end": 1547
+  },
+  {
+   "take": 14,
+   "start": 1547,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "tempo",
+     "e": null
+    }
+   ],
+   "end": 1565
+  },
+  {
+   "take": 14,
+   "start": 1565,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 1577
+  },
+  {
+   "take": 14,
+   "start": 1577,
+   "toks": [
+    {
+     "t": "carro",
+     "e": null
+    },
+    {
+     "t": "levava",
+     "e": null
+    }
+   ],
+   "end": 1601
+  },
+  {
+   "take": 14,
+   "start": 1601,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "atravessar",
+     "e": null
+    }
+   ],
+   "end": 1624
+  },
+  {
+   "take": 14,
+   "start": 1624,
+   "toks": [
+    {
+     "t": "aquele",
+     "e": null
+    },
+    {
+     "t": "trecho.",
+     "e": "under"
+    }
+   ],
+   "end": 1645
+  },
+  {
+   "take": 15,
+   "start": 1646,
+   "toks": [
+    {
+     "t": "Passou",
+     "e": null
+    }
+   ],
+   "end": 1656
+  },
+  {
+   "take": 15,
+   "start": 1656,
+   "toks": [
+    {
+     "t": "da",
+     "e": null
+    },
+    {
+     "t": "curva,",
+     "e": null
+    }
+   ],
+   "end": 1676
+  },
+  {
+   "take": 15,
+   "start": 1676,
+   "toks": [
+    {
+     "t": "perdeu.",
+     "e": "gold"
+    }
+   ],
+   "end": 1696
+  },
+  {
+   "take": 15,
+   "start": 1696,
+   "toks": [
+    {
+     "t": "Na",
+     "e": null
+    },
+    {
+     "t": "próxima",
+     "e": null
+    }
+   ],
+   "end": 1707
+  },
+  {
+   "take": 15,
+   "start": 1707,
+   "toks": [
+    {
+     "t": "volta,",
+     "e": null
+    }
+   ],
+   "end": 1721
+  },
+  {
+   "take": 15,
+   "start": 1721,
+   "toks": [
+    {
+     "t": "uma",
+     "e": null
+    },
+    {
+     "t": "nova",
+     "e": null
+    }
+   ],
+   "end": 1731
+  },
+  {
+   "take": 15,
+   "start": 1731,
+   "toks": [
+    {
+     "t": "chance.",
+     "e": "serif"
+    }
+   ],
+   "end": 1744
+  },
+  {
+   "take": 16,
+   "start": 1744,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "McDonald's",
+     "e": null
+    }
+   ],
+   "end": 1764
+  },
+  {
+   "take": 16,
+   "start": 1764,
+   "toks": [
+    {
+     "t": "transformou",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 1780
+  },
+  {
+   "take": 16,
+   "start": 1780,
+   "toks": [
+    {
+     "t": "espectador",
+     "e": "serif"
+    }
+   ],
+   "end": 1800
+  },
+  {
+   "take": 16,
+   "start": 1800,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "participante.",
+     "e": "gold"
+    }
+   ],
+   "end": 1835
+  },
+  {
+   "take": 17,
+   "start": 1836,
+   "toks": [
+    {
+     "t": "Agora",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "end": 1847
+  },
+  {
+   "take": 17,
+   "start": 1847,
+   "toks": [
+    {
+     "t": "pessoa",
+     "e": null
+    },
+    {
+     "t": "precisava",
+     "e": null
+    }
+   ],
+   "end": 1872
+  },
+  {
+   "take": 17,
+   "start": 1872,
+   "toks": [
+    {
+     "t": "acompanhar",
+     "e": null
+    }
+   ],
+   "end": 1885
+  },
+  {
+   "take": 17,
+   "start": 1885,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "corrida,",
+     "e": null
+    }
+   ],
+   "end": 1907
+  },
+  {
+   "take": 17,
+   "start": 1907,
+   "toks": [
+    {
+     "t": "abrir",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 1920
+  },
+  {
+   "take": 17,
+   "start": 1920,
+   "toks": [
+    {
+     "t": "aplicativo",
+     "e": null
+    }
+   ],
+   "end": 1937
+  },
+  {
+   "take": 17,
+   "start": 1937,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "agir",
+     "e": null
+    }
+   ],
+   "end": 1949
+  },
+  {
+   "take": 17,
+   "start": 1949,
+   "toks": [
+    {
+     "t": "rápido.",
+     "e": "gold"
+    }
+   ],
+   "end": 1963
+  },
+  {
+   "take": 18,
+   "start": 1966,
+   "toks": [
+    {
+     "t": "Essa",
+     "e": null
+    },
+    {
+     "t": "estratégia",
+     "e": null
+    }
+   ],
+   "end": 1987
+  },
+  {
+   "take": 18,
+   "start": 1987,
+   "toks": [
+    {
+     "t": "gerava",
+     "e": null
+    },
+    {
+     "t": "no",
+     "e": null
+    }
+   ],
+   "end": 2000
+  },
+  {
+   "take": 18,
+   "start": 2000,
+   "toks": [
+    {
+     "t": "participante:",
+     "e": null
+    }
+   ],
+   "end": 2021
+  },
+  {
+   "take": 18,
+   "start": 2021,
+   "toks": [
+    {
+     "t": "atenção,",
+     "e": "gold"
+    }
+   ],
+   "end": 2044
+  },
+  {
+   "take": 18,
+   "start": 2044,
+   "toks": [
+    {
+     "t": "urgência",
+     "e": "gold"
+    }
+   ],
+   "end": 2061
+  },
+  {
+   "take": 18,
+   "start": 2061,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "recompensa.",
+     "e": "gold"
+    }
+   ],
+   "end": 2084
+  },
+  {
+   "take": 19,
+   "start": 2088,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "end": 2093
+  },
+  {
+   "take": 19,
+   "start": 2093,
+   "toks": [
+    {
+     "t": "estratégia",
+     "e": null
+    }
+   ],
+   "end": 2111
+  },
+  {
+   "take": 19,
+   "start": 2111,
+   "toks": [
+    {
+     "t": "deu",
+     "e": null
+    },
+    {
+     "t": "certo.",
+     "e": "serif"
+    }
+   ],
+   "end": 2132
+  },
+  {
+   "take": 19,
+   "start": 2132,
+   "toks": [
+    {
+     "t": "Segundo",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "end": 2145
+  },
+  {
+   "take": 19,
+   "start": 2145,
+   "toks": [
+    {
+     "t": "agência,",
+     "e": null
+    }
+   ],
+   "end": 2159
+  },
+  {
+   "take": 19,
+   "start": 2159,
+   "toks": [
+    {
+     "t": "cresceram",
+     "e": null
+    }
+   ],
+   "end": 2167
+  },
+  {
+   "take": 19,
+   "start": 2167,
+   "toks": [
+    {
+     "t": "7%",
+     "e": "gold"
+    },
+    {
+     "t": "em",
+     "e": null
+    }
+   ],
+   "end": 2194
+  },
+  {
+   "take": 19,
+   "start": 2194,
+   "toks": [
+    {
+     "t": "vendas.",
+     "e": null
+    }
+   ],
+   "end": 2210
+  },
+  {
+   "take": 20,
+   "start": 2210,
+   "toks": [
+    {
+     "t": "Marketing",
+     "e": null
+    }
+   ],
+   "end": 2223
+  },
+  {
+   "take": 20,
+   "start": 2223,
+   "toks": [
+    {
+     "t": "não",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "end": 2238
+  },
+  {
+   "take": 20,
+   "start": 2238,
+   "toks": [
+    {
+     "t": "só",
+     "e": null
+    },
+    {
+     "t": "aparecer.",
+     "e": "gold"
+    }
+   ],
+   "end": 2265
+  },
+  {
+   "take": 20,
+   "start": 2265,
+   "toks": [
+    {
+     "t": "Marketing",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "end": 2279
+  },
+  {
+   "take": 20,
+   "start": 2279,
+   "toks": [
+    {
+     "t": "encontrar",
+     "e": null
+    }
+   ],
+   "end": 2289
+  },
+  {
+   "take": 20,
+   "start": 2289,
+   "toks": [
+    {
+     "t": "oportunidades",
+     "e": null
+    }
+   ],
+   "end": 2315
+  },
+  {
+   "take": 20,
+   "start": 2315,
+   "toks": [
+    {
+     "t": "onde",
+     "e": null
+    },
+    {
+     "t": "ninguém",
+     "e": null
+    }
+   ],
+   "end": 2333
+  },
+  {
+   "take": 20,
+   "start": 2333,
+   "toks": [
+    {
+     "t": "está",
+     "e": null
+    },
+    {
+     "t": "enxergando",
+     "e": null
+    }
+   ],
+   "end": 2365
+  },
+  {
+   "take": 20,
+   "start": 2365,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "transformar",
+     "e": null
+    }
+   ],
+   "end": 2396
+  },
+  {
+   "take": 20,
+   "start": 2396,
+   "toks": [
+    {
+     "t": "atenção",
+     "e": "gold"
+    }
+   ],
+   "end": 2411
+  },
+  {
+   "take": 20,
+   "start": 2411,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "ação.",
+     "e": "gold"
+    }
+   ],
+   "end": 2437
+  },
+  {
+   "take": 21,
+   "start": 2438,
+   "toks": [
+    {
+     "t": "Se",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "end": 2443
+  },
+  {
+   "take": 21,
+   "start": 2443,
+   "toks": [
+    {
+     "t": "sua",
+     "e": null
+    },
+    {
+     "t": "marca",
+     "e": null
+    }
+   ],
+   "end": 2456
+  },
+  {
+   "take": 21,
+   "start": 2456,
+   "toks": [
+    {
+     "t": "está",
+     "e": null
+    },
+    {
+     "t": "deixando",
+     "e": null
+    }
+   ],
+   "end": 2476
+  },
+  {
+   "take": 21,
+   "start": 2476,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "dinheiro",
+     "e": "serif"
+    }
+   ],
+   "end": 2484
+  },
+  {
+   "take": 21,
+   "start": 2484,
+   "toks": [
+    {
+     "t": "na",
+     "e": null
+    },
+    {
+     "t": "pista,",
+     "e": null
+    }
+   ],
+   "end": 2509
+  },
+  {
+   "take": 21,
+   "start": 2509,
+   "toks": [
+    {
+     "t": "me",
+     "e": null
+    },
+    {
+     "t": "chama no",
+     "e": null
+    }
+   ],
+   "end": 2523
+  },
+  {
+   "take": 21,
+   "start": 2523,
+   "toks": [
+    {
+     "t": "direct.",
+     "e": "under"
+    }
+   ],
+   "end": 2542
+  },
+  {
+   "take": 21,
+   "start": 2542,
+   "toks": [
+    {
+     "t": "Só",
+     "e": null
+    },
+    {
+     "t": "não",
+     "e": null
+    }
+   ],
+   "end": 2550
+  },
+  {
+   "take": 21,
+   "start": 2550,
+   "toks": [
+    {
+     "t": "passa",
+     "e": null
+    },
+    {
+     "t": "reto,",
+     "e": "serif"
+    }
+   ],
+   "end": 2574
+  },
+  {
+   "take": 21,
+   "start": 2574,
+   "toks": [
+    {
+     "t": "pelo",
+     "e": null
+    },
+    {
+     "t": "amor",
+     "e": null
+    }
+   ],
+   "end": 2594
+  },
+  {
+   "take": 21,
+   "start": 2594,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "Deus.",
+     "e": null
+    }
+   ],
+   "end": 2606
+  },
+  {
+   "take": 21,
+   "start": 2606,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "vão",
+     "e": null
+    }
+   ],
+   "end": 2616
+  },
+  {
+   "take": 21,
+   "start": 2616,
+   "toks": [
+    {
+     "t": "pra",
+     "e": null
+    },
+    {
+     "t": "cima!",
+     "e": null
+    }
+   ],
+   "end": 2634
+  }
+ ],
+ "marks": {
+  "take": {
+   "1": 0,
+   "3": 121,
+   "4": 229,
+   "5": 429,
+   "6": 580,
+   "7": 707,
+   "8": 787,
+   "9": 873,
+   "10": 947,
+   "11": 1061,
+   "13": 1287,
+   "14": 1461,
+   "15": 1645,
+   "16": 1744,
+   "17": 1835,
+   "18": 1965,
+   "19": 2087,
+   "20": 2210,
+   "21": 2437
+  },
+  "onde1": 43,
+  "logo": 293,
+  "oportunidade": 362,
+  "circuitos24": 466,
+  "curioso": 562,
+  "arcos": 647,
+  "nuvem": 823,
+  "rosto": 859,
+  "pareidolia": 913,
+  "transformou10": 973,
+  "otQue11": 1148,
+  "transformar11": 1214,
+  "vendas11": 1270,
+  "golden13": 1349,
+  "oferta13": 1404,
+  "aplicativo13": 1423,
+  "oferta14": 1511,
+  "carro14": 1577,
+  "trecho14": 1629,
+  "perdeu15": 1676,
+  "proxima15": 1698,
+  "chance15": 1731,
+  "espectador16": 1780,
+  "participante16": 1809,
+  "acompanhar17": 1872,
+  "abrir17": 1907,
+  "agir17": 1941,
+  "atencao18": 2021,
+  "urgencia18": 2044,
+  "recompensa18": 2065,
+  "certo19": 2115,
+  "segundo19": 2132,
+  "p7": 2167,
+  "marketing20": 2210,
+  "marketingE20": 2265,
+  "atencao20": 2396,
+  "acao20": 2423,
+  "direct21": 2523,
+  "reto21": 2560
+ }
+}
