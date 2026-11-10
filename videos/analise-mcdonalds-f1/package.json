@@ -1,0 +1,12 @@
+{
+  "name": "video-analise-mcdonalds-f1",
+  "version": "1.0.0",
+  "description": "Reels: análise da campanha The Golden Zone (McDonald's × F1)",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render Analise out/analise-mcdonalds-f1.mp4 --codec=h264 --crf=16",
+    "lint": "tsc"
+  }
+}
