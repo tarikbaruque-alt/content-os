@@ -15,7 +15,10 @@ const POPS = [
   'participante16', 'acompanhar17', 'abrir17', 'agir17', 'atencao18', 'urgencia18', 'recompensa18', 'p7', 'p23', 'p27', 'acao20', 'direct21',
 ];
 
-export const Analise: React.FC = () => (
+export type AnaliseProps = {diagSemVoz?: boolean};
+
+// diagSemVoz: só para conferência — desliga voz e efeitos, sobra apenas o que viria do vídeo do case (deve ser silêncio).
+export const Analise: React.FC<AnaliseProps> = ({diagSemVoz = false}) => (
   <AbsoluteFill style={{backgroundColor: C.bg}}>
     <ARoll />
     <TopPanel />
@@ -55,20 +58,22 @@ export const Analise: React.FC = () => (
       <EndCard from={SPEECH_END} />
     </Sequence>
 
-    <Voice />
+    {diagSemVoz ? null : <Voice />}
     {/* Efeitos discretos (sintetizados, sem direitos de terceiros): whoosh nas trocas de layout, pop nos grafismos. */}
-    {SECTIONS.slice(1).map((s) => (
+    {!diagSemVoz && SECTIONS.slice(1).map((s) => (
       <Sequence key={`w${s.from}`} name="whoosh" from={Math.max(0, s.from - 4)} durationInFrames={18} layout="none">
         <Audio src={sfx('whoosh')} volume={0.13} />
       </Sequence>
     ))}
-    {POPS.map((k) => (
+    {!diagSemVoz && POPS.map((k) => (
       <Sequence key={`p${k}`} name={`pop ${k}`} from={Math.max(0, MK[k] - 2)} durationInFrames={8} layout="none">
         <Audio src={sfx('pop')} volume={0.14} />
       </Sequence>
     ))}
-    <Sequence name="relógio da oferta" from={MK.oferta14} durationInFrames={50} layout="none">
-      <Audio src={sfx('ticks')} volume={0.1} />
-    </Sequence>
+    {diagSemVoz ? null : (
+      <Sequence name="relógio da oferta" from={MK.oferta14} durationInFrames={50} layout="none">
+        <Audio src={sfx('ticks')} volume={0.1} />
+      </Sequence>
+    )}
   </AbsoluteFill>
 );
