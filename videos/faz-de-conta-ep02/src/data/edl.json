@@ -1,0 +1,2044 @@
+{
+ "fps": 30,
+ "total": 2047,
+ "segs": [
+  {
+   "take": 1,
+   "src": 0,
+   "srcEnd": 174,
+   "from_": 0
+  },
+  {
+   "take": 2,
+   "src": 0,
+   "srcEnd": 39,
+   "from_": 178
+  },
+  {
+   "take": 3,
+   "src": 0,
+   "srcEnd": 133,
+   "from_": 217
+  },
+  {
+   "take": 3,
+   "src": 143,
+   "srcEnd": 240,
+   "from_": 350
+  },
+  {
+   "take": 4,
+   "src": 1,
+   "srcEnd": 198,
+   "from_": 447
+  },
+  {
+   "take": 5,
+   "src": 0,
+   "srcEnd": 121,
+   "from_": 660
+  },
+  {
+   "take": 6,
+   "src": 1,
+   "srcEnd": 86,
+   "from_": 785
+  },
+  {
+   "take": 7,
+   "src": 0,
+   "srcEnd": 87,
+   "from_": 884
+  },
+  {
+   "take": 8,
+   "src": 0,
+   "srcEnd": 113,
+   "from_": 971
+  },
+  {
+   "take": 8,
+   "src": 119,
+   "srcEnd": 181,
+   "from_": 1084
+  },
+  {
+   "take": 9,
+   "src": 0,
+   "srcEnd": 41,
+   "from_": 1146
+  },
+  {
+   "take": 9,
+   "src": 46,
+   "srcEnd": 158,
+   "from_": 1187
+  },
+  {
+   "take": 9,
+   "src": 161,
+   "srcEnd": 191,
+   "from_": 1299
+  },
+  {
+   "take": 10,
+   "src": 0,
+   "srcEnd": 66,
+   "from_": 1329
+  },
+  {
+   "take": 11,
+   "src": 0,
+   "srcEnd": 87,
+   "from_": 1395
+  },
+  {
+   "take": 12,
+   "src": 0,
+   "srcEnd": 77,
+   "from_": 1492
+  },
+  {
+   "take": 12,
+   "src": 86,
+   "srcEnd": 173,
+   "from_": 1569
+  },
+  {
+   "take": 13,
+   "src": 0,
+   "srcEnd": 187,
+   "from_": 1656
+  },
+  {
+   "take": 14,
+   "src": 0,
+   "srcEnd": 91,
+   "from_": 1847
+  },
+  {
+   "take": 15,
+   "src": 6,
+   "srcEnd": 115,
+   "from_": 1938
+  }
+ ],
+ "pages": [
+  {
+   "take": 1,
+   "start": 1,
+   "toks": [
+    {
+     "t": "Ele",
+     "e": null
+    },
+    {
+     "t": "passou",
+     "e": null
+    }
+   ],
+   "end": 15
+  },
+  {
+   "take": 1,
+   "start": 15,
+   "toks": [
+    {
+     "t": "anos",
+     "e": null
+    },
+    {
+     "t": "juntando",
+     "e": null
+    }
+   ],
+   "end": 38
+  },
+  {
+   "take": 1,
+   "start": 38,
+   "toks": [
+    {
+     "t": "dinheiro,",
+     "e": null
+    }
+   ],
+   "end": 53
+  },
+  {
+   "take": 1,
+   "start": 53,
+   "toks": [
+    {
+     "t": "conseguiu",
+     "e": null
+    },
+    {
+     "t": "fazer",
+     "e": null
+    }
+   ],
+   "end": 77
+  },
+  {
+   "take": 1,
+   "start": 77,
+   "toks": [
+    {
+     "t": "esse",
+     "e": null
+    },
+    {
+     "t": "dinheiro",
+     "e": null
+    }
+   ],
+   "end": 91
+  },
+  {
+   "take": 1,
+   "start": 91,
+   "toks": [
+    {
+     "t": "render…",
+     "e": "impact"
+    }
+   ],
+   "end": 101
+  },
+  {
+   "take": 1,
+   "start": 101,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "mesmo",
+     "e": null
+    }
+   ],
+   "end": 120
+  },
+  {
+   "take": 1,
+   "start": 120,
+   "toks": [
+    {
+     "t": "assim",
+     "e": null
+    }
+   ],
+   "end": 128
+  },
+  {
+   "take": 1,
+   "start": 128,
+   "toks": [
+    {
+     "t": "perdeu",
+     "e": "tension"
+    }
+   ],
+   "end": 140
+  },
+  {
+   "take": 1,
+   "start": 140,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "apartamento",
+     "e": null
+    }
+   ],
+   "end": 155
+  },
+  {
+   "take": 1,
+   "start": 155,
+   "toks": [
+    {
+     "t": "dos",
+     "e": null
+    },
+    {
+     "t": "sonhos.",
+     "e": "serif"
+    }
+   ],
+   "end": 174
+  },
+  {
+   "take": 2,
+   "start": 179,
+   "toks": [
+    {
+     "t": "Como",
+     "e": null
+    },
+    {
+     "t": "isso",
+     "e": null
+    }
+   ],
+   "end": 194
+  },
+  {
+   "take": 2,
+   "start": 194,
+   "toks": [
+    {
+     "t": "é",
+     "e": null
+    },
+    {
+     "t": "possível?",
+     "e": "serif"
+    }
+   ],
+   "end": 211
+  },
+  {
+   "take": 3,
+   "start": 218,
+   "toks": [
+    {
+     "t": "Imagina",
+     "e": null
+    },
+    {
+     "t": "passar",
+     "e": null
+    }
+   ],
+   "end": 236
+  },
+  {
+   "take": 3,
+   "start": 236,
+   "toks": [
+    {
+     "t": "CINCO",
+     "e": "impact"
+    },
+    {
+     "t": "ANOS",
+     "e": "impact"
+    }
+   ],
+   "end": 258
+  },
+  {
+   "take": 3,
+   "start": 258,
+   "toks": [
+    {
+     "t": "economizando,",
+     "e": null
+    }
+   ],
+   "end": 284
+  },
+  {
+   "take": 3,
+   "start": 284,
+   "toks": [
+    {
+     "t": "abrindo",
+     "e": null
+    },
+    {
+     "t": "mão",
+     "e": null
+    }
+   ],
+   "end": 298
+  },
+  {
+   "take": 3,
+   "start": 298,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "viagens,",
+     "e": "serif"
+    }
+   ],
+   "end": 317
+  },
+  {
+   "take": 3,
+   "start": 317,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "restaurantes,",
+     "e": "serif"
+    }
+   ],
+   "end": 346
+  },
+  {
+   "take": 3,
+   "start": 346,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "juntar",
+     "e": null
+    }
+   ],
+   "end": 365
+  },
+  {
+   "take": 3,
+   "start": 365,
+   "toks": [
+    {
+     "t": "80",
+     "e": "impact"
+    },
+    {
+     "t": "MIL",
+     "e": "impact"
+    }
+   ],
+   "end": 383
+  },
+  {
+   "take": 3,
+   "start": 383,
+   "toks": [
+    {
+     "t": "reais",
+     "e": null
+    }
+   ],
+   "end": 390
+  },
+  {
+   "take": 3,
+   "start": 390,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "dar",
+     "e": null
+    }
+   ],
+   "end": 405
+  },
+  {
+   "take": 3,
+   "start": 405,
+   "toks": [
+    {
+     "t": "entrada",
+     "e": null
+    },
+    {
+     "t": "no",
+     "e": null
+    }
+   ],
+   "end": 420
+  },
+  {
+   "take": 3,
+   "start": 420,
+   "toks": [
+    {
+     "t": "primeiro",
+     "e": null
+    },
+    {
+     "t": "apartamento.",
+     "e": "serif"
+    }
+   ],
+   "end": 447
+  },
+  {
+   "take": 4,
+   "start": 448,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "querendo",
+     "e": null
+    }
+   ],
+   "end": 463
+  },
+  {
+   "take": 4,
+   "start": 463,
+   "toks": [
+    {
+     "t": "ganhar",
+     "e": null
+    }
+   ],
+   "end": 468
+  },
+  {
+   "take": 4,
+   "start": 468,
+   "toks": [
+    {
+     "t": "um",
+     "e": null
+    },
+    {
+     "t": "pouco",
+     "e": null
+    }
+   ],
+   "end": 479
+  },
+  {
+   "take": 4,
+   "start": 479,
+   "toks": [
+    {
+     "t": "mais,",
+     "e": null
+    }
+   ],
+   "end": 491
+  },
+  {
+   "take": 4,
+   "start": 491,
+   "toks": [
+    {
+     "t": "ele",
+     "e": null
+    },
+    {
+     "t": "investiu",
+     "e": null
+    }
+   ],
+   "end": 507
+  },
+  {
+   "take": 4,
+   "start": 507,
+   "toks": [
+    {
+     "t": "TUDO",
+     "e": "impact"
+    }
+   ],
+   "end": 518
+  },
+  {
+   "take": 4,
+   "start": 518,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "ele",
+     "e": null
+    }
+   ],
+   "end": 531
+  },
+  {
+   "take": 4,
+   "start": 531,
+   "toks": [
+    {
+     "t": "tinha",
+     "e": null
+    }
+   ],
+   "end": 539
+  },
+  {
+   "take": 4,
+   "start": 539,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "uma",
+     "e": null
+    }
+   ],
+   "end": 549
+  },
+  {
+   "take": 4,
+   "start": 549,
+   "toks": [
+    {
+     "t": "aplicação",
+     "e": null
+    }
+   ],
+   "end": 565
+  },
+  {
+   "take": 4,
+   "start": 565,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "ele",
+     "e": null
+    }
+   ],
+   "end": 573
+  },
+  {
+   "take": 4,
+   "start": 573,
+   "toks": [
+    {
+     "t": "só",
+     "e": null
+    },
+    {
+     "t": "poderia",
+     "e": null
+    }
+   ],
+   "end": 588
+  },
+  {
+   "take": 4,
+   "start": 588,
+   "toks": [
+    {
+     "t": "resgatar",
+     "e": null
+    }
+   ],
+   "end": 603
+  },
+  {
+   "take": 4,
+   "start": 603,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "dinheiro",
+     "e": null
+    }
+   ],
+   "end": 618
+  },
+  {
+   "take": 4,
+   "start": 618,
+   "toks": [
+    {
+     "t": "daqui",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "end": 629
+  },
+  {
+   "take": 4,
+   "start": 629,
+   "toks": [
+    {
+     "t": "DOIS",
+     "e": "tension"
+    },
+    {
+     "t": "ANOS.",
+     "e": "tension"
+    }
+   ],
+   "end": 644
+  },
+  {
+   "take": 5,
+   "start": 661,
+   "toks": [
+    {
+     "t": "TRÊS",
+     "e": "tension"
+    },
+    {
+     "t": "MESES",
+     "e": "tension"
+    }
+   ],
+   "end": 671
+  },
+  {
+   "take": 5,
+   "start": 671,
+   "toks": [
+    {
+     "t": "depois",
+     "e": null
+    }
+   ],
+   "end": 681
+  },
+  {
+   "take": 5,
+   "start": 681,
+   "toks": [
+    {
+     "t": "apareceu",
+     "e": null
+    }
+   ],
+   "end": 697
+  },
+  {
+   "take": 5,
+   "start": 697,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "imóvel",
+     "e": null
+    }
+   ],
+   "end": 707
+  },
+  {
+   "take": 5,
+   "start": 707,
+   "toks": [
+    {
+     "t": "perfeito.",
+     "e": "serif"
+    }
+   ],
+   "end": 729
+  },
+  {
+   "take": 5,
+   "start": 729,
+   "toks": [
+    {
+     "t": "Ele",
+     "e": null
+    },
+    {
+     "t": "tinha",
+     "e": null
+    }
+   ],
+   "end": 739
+  },
+  {
+   "take": 5,
+   "start": 739,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "dinheiro…",
+     "e": null
+    }
+   ],
+   "end": 751
+  },
+  {
+   "take": 5,
+   "start": 751,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "só",
+     "e": null
+    }
+   ],
+   "end": 758
+  },
+  {
+   "take": 5,
+   "start": 758,
+   "toks": [
+    {
+     "t": "NÃO",
+     "e": "tension"
+    },
+    {
+     "t": "PODIA",
+     "e": "tension"
+    }
+   ],
+   "end": 769
+  },
+  {
+   "take": 5,
+   "start": 769,
+   "toks": [
+    {
+     "t": "usar.",
+     "e": null
+    }
+   ],
+   "end": 781
+  },
+  {
+   "take": 6,
+   "start": 786,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "viu",
+     "e": null
+    }
+   ],
+   "end": 794
+  },
+  {
+   "take": 6,
+   "start": 794,
+   "toks": [
+    {
+     "t": "outra",
+     "e": null
+    },
+    {
+     "t": "pessoa",
+     "e": null
+    }
+   ],
+   "end": 818
+  },
+  {
+   "take": 6,
+   "start": 818,
+   "toks": [
+    {
+     "t": "realizar",
+     "e": null
+    }
+   ],
+   "end": 832
+  },
+  {
+   "take": 6,
+   "start": 832,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "sonho",
+     "e": "serif"
+    }
+   ],
+   "end": 849
+  },
+  {
+   "take": 6,
+   "start": 849,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "era",
+     "e": null
+    }
+   ],
+   "end": 855
+  },
+  {
+   "take": 6,
+   "start": 855,
+   "toks": [
+    {
+     "t": "dele.",
+     "e": null
+    }
+   ],
+   "end": 868
+  },
+  {
+   "take": 8,
+   "start": 972,
+   "toks": [
+    {
+     "t": "Antes",
+     "e": null
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "end": 984
+  },
+  {
+   "take": 8,
+   "start": 984,
+   "toks": [
+    {
+     "t": "falar",
+     "e": null
+    },
+    {
+     "t": "em",
+     "e": null
+    }
+   ],
+   "end": 997
+  },
+  {
+   "take": 8,
+   "start": 997,
+   "toks": [
+    {
+     "t": "investimento,",
+     "e": null
+    }
+   ],
+   "end": 1014
+  },
+  {
+   "take": 8,
+   "start": 1014,
+   "toks": [
+    {
+     "t": "eu",
+     "e": null
+    },
+    {
+     "t": "faria",
+     "e": null
+    }
+   ],
+   "end": 1025
+  },
+  {
+   "take": 8,
+   "start": 1025,
+   "toks": [
+    {
+     "t": "DUAS",
+     "e": "impact"
+    }
+   ],
+   "end": 1029
+  },
+  {
+   "take": 8,
+   "start": 1029,
+   "toks": [
+    {
+     "t": "perguntas:",
+     "e": null
+    }
+   ],
+   "end": 1051
+  },
+  {
+   "take": 8,
+   "start": 1051,
+   "toks": [
+    {
+     "t": "qual",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "end": 1060
+  },
+  {
+   "take": 8,
+   "start": 1060,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "seu",
+     "e": null
+    }
+   ],
+   "end": 1066
+  },
+  {
+   "take": 8,
+   "start": 1066,
+   "toks": [
+    {
+     "t": "sonho?",
+     "e": "serif"
+    }
+   ],
+   "end": 1084
+  },
+  {
+   "take": 8,
+   "start": 1084,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "quando",
+     "e": null
+    }
+   ],
+   "end": 1098
+  },
+  {
+   "take": 8,
+   "start": 1098,
+   "toks": [
+    {
+     "t": "você",
+     "e": null
+    },
+    {
+     "t": "vai",
+     "e": null
+    }
+   ],
+   "end": 1110
+  },
+  {
+   "take": 8,
+   "start": 1110,
+   "toks": [
+    {
+     "t": "PRECISAR",
+     "e": "impact"
+    }
+   ],
+   "end": 1123
+  },
+  {
+   "take": 8,
+   "start": 1123,
+   "toks": [
+    {
+     "t": "desse",
+     "e": null
+    },
+    {
+     "t": "dinheiro?",
+     "e": null
+    }
+   ],
+   "end": 1144
+  },
+  {
+   "take": 9,
+   "start": 1147,
+   "toks": [
+    {
+     "t": "Porque",
+     "e": null
+    },
+    {
+     "t": "ganhar",
+     "e": null
+    }
+   ],
+   "end": 1160
+  },
+  {
+   "take": 9,
+   "start": 1160,
+   "toks": [
+    {
+     "t": "dinheiro",
+     "e": null
+    }
+   ],
+   "end": 1168
+  },
+  {
+   "take": 9,
+   "start": 1168,
+   "toks": [
+    {
+     "t": "é",
+     "e": null
+    },
+    {
+     "t": "ótimo.",
+     "e": "serif"
+    }
+   ],
+   "end": 1188
+  },
+  {
+   "take": 9,
+   "start": 1188,
+   "toks": [
+    {
+     "t": "Agora,",
+     "e": null
+    },
+    {
+     "t": "ver",
+     "e": null
+    }
+   ],
+   "end": 1202
+  },
+  {
+   "take": 9,
+   "start": 1202,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "OPORTUNIDADE",
+     "e": "impact"
+    }
+   ],
+   "end": 1221
+  },
+  {
+   "take": 9,
+   "start": 1221,
+   "toks": [
+    {
+     "t": "da",
+     "e": null
+    },
+    {
+     "t": "sua",
+     "e": null
+    }
+   ],
+   "end": 1231
+  },
+  {
+   "take": 9,
+   "start": 1231,
+   "toks": [
+    {
+     "t": "vida",
+     "e": null
+    }
+   ],
+   "end": 1237
+  },
+  {
+   "take": 9,
+   "start": 1237,
+   "toks": [
+    {
+     "t": "passar",
+     "e": null
+    }
+   ],
+   "end": 1255
+  },
+  {
+   "take": 9,
+   "start": 1255,
+   "toks": [
+    {
+     "t": "porque",
+     "e": null
+    },
+    {
+     "t": "seu",
+     "e": null
+    }
+   ],
+   "end": 1265
+  },
+  {
+   "take": 9,
+   "start": 1265,
+   "toks": [
+    {
+     "t": "DINHEIRO",
+     "e": "tension"
+    }
+   ],
+   "end": 1274
+  },
+  {
+   "take": 9,
+   "start": 1274,
+   "toks": [
+    {
+     "t": "tá",
+     "e": null
+    },
+    {
+     "t": "PRESO",
+     "e": "tension"
+    }
+   ],
+   "end": 1299
+  },
+  {
+   "take": 9,
+   "start": 1299,
+   "toks": [
+    {
+     "t": "aí…",
+     "e": null
+    }
+   ],
+   "end": 1307
+  },
+  {
+   "take": 9,
+   "start": 1307,
+   "toks": [
+    {
+     "t": "é",
+     "e": null
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "end": 1313
+  },
+  {
+   "take": 9,
+   "start": 1313,
+   "toks": [
+    {
+     "t": "doer,",
+     "e": null
+    }
+   ],
+   "end": 1325
+  },
+  {
+   "take": 9,
+   "start": 1325,
+   "toks": [
+    {
+     "t": "né?",
+     "e": null
+    }
+   ],
+   "end": 1330
+  },
+  {
+   "take": 10,
+   "start": 1330,
+   "toks": [
+    {
+     "t": "Por",
+     "e": null
+    },
+    {
+     "t": "isso",
+     "e": null
+    }
+   ],
+   "end": 1338
+  },
+  {
+   "take": 10,
+   "start": 1338,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "um",
+     "e": null
+    }
+   ],
+   "end": 1345
+  },
+  {
+   "take": 10,
+   "start": 1345,
+   "toks": [
+    {
+     "t": "bom",
+     "e": null
+    },
+    {
+     "t": "assessor",
+     "e": "serif"
+    }
+   ],
+   "end": 1362
+  },
+  {
+   "take": 10,
+   "start": 1362,
+   "toks": [
+    {
+     "t": "pode",
+     "e": null
+    },
+    {
+     "t": "fazer",
+     "e": null
+    }
+   ],
+   "end": 1378
+  },
+  {
+   "take": 10,
+   "start": 1378,
+   "toks": [
+    {
+     "t": "DIFERENÇA:",
+     "e": "impact"
+    }
+   ],
+   "end": 1390
+  },
+  {
+   "take": 11,
+   "start": 1396,
+   "toks": [
+    {
+     "t": "ajudar",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "end": 1403
+  },
+  {
+   "take": 11,
+   "start": 1403,
+   "toks": [
+    {
+     "t": "investir",
+     "e": null
+    }
+   ],
+   "end": 1411
+  },
+  {
+   "take": 11,
+   "start": 1411,
+   "toks": [
+    {
+     "t": "nos",
+     "e": null
+    },
+    {
+     "t": "seus",
+     "e": null
+    }
+   ],
+   "end": 1424
+  },
+  {
+   "take": 11,
+   "start": 1424,
+   "toks": [
+    {
+     "t": "PLANOS,",
+     "e": "impact"
+    }
+   ],
+   "end": 1442
+  },
+  {
+   "take": 11,
+   "start": 1442,
+   "toks": [
+    {
+     "t": "não",
+     "e": null
+    },
+    {
+     "t": "só",
+     "e": null
+    }
+   ],
+   "end": 1452
+  },
+  {
+   "take": 11,
+   "start": 1452,
+   "toks": [
+    {
+     "t": "nos",
+     "e": null
+    },
+    {
+     "t": "seus",
+     "e": null
+    }
+   ],
+   "end": 1460
+  },
+  {
+   "take": 11,
+   "start": 1460,
+   "toks": [
+    {
+     "t": "rendimentos.",
+     "e": null
+    }
+   ],
+   "end": 1481
+  },
+  {
+   "take": 12,
+   "start": 1493,
+   "toks": [
+    {
+     "t": "Sabe",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "end": 1503
+  },
+  {
+   "take": 12,
+   "start": 1503,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "end": 1508
+  },
+  {
+   "take": 12,
+   "start": 1508,
+   "toks": [
+    {
+     "t": "mais",
+     "e": null
+    },
+    {
+     "t": "curioso?",
+     "e": "serif"
+    }
+   ],
+   "end": 1532
+  },
+  {
+   "take": 12,
+   "start": 1532,
+   "toks": [
+    {
+     "t": "Esse",
+     "e": null
+    },
+    {
+     "t": "assessor",
+     "e": null
+    }
+   ],
+   "end": 1550
+  },
+  {
+   "take": 12,
+   "start": 1550,
+   "toks": [
+    {
+     "t": "nem",
+     "e": null
+    },
+    {
+     "t": "EXISTE.",
+     "e": "tension"
+    }
+   ],
+   "end": 1562
+  },
+  {
+   "take": 12,
+   "start": 1562,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "eu",
+     "e": null
+    }
+   ],
+   "end": 1575
+  },
+  {
+   "take": 12,
+   "start": 1575,
+   "toks": [
+    {
+     "t": "não",
+     "e": null
+    },
+    {
+     "t": "sou",
+     "e": null
+    }
+   ],
+   "end": 1587
+  },
+  {
+   "take": 12,
+   "start": 1587,
+   "toks": [
+    {
+     "t": "assessor.",
+     "e": null
+    }
+   ],
+   "end": 1610
+  },
+  {
+   "take": 12,
+   "start": 1610,
+   "toks": [
+    {
+     "t": "Eu",
+     "e": null
+    },
+    {
+     "t": "sou",
+     "e": null
+    }
+   ],
+   "end": 1616
+  },
+  {
+   "take": 12,
+   "start": 1616,
+   "toks": [
+    {
+     "t": "ESTRATEGISTA",
+     "e": "twist"
+    }
+   ],
+   "end": 1637
+  },
+  {
+   "take": 12,
+   "start": 1637,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "conteúdo.",
+     "e": null
+    }
+   ],
+   "end": 1655
+  },
+  {
+   "take": 13,
+   "start": 1657,
+   "toks": [
+    {
+     "t": "Eu",
+     "e": null
+    },
+    {
+     "t": "acabei",
+     "e": null
+    }
+   ],
+   "end": 1669
+  },
+  {
+   "take": 13,
+   "start": 1669,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "transformar",
+     "e": null
+    }
+   ],
+   "end": 1691
+  },
+  {
+   "take": 13,
+   "start": 1691,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "serviço",
+     "e": null
+    }
+   ],
+   "end": 1705
+  },
+  {
+   "take": 13,
+   "start": 1705,
+   "toks": [
+    {
+     "t": "TÉCNICO",
+     "e": "impact"
+    }
+   ],
+   "end": 1723
+  },
+  {
+   "take": 13,
+   "start": 1723,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "uma",
+     "e": null
+    }
+   ],
+   "end": 1734
+  },
+  {
+   "take": 13,
+   "start": 1734,
+   "toks": [
+    {
+     "t": "história",
+     "e": "serif"
+    }
+   ],
+   "end": 1746
+  },
+  {
+   "take": 13,
+   "start": 1746,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "desperta",
+     "e": null
+    }
+   ],
+   "end": 1769
+  },
+  {
+   "take": 13,
+   "start": 1769,
+   "toks": [
+    {
+     "t": "INTERESSE",
+     "e": "impact"
+    }
+   ],
+   "end": 1786
+  },
+  {
+   "take": 13,
+   "start": 1786,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "mostra",
+     "e": null
+    }
+   ],
+   "end": 1798
+  },
+  {
+   "take": 13,
+   "start": 1798,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "importância",
+     "e": null
+    }
+   ],
+   "end": 1820
+  },
+  {
+   "take": 13,
+   "start": 1820,
+   "toks": [
+    {
+     "t": "do",
+     "e": null
+    },
+    {
+     "t": "assessor.",
+     "e": null
+    }
+   ],
+   "end": 1843
+  },
+  {
+   "take": 14,
+   "start": 1848,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "para",
+     "e": null
+    }
+   ],
+   "end": 1854
+  },
+  {
+   "take": 14,
+   "start": 1854,
+   "toks": [
+    {
+     "t": "descobrir",
+     "e": null
+    }
+   ],
+   "end": 1864
+  },
+  {
+   "take": 14,
+   "start": 1864,
+   "toks": [
+    {
+     "t": "qual",
+     "e": null
+    },
+    {
+     "t": "PROFISSÃO",
+     "e": "impact"
+    }
+   ],
+   "end": 1891
+  },
+  {
+   "take": 14,
+   "start": 1891,
+   "toks": [
+    {
+     "t": "eu",
+     "e": null
+    },
+    {
+     "t": "vou",
+     "e": null
+    }
+   ],
+   "end": 1898
+  },
+  {
+   "take": 14,
+   "start": 1898,
+   "toks": [
+    {
+     "t": "virar",
+     "e": null
+    }
+   ],
+   "end": 1908
+  },
+  {
+   "take": 14,
+   "start": 1908,
+   "toks": [
+    {
+     "t": "no",
+     "e": null
+    },
+    {
+     "t": "próximo",
+     "e": null
+    }
+   ],
+   "end": 1920
+  },
+  {
+   "take": 14,
+   "start": 1920,
+   "toks": [
+    {
+     "t": "episódio.",
+     "e": null
+    }
+   ],
+   "end": 1932
+  },
+  {
+   "take": 15,
+   "start": 1938,
+   "toks": [
+    {
+     "t": "Conselho:",
+     "e": null
+    }
+   ],
+   "end": 1947
+  },
+  {
+   "take": 15,
+   "start": 1947,
+   "toks": [
+    {
+     "t": "deixar",
+     "e": null
+    },
+    {
+     "t": "cliente",
+     "e": null
+    }
+   ],
+   "end": 1966
+  },
+  {
+   "take": 15,
+   "start": 1966,
+   "toks": [
+    {
+     "t": "escapar",
+     "e": null
+    }
+   ],
+   "end": 1976
+  },
+  {
+   "take": 15,
+   "start": 1976,
+   "toks": [
+    {
+     "t": "também",
+     "e": null
+    },
+    {
+     "t": "não",
+     "e": null
+    }
+   ],
+   "end": 1993
+  },
+  {
+   "take": 15,
+   "start": 1993,
+   "toks": [
+    {
+     "t": "é",
+     "e": null
+    },
+    {
+     "t": "um",
+     "e": null
+    }
+   ],
+   "end": 2002
+  },
+  {
+   "take": 15,
+   "start": 2002,
+   "toks": [
+    {
+     "t": "bom",
+     "e": null
+    },
+    {
+     "t": "investimento.",
+     "e": "serif"
+    }
+   ],
+   "end": 2029
+  },
+  {
+   "take": 15,
+   "start": 2029,
+   "toks": [
+    {
+     "t": "Vão",
+     "e": null
+    },
+    {
+     "t": "pra",
+     "e": null
+    }
+   ],
+   "end": 2037
+  },
+  {
+   "take": 15,
+   "start": 2037,
+   "toks": [
+    {
+     "t": "CIMA!",
+     "e": "impact"
+    }
+   ],
+   "end": 2047
+  }
+ ],
+ "marks": {
+  "take": {
+   "1": 0,
+   "2": 178,
+   "3": 217,
+   "4": 447,
+   "5": 660,
+   "6": 785,
+   "7": 884,
+   "8": 971,
+   "9": 1146,
+   "10": 1329,
+   "11": 1395,
+   "12": 1492,
+   "13": 1656,
+   "14": 1847,
+   "15": 1938
+  },
+  "takeEnd": {
+   "1": 174,
+   "2": 217,
+   "3": 447,
+   "4": 644,
+   "5": 781,
+   "6": 870,
+   "7": 971,
+   "8": 1146,
+   "9": 1329,
+   "10": 1395,
+   "11": 1482,
+   "12": 1656,
+   "13": 1843,
+   "14": 1938,
+   "15": 2047
+  },
+  "conseguiu1": 53,
+  "render1": 91,
+  "perdeu1": 128,
+  "sonhos1": 162,
+  "anos3": 236,
+  "abrindo3": 284,
+  "viagens3": 303,
+  "restaurantes3": 323,
+  "oitenta3": 365,
+  "primeiro3": 420,
+  "investiu4": 493,
+  "aplicacao4": 549,
+  "resgatar4": 588,
+  "dois4": 629,
+  "tres5": 660,
+  "apareceu5": 681,
+  "tinha5": 732,
+  "nao5": 758,
+  "viu6": 789,
+  "outra6": 794,
+  "sonho6": 838,
+  "dele6": 855,
+  "faz7": 894,
+  "assessor7": 931,
+  "duas8": 1025,
+  "qual8": 1051,
+  "quando8": 1087,
+  "ganhar9": 1151,
+  "agora9": 1188,
+  "oportunidade9": 1204,
+  "dinheiro9b": 1265,
+  "preso9": 1279,
+  "doer9": 1313,
+  "bom10": 1345,
+  "diferenca10": 1378,
+  "investir11": 1403,
+  "planos11": 1424,
+  "rendimentos11": 1460,
+  "esse12": 1532,
+  "naosou12": 1575,
+  "estrategista12": 1616,
+  "transformar13": 1673,
+  "tecnico13": 1705,
+  "historia13": 1734,
+  "interesse13": 1769,
+  "importancia13": 1802,
+  "profissao14": 1874,
+  "proximo14": 1912,
+  "deixar15": 1947,
+  "vao15": 2029
+ }
+}

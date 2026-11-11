@@ -1,0 +1,8 @@
+{
+  "name": "video-faz-de-conta-ep02-assessor",
+  "version": "1.0.0",
+  "description": "Faz de conta que eu sou… assessor de investimentos (Ep. 02)",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {"dev": "remotion studio", "render": "remotion render Ep02 out/ep02.mp4 --codec=h264 --crf=17", "lint": "tsc"}
+}
