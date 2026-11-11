@@ -1,0 +1,1100 @@
+{
+ "fps": 30,
+ "total": 1676,
+ "segs": [
+  {
+   "take": 1,
+   "file": "01",
+   "src": 153,
+   "srcEnd": 180,
+   "from_": 0
+  },
+  {
+   "take": 1,
+   "file": "01",
+   "src": 184,
+   "srcEnd": 230,
+   "from_": 27
+  },
+  {
+   "take": 2,
+   "file": "02",
+   "src": 21,
+   "srcEnd": 109,
+   "from_": 76
+  },
+  {
+   "take": 2,
+   "file": "02",
+   "src": 114,
+   "srcEnd": 171,
+   "from_": 164
+  },
+  {
+   "take": 3,
+   "file": "03",
+   "src": 7,
+   "srcEnd": 47,
+   "from_": 225
+  },
+  {
+   "take": 3,
+   "file": "03",
+   "src": 50,
+   "srcEnd": 93,
+   "from_": 265
+  },
+  {
+   "take": 3,
+   "file": "03",
+   "src": 105,
+   "srcEnd": 160,
+   "from_": 308
+  },
+  {
+   "take": 3,
+   "file": "03",
+   "src": 172,
+   "srcEnd": 237,
+   "from_": 363
+  },
+  {
+   "take": 4,
+   "file": "05",
+   "src": 0,
+   "srcEnd": 80,
+   "from_": 430
+  },
+  {
+   "take": 5,
+   "file": "06b",
+   "src": 7,
+   "srcEnd": 118,
+   "from_": 515
+  },
+  {
+   "take": 6,
+   "file": "07",
+   "src": 32,
+   "srcEnd": 129,
+   "from_": 628
+  },
+  {
+   "take": 7,
+   "file": "09",
+   "src": 0,
+   "srcEnd": 67,
+   "from_": 727
+  },
+  {
+   "take": 8,
+   "file": "10",
+   "src": 0,
+   "srcEnd": 86,
+   "from_": 794
+  },
+  {
+   "take": 9,
+   "file": "09",
+   "src": 110,
+   "srcEnd": 189,
+   "from_": 880
+  },
+  {
+   "take": 10,
+   "file": "11",
+   "src": 125,
+   "srcEnd": 261,
+   "from_": 965
+  },
+  {
+   "take": 11,
+   "file": "12",
+   "src": 142,
+   "srcEnd": 192,
+   "from_": 1101
+  },
+  {
+   "take": 11,
+   "file": "12",
+   "src": 196,
+   "srcEnd": 260,
+   "from_": 1151
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 14,
+   "srcEnd": 44,
+   "from_": 1215
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 47,
+   "srcEnd": 156,
+   "from_": 1245
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 166,
+   "srcEnd": 178,
+   "from_": 1354
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 186,
+   "srcEnd": 258,
+   "from_": 1366
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 262,
+   "srcEnd": 293,
+   "from_": 1438
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 301,
+   "srcEnd": 382,
+   "from_": 1469
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 392,
+   "srcEnd": 471,
+   "from_": 1550
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 475,
+   "srcEnd": 504,
+   "from_": 1629
+  },
+  {
+   "take": 12,
+   "file": "13",
+   "src": 509,
+   "srcEnd": 527,
+   "from_": 1658
+  }
+ ],
+ "pages": [
+  {
+   "take": 1,
+   "start": 1,
+   "toks": [
+    {
+     "t": "Máquinas",
+     "e": null
+    },
+    {
+     "t": "ou",
+     "e": null
+    }
+   ],
+   "pos": "hook",
+   "end": 33
+  },
+  {
+   "take": 1,
+   "start": 33,
+   "toks": [
+    {
+     "t": "pesos",
+     "e": null
+    },
+    {
+     "t": "livres?",
+     "e": null
+    }
+   ],
+   "pos": "hook",
+   "end": 66
+  },
+  {
+   "take": 2,
+   "start": 77,
+   "toks": [
+    {
+     "t": "Entenda",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 100
+  },
+  {
+   "take": 2,
+   "start": 100,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "porquê",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 123
+  },
+  {
+   "take": 2,
+   "start": 123,
+   "toks": [
+    {
+     "t": "eles",
+     "e": null
+    },
+    {
+     "t": "oferecem",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 161
+  },
+  {
+   "take": 2,
+   "start": 161,
+   "toks": [
+    {
+     "t": "estímulos",
+     "e": "key"
+    },
+    {
+     "t": "diferentes?",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 211
+  },
+  {
+   "take": 3,
+   "start": 226,
+   "toks": [
+    {
+     "t": "Os",
+     "e": null
+    },
+    {
+     "t": "pesos",
+     "e": "strong"
+    },
+    {
+     "t": "livres",
+     "e": "strong"
+    }
+   ],
+   "pos": null,
+   "end": 257
+  },
+  {
+   "take": 3,
+   "start": 257,
+   "toks": [
+    {
+     "t": "exigem",
+     "e": null
+    },
+    {
+     "t": "maior",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 304
+  },
+  {
+   "take": 3,
+   "start": 304,
+   "toks": [
+    {
+     "t": "controle",
+     "e": "key"
+    }
+   ],
+   "pos": "halter",
+   "end": 327
+  },
+  {
+   "take": 3,
+   "start": 327,
+   "toks": [
+    {
+     "t": "do",
+     "e": null
+    },
+    {
+     "t": "movimento",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 349
+  },
+  {
+   "take": 3,
+   "start": 349,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "da",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 375
+  },
+  {
+   "take": 3,
+   "start": 375,
+   "toks": [
+    {
+     "t": "contração",
+     "e": "key"
+    },
+    {
+     "t": "muscular.",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 420
+  },
+  {
+   "take": 4,
+   "start": 431,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "outros",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 446
+  },
+  {
+   "take": 4,
+   "start": 446,
+   "toks": [
+    {
+     "t": "músculos",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 471
+  },
+  {
+   "take": 4,
+   "start": 471,
+   "toks": [
+    {
+     "t": "estabilizadores.",
+     "e": "key"
+    }
+   ],
+   "pos": "lateral",
+   "end": 506
+  },
+  {
+   "take": 5,
+   "start": 516,
+   "toks": [
+    {
+     "t": "Já",
+     "e": null
+    },
+    {
+     "t": "as",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 530
+  },
+  {
+   "take": 5,
+   "start": 530,
+   "toks": [
+    {
+     "t": "máquinas",
+     "e": "strong"
+    }
+   ],
+   "pos": null,
+   "end": 550
+  },
+  {
+   "take": 5,
+   "start": 550,
+   "toks": [
+    {
+     "t": "oferecem",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 577
+  },
+  {
+   "take": 5,
+   "start": 577,
+   "toks": [
+    {
+     "t": "suporte",
+     "e": "key"
+    },
+    {
+     "t": "externo.",
+     "e": "key"
+    }
+   ],
+   "pos": "encosto",
+   "end": 626
+  },
+  {
+   "take": 6,
+   "start": 628,
+   "toks": [
+    {
+     "t": "Com",
+     "e": null
+    },
+    {
+     "t": "isso,",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 649
+  },
+  {
+   "take": 6,
+   "start": 649,
+   "toks": [
+    {
+     "t": "ajudam",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 681
+  },
+  {
+   "take": 6,
+   "start": 681,
+   "toks": [
+    {
+     "t": "guiar",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 693
+  },
+  {
+   "take": 6,
+   "start": 693,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "movimento.",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 715
+  },
+  {
+   "take": 7,
+   "start": 728,
+   "toks": [
+    {
+     "t": "Permitindo",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 750
+  },
+  {
+   "take": 7,
+   "start": 750,
+   "toks": [
+    {
+     "t": "assim",
+     "e": null
+    },
+    {
+     "t": "controlar",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 793
+  },
+  {
+   "take": 8,
+   "start": 795,
+   "toks": [
+    {
+     "t": "melhor",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 814
+  },
+  {
+   "take": 8,
+   "start": 814,
+   "toks": [
+    {
+     "t": "movimento",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 828
+  },
+  {
+   "take": 8,
+   "start": 828,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "com",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 854
+  },
+  {
+   "take": 8,
+   "start": 854,
+   "toks": [
+    {
+     "t": "segurança.",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 869
+  },
+  {
+   "take": 9,
+   "start": 881,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "ter",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 901
+  },
+  {
+   "take": 9,
+   "start": 901,
+   "toks": [
+    {
+     "t": "uma",
+     "e": null
+    },
+    {
+     "t": "boa",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 923
+  },
+  {
+   "take": 9,
+   "start": 923,
+   "toks": [
+    {
+     "t": "contração",
+     "e": "key"
+    },
+    {
+     "t": "muscular.",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 956
+  },
+  {
+   "take": 10,
+   "start": 965,
+   "toks": [
+    {
+     "t": "Por",
+     "e": null
+    },
+    {
+     "t": "isso,",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 997
+  },
+  {
+   "take": 10,
+   "start": 997,
+   "toks": [
+    {
+     "t": "combinar",
+     "e": null
+    },
+    {
+     "t": "os dois",
+     "e": null
+    }
+   ],
+   "pos": "combo",
+   "end": 1040
+  },
+  {
+   "take": 10,
+   "start": 1040,
+   "toks": [
+    {
+     "t": "permite",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1070
+  },
+  {
+   "take": 10,
+   "start": 1070,
+   "toks": [
+    {
+     "t": "trabalhar",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1094
+  },
+  {
+   "take": 11,
+   "start": 1102,
+   "toks": [
+    {
+     "t": "com",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1110
+  },
+  {
+   "take": 11,
+   "start": 1110,
+   "toks": [
+    {
+     "t": "estabilização",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 1141
+  },
+  {
+   "take": 11,
+   "start": 1141,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "movimentos",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1179
+  },
+  {
+   "take": 11,
+   "start": 1179,
+   "toks": [
+    {
+     "t": "diferentes.",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1205
+  },
+  {
+   "take": 12,
+   "start": 1216,
+   "toks": [
+    {
+     "t": "Contribuindo",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1239
+  },
+  {
+   "take": 12,
+   "start": 1239,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "um",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1259
+  },
+  {
+   "take": 12,
+   "start": 1259,
+   "toks": [
+    {
+     "t": "treino",
+     "e": null
+    },
+    {
+     "t": "melhor",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1289
+  },
+  {
+   "take": 12,
+   "start": 1289,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "completo.",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 1331
+  },
+  {
+   "take": 12,
+   "start": 1331,
+   "toks": [
+    {
+     "t": "Coloque",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1350
+  },
+  {
+   "take": 12,
+   "start": 1350,
+   "toks": [
+    {
+     "t": "um para",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1373
+  },
+  {
+   "take": 12,
+   "start": 1373,
+   "toks": [
+    {
+     "t": "pesos",
+     "e": "strong"
+    },
+    {
+     "t": "livres",
+     "e": "strong"
+    }
+   ],
+   "pos": null,
+   "end": 1403
+  },
+  {
+   "take": 12,
+   "start": 1403,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "outro",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1434
+  },
+  {
+   "take": 12,
+   "start": 1434,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "máquinas.",
+     "e": "strong"
+    }
+   ],
+   "pos": null,
+   "end": 1469
+  },
+  {
+   "take": 12,
+   "start": 1469,
+   "toks": [
+    {
+     "t": "Assim",
+     "e": null
+    },
+    {
+     "t": "você",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1493
+  },
+  {
+   "take": 12,
+   "start": 1493,
+   "toks": [
+    {
+     "t": "vai",
+     "e": null
+    },
+    {
+     "t": "ter",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1506
+  },
+  {
+   "take": 12,
+   "start": 1506,
+   "toks": [
+    {
+     "t": "um",
+     "e": null
+    },
+    {
+     "t": "treino",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1529
+  },
+  {
+   "take": 12,
+   "start": 1529,
+   "toks": [
+    {
+     "t": "completo.",
+     "e": "key"
+    }
+   ],
+   "pos": null,
+   "end": 1550
+  },
+  {
+   "take": 12,
+   "start": 1550,
+   "toks": [
+    {
+     "t": "Gostou",
+     "e": null
+    },
+    {
+     "t": "desse",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1569
+  },
+  {
+   "take": 12,
+   "start": 1569,
+   "toks": [
+    {
+     "t": "conteúdo?",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1599
+  },
+  {
+   "take": 12,
+   "start": 1599,
+   "toks": [
+    {
+     "t": "Compartilha,",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1633
+  },
+  {
+   "take": 12,
+   "start": 1633,
+   "toks": [
+    {
+     "t": "comenta",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1647
+  },
+  {
+   "take": 12,
+   "start": 1647,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "curte.",
+     "e": null
+    }
+   ],
+   "pos": null,
+   "end": 1676
+  }
+ ],
+ "marks": {
+  "take": {
+   "1": 0,
+   "2": 76,
+   "3": 225,
+   "4": 430,
+   "5": 515,
+   "6": 628,
+   "7": 727,
+   "8": 794,
+   "9": 880,
+   "10": 965,
+   "11": 1101,
+   "12": 1215
+  },
+  "takeEnd": {
+   "1": 73,
+   "2": 221,
+   "3": 428,
+   "4": 510,
+   "5": 626,
+   "6": 725,
+   "7": 794,
+   "8": 880,
+   "9": 959,
+   "10": 1101,
+   "11": 1215,
+   "12": 1676
+  },
+  "ou1": 19,
+  "pesos1": 33,
+  "estimulos2": 161,
+  "exigem3": 257,
+  "controle3": 304,
+  "movimento3": 335,
+  "contracao3": 375,
+  "musculos4": 446,
+  "estab4": 471,
+  "maquinas5": 530,
+  "oferecem5": 550,
+  "suporte5": 577,
+  "ajudam6": 649,
+  "guiar6": 681,
+  "seguranca8": 854,
+  "contracao9": 923,
+  "combinar10": 997,
+  "dois10": 1031,
+  "permite10": 1040,
+  "estab11": 1110,
+  "movimentos11": 1157,
+  "treino12": 1259,
+  "completo12": 1299,
+  "coloque12": 1331,
+  "pesos12": 1373,
+  "outro12": 1424,
+  "maquinas12": 1445,
+  "assim12": 1469,
+  "gostou12": 1550,
+  "compartilha12": 1599,
+  "comenta12": 1633,
+  "curte12": 1664
+ }
+}

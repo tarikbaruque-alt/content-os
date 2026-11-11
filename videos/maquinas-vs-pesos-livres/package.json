@@ -1,0 +1,8 @@
+{
+  "name": "video-maquinas-vs-pesos-livres",
+  "version": "1.0.0",
+  "description": "Reels do João: máquinas vs. pesos livres",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {"dev": "remotion studio", "render": "remotion render Ep03 out/maquinas_vs_pesos.mp4 --codec=h264 --crf=17", "lint": "tsc"}
+}
