@@ -15,7 +15,9 @@ Edição em Remotion, com cerca de 1 min 46 s.
 | Momento | Visual |
 |---|---|
 | Gancho | caneta + "O PERIGO QUE NINGUÉM TE CONTA / MOUNJARO" e zoom no rosto na pergunta |
+| "salvar o seu resultado" | selo "SEU RESULTADO" |
 | "comenta EU" | balão verde |
+| "Parece perfeito? Mas calma" | selo "PARECE PERFEITO ✓" que vira "MAS CALMA…" (alerta) |
 | Como funciona | ilustração GLP-1/GIP → cérebro, com anéis e "APETITE ▼" / "SACIEDADE ▲" |
 | Menos fome, menos peso | medidores |
 | Pouca proteína | prato + barra "abaixo do ideal" |

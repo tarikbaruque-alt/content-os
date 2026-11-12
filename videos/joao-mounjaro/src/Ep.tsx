@@ -4,7 +4,7 @@ import {Audio} from '@remotion/media';
 import './theme';
 import {Captions} from './components/Captions';
 import {ARoll, FullLayer, TopPanel, Voice} from './components/Layers';
-import {CtaIcons, EmagrecerCard, EuBubble, Parte2} from './components/Overlays';
+import {CtaIcons, EmagrecerCard, EuBubble, Parte2, PerfeitoChip, ResultadoChip} from './components/Overlays';
 import {MK, SECTIONS, SPEECH_END, TOTAL} from './timeline';
 import {C} from './theme';
 
@@ -22,7 +22,7 @@ export const Ep: React.FC = () => {
       <ARoll />
       <TopPanel />
       <FullLayer />
-      {[EuBubble, EmagrecerCard, Parte2, CtaIcons].map((O, i) => (
+      {[ResultadoChip, EuBubble, PerfeitoChip, EmagrecerCard, Parte2, CtaIcons].map((O, i) => (
         <Sequence key={i} from={0} durationInFrames={TOTAL} layout="none">
           <O />
         </Sequence>

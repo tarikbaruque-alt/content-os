@@ -91,3 +91,77 @@ export const CtaIcons: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+// "isso vai salvar o seu resultado"
+export const ResultadoChip: React.FC = () => {
+  const f = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a0 = MK.resultado2 - 3;
+  const out = MK.comenta2 + 2;
+  if (f < a0 || f > out + 8) return null;
+  const p = pop(f, a0, fps) * interpolate(f, [out, out + 8], [1, 0], clamp);
+  return (
+    <AbsoluteFill style={{alignItems: 'center'}}>
+      <div style={{position: 'absolute', top: 240, scale: String(p), display: 'flex', alignItems: 'center', gap: 14, padding: '14px 30px 12px 18px', borderRadius: 999, background: 'rgba(10,14,12,0.86)', border: `2px solid ${C.gold}`, fontFamily: SANS, fontWeight: 900, fontSize: 44, color: C.white, whiteSpace: 'nowrap'}}>
+        <svg width={52} height={52} viewBox="0 0 48 48">
+          <path d="M24 4 L40 10 V22 C40 32 33 40 24 44 C15 40 8 32 8 22 V10 Z" fill={C.gold} />
+          <path d="M16 24 L22 30 L33 18" fill="none" stroke={C.ink} strokeWidth={4.5} strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        SEU <span style={{color: C.gold}}>RESULTADO</span>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// "Parece perfeito, não é mesmo? Mas calma, o problema está escondido aí."
+export const PerfeitoChip: React.FC = () => {
+  const f = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a0 = MK.parece3 - 2;
+  const flip = MK.calma3 - 3;
+  const out = MK.voce3b - 6;
+  if (f < a0 || f > out + 8) return null;
+  const p = pop(f, a0, fps) * interpolate(f, [out, out + 8], [1, 0], clamp);
+  const fl = interpolate(f, [flip, flip + 8], [0, 1], {...clamp, easing: Easing.inOut(Easing.cubic)});
+  const shake = f > MK.escondido3 && f < MK.escondido3 + 10 ? Math.sin(f * 2.4) * 4 : 0;
+  const warn = fl > 0.5;
+  return (
+    <AbsoluteFill style={{alignItems: 'center'}}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 240,
+          scale: String(p),
+          translate: `${shake}px 0`,
+          transform: `rotateX(${(warn ? 1 - fl : fl) * 90}deg)`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 14,
+          padding: '14px 30px 12px 18px',
+          borderRadius: 999,
+          background: warn ? C.red : C.gold,
+          fontFamily: SANS,
+          fontWeight: 900,
+          fontSize: 44,
+          color: C.ink,
+          whiteSpace: 'nowrap',
+          boxShadow: '0 12px 30px rgba(0,0,0,0.35)',
+        }}
+      >
+        {warn ? (
+          <svg width={50} height={50} viewBox="0 0 48 48">
+            <path d="M24 6 L44 40 H4 Z" fill="none" stroke={C.ink} strokeWidth={4.5} strokeLinejoin="round" />
+            <path d="M24 19 V29" stroke={C.ink} strokeWidth={4.5} strokeLinecap="round" />
+            <circle cx={24} cy={34.5} r={2.6} fill={C.ink} />
+          </svg>
+        ) : (
+          <svg width={50} height={50} viewBox="0 0 48 48">
+            <circle cx={24} cy={24} r={20} fill="none" stroke={C.ink} strokeWidth={4.5} />
+            <path d="M15 24 L21 30 L33 18" fill="none" stroke={C.ink} strokeWidth={4.5} strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+        {warn ? 'MAS CALMA…' : 'PARECE PERFEITO'}
+      </div>
+    </AbsoluteFill>
+  );
+};
