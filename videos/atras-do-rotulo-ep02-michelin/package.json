@@ -1,0 +1,1 @@
+{"name":"atras-do-rotulo-ep02-michelin","private":true,"scripts":{"dev":"remotion studio","render":"remotion render Ep out/michelin.mp4 --codec=h264 --crf=17"}}
