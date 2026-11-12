@@ -17,7 +17,7 @@ const Fx: React.FC<{n: string; at: number; v: number; dur?: number}> = ({n, at, 
 
 // Efeitos só onde a imagem pede (páginas, mapa, estrelas). Nenhum efeito nas pausas das piadas.
 export const Ep: React.FC<{semVoz?: boolean}> = ({semVoz = false}) => {
-  const whoosh = SECTIONS.filter((s, i) => i > 0 && s.mode !== 'face' && !['tire', 'vinheta', 'calcoPanel'].includes(s.scene ?? '')).map((s) => s.from - 3);
+  const whoosh = SECTIONS.filter((s, i) => i > 0 && s.mode !== 'face' && !['tire', 'vinheta', 'calcoPanel', 'today'].includes(s.scene ?? '')).map((s) => s.from - 3);
   return (
     <AbsoluteFill style={{backgroundColor: C.bg}}>
       <ARoll />

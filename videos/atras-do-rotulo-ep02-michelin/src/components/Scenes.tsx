@@ -508,6 +508,28 @@ const Counter30: React.FC<SP> = ({from, vh}) => {
   );
 };
 
+// ================= HOJE: o nome de uma marca de pneus nas mãos de um chef =================
+const Today: React.FC<SP> = ({dur, vh}) => {
+  const f = useCurrentFrame();
+  const chip = interpolate(f, [2, 10], [0, 1], ease);
+  return (
+    <AbsoluteFill>
+      <Photo
+        src="img/hoje.jpg"
+        vh={vh}
+        keys={[
+          {f: 0, s: 1.0, cx: 560, cy: 900},
+          {f: dur, s: 1.1, cx: 640, cy: 1010},
+        ]}
+        grade="contrast(1.05) saturate(1.04)"
+      />
+      <div style={{position: 'absolute', left: 40, top: 230, display: 'flex', alignItems: 'center', gap: 12, opacity: chip, translate: `${(1 - chip) * -20}px 0`}}>
+        <div style={{fontFamily: SANS, fontWeight: 900, fontSize: 30, letterSpacing: '0.18em', color: C.bg, background: C.gold, padding: '10px 18px 8px', borderRadius: 10}}>HOJE</div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 // ================= MAPA · DA ESTRADA AO RESTAURANTE =================
 const MapTrip: React.FC<SP> = ({from, dur}) => {
   const f = useCurrentFrame();
@@ -783,6 +805,7 @@ export const SCENES: Record<string, React.FC<SP>> = {
   scale1931: Scale1931,
   counter30: Counter30,
   mapTrip: MapTrip,
+  today: Today,
   arrival: Arrival,
   tire: Tire,
   adCards: AdCards,

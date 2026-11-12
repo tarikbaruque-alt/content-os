@@ -17,6 +17,7 @@ Edição em Remotion com duas versões (`src/versao.ts`):
 - **O calço:** o guia aparece apoiando a bancada. No "calço de móvel", a imagem congela e o livro ganha destaque.
 - **A evolução:** 1900 → 1920 (o guia passa a ser vendido) → 1926 (primeiras estrelas) → 1931 (a classificação: parada, desvio, viagem especial).
 - **30 milhões** de exemplares vendidos (segundo a Michelin).
+- **Hoje:** no "Percebe a ironia?", foto de um chef segurando a placa MICHELIN 2025 (imagem real, não gerada; `public/img/hoje.jpg`).
 - **A viagem:** mapa até o restaurante, chegada ao restaurante e close no pneu em "GASTANDO PNEU.".
 - **Exemplo prático:** o anúncio de mensalidade dá lugar a um treino de 30 min na hora do almoço, com a piada da calça jeans.
 - **Final:** estrada em perspectiva, retorno ao rosto e as três estrelas, das quais sobra uma ("vale uma parada").

@@ -56,8 +56,16 @@ export const Voice: React.FC = () => (
 
 // ---------------- Painel de cima (tela dividida) ----------------
 const PanelScene: React.FC<{s: Section; dur: number}> = ({s, dur}) => {
+  const f = useCurrentFrame();
   const Scene = SCENES[s.scene ?? ''];
-  return Scene ? <Scene from={s.from} dur={dur} vh={SPLIT_Y} /> : null;
+  const {prev} = neighbors(s);
+  // painel depois de outro painel: troca em fusão curta
+  const o = prev?.mode === 'split' ? interpolate(f, [0, 6], [0, 1], clamp) : 1;
+  return Scene ? (
+    <AbsoluteFill style={{opacity: o}}>
+      <Scene from={s.from} dur={dur} vh={SPLIT_Y} />
+    </AbsoluteFill>
+  ) : null;
 };
 
 export const TopPanel: React.FC = () => {
