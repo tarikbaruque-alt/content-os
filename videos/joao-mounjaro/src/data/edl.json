@@ -1,0 +1,2372 @@
+{
+ "fps": 30,
+ "total": 3128,
+ "segs": [
+  {
+   "take": 1,
+   "src": 10,
+   "srcEnd": 22,
+   "from_": 0
+  },
+  {
+   "take": 1,
+   "src": 46,
+   "srcEnd": 152,
+   "from_": 12
+  },
+  {
+   "take": 1,
+   "src": 163,
+   "srcEnd": 197,
+   "from_": 118
+  },
+  {
+   "take": 1,
+   "src": 202,
+   "srcEnd": 285,
+   "from_": 152
+  },
+  {
+   "take": 1,
+   "src": 287,
+   "srcEnd": 345,
+   "from_": 235
+  },
+  {
+   "take": 1,
+   "src": 348,
+   "srcEnd": 371,
+   "from_": 293
+  },
+  {
+   "take": 2,
+   "src": 86,
+   "srcEnd": 136,
+   "from_": 319
+  },
+  {
+   "take": 2,
+   "src": 137,
+   "srcEnd": 172,
+   "from_": 369
+  },
+  {
+   "take": 2,
+   "src": 177,
+   "srcEnd": 281,
+   "from_": 404
+  },
+  {
+   "take": 2,
+   "src": 289,
+   "srcEnd": 302,
+   "from_": 508
+  },
+  {
+   "take": 2,
+   "src": 304,
+   "srcEnd": 330,
+   "from_": 521
+  },
+  {
+   "take": 2,
+   "src": 334,
+   "srcEnd": 352,
+   "from_": 547
+  },
+  {
+   "take": 2,
+   "src": 355,
+   "srcEnd": 390,
+   "from_": 565
+  },
+  {
+   "take": 2,
+   "src": 397,
+   "srcEnd": 445,
+   "from_": 600
+  },
+  {
+   "take": 2,
+   "src": 458,
+   "srcEnd": 482,
+   "from_": 648
+  },
+  {
+   "take": 3,
+   "src": 26,
+   "srcEnd": 280,
+   "from_": 677
+  },
+  {
+   "take": 3,
+   "src": 290,
+   "srcEnd": 345,
+   "from_": 931
+  },
+  {
+   "take": 3,
+   "src": 350,
+   "srcEnd": 409,
+   "from_": 986
+  },
+  {
+   "take": 3,
+   "src": 422,
+   "srcEnd": 442,
+   "from_": 1045
+  },
+  {
+   "take": 3,
+   "src": 446,
+   "srcEnd": 467,
+   "from_": 1065
+  },
+  {
+   "take": 3,
+   "src": 470,
+   "srcEnd": 495,
+   "from_": 1086
+  },
+  {
+   "take": 3,
+   "src": 500,
+   "srcEnd": 527,
+   "from_": 1111
+  },
+  {
+   "take": 3,
+   "src": 537,
+   "srcEnd": 563,
+   "from_": 1138
+  },
+  {
+   "take": 3,
+   "src": 565,
+   "srcEnd": 615,
+   "from_": 1164
+  },
+  {
+   "take": 3,
+   "src": 619,
+   "srcEnd": 635,
+   "from_": 1214
+  },
+  {
+   "take": 3,
+   "src": 677,
+   "srcEnd": 739,
+   "from_": 1230
+  },
+  {
+   "take": 3,
+   "src": 745,
+   "srcEnd": 845,
+   "from_": 1292
+  },
+  {
+   "take": 3,
+   "src": 860,
+   "srcEnd": 913,
+   "from_": 1392
+  },
+  {
+   "take": 3,
+   "src": 918,
+   "srcEnd": 944,
+   "from_": 1445
+  },
+  {
+   "take": 3,
+   "src": 950,
+   "srcEnd": 1009,
+   "from_": 1471
+  },
+  {
+   "take": 3,
+   "src": 1011,
+   "srcEnd": 1034,
+   "from_": 1530
+  },
+  {
+   "take": 3,
+   "src": 1043,
+   "srcEnd": 1063,
+   "from_": 1553
+  },
+  {
+   "take": 3,
+   "src": 1071,
+   "srcEnd": 1119,
+   "from_": 1573
+  },
+  {
+   "take": 3,
+   "src": 1188,
+   "srcEnd": 1202,
+   "from_": 1621
+  },
+  {
+   "take": 3,
+   "src": 1209,
+   "srcEnd": 1244,
+   "from_": 1635
+  },
+  {
+   "take": 3,
+   "src": 1247,
+   "srcEnd": 1300,
+   "from_": 1670
+  },
+  {
+   "take": 3,
+   "src": 1311,
+   "srcEnd": 1337,
+   "from_": 1723
+  },
+  {
+   "take": 3,
+   "src": 1345,
+   "srcEnd": 1385,
+   "from_": 1749
+  },
+  {
+   "take": 4,
+   "src": 14,
+   "srcEnd": 95,
+   "from_": 1795
+  },
+  {
+   "take": 4,
+   "src": 99,
+   "srcEnd": 157,
+   "from_": 1876
+  },
+  {
+   "take": 4,
+   "src": 161,
+   "srcEnd": 208,
+   "from_": 1934
+  },
+  {
+   "take": 4,
+   "src": 218,
+   "srcEnd": 254,
+   "from_": 1981
+  },
+  {
+   "take": 4,
+   "src": 261,
+   "srcEnd": 348,
+   "from_": 2017
+  },
+  {
+   "take": 4,
+   "src": 350,
+   "srcEnd": 442,
+   "from_": 2104
+  },
+  {
+   "take": 4,
+   "src": 444,
+   "srcEnd": 475,
+   "from_": 2196
+  },
+  {
+   "take": 4,
+   "src": 479,
+   "srcEnd": 536,
+   "from_": 2227
+  },
+  {
+   "take": 5,
+   "src": 25,
+   "srcEnd": 106,
+   "from_": 2289
+  },
+  {
+   "take": 5,
+   "src": 114,
+   "srcEnd": 153,
+   "from_": 2370
+  },
+  {
+   "take": 5,
+   "src": 158,
+   "srcEnd": 195,
+   "from_": 2409
+  },
+  {
+   "take": 5,
+   "src": 204,
+   "srcEnd": 233,
+   "from_": 2446
+  },
+  {
+   "take": 5,
+   "src": 241,
+   "srcEnd": 269,
+   "from_": 2475
+  },
+  {
+   "take": 5,
+   "src": 273,
+   "srcEnd": 347,
+   "from_": 2503
+  },
+  {
+   "take": 5,
+   "src": 352,
+   "srcEnd": 420,
+   "from_": 2577
+  },
+  {
+   "take": 5,
+   "src": 425,
+   "srcEnd": 476,
+   "from_": 2645
+  },
+  {
+   "take": 5,
+   "src": 499,
+   "srcEnd": 545,
+   "from_": 2696
+  },
+  {
+   "take": 5,
+   "src": 549,
+   "srcEnd": 587,
+   "from_": 2742
+  },
+  {
+   "take": 5,
+   "src": 590,
+   "srcEnd": 643,
+   "from_": 2780
+  },
+  {
+   "take": 5,
+   "src": 646,
+   "srcEnd": 688,
+   "from_": 2833
+  },
+  {
+   "take": 5,
+   "src": 703,
+   "srcEnd": 749,
+   "from_": 2875
+  },
+  {
+   "take": 5,
+   "src": 756,
+   "srcEnd": 774,
+   "from_": 2921
+  },
+  {
+   "take": 5,
+   "src": 779,
+   "srcEnd": 817,
+   "from_": 2939
+  },
+  {
+   "take": 5,
+   "src": 823,
+   "srcEnd": 863,
+   "from_": 2977
+  },
+  {
+   "take": 5,
+   "src": 879,
+   "srcEnd": 924,
+   "from_": 3017
+  },
+  {
+   "take": 5,
+   "src": 950,
+   "srcEnd": 971,
+   "from_": 3062
+  },
+  {
+   "take": 5,
+   "src": 980,
+   "srcEnd": 994,
+   "from_": 3083
+  },
+  {
+   "take": 5,
+   "src": 996,
+   "srcEnd": 1027,
+   "from_": 3097
+  }
+ ],
+ "pages": [
+  {
+   "take": 1,
+   "start": 0,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "perigo",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 40
+  },
+  {
+   "take": 1,
+   "start": 40,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "ninguém",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 54
+  },
+  {
+   "take": 1,
+   "start": 54,
+   "toks": [
+    {
+     "t": "te",
+     "e": null
+    },
+    {
+     "t": "conta",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 75
+  },
+  {
+   "take": 1,
+   "start": 75,
+   "toks": [
+    {
+     "t": "sobre",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 100
+  },
+  {
+   "take": 1,
+   "start": 100,
+   "toks": [
+    {
+     "t": "MOUNJARO.",
+     "e": "gold"
+    }
+   ],
+   "hide": true,
+   "end": 125
+  },
+  {
+   "take": 1,
+   "start": 125,
+   "toks": [
+    {
+     "t": "Aposto",
+     "e": null
+    },
+    {
+     "t": "que",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 155
+  },
+  {
+   "take": 1,
+   "start": 155,
+   "toks": [
+    {
+     "t": "ninguém",
+     "e": null
+    },
+    {
+     "t": "te",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 171
+  },
+  {
+   "take": 1,
+   "start": 171,
+   "toks": [
+    {
+     "t": "contou",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 198
+  },
+  {
+   "take": 1,
+   "start": 198,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "acontece",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 221
+  },
+  {
+   "take": 1,
+   "start": 221,
+   "toks": [
+    {
+     "t": "quando",
+     "e": null
+    },
+    {
+     "t": "você",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 256
+  },
+  {
+   "take": 1,
+   "start": 256,
+   "toks": [
+    {
+     "t": "para",
+     "e": "gold"
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 277
+  },
+  {
+   "take": 1,
+   "start": 277,
+   "toks": [
+    {
+     "t": "tomar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 293
+  },
+  {
+   "take": 1,
+   "start": 293,
+   "toks": [
+    {
+     "t": "o *MOUNJARO?",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 316
+  },
+  {
+   "take": 2,
+   "start": 320,
+   "toks": [
+    {
+     "t": "Fica",
+     "e": null
+    },
+    {
+     "t": "até",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 346
+  },
+  {
+   "take": 2,
+   "start": 346,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "final",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 361
+  },
+  {
+   "take": 2,
+   "start": 361,
+   "toks": [
+    {
+     "t": "porque",
+     "e": null
+    },
+    {
+     "t": "isso",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 389
+  },
+  {
+   "take": 2,
+   "start": 389,
+   "toks": [
+    {
+     "t": "vai",
+     "e": null
+    },
+    {
+     "t": "salvar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 420
+  },
+  {
+   "take": 2,
+   "start": 420,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "seu",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 447
+  },
+  {
+   "take": 2,
+   "start": 447,
+   "toks": [
+    {
+     "t": "resultado",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 467
+  },
+  {
+   "take": 2,
+   "start": 467,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "comenta",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 504
+  },
+  {
+   "take": 2,
+   "start": 504,
+   "toks": [
+    {
+     "t": "EU",
+     "e": "gold"
+    }
+   ],
+   "hide": true,
+   "end": 516
+  },
+  {
+   "take": 2,
+   "start": 516,
+   "toks": [
+    {
+     "t": "se",
+     "e": null
+    },
+    {
+     "t": "você",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 540
+  },
+  {
+   "take": 2,
+   "start": 540,
+   "toks": [
+    {
+     "t": "usa",
+     "e": null
+    },
+    {
+     "t": "ou",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 571
+  },
+  {
+   "take": 2,
+   "start": 571,
+   "toks": [
+    {
+     "t": "já",
+     "e": null
+    },
+    {
+     "t": "pensou",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 596
+  },
+  {
+   "take": 2,
+   "start": 596,
+   "toks": [
+    {
+     "t": "em",
+     "e": null
+    },
+    {
+     "t": "usar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 616
+  },
+  {
+   "take": 2,
+   "start": 616,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "famosa",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 646
+  },
+  {
+   "take": 2,
+   "start": 646,
+   "toks": [
+    {
+     "t": "canetinha.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 672
+  },
+  {
+   "take": 3,
+   "start": 678,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "MOUNJARO",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 701
+  },
+  {
+   "take": 3,
+   "start": 701,
+   "toks": [
+    {
+     "t": "imita a",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 721
+  },
+  {
+   "take": 3,
+   "start": 721,
+   "toks": [
+    {
+     "t": "ação",
+     "e": null
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 746
+  },
+  {
+   "take": 3,
+   "start": 746,
+   "toks": [
+    {
+     "t": "dois",
+     "e": "gold"
+    },
+    {
+     "t": "hormônios",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 782
+  },
+  {
+   "take": 3,
+   "start": 782,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "ajudam",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 809
+  },
+  {
+   "take": 3,
+   "start": 809,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "controlar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 832
+  },
+  {
+   "take": 3,
+   "start": 832,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "seu",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 859
+  },
+  {
+   "take": 3,
+   "start": 859,
+   "toks": [
+    {
+     "t": "apetite",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 880
+  },
+  {
+   "take": 3,
+   "start": 880,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 896
+  },
+  {
+   "take": 3,
+   "start": 896,
+   "toks": [
+    {
+     "t": "sua",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 901
+  },
+  {
+   "take": 3,
+   "start": 901,
+   "toks": [
+    {
+     "t": "saciedade.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 931
+  },
+  {
+   "take": 3,
+   "start": 931,
+   "toks": [
+    {
+     "t": "Você",
+     "e": null
+    },
+    {
+     "t": "sente",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 955
+  },
+  {
+   "take": 3,
+   "start": 955,
+   "toks": [
+    {
+     "t": "menos",
+     "e": "gold"
+    },
+    {
+     "t": "fome",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 984
+  },
+  {
+   "take": 3,
+   "start": 984,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "pode",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 998
+  },
+  {
+   "take": 3,
+   "start": 998,
+   "toks": [
+    {
+     "t": "perder",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1011
+  },
+  {
+   "take": 3,
+   "start": 1011,
+   "toks": [
+    {
+     "t": "bastante",
+     "e": null
+    },
+    {
+     "t": "peso.",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1045
+  },
+  {
+   "take": 3,
+   "start": 1045,
+   "toks": [
+    {
+     "t": "Parece",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1056
+  },
+  {
+   "take": 3,
+   "start": 1056,
+   "toks": [
+    {
+     "t": "perfeito,",
+     "e": "serif"
+    }
+   ],
+   "hide": false,
+   "end": 1089
+  },
+  {
+   "take": 3,
+   "start": 1089,
+   "toks": [
+    {
+     "t": "não",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1097
+  },
+  {
+   "take": 3,
+   "start": 1097,
+   "toks": [
+    {
+     "t": "mesmo?",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1115
+  },
+  {
+   "take": 3,
+   "start": 1115,
+   "toks": [
+    {
+     "t": "Mas",
+     "e": null
+    },
+    {
+     "t": "calma,",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1139
+  },
+  {
+   "take": 3,
+   "start": 1139,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "problema",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1157
+  },
+  {
+   "take": 3,
+   "start": 1157,
+   "toks": [
+    {
+     "t": "está",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1176
+  },
+  {
+   "take": 3,
+   "start": 1176,
+   "toks": [
+    {
+     "t": "escondido",
+     "e": "serif"
+    },
+    {
+     "t": "aí.",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1230
+  },
+  {
+   "take": 3,
+   "start": 1230,
+   "toks": [
+    {
+     "t": "Você",
+     "e": null
+    },
+    {
+     "t": "sente",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1258
+  },
+  {
+   "take": 3,
+   "start": 1258,
+   "toks": [
+    {
+     "t": "menos",
+     "e": null
+    },
+    {
+     "t": "fome",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1289
+  },
+  {
+   "take": 3,
+   "start": 1289,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "muita",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1305
+  },
+  {
+   "take": 3,
+   "start": 1305,
+   "toks": [
+    {
+     "t": "gente",
+     "e": null
+    },
+    {
+     "t": "acaba",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1337
+  },
+  {
+   "take": 3,
+   "start": 1337,
+   "toks": [
+    {
+     "t": "comendo",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1356
+  },
+  {
+   "take": 3,
+   "start": 1356,
+   "toks": [
+    {
+     "t": "pouca",
+     "e": null
+    },
+    {
+     "t": "proteína.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1392
+  },
+  {
+   "take": 3,
+   "start": 1392,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "sem",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1407
+  },
+  {
+   "take": 3,
+   "start": 1407,
+   "toks": [
+    {
+     "t": "treino",
+     "e": "gold"
+    }
+   ],
+   "hide": true,
+   "end": 1421
+  },
+  {
+   "take": 3,
+   "start": 1421,
+   "toks": [
+    {
+     "t": "de",
+     "e": "gold"
+    },
+    {
+     "t": "força,",
+     "e": "gold"
+    }
+   ],
+   "hide": true,
+   "end": 1446
+  },
+  {
+   "take": 3,
+   "start": 1446,
+   "toks": [
+    {
+     "t": "o",
+     "e": null
+    },
+    {
+     "t": "corpo",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1467
+  },
+  {
+   "take": 3,
+   "start": 1467,
+   "toks": [
+    {
+     "t": "pode",
+     "e": null
+    },
+    {
+     "t": "perder",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1501
+  },
+  {
+   "take": 3,
+   "start": 1501,
+   "toks": [
+    {
+     "t": "não",
+     "e": null
+    },
+    {
+     "t": "só",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1525
+  },
+  {
+   "take": 3,
+   "start": 1525,
+   "toks": [
+    {
+     "t": "gordura,",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1553
+  },
+  {
+   "take": 3,
+   "start": 1553,
+   "toks": [
+    {
+     "t": "mas",
+     "e": null
+    },
+    {
+     "t": "também",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1583
+  },
+  {
+   "take": 3,
+   "start": 1583,
+   "toks": [
+    {
+     "t": "massa",
+     "e": "gold"
+    },
+    {
+     "t": "muscular.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1621
+  },
+  {
+   "take": 3,
+   "start": 1621,
+   "toks": [
+    {
+     "t": "Ah,",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1640
+  },
+  {
+   "take": 3,
+   "start": 1640,
+   "toks": [
+    {
+     "t": "importante",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1659
+  },
+  {
+   "take": 3,
+   "start": 1659,
+   "toks": [
+    {
+     "t": "é",
+     "e": null
+    },
+    {
+     "t": "o",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1683
+  },
+  {
+   "take": 3,
+   "start": 1683,
+   "toks": [
+    {
+     "t": "número",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1692
+  },
+  {
+   "take": 3,
+   "start": 1692,
+   "toks": [
+    {
+     "t": "na",
+     "e": null
+    },
+    {
+     "t": "balança.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1723
+  },
+  {
+   "take": 3,
+   "start": 1723,
+   "toks": [
+    {
+     "t": "Não",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1734
+  },
+  {
+   "take": 3,
+   "start": 1734,
+   "toks": [
+    {
+     "t": "mesmo?",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1749
+  },
+  {
+   "take": 3,
+   "start": 1749,
+   "toks": [
+    {
+     "t": "Não",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1768
+  },
+  {
+   "take": 3,
+   "start": 1768,
+   "toks": [
+    {
+     "t": "bem",
+     "e": null
+    },
+    {
+     "t": "assim.",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1787
+  },
+  {
+   "take": 4,
+   "start": 1796,
+   "toks": [
+    {
+     "t": "Ele",
+     "e": null
+    },
+    {
+     "t": "precisa",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1828
+  },
+  {
+   "take": 4,
+   "start": 1828,
+   "toks": [
+    {
+     "t": "de",
+     "e": null
+    },
+    {
+     "t": "combustível",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1873
+  },
+  {
+   "take": 4,
+   "start": 1873,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "uma",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1893
+  },
+  {
+   "take": 4,
+   "start": 1893,
+   "toks": [
+    {
+     "t": "boa",
+     "e": null
+    },
+    {
+     "t": "manutenção",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 1928
+  },
+  {
+   "take": 4,
+   "start": 1928,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "funcionar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1966
+  },
+  {
+   "take": 4,
+   "start": 1966,
+   "toks": [
+    {
+     "t": "bem,",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1981
+  },
+  {
+   "take": 4,
+   "start": 1981,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "quando",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 1995
+  },
+  {
+   "take": 4,
+   "start": 1995,
+   "toks": [
+    {
+     "t": "você",
+     "e": null
+    },
+    {
+     "t": "não",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2024
+  },
+  {
+   "take": 4,
+   "start": 2024,
+   "toks": [
+    {
+     "t": "consome",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2042
+  },
+  {
+   "take": 4,
+   "start": 2042,
+   "toks": [
+    {
+     "t": "proteína",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2063
+  },
+  {
+   "take": 4,
+   "start": 2063,
+   "toks": [
+    {
+     "t": "suficiente,",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2101
+  },
+  {
+   "take": 4,
+   "start": 2101,
+   "toks": [
+    {
+     "t": "pode",
+     "e": null
+    },
+    {
+     "t": "perder",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2126
+  },
+  {
+   "take": 4,
+   "start": 2126,
+   "toks": [
+    {
+     "t": "massa",
+     "e": "gold"
+    },
+    {
+     "t": "muscular",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2160
+  },
+  {
+   "take": 4,
+   "start": 2160,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "reduzir",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2196
+  },
+  {
+   "take": 4,
+   "start": 2196,
+   "toks": [
+    {
+     "t": "a",
+     "e": null
+    },
+    {
+     "t": "capacidade",
+     "e": "serif"
+    }
+   ],
+   "hide": false,
+   "end": 2222
+  },
+  {
+   "take": 4,
+   "start": 2222,
+   "toks": [
+    {
+     "t": "do",
+     "e": null
+    },
+    {
+     "t": "seu",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2236
+  },
+  {
+   "take": 4,
+   "start": 2236,
+   "toks": [
+    {
+     "t": "corpo",
+     "e": null
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2254
+  },
+  {
+   "take": 4,
+   "start": 2254,
+   "toks": [
+    {
+     "t": "funcionar",
+     "e": null
+    },
+    {
+     "t": "bem.",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2284
+  },
+  {
+   "take": 5,
+   "start": 2290,
+   "toks": [
+    {
+     "t": "Essa",
+     "e": null
+    },
+    {
+     "t": "analogia",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2320
+  },
+  {
+   "take": 5,
+   "start": 2320,
+   "toks": [
+    {
+     "t": "deixa",
+     "e": null
+    },
+    {
+     "t": "claro",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2343
+  },
+  {
+   "take": 5,
+   "start": 2343,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "emagrecer",
+     "e": "serif"
+    }
+   ],
+   "hide": false,
+   "end": 2366
+  },
+  {
+   "take": 5,
+   "start": 2366,
+   "toks": [
+    {
+     "t": "não",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2383
+  },
+  {
+   "take": 5,
+   "start": 2383,
+   "toks": [
+    {
+     "t": "simplesmente",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2402
+  },
+  {
+   "take": 5,
+   "start": 2402,
+   "toks": [
+    {
+     "t": "só",
+     "e": null
+    },
+    {
+     "t": "perder",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2427
+  },
+  {
+   "take": 5,
+   "start": 2427,
+   "toks": [
+    {
+     "t": "peso.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2446
+  },
+  {
+   "take": 5,
+   "start": 2446,
+   "toks": [
+    {
+     "t": "A",
+     "e": null
+    },
+    {
+     "t": "proteína",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2471
+  },
+  {
+   "take": 5,
+   "start": 2471,
+   "toks": [
+    {
+     "t": "oferece",
+     "e": null
+    },
+    {
+     "t": "os",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2511
+  },
+  {
+   "take": 5,
+   "start": 2511,
+   "toks": [
+    {
+     "t": "aminoácidos",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2544
+  },
+  {
+   "take": 5,
+   "start": 2544,
+   "toks": [
+    {
+     "t": "necessários",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2573
+  },
+  {
+   "take": 5,
+   "start": 2573,
+   "toks": [
+    {
+     "t": "para",
+     "e": null
+    },
+    {
+     "t": "preservar",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2616
+  },
+  {
+   "take": 5,
+   "start": 2616,
+   "toks": [
+    {
+     "t": "e",
+     "e": null
+    },
+    {
+     "t": "reparar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2645
+  },
+  {
+   "take": 5,
+   "start": 2645,
+   "toks": [
+    {
+     "t": "os",
+     "e": null
+    },
+    {
+     "t": "tecidos",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2665
+  },
+  {
+   "take": 5,
+   "start": 2665,
+   "toks": [
+    {
+     "t": "musculares.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2696
+  },
+  {
+   "take": 5,
+   "start": 2696,
+   "toks": [
+    {
+     "t": "O",
+     "e": null
+    },
+    {
+     "t": "maior",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2711
+  },
+  {
+   "take": 5,
+   "start": 2711,
+   "toks": [
+    {
+     "t": "problema",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2739
+  },
+  {
+   "take": 5,
+   "start": 2739,
+   "toks": [
+    {
+     "t": "pode",
+     "e": null
+    },
+    {
+     "t": "aparecer",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2769
+  },
+  {
+   "take": 5,
+   "start": 2769,
+   "toks": [
+    {
+     "t": "quando",
+     "e": null
+    },
+    {
+     "t": "você",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2801
+  },
+  {
+   "take": 5,
+   "start": 2801,
+   "toks": [
+    {
+     "t": "para",
+     "e": "gold"
+    },
+    {
+     "t": "de",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2818
+  },
+  {
+   "take": 5,
+   "start": 2818,
+   "toks": [
+    {
+     "t": "usar",
+     "e": null
+    },
+    {
+     "t": "a",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2837
+  },
+  {
+   "take": 5,
+   "start": 2837,
+   "toks": [
+    {
+     "t": "sua",
+     "e": null
+    },
+    {
+     "t": "canetinha.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2875
+  },
+  {
+   "take": 5,
+   "start": 2875,
+   "toks": [
+    {
+     "t": "E",
+     "e": null
+    },
+    {
+     "t": "é",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2890
+  },
+  {
+   "take": 5,
+   "start": 2890,
+   "toks": [
+    {
+     "t": "justamente",
+     "e": null
+    },
+    {
+     "t": "isso",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2933
+  },
+  {
+   "take": 5,
+   "start": 2933,
+   "toks": [
+    {
+     "t": "que",
+     "e": null
+    },
+    {
+     "t": "eu",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2945
+  },
+  {
+   "take": 5,
+   "start": 2945,
+   "toks": [
+    {
+     "t": "vou",
+     "e": null
+    },
+    {
+     "t": "te",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2954
+  },
+  {
+   "take": 5,
+   "start": 2954,
+   "toks": [
+    {
+     "t": "explicar",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 2969
+  },
+  {
+   "take": 5,
+   "start": 2969,
+   "toks": [
+    {
+     "t": "na",
+     "e": null
+    },
+    {
+     "t": "segunda",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 2994
+  },
+  {
+   "take": 5,
+   "start": 2994,
+   "toks": [
+    {
+     "t": "parte.",
+     "e": "gold"
+    }
+   ],
+   "hide": false,
+   "end": 3013
+  },
+  {
+   "take": 5,
+   "start": 3013,
+   "toks": [
+    {
+     "t": "Gostou",
+     "e": null
+    },
+    {
+     "t": "desse",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 3037
+  },
+  {
+   "take": 5,
+   "start": 3037,
+   "toks": [
+    {
+     "t": "conteúdo?",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 3062
+  },
+  {
+   "take": 5,
+   "start": 3062,
+   "toks": [
+    {
+     "t": "Comenta,",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 3083
+  },
+  {
+   "take": 5,
+   "start": 3083,
+   "toks": [
+    {
+     "t": "curte",
+     "e": null
+    },
+    {
+     "t": "e",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 3101
+  },
+  {
+   "take": 5,
+   "start": 3101,
+   "toks": [
+    {
+     "t": "compartilha!",
+     "e": null
+    }
+   ],
+   "hide": false,
+   "end": 3128
+  }
+ ],
+ "marks": {
+  "take": {
+   "1": 0,
+   "2": 319,
+   "3": 677,
+   "4": 1795,
+   "5": 2289
+  },
+  "takeEnd": {
+   "1": 316,
+   "2": 672,
+   "3": 1789,
+   "4": 2284,
+   "5": 3128
+  },
+  "perigo1": 24,
+  "mounjaro1": 100,
+  "aposto1": 125,
+  "acontece1": 203,
+  "para1": 256,
+  "mounjaro1b": 293,
+  "final2": 351,
+  "resultado2": 447,
+  "comenta2": 485,
+  "eu2": 504,
+  "usa2": 540,
+  "famosa2": 629,
+  "canetinha2": 646,
+  "dois3": 746,
+  "hormonios3": 760,
+  "apetite3": 859,
+  "saciedade3": 901,
+  "voce3": 931,
+  "menos3": 955,
+  "perder3": 998,
+  "peso3": 1022,
+  "parece3": 1045,
+  "calma3": 1118,
+  "escondido3": 1176,
+  "voce3b": 1230,
+  "pouca3": 1356,
+  "proteina3": 1368,
+  "sem3": 1398,
+  "treino3": 1407,
+  "forca3": 1427,
+  "corpo3": 1451,
+  "gordura3": 1525,
+  "massa3": 1583,
+  "ah3": 1621,
+  "numero3": 1683,
+  "balanca3": 1700,
+  "nao3c": 1749,
+  "bem3": 1768,
+  "ele4": 1795,
+  "combustivel4": 1840,
+  "manutencao4": 1903,
+  "quando4": 1985,
+  "proteina4": 2042,
+  "massa4": 2126,
+  "reduzir4": 2175,
+  "capacidade4": 2200,
+  "funcionar4b": 2254,
+  "analogia5": 2299,
+  "emagrecer5": 2348,
+  "peso5": 2427,
+  "proteina5": 2451,
+  "aminoacidos5": 2511,
+  "preservar5": 2586,
+  "reparar5": 2624,
+  "tecidos5": 2651,
+  "maior5": 2702,
+  "problema5": 2711,
+  "canetinha5": 2849,
+  "justamente5": 2890,
+  "segunda5": 2981,
+  "gostou5": 3013,
+  "comenta5": 3062,
+  "curte5": 3083,
+  "compartilha5": 3101
+ }
+}
