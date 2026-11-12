@@ -304,25 +304,41 @@ const Slide5: React.FC<{photo: string}> = ({photo}) => (
       <Img src={staticFile(photo)} style={{width: '100%', height: '100%', objectFit: 'cover', objectPosition: '42% 35%'}} />
     </div>
 
-    <div style={at(600, 640, spaced(32, K.leaf, '0.3em'))}>Dia</div>
-    <div style={at(594, 684, {fontFamily: BEBAS, fontSize: 214, lineHeight: 0.86, color: K.cream})}>16/11</div>
-    <div style={at(604, 880, {fontFamily: SCRIPT, fontSize: 66, color: K.leaf, rotate: '-4deg'})}>abro meu</div>
-    <div
-      style={at(600, 1000, {
-        background: `linear-gradient(135deg, ${K.brightA}, ${K.brightB})`,
-        borderRadius: 30,
-        padding: '20px 26px 14px',
-        fontFamily: JOSEFIN,
-        fontWeight: 700,
-        fontSize: 36,
-        lineHeight: 1.12,
-        color: K.cream,
-        boxShadow: '0 16px 36px rgba(30,60,20,0.35)',
-      })}
-    >
-      ACOMPANHAMENTO
-      <br />
-      PÓS-FISIO
+    <div style={at(600, 628, spaced(32, K.leaf, '0.3em'))}>Dia</div>
+    <div style={at(594, 670, {fontFamily: BEBAS, fontSize: 214, lineHeight: 0.86, color: K.cream})}>23/11</div>
+    <div style={at(602, 852, {fontFamily: SCRIPT, fontSize: 58, color: K.leaf, rotate: '-4deg', whiteSpace: 'nowrap'})}>abro vagas para</div>
+    {/* as duas formações: educação física (consultoria e personal) + fisioterapia (pós-fisio) */}
+    <div style={at(600, 952, {display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12})}>
+      {[['CONSULTORIA ONLINE'], ['PERSONAL'], ['ACOMPANHAMENTO', 'PÓS-FISIO']].map((lines, k) => (
+        <div
+          key={lines[0]}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            background: K.cream,
+            borderRadius: 22,
+            padding: '12px 22px 8px 12px',
+            boxShadow: '0 12px 28px rgba(20,28,16,0.25)',
+          }}
+        >
+          <svg width="34" height="34" viewBox="0 0 34 34" style={{flexShrink: 0, marginTop: -4}}>
+            <defs>
+              <linearGradient id={`ck-${k}`} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor={K.brightA} />
+                <stop offset="1" stopColor={K.brightB} />
+              </linearGradient>
+            </defs>
+            <circle cx="17" cy="17" r="17" fill={`url(#ck-${k})`} />
+            <path d="M10 17.5 L15 22.5 L24.5 12.5" fill="none" stroke={K.cream} strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div style={{fontFamily: JOSEFIN, fontWeight: 700, fontSize: 29, lineHeight: 1.12, color: K.ink, whiteSpace: 'nowrap'}}>
+            {lines.map((l, i) => (
+              <div key={i}>{l}</div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
 
     <div
