@@ -54,7 +54,11 @@ const PageView: React.FC<{page: Page; y: number}> = ({page, y}) => {
 };
 
 // Posição: na tela dividida, sobre a divisão; com o rosto ou em tela cheia, abaixo do queixo (área segura).
-const yFor = (f: number) => (sectionAt(f).mode === 'split' ? SPLIT_Y + 20 : 1480);
+const yFor = (f: number) => {
+  const s = sectionAt(f);
+  if (s.capY) return s.capY;
+  return s.mode === 'split' ? SPLIT_Y + 20 : 1480;
+};
 
 export const Captions: React.FC = () => (
   <>

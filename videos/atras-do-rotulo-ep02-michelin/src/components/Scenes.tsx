@@ -518,11 +518,12 @@ const Today: React.FC<SP> = ({dur, vh}) => {
         src="img/hoje.jpg"
         vh={vh}
         keys={[
-          {f: 0, s: 1.0, cx: 560, cy: 900},
-          {f: dur, s: 1.1, cx: 640, cy: 1010},
+          {f: 0, s: 1.0, cx: 540, cy: 960},
+          {f: dur, s: 1.06, cx: 600, cy: 1080},
         ]}
         grade="contrast(1.05) saturate(1.04)"
       />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(11,11,13,0.55) 0%, rgba(11,11,13,0) 24%)'}} />
       <div style={{position: 'absolute', left: 40, top: 230, display: 'flex', alignItems: 'center', gap: 12, opacity: chip, translate: `${(1 - chip) * -20}px 0`}}>
         <div style={{fontFamily: SANS, fontWeight: 900, fontSize: 30, letterSpacing: '0.18em', color: C.bg, background: C.gold, padding: '10px 18px 8px', borderRadius: 10}}>HOJE</div>
       </div>

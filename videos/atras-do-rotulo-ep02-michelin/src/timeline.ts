@@ -35,7 +35,7 @@ export const faceFix = (take: number) => {
 
 // ---------- Seções: rosto, tela dividida (painel em cima) ou cena em tela cheia ----------
 export type Mode = 'face' | 'split' | 'full';
-export type Section = {name: string; from: number; to: number; mode: Mode; scene?: string; punch?: number};
+export type Section = {name: string; from: number; to: number; mode: Mode; scene?: string; punch?: number; capY?: number};
 
 export const SECTIONS: Section[] = [
   {name: 'Capa', from: 0, to: MK.chefes1 - 2, mode: 'full', scene: 'cover'},
@@ -51,7 +51,7 @@ export const SECTIONS: Section[] = [
   {name: '1926 · as primeiras estrelas', from: T(9), to: T(10), mode: 'full', scene: 'stars1926'},
   {name: '1931 · a classificação', from: T(10), to: CURTA ? T(12) : T(11), mode: 'full', scene: 'scale1931'},
   ...(CURTA ? [] : [{name: '30 milhões', from: T(11), to: T(12), mode: 'split' as Mode, scene: 'counter30'}]),
-  {name: 'Percebe a ironia? (chef com a placa MICHELIN)', from: T(12), to: MK.comecou12 - 2, mode: 'split', scene: 'today'},
+  {name: 'Percebe a ironia? (chef com a placa MICHELIN)', from: T(12), to: MK.comecou12 - 2, mode: 'full', scene: 'today', capY: 300},
   {name: 'Mapa · até o restaurante', from: MK.comecou12 - 2, to: T(13), mode: 'split', scene: 'mapTrip'},
   {name: 'Chegando ao restaurante', from: T(13), to: MK.gastando14 - 1, mode: 'full', scene: 'arrival'},
   {name: 'Gastando pneu', from: MK.gastando14 - 1, to: T(15), mode: 'full', scene: 'tire'},
